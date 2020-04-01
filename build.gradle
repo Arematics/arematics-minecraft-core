@@ -1,0 +1,53 @@
+plugins {
+    id 'java'
+}
+
+group 'com.arematics.minecraft'
+version '1.0'
+
+sourceCompatibility = 1.8
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+
+    sourceCompatibility = 1.8
+    compileJava.options.encoding = 'UTF-8'
+
+    repositories {
+        mavenLocal()
+        flatDir {
+            dirs '../Libs'
+        }
+        mavenCentral()
+    }
+
+    dependencies {
+        //Kernel Plugins for all Modules of Arematics
+        compileOnly  name: 'SpigotServer'
+        compileOnly  name: 'WorldEdit'
+        compileOnly  name: 'WorldGuard'
+        compileOnly  name: 'WGRegionEvents'
+
+
+    }
+
+    jar {
+        from {
+            configurations.compile.collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                version = this.version
+                from components.java
+            }
+        }
+
+
+    }
+}

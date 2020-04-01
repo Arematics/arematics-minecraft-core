@@ -1,0 +1,23 @@
+group 'com.arematics.minecraft.core'
+version '1.0'
+
+dependencies {
+    //Dependency for JSON Objects from Data Services
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.10.3'
+
+    //Provided for using AutoService Annotations
+    compile group: 'org.reflections', name: 'reflections', version: '0.9.12'
+}
+
+def filesToCopy = copySpec{
+    from 'build/libs/McCore-1.0.jar'
+}
+
+task copyFileToCityBuild(type:Copy) {
+    with filesToCopy
+    into new File('Server/Citybuild/plugins').absolutePath
+}
+
+copyFileToCityBuild.dependsOn(jar)
+
+

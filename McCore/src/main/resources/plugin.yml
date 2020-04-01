@@ -1,0 +1,9 @@
+name: McCore
+author: Klysma
+description: McCore by Arematics
+version: 1.0.0
+depend: [WorldEdit, WorldGuard]
+
+main: com.arematics.minecraft.core.Bootstrap
+
+commands:

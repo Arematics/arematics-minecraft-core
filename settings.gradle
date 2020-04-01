@@ -1,0 +1,7 @@
+rootProject.name = 'Minecraft'
+include 'McCore'
+include 'ACurrency'
+include 'ACurrency'
+include 'APets'
+include 'AdvancedGSSystem'
+

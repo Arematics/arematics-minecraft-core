@@ -1,0 +1,9 @@
+**/.idea
+**/.gradle
+**/logs
+**/WorldGuard/
+**/WorldEdit/
+**/world/
+**/world_nether/
+**/world_the_end/
+**/build/
