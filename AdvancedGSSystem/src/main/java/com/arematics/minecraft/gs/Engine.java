@@ -1,32 +1,31 @@
-package com.arematics.minecraft.core;
+package com.arematics.minecraft.gs;
 
 import com.arematics.minecraft.core.hooks.CommandHooks;
 import com.arematics.minecraft.core.hooks.ListenerHook;
 import com.arematics.minecraft.core.hooks.ScanEnvironment;
 import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.reflections.Reflections;
+import org.reflections.scanners.MethodAnnotationsScanner;
 
-class Engine {
+import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.Set;
+
+public class Engine {
 
     private static Engine INSTANCE;
 
-    /**
-     * @return Instance Engine Object
-     */
     public static Engine getInstance(){
         return INSTANCE;
     }
 
-    /**
-     * Generates new Engine Class as Instace
-     * @param bootstrap JavaPlugin
-     */
     static void startEngine(Bootstrap bootstrap){
         INSTANCE = new Engine(bootstrap);
     }
 
-    /**
-     * Stopping Engine and calling Shutdown Hooks
-     */
     static void shutdownEngine(){
         if(INSTANCE != null){
             //TODO Fire Shutdown Hook
@@ -37,15 +36,10 @@ class Engine {
 
     private Bootstrap plugin;
 
-    /**
-     * Starts the Reflections Hooks scanning for Annotations in specified Package and
-     * generates the Configuration Builder Instance
-     * @param bootstrap JavaPlugin
-     */
     public Engine(Bootstrap bootstrap){
         this.plugin = bootstrap;
-        String url = "com.arematics.minecraft.core";
-        ScanEnvironment.generateBuilder();
+
+        String url ="com.arematics.minecraft.gs";
         CommandHooks.hookCommands(url, this.getClass().getClassLoader(), bootstrap);
         ListenerHook.hookListeners(url, this.getClass().getClassLoader(), bootstrap);
     }

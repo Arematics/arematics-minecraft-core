@@ -28,8 +28,6 @@ subprojects {
         compileOnly  name: 'WorldEdit'
         compileOnly  name: 'WorldGuard'
         compileOnly  name: 'WGRegionEvents'
-
-
     }
 
     jar {

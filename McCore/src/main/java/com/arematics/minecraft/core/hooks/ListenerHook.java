@@ -3,19 +3,32 @@ package com.arematics.minecraft.core.hooks;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.reflections.Reflections;
+import org.reflections.util.ClasspathHelper;
 
 import java.lang.reflect.Method;
 import java.util.Set;
 
 public class ListenerHook{
 
-    public static void hookListeners(ScanEnvironment environment){
+    /**
+     * Clearing Urls of Configuration Builder and adds the new url starting Reflection Scan and reads all Methods
+     * annotated with {@link org.bukkit.event.EventHandler}
+     * @param url Package Path
+     * @param loader ClassLoader where hookListeners is called
+     * @param plugin JavaPlugin Class where Listeners should be added
+     */
+    public static void hookListeners(String url, ClassLoader loader, JavaPlugin plugin){
         try{
-            Set<Method> methods = environment.getScannedMethods(EventHandler.class);
+            ScanEnvironment.getBuilder().getUrls().clear();
+            ScanEnvironment.getBuilder().addUrls(ClasspathHelper.forPackage(url, loader));
+            Reflections reflections = new Reflections(ScanEnvironment.getBuilder());
+            Set<Method> methods = reflections.getMethodsAnnotatedWith(EventHandler.class);
             Bukkit.getLogger().info("Starting Listener Hook");
-            methods.forEach(method -> processClass(method, environment.getPlugin()));
+            methods.forEach(method -> processClass(method, plugin));
         }catch (Exception e){
-            Bukkit.getLogger().warning("Could not find any Listeners in: " + environment.getPlugin().getName());
+            e.printStackTrace();
+            Bukkit.getLogger().warning("Could not find any Listeners in: " + plugin.getName());
         }
     }
 
