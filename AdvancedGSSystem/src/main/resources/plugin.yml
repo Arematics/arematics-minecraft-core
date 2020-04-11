@@ -1,7 +1,0 @@
-name: AdvancedGSSystem
-author: Klysma
-description: AdvancedGSSystem by Arematics
-version: 1.0.0
-depend: [McCore, WorldEdit, WorldGuard]
-
-main: com.arematics.minecraft.gs.Bootstrap

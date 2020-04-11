@@ -1,0 +1,13 @@
+group 'com.arematics.minecraft.gamble'
+version '1.0'
+
+def filesToCopy = copySpec{
+    from 'build/libs/Gamble-1.0.jar'
+}
+
+task copyFileToCityBuild(type:Copy) {
+    with filesToCopy
+    into new File('Server/Citybuild/plugins').absolutePath
+}
+
+copyFileToCityBuild.dependsOn(jar)

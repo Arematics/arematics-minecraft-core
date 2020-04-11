@@ -1,8 +1,8 @@
 package com.arematics.minecraft.core;
 
-import com.arematics.minecraft.core.hooks.CommandHooks;
-import com.arematics.minecraft.core.hooks.ListenerHook;
-import com.arematics.minecraft.core.hooks.ScanEnvironment;
+import com.arematics.minecraft.core.configurations.Config;
+import com.arematics.minecraft.core.hooks.ConfigHook;
+import com.arematics.minecraft.core.hooks.MultiHook;
 import org.bukkit.Bukkit;
 
 class Engine {
@@ -35,22 +35,25 @@ class Engine {
         }
     }
 
-    private Bootstrap plugin;
+    private final Bootstrap plugin;
+    private final Config config;
 
     /**
-     * Starts the Reflections Hooks scanning for Annotations in specified Package and
-     * generates the Configuration Builder Instance
+     * Hooking Config File
+     * Starts the Multi Hook to get all Hooks loaded (Language, Commands, Listener)
      * @param bootstrap JavaPlugin
      */
     public Engine(Bootstrap bootstrap){
         this.plugin = bootstrap;
-        String url = "com.arematics.minecraft.core";
-        ScanEnvironment.generateBuilder();
-        CommandHooks.hookCommands(url, this.getClass().getClassLoader(), bootstrap);
-        ListenerHook.hookListeners(url, this.getClass().getClassLoader(), bootstrap);
+        this.config = ConfigHook.loadConfig(bootstrap);
+        MultiHook.addHooks("com.arematics.minecraft.core", this.getClass().getClassLoader(), bootstrap);
     }
 
     public Bootstrap getPlugin() {
         return plugin;
+    }
+
+    public Config getConfig() {
+        return config;
     }
 }

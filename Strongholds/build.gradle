@@ -1,0 +1,13 @@
+group 'com.arematics.minecraft.sh'
+version '1.0'
+
+def filesToCopy = copySpec{
+    from 'build/libs/Strongholds-1.0.jar'
+}
+
+task copyFileToCityBuild(type:Copy) {
+    with filesToCopy
+    into new File('Server/Citybuild/plugins').absolutePath
+}
+
+copyFileToCityBuild.dependsOn(jar)

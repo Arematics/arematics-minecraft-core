@@ -9,19 +9,13 @@ public class ScanEnvironment {
     private static ConfigurationBuilder builder = null;
 
     /**
-     * Generates the Reflections Configuration
-     */
-    public static void generateBuilder(){
-        builder = new ConfigurationBuilder()
-                .setScanners(new TypeAnnotationsScanner(), new MethodAnnotationsScanner());
-    }
-
-    /**
      * Reflections Configuration Builder to add new Urls
      * @return Configuration Builder
      */
     public static ConfigurationBuilder getBuilder() {
-        if(builder == null) System.out.println("TF");
+        if(builder == null)
+            builder = new ConfigurationBuilder()
+                    .setScanners(new TypeAnnotationsScanner(), new MethodAnnotationsScanner());
         return builder;
     }
 }

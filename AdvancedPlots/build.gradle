@@ -1,0 +1,13 @@
+group 'com.arematics.minecraft.plot'
+version '1.0'
+
+def filesToCopy = copySpec{
+    from 'build/libs/AdvancedPlots-1.0.jar'
+}
+
+task copyFileToCityBuild(type:Copy) {
+    with filesToCopy
+    into new File('Server/Citybuild/plugins').absolutePath
+}
+
+copyFileToCityBuild.dependsOn(jar)
