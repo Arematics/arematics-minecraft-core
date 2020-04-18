@@ -9,30 +9,30 @@ import org.reflections.util.ClasspathHelper;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-public class ListenerHook{
+public class ListenerHook extends PackageHook<Method> {
 
-    /**
-     * Clearing Urls of Configuration Builder and adds the new url starting Reflection Scan and reads all Methods
-     * annotated with {@link org.bukkit.event.EventHandler}
-     * @param url Package Path
-     * @param loader ClassLoader where hookListeners is called
-     * @param plugin JavaPlugin Class where Listeners should be added
-     */
-    public static void hookListeners(String url, ClassLoader loader, JavaPlugin plugin){
+    @Override
+    void startPathHock(String url, ClassLoader loader, JavaPlugin plugin) {
         try{
             ScanEnvironment.getBuilder().getUrls().clear();
             ScanEnvironment.getBuilder().addUrls(ClasspathHelper.forPackage(url, loader));
-            Reflections reflections = new Reflections(ScanEnvironment.getBuilder());
-            Set<Method> methods = reflections.getMethodsAnnotatedWith(EventHandler.class);
+            Set<Method> methods = startPreProcessor(loader, plugin);
             Bukkit.getLogger().info("Starting Listener Hook");
-            methods.forEach(method -> processClass(method, plugin));
+            methods.forEach(method -> processAction(method, plugin));
         }catch (Exception e){
             e.printStackTrace();
             Bukkit.getLogger().warning("Could not find any Listeners in: " + plugin.getName());
         }
     }
 
-    private static void processClass(Method method, JavaPlugin plugin){
+    @Override
+    public Set<Method> startPreProcessor(ClassLoader loader, JavaPlugin plugin) {
+        Reflections reflections = new Reflections(ScanEnvironment.getBuilder());
+        return reflections.getMethodsAnnotatedWith(EventHandler.class);
+    }
+
+    @Override
+    public void processAction(Method method, JavaPlugin plugin) {
         Class<?> classprocess = method.getDeclaringClass();
         try {
             Object instance = classprocess.getConstructor().newInstance();

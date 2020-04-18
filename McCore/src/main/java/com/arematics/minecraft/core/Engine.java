@@ -1,8 +1,7 @@
 package com.arematics.minecraft.core;
 
 import com.arematics.minecraft.core.configurations.Config;
-import com.arematics.minecraft.core.hooks.ConfigHook;
-import com.arematics.minecraft.core.hooks.MultiHook;
+import com.arematics.minecraft.core.hooks.*;
 import org.bukkit.Bukkit;
 
 class Engine {
@@ -46,7 +45,10 @@ class Engine {
     public Engine(Bootstrap bootstrap){
         this.plugin = bootstrap;
         this.config = ConfigHook.loadConfig(bootstrap);
-        MultiHook.addHooks("com.arematics.minecraft.core", this.getClass().getClassLoader(), bootstrap);
+        MultiHook hook = new MultiHook("com.arematics.minecraft.core", this.getClass().getClassLoader(), bootstrap);
+        hook.addPreHook(new PreFileExistHook());
+        hook.addPackageHook(new CommandHooks(), new ListenerHook());
+        hook.enable();
     }
 
     public Bootstrap getPlugin() {

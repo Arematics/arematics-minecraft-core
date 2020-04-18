@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.hooks;
 
+import com.arematics.minecraft.core.language.LanguageAPI;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.reflect.FieldUtils;
@@ -10,33 +11,41 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
-public class PreFileExistHook {
+public class PreFileExistHook implements Hook<Collection<File>>{
 
-    public static void checkPluginFiles(ClassLoader loader, JavaPlugin plugin){
+    private File mcfile;
+
+    @Override
+    public void startHook(ClassLoader loader, JavaPlugin plugin) {
         System.out.println("Starting File Create Hooks");
-        Collection<File> files = FileUtils.listFiles(new File(loader.getResource("copyable/").getFile()),
-                null, false);
-        File file = new File("plugins/" + plugin.getName() + "/");
-        if(!file.exists()){
+        Set<Collection<File>> files = startPreProcessor(loader, plugin);
+        this.mcfile = new File("plugins/" + plugin.getName() + "/");
+        if(!this.mcfile.exists()){
             System.out.println("Creating Plugin File");
-            file.mkdir();
+            this.mcfile.mkdir();
         }
 
-        checkFolder(files, file);
+        files.forEach(f -> processAction(f, plugin));
     }
 
-    private static void checkFolder(Collection<File> files, File jplugin){
+    @Override
+    public Set<Collection<File>> startPreProcessor(ClassLoader loader, JavaPlugin plugin) {
+        return new HashSet<Collection<File>>(){{
+            add(FileUtils.listFiles(new File(loader.getResource("copyable/").toExternalForm()),
+                    null, true));
+        }};
+    }
+
+    @Override
+    public void processAction(Collection<File> files, JavaPlugin plugin) {
         for(File f : files){
             System.out.println(f.getName());
             if(!f.getName().contains("plugin.yml")){
-                boolean mirrored = isMirrored(f, jplugin);
+                boolean mirrored = isMirrored(f, this.mcfile);
                 if(!mirrored){
-                    File nfile = new File(jplugin + "/" + f.getName());
+                    File nfile = new File(this.mcfile + "/" + f.getName());
                     System.out.println(nfile.getName());
                     if(f.isDirectory()){
                         nfile.mkdir();
@@ -59,7 +68,7 @@ public class PreFileExistHook {
         }
     }
 
-    private static boolean isMirrored(File file, File dir){
+    private boolean isMirrored(File file, File dir){
         if(dir.listFiles() != null){
             return Arrays.stream(Objects.requireNonNull(dir.listFiles())).anyMatch(f2 -> f2.getName().equals(file.getName()));
         }
