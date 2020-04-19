@@ -4,7 +4,7 @@ import com.arematics.minecraft.core.configurations.Config;
 import com.arematics.minecraft.core.hooks.*;
 import org.bukkit.Bukkit;
 
-class Engine {
+public class Engine {
 
     private static Engine INSTANCE;
 

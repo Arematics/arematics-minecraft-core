@@ -1,5 +1,8 @@
 package com.arematics.minecraft.core.language;
 
+import com.arematics.minecraft.core.Engine;
+import com.arematics.minecraft.core.configurations.Config;
+import com.arematics.minecraft.core.configurations.MessageHighlight;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -20,14 +23,31 @@ public class LanguageAPI {
         }
     }
 
+    private static void sendMessage(Player player, MessageHighlight highlight, String key){
+        checkExistsAndAddIfNot(player);
+        player.sendMessage(Engine.getInstance().getConfig().getPrefix() +
+                highlight.getColorCode() +
+                users.get(player).getLanguage().getValue(key));
+        player.playSound(player.getLocation(), highlight.getSound(), 1, 1);
+    }
+
     public static void sendMessage(Player player, String key){
-        if(users.get(player) != null)
-            player.sendMessage(users.get(player).getLanguage().getValue(key));
-        else{
+        sendMessage(player, Engine.getInstance().getConfig().getHighlights().get(Config.SUCCESS), key);
+    }
+
+    public static void sendWarning(Player player, String key){
+        sendMessage(player, Engine.getInstance().getConfig().getHighlights().get(Config.WARNING), key);
+    }
+
+    public static void sendFailure(Player player, String key){
+        sendMessage(player, Engine.getInstance().getConfig().getHighlights().get(Config.FAILURE), key);
+    }
+
+    private static void checkExistsAndAddIfNot(Player player){
+        if(users.get(player) == null){
             LanguageUser user = new LanguageUser(player);
             user.setLanguage(langs.get("ENGLISH"));
             users.put(player, user);
-            user.getLanguage().getValue(key);
         }
     }
 
