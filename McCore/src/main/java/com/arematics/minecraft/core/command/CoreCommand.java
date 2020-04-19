@@ -7,11 +7,20 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class CoreCommand implements CommandExecutor {
 
     private final static String NO_PERMS_KEY = "cmd_noperms";
 
     public abstract String[] getCommandNames();
+
+    public abstract boolean matchAnyAccess();
+
+    private final List<CommandAccess> accesses = new ArrayList<CommandAccess>(){{
+       add(new RangAccess());
+    }};
 
     public abstract boolean validate(CommandSender sender, Command command, String label, String[] subs, int length);
 
@@ -25,6 +34,11 @@ public abstract class CoreCommand implements CommandExecutor {
     }
 
     public boolean canAccessCommand(CommandSender sender, Command command){
-        return sender.getName().equals("Klysma");
+        if(matchAnyAccess()) return getAccesses().stream().anyMatch(access -> access.hasAccess(sender, command.getName()));
+        else return getAccesses().stream().allMatch(access -> access.hasAccess(sender, command.getName()));
+    }
+
+    public List<CommandAccess> getAccesses() {
+        return accesses;
     }
 }

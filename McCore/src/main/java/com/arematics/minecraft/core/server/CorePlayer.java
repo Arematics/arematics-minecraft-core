@@ -12,6 +12,11 @@ public class CorePlayer {
 
     private Map<Currency, Double> currencies = new HashMap<>();
 
+    /**
+     * Call setCurrency Async with CompletableFuture
+     * @param currency Currency Type
+     * @param amount New Currency Value
+     */
     public void setCurrency(Currency currency, double amount){
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> setSyncCurrency(currency, amount));
         try{
@@ -21,6 +26,10 @@ public class CorePlayer {
         }
     }
 
+    /**
+     * Call getCurrency Async with CompletableFuture
+     * @param currency Currency Type
+     */
     public double getCurrency(Currency currency){
         CompletableFuture<Double> completableFuture = CompletableFuture.supplyAsync(() -> getSyncCurrency(currency));
         try{
@@ -30,6 +39,11 @@ public class CorePlayer {
         }
     }
 
+    /**
+     * Call addCurrency Async with CompletableFuture
+     * @param currency Currency Type
+     * @param amount Added Currency Value
+     */
     public void addCurrency(Currency currency, double amount){
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> addSyncCurrency(currency, amount));
         try{
@@ -39,6 +53,11 @@ public class CorePlayer {
         }
     }
 
+    /**
+     * Call removeCurrency Async with CompletableFuture
+     * @param currency Currency Type
+     * @param amount Remove Currency Value
+     */
     public void removeCurrency(Currency currency, double amount){
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> removeSyncCurrency(currency, amount));
         try{
@@ -52,7 +71,6 @@ public class CorePlayer {
      * This method sets the value for a specific currency and returns the old value
      * @param currency Currency Type
      * @param amount New Value of Currency
-     * @return Previous Currency Value if exists else 0
      */
     private void setSyncCurrency(Currency currency, double amount){
         this.getCurrencies().put(currency, amount);
