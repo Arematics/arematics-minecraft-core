@@ -1,29 +1,32 @@
 package com.arematics.minecraft.core.hooks;
 
-import com.arematics.minecraft.core.language.LanguageAPI;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.reflect.FieldUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.reflections.Reflections;
+import org.reflections.scanners.ResourcesScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.*;
+import java.util.regex.Pattern;
 
-public class PreFileExistHook implements Hook<Collection<File>>{
+public class PreFileExistHook implements Hook<String>{
 
     private File mcfile;
+    private ClassLoader loader;
 
     @Override
     public void startHook(ClassLoader loader, JavaPlugin plugin) {
-        System.out.println("Starting File Create Hooks");
-        Set<Collection<File>> files = startPreProcessor(loader, plugin);
+        this.loader = loader;
+        Set<String> files = startPreProcessor(loader, plugin);
         this.mcfile = new File("plugins/" + plugin.getName() + "/");
         if(!this.mcfile.exists()){
-            System.out.println("Creating Plugin File");
             this.mcfile.mkdir();
         }
 
@@ -31,46 +34,52 @@ public class PreFileExistHook implements Hook<Collection<File>>{
     }
 
     @Override
-    public Set<Collection<File>> startPreProcessor(ClassLoader loader, JavaPlugin plugin) {
-        return new HashSet<Collection<File>>(){{
-            add(FileUtils.listFiles(new File(loader.getResource("copyable/").toExternalForm()),
-                    null, true));
-        }};
+    public Set<String> startPreProcessor(ClassLoader loader, JavaPlugin plugin) {
+        Reflections reflections = new Reflections("copyable", new ResourcesScanner());
+        return reflections.getResources(Pattern.compile(".*"));
     }
-
     @Override
-    public void processAction(Collection<File> files, JavaPlugin plugin) {
-        for(File f : files){
-            System.out.println(f.getName());
-            if(!f.getName().contains("plugin.yml")){
-                boolean mirrored = isMirrored(f, this.mcfile);
-                if(!mirrored){
-                    File nfile = new File(this.mcfile + "/" + f.getName());
-                    System.out.println(nfile.getName());
-                    if(f.isDirectory()){
-                        nfile.mkdir();
-                    }
-                    else {
-                        try{
-                            nfile.createNewFile();
-                            InputStream in = new FileInputStream(f);
-                            FileOutputStream out = new FileOutputStream(nfile);
-                            final byte[] buffer = new byte[1024];
-                            int n;
-                            while ((n = in.read(buffer)) != -1)
-                                out.write(buffer, 0, n);
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                }
+    public void processAction(String file, JavaPlugin plugin) {
+        file = file.substring(file.indexOf("/") + 1);
+        String name = file.contains("/") ? file.substring(file.lastIndexOf("/") + 1) : file;
+
+        boolean mirrored = isMirrored(name, this.mcfile);
+        if(!mirrored){
+            if(file.contains("/")){
+                dirProcessor(file, 0);
+            }
+            File nfile = new File(this.mcfile + "/" + file);
+            try(InputStream in = this.loader.getResourceAsStream("copyable/" + file);
+                FileOutputStream out = new FileOutputStream(nfile)){
+                nfile.createNewFile();
+                final byte[] buffer = new byte[1024];
+                int n;
+                while ((n = in.read(buffer)) != -1)
+                    out.write(buffer, 0, n);
+                out.flush();
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
     }
 
-    private boolean isMirrored(File file, File dir){
+    private void dirProcessor(String path, int start){
+        if(path.contains("/")){
+            if(path.substring(start).contains("/")) {
+                int i = path.indexOf("/", start);
+                String root = path.substring(start, i);
+                if (!isMirrored(root, this.mcfile)) {
+                    File nfile = new File(this.mcfile + "/" + root);
+                    nfile.mkdir();
+                }
+                dirProcessor(path, i + 1);
+            }
+        }
+    }
+
+    private boolean isMirrored(String name, File dir){
         if(dir.listFiles() != null){
-            return Arrays.stream(Objects.requireNonNull(dir.listFiles())).anyMatch(f2 -> f2.getName().equals(file.getName()));
+            return FileUtils.listFiles(dir, null, true).stream().anyMatch(f2 -> f2.getName().equals(name));
         }
 
         return false;

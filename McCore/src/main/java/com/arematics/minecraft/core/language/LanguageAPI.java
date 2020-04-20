@@ -1,6 +1,5 @@
 package com.arematics.minecraft.core.language;
 
-import com.arematics.minecraft.core.Engine;
 import com.arematics.minecraft.core.configurations.Config;
 import com.arematics.minecraft.core.configurations.MessageHighlight;
 import org.bukkit.Bukkit;
@@ -10,12 +9,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public class LanguageAPI {
 
     private static final Map<String, Language> langs = new HashMap<>();
     private static final Map<Player, LanguageUser> users = new HashMap<>();
+
+    static LanguageUser getUser(Player p){
+        if(!users.containsKey(p)) {
+            LanguageUser user = new LanguageUser(p);
+            user.setLanguage(langs.get("ENGLISH"));
+            users.put(p, user);
+        }
+
+        return users.get(p);
+    }
 
     public static void broadcast(String key){
         for(LanguageUser user : users.values()){
@@ -23,24 +34,33 @@ public class LanguageAPI {
         }
     }
 
+    public static ComponentInject injectable(String key){
+        return LangComponent.create(key);
+    }
+
+    static String prepareMessage(Player player, MessageHighlight highlight, String key){
+        checkExistsAndAddIfNot(player);
+        return Config.getInstance().getPrefix() +
+                highlight.getColorCode() +
+                users.get(player).getLanguage().getValue(key);
+    }
+
     private static void sendMessage(Player player, MessageHighlight highlight, String key){
         checkExistsAndAddIfNot(player);
-        player.sendMessage(Engine.getInstance().getConfig().getPrefix() +
-                highlight.getColorCode() +
-                users.get(player).getLanguage().getValue(key));
+        player.sendMessage(prepareMessage(player, highlight, key));
         player.playSound(player.getLocation(), highlight.getSound(), 1, 1);
     }
 
     public static void sendMessage(Player player, String key){
-        sendMessage(player, Engine.getInstance().getConfig().getHighlights().get(Config.SUCCESS), key);
+        sendMessage(player, Config.getInstance().getHighlight(Config.SUCCESS), key);
     }
 
     public static void sendWarning(Player player, String key){
-        sendMessage(player, Engine.getInstance().getConfig().getHighlights().get(Config.WARNING), key);
+        sendMessage(player, Config.getInstance().getHighlight(Config.WARNING), key);
     }
 
     public static void sendFailure(Player player, String key){
-        sendMessage(player, Engine.getInstance().getConfig().getHighlights().get(Config.FAILURE), key);
+        sendMessage(player, Config.getInstance().getHighlight(Config.FAILURE), key);
     }
 
     private static void checkExistsAndAddIfNot(Player player){

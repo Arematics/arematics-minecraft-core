@@ -18,10 +18,9 @@ public class CommandHooks extends PackageHook<Class<?>> {
             ScanEnvironment.getBuilder().getUrls().clear();
             ScanEnvironment.getBuilder().addUrls(ClasspathHelper.forPackage(url, loader));
             Set<Class<?>> classes = startPreProcessor(loader, plugin);
-            Bukkit.getLogger().info("Starting Command Hook");
             classes.forEach(classprocess -> processAction(classprocess, plugin));
         }catch (Exception e){
-            Bukkit.getLogger().warning("Could not find any Commands in: " + plugin.getName());
+            plugin.getLogger().warning("Could not find any Commands");
         }
     }
 

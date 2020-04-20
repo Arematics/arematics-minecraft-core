@@ -13,13 +13,13 @@ public class Bootstrap extends JavaPlugin {
     @Override
     public void onEnable() {
         PL = this;
-        Bukkit.getConsoleSender().sendMessage("Bootstrap enabled, starting Engine!");
+        PL.getLogger().info("Bootstrap enabled, starting Engine!");
         Engine.startEngine(PL);
     }
 
     @Override
     public void onDisable() {
-        Bukkit.getConsoleSender().sendMessage("Bootstrap Shutdown called, stopping Engine!");
+        PL.getLogger().info("Bootstrap Shutdown called, stopping Engine!");
         Engine.shutdownEngine();
     }
 }

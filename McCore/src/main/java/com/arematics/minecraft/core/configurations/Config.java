@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.configurations;
 
+import com.arematics.minecraft.core.Engine;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 
@@ -16,6 +17,10 @@ public class Config {
     public static final String WARNING = "warning";
     public static final String FAILURE = "failure";
 
+    public static Config getInstance(){
+        return Engine.getInstance().getConfig();
+    }
+
     private final Properties properties;
     private final Map<String, MessageHighlight> highlights = new HashMap<>();
 
@@ -23,13 +28,13 @@ public class Config {
 
     public Config(File file) {
         this.properties = new Properties();
-        try{
-            properties.load(new FileInputStream(file));
+        try(FileInputStream stream = new FileInputStream(file)){
+            properties.load(stream);
         }catch (IOException ioe){
             Bukkit.getLogger().severe("Could not load configs: " + ioe.getMessage());
         }
 
-        this.commandPrefix = this.properties.getProperty("command_prefix") + this.properties.getProperty("command_split");
+        this.commandPrefix = getPropertyValue("command_prefix") + getPropertyValue("command_split");
 
         addMessageHighlight(SUCCESS);
         addMessageHighlight(WARNING);
@@ -38,8 +43,8 @@ public class Config {
 
     private void addMessageHighlight(String typo){
 
-        String colorCodeSuccess = this.properties.getProperty("command_" + typo + "_color");
-        String soundSuccess = this.properties.getProperty("command_" + typo + "_sound");
+        String colorCodeSuccess = getPropertyValue("command_" + typo + "_color");
+        String soundSuccess = getPropertyValue("command_" + typo + "_sound");
         addMessageHighlight(typo, colorCodeSuccess, soundSuccess);
     }
 
@@ -51,8 +56,16 @@ public class Config {
         return properties;
     }
 
+    public String getPropertyValue(String key){
+        return this.properties.getProperty(key).replaceAll("'", "");
+    }
+
     public Map<String, MessageHighlight> getHighlights() {
         return highlights;
+    }
+
+    public MessageHighlight getHighlight(String name){
+        return getHighlights().get(name);
     }
 
     public String getPrefix(){

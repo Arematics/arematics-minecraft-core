@@ -7,21 +7,32 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class LanguageHook {
+public class LanguageHook implements Hook<File>{
 
-    public static void addLanguageFiles(JavaPlugin plugin){
-        File file = new File("plugins/" + plugin.getName() + "/language/");
-        if(file.exists()){
-            File[] files = file.listFiles();
-            if(files != null)
-                Arrays.stream(files).filter(f -> f.getName().endsWith(".properties")).forEach(LanguageHook::addFile);
-        }
+    private File file;
+
+    @Override
+    public void startHook(ClassLoader loader, JavaPlugin plugin) {
+        file = new File("plugins/" + plugin.getName() + "/language/");
     }
 
-    private static void addFile(File file){
-        try{
-            LanguageAPI.registerFile(new FileInputStream(file));
+    @Override
+    public Set<File> startPreProcessor(ClassLoader loader, JavaPlugin plugin) {
+        File[] files = file.listFiles();
+        if(files != null)
+            return Arrays.stream(files).filter(f -> f.getName().endsWith(".properties")).collect(Collectors.toSet());
+        else
+            return new HashSet<>();
+    }
+
+    @Override
+    public void processAction(File file, JavaPlugin plugin) {
+        try(FileInputStream stream = new FileInputStream(file)){
+            LanguageAPI.registerFile(stream);
         }catch (Exception e){
             Bukkit.getLogger().severe("Could not add File " + file.getName() + ": " + e.getMessage());
         }

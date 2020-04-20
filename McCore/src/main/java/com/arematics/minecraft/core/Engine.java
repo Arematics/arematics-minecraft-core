@@ -44,11 +44,12 @@ public class Engine {
      */
     public Engine(Bootstrap bootstrap){
         this.plugin = bootstrap;
-        this.config = ConfigHook.loadConfig(bootstrap);
         MultiHook hook = new MultiHook("com.arematics.minecraft.core", this.getClass().getClassLoader(), bootstrap);
         hook.addPreHook(new PreFileExistHook());
+        hook.addHook(new LanguageHook());
         hook.addPackageHook(new CommandHooks(), new ListenerHook());
         hook.enable();
+        this.config = ConfigHook.loadConfig(bootstrap);
     }
 
     public Bootstrap getPlugin() {
