@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core;
 
+import com.arematics.minecraft.core.command.Parser;
 import com.arematics.minecraft.core.configurations.Config;
 import com.arematics.minecraft.core.hooks.*;
 import org.bukkit.Bukkit;
@@ -36,6 +37,7 @@ public class Engine {
 
     private final Bootstrap plugin;
     private final Config config;
+    private final Parser parser;
 
     /**
      * Hooking Config File
@@ -50,6 +52,7 @@ public class Engine {
         hook.addPackageHook(new CommandHooks(), new ListenerHook());
         hook.enable();
         this.config = ConfigHook.loadConfig(bootstrap);
+        this.parser = new Parser();
     }
 
     public Bootstrap getPlugin() {
@@ -58,5 +61,9 @@ public class Engine {
 
     public Config getConfig() {
         return config;
+    }
+
+    public Parser getParser() {
+        return parser;
     }
 }

@@ -57,7 +57,8 @@ public class Config {
     }
 
     public String getPropertyValue(String key){
-        return this.properties.getProperty(key).replaceAll("'", "");
+        return this.properties.getProperty(key).replaceAll("'", "")
+                .replaceAll("\"", "");
     }
 
     public Map<String, MessageHighlight> getHighlights() {

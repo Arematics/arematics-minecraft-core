@@ -17,7 +17,9 @@ public class LanguageHook implements Hook<File>{
 
     @Override
     public void startHook(ClassLoader loader, JavaPlugin plugin) {
-        file = new File("plugins/" + plugin.getName() + "/language/");
+        file = new File("plugins/" + plugin.getName() + "/language");
+        Set<File> processed = startPreProcessor(loader, plugin);
+        processed.forEach(file -> processAction(file, plugin));
     }
 
     @Override

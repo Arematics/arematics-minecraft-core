@@ -61,7 +61,7 @@ public class LangComponent implements ComponentInject, ComponentHighlight{
         final String[] result = {income};
 
         if(pattern.matcher(income).find())
-            injectors.forEach((key, value) -> result[0] = income.replaceAll(key, value.get()));
+            injectors.forEach((key, value) -> result[0] = result[0].replaceAll(key, value.get()));
         return result[0];
     }
 }

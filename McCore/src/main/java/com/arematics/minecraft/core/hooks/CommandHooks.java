@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.hooks;
 
-import com.arematics.minecraft.core.annotations.Command;
+import com.arematics.minecraft.core.command.CMD;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,21 +20,21 @@ public class CommandHooks extends PackageHook<Class<?>> {
             Set<Class<?>> classes = startPreProcessor(loader, plugin);
             classes.forEach(classprocess -> processAction(classprocess, plugin));
         }catch (Exception e){
-            plugin.getLogger().warning("Could not find any Commands");
+            plugin.getLogger().warning("Could not find any Commands: " + e.getMessage());
         }
     }
 
     @Override
     public Set<Class<?>> startPreProcessor(ClassLoader loader, JavaPlugin plugin) {
         Reflections reflections = new Reflections(ScanEnvironment.getBuilder());
-        return reflections.getTypesAnnotatedWith(Command.class);
+        return reflections.getTypesAnnotatedWith(CMD.class);
     }
 
     @Override
     public void processAction(Class<?> o, JavaPlugin plugin) {
         try {
             Object instance = o.getConstructor().newInstance();
-            Bukkit.getLogger().info("Adding " + o.getName() + " as Command");
+            Bukkit.getLogger().info("Adding " + instance.getClass().getName() + " as Command");
             String[] result = (String[]) o.getMethod("getCommandNames").invoke(instance);
 
             Arrays.stream(result).forEach(name -> plugin.getCommand(name).setExecutor((CommandExecutor)instance));

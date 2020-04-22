@@ -2,8 +2,10 @@ package com.arematics.minecraft.core.model;
 
 import com.arematics.model.Player;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString
 public class PlayerImpl implements Player {
     private String arematicsId;
     private String uuid;
@@ -11,9 +13,4 @@ public class PlayerImpl implements Player {
     private Long totalTime;
     private Long afkTime;
     private int friends;
-
-    @Override
-    public String toString(){
-        return "{arematicsId: '" + getArematicsId() + "', uuid: '" + getUuid() + ", name: '" + getName() + "'}";
-    }
 }

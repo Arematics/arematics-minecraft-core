@@ -15,7 +15,6 @@ def filesToCopy = copySpec{
 
 task copyFileToCityBuild(type:Copy) {
     with filesToCopy
-    printf(new File('Server/Citybuild/plugins').absolutePath)
     into new File('Server/Citybuild/plugins').absolutePath
 }
 

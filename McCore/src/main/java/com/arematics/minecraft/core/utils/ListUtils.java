@@ -13,4 +13,13 @@ public class ListUtils {
     public static String[] getNames(Class<? extends Enum<?>> e){
         return Arrays.stream(e.getEnumConstants()).map(Enum::name).toArray(String[]::new);
     }
+
+    public static String getNameListStartsWith(Class<? extends Enum<?>> e, String startsWith){
+        return StringUtils.join(getNamesStartsWith(e, startsWith), ", ");
+    }
+
+    public static String[] getNamesStartsWith(Class<? extends Enum<?>> e, String startsWith){
+        return Arrays.stream(e.getEnumConstants()).filter(anEnum -> anEnum.name().startsWith(startsWith))
+                .map(Enum::name).toArray(String[]::new);
+    }
 }

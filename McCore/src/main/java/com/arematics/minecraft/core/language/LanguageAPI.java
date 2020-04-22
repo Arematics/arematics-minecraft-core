@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 public class LanguageAPI {
@@ -39,14 +40,12 @@ public class LanguageAPI {
     }
 
     static String prepareMessage(Player player, MessageHighlight highlight, String key){
-        checkExistsAndAddIfNot(player);
         return Config.getInstance().getPrefix() +
                 highlight.getColorCode() +
-                users.get(player).getLanguage().getValue(key);
+                getUser(player).getLanguage().getValue(key);
     }
 
     private static void sendMessage(Player player, MessageHighlight highlight, String key){
-        checkExistsAndAddIfNot(player);
         player.sendMessage(prepareMessage(player, highlight, key));
         player.playSound(player.getLocation(), highlight.getSound(), 1, 1);
     }
@@ -63,18 +62,12 @@ public class LanguageAPI {
         sendMessage(player, Config.getInstance().getHighlight(Config.FAILURE), key);
     }
 
-    private static void checkExistsAndAddIfNot(Player player){
-        if(users.get(player) == null){
-            LanguageUser user = new LanguageUser(player);
-            user.setLanguage(langs.get("ENGLISH"));
-            users.put(player, user);
-        }
-    }
-
     public static void registerMessage(String langName, String key, String message){
-        Language lang = langs.values().stream().filter(language -> language.getName().equals(langName))
-                .findFirst().orElse(generateLanguage(langName));
-        lang.addText(key, message);
+        Optional<Language> lang = langs.values().stream().filter(language -> language.getName().equals(langName))
+                .findFirst();
+        if(!lang.isPresent()) generateLanguage(langName).addText(key, message);
+        else
+            lang.get().addText(key, message);
     }
 
     private static Language generateLanguage(String name){
@@ -88,8 +81,8 @@ public class LanguageAPI {
 
         try{
             properties.load(new InputStreamReader(stream, StandardCharsets.UTF_8));
-            String langName = properties.getProperty("language_name");
-            properties.forEach((k, s) -> addVals(langName, k.toString(), s.toString()));
+            String langName = properties.getProperty("language_name").replaceAll("\"", "");
+            properties.forEach((k, s) -> addVals(langName, k.toString(), s.toString().replaceAll("\"", "")));
         }catch (IOException ioe){
             Bukkit.getLogger().severe("Could not load File " + ioe.getMessage());
         }

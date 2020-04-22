@@ -6,6 +6,6 @@ public class RangAccess implements CommandAccess{
 
     @Override
     public boolean hasAccess(CommandSender sender, String cmd) {
-        return false;
+        return true;
     }
 }
