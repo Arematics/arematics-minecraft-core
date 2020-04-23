@@ -49,13 +49,6 @@ public class SoundCommand extends CoreCommand {
         return true;
     }
 
-    @Sub("list rem {message}")
-    public boolean RemSelected(CommandSender sender, String[] messageContent){
-        String message = StringUtils.join(messageContent, " ");
-        sender.sendMessage(message);
-        return true;
-    }
-
     @Sub("{sound}")
     public boolean executeSound(CommandSender sender, Sound sound){
         Player player = (Player) sender;
