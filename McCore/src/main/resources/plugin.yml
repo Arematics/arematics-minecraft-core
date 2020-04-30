@@ -7,3 +7,6 @@ depend: [WorldEdit, WorldGuard]
 main: com.arematics.minecraft.core.Bootstrap
 
 commands:
+  sound:
+    description: Show valid sounds
+    usage: /<command>

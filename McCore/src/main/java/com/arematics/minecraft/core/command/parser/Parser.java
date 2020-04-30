@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.command;
+package com.arematics.minecraft.core.command.parser;
 
 import com.arematics.minecraft.core.Engine;
 import org.apache.commons.lang3.EnumUtils;
@@ -22,8 +22,10 @@ public class Parser {
     }
 
     private void addDefaultParser(){
-        parsers.put(String.class, new StringParser());
-        parsers.put(Integer.class, new IntegerParser());
+        addParser(new StringParser());
+        addParser(new IntegerParser());
+        addParser(new DoubleParser());
+        addParser(new DateParser());
     }
 
     public void addParser(CommandParameterParser<?> parser){
@@ -31,7 +33,7 @@ public class Parser {
     }
 
     public Object[] fillParameters(CommandSender sender, String[] annotation, Class[] types, String[] src)
-            throws ParserException{
+            throws ParserException {
         List<Object> parameters = new ArrayList<>();
         parameters.add((CommandSender)sender);
         int b = 1;

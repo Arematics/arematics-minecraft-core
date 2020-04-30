@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.command;
+package com.arematics.minecraft.core.command.parser;
 
 public class IntegerParser extends CommandParameterParser<Integer> {
 

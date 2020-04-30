@@ -8,6 +8,9 @@ import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 @CMD
 public class SoundCommand extends CoreCommand {
 
@@ -40,6 +43,12 @@ public class SoundCommand extends CoreCommand {
                 .inject("%list_type%", () -> "Sound")
                 .inject("%list_value%", () -> ListUtils.getNameListStartsWith(Sound.class, startsWith))
                 .send((Player)sender);
+        return true;
+    }
+
+    @Sub("list date {date}")
+    public boolean executeDate(CommandSender sender, Date date){
+        sender.sendMessage(date.toString());
         return true;
     }
 

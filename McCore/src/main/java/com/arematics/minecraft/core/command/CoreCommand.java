@@ -1,11 +1,12 @@
 package com.arematics.minecraft.core.command;
 
+import com.arematics.minecraft.core.command.parser.Parser;
+import com.arematics.minecraft.core.command.parser.ParserException;
 import com.arematics.minecraft.core.configurations.Config;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.reflect.MethodUtils;
-import org.apache.commons.lang3.EnumUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -81,7 +82,6 @@ public abstract class CoreCommand implements CommandExecutor {
                 }
             }
         }catch (Exception ignore){
-            ignore.printStackTrace();
             LanguageAPI.injectable("cmd_failure")
                     .setMessageHighlight(Config.getInstance().getHighlight(Config.FAILURE))
                     .send((Player)sender);

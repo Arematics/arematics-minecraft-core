@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core;
 
-import com.arematics.minecraft.core.command.Parser;
+import com.arematics.minecraft.core.command.parser.Parser;
 import com.arematics.minecraft.core.configurations.Config;
 import com.arematics.minecraft.core.hooks.*;
 import org.bukkit.Bukkit;
