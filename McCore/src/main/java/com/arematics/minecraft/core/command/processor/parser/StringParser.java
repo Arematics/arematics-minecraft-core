@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.command.parser;
+package com.arematics.minecraft.core.command.processor.parser;
 
 public class StringParser extends CommandParameterParser<String> {
 

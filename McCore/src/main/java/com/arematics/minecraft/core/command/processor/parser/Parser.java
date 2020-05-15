@@ -1,8 +1,9 @@
-package com.arematics.minecraft.core.command.parser;
+package com.arematics.minecraft.core.command.processor.parser;
 
 import com.arematics.minecraft.core.Engine;
 import org.apache.commons.lang3.EnumUtils;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ public class Parser {
         addParser(new IntegerParser());
         addParser(new DoubleParser());
         addParser(new DateParser());
+        addParser(new LocalDateTimeParser());
     }
 
     public void addParser(CommandParameterParser<?> parser){

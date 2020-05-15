@@ -1,9 +1,16 @@
 package com.arematics.minecraft.core.command;
 
-import com.arematics.minecraft.core.command.parser.Parser;
-import com.arematics.minecraft.core.command.parser.ParserException;
+import com.arematics.minecraft.core.command.processor.Processor;
+import com.arematics.minecraft.core.command.processor.ProcessorException;
+import com.arematics.minecraft.core.command.processor.parser.Parser;
+import com.arematics.minecraft.core.command.processor.parser.ParserException;
+import com.arematics.minecraft.core.command.processor.parser.sender.PlayerOnly;
 import com.arematics.minecraft.core.configurations.Config;
 import com.arematics.minecraft.core.language.LanguageAPI;
+import com.arematics.minecraft.core.processor.methods.commands.CommandAnnotationProcessor;
+import com.arematics.minecraft.core.processor.methods.commands.CommandProcessorData;
+import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.CoreUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.reflect.MethodUtils;
@@ -23,6 +30,8 @@ public abstract class CoreCommand implements CommandExecutor {
     private static final String NOT_VALID_LENGHT = "cmd_not_valid_length";
 
     public abstract String[] getCommandNames();
+
+    public abstract CommandAnnotationProcessor[] defineExecutingProcessors(CommandProcessorData commandProcessorData);
 
     public abstract boolean matchAnyAccess();
 
@@ -52,24 +61,23 @@ public abstract class CoreCommand implements CommandExecutor {
                     String value = getSerializedValue(method);
                     if(annos.contains(value)){
                         LanguageAPI.injectable("cmd_same_sub_method_exist")
-                                .inject("%cmd%", command::getName)
-                                .setMessageHighlight(Config.getInstance().getHighlight(Config.FAILURE))
+                                .inject(command::getName)
+                                .FAILURE()
                                 .send((Player) sender);
                         return true;
                     }
                     annos.add(value);
-                    String[] split = value.contains(" ") ? value.split(" ") : new String[]{value};
-                    args = getSetupMessageArray(split, args);
-                    if(split.length == args.length && isMatch(split, args)){
+                    String[] annotationValues = value.contains(" ") ? value.split(" ") : new String[]{value};
+                    args = getSetupMessageArray(annotationValues, args);
+                    if(annotationValues.length == args.length && isMatch(annotationValues, args)){
                         Object[] order;
                         try{
-                            order = Parser.getInstance()
-                                    .fillParameters(sender, split, method.getParameterTypes(), args);
-                        }catch (ParserException e){
-                            LanguageAPI.injectable("cmd_not_valid_parameter")
-                                    .inject("%message%", e::getMessage)
-                                    .setMessageHighlight(Config.getInstance().getHighlight(Config.WARNING))
-                                    .send((Player)sender);
+                            order = Parser.getInstance().fillParameters(sender, annotationValues, method.getParameterTypes(), args);
+                        }catch (ParserException exception){
+                            //String type = exception instanceof ProcessorException ? Config.FAILURE : Config.WARNING;
+                            sender.sendMessage(Config.getInstance().getPrefix() +
+                                    Config.getInstance().getHighlight(Config.WARNING).getColorCode() +
+                                    exception.getMessage());
                             return true;
                         }
 
@@ -82,11 +90,22 @@ public abstract class CoreCommand implements CommandExecutor {
                 }
             }
         }catch (Exception ignore){
+            ignore.printStackTrace();
             LanguageAPI.injectable("cmd_failure")
-                    .setMessageHighlight(Config.getInstance().getHighlight(Config.FAILURE))
+                    .FAILURE()
                     .send((Player)sender);
         }
         return true;
+    }
+
+    private Object[] getParameters(CommandSender sender, String[] annotationValues, Method method, String[] input)
+        throws ProcessorException, ParserException
+    {
+        Object[] order = new Object[]{};
+        CommandProcessorData commandProcessorData = new CommandProcessorData(input, annotationValues);
+        for(CommandAnnotationProcessor processor : defineExecutingProcessors(commandProcessorData))
+            order = processor.process(method);
+        return order;
     }
 
     private boolean isMatch(String[] annotation, String[] src){

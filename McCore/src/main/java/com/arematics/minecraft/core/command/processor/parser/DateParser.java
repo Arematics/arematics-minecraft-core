@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.command.parser;
+package com.arematics.minecraft.core.command.processor.parser;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class DateParser extends CommandParameterParser<Date> {
 
-    private String[] PATTERNS = {"dd/MM/yyyy", "dd-MM-yyyy", "dd.MM.yyyy",
+    private final String[] PATTERNS = {"dd/MM/yyyy", "dd-MM-yyyy", "dd.MM.yyyy",
     "dd/MM/yyyy HH:mm", "dd-MM-yyyy HH:mm", "dd.MM.yyyy HH:mm"};
 
     @Override

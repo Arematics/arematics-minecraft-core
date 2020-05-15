@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.command.parser;
+package com.arematics.minecraft.core.command.processor.parser;
 
 import java.lang.reflect.ParameterizedType;
 

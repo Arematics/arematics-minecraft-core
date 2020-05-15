@@ -7,7 +7,10 @@ import java.util.function.Supplier;
 
 public interface ComponentInject {
     ComponentInject inject(String key, Supplier<String> t);
+    ComponentInject inject(Supplier<String> t);
     void broadcast();
     void send(Player... players);
     ComponentHighlight setMessageHighlight(MessageHighlight highlight);
+    ComponentHighlight WARNING();
+    ComponentHighlight FAILURE();
 }

@@ -1,15 +1,15 @@
 package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.command.*;
+import com.arematics.minecraft.core.command.processor.Processor;
+import com.arematics.minecraft.core.command.processor.parser.sender.PlayerOnly;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.utils.ListUtils;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.time.LocalDate;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @CMD
 public class SoundCommand extends CoreCommand {
@@ -17,6 +17,11 @@ public class SoundCommand extends CoreCommand {
     @Override
     public String[] getCommandNames() {
         return new String[]{"sound"};
+    }
+
+    @Override
+    public Processor[] defineExecutingProcessors() {
+        return new Processor[0];
     }
 
     @Override
@@ -32,22 +37,24 @@ public class SoundCommand extends CoreCommand {
         return true;
     }
 
+    @PlayerOnly
     @Sub("list")
-    public boolean list(CommandSender sender){
-        return listSelected(sender, "");
+    public boolean list(Player player){
+        return listSelected(player, "");
     }
 
+    @PlayerOnly
     @Sub("list {startsWith}")
-    public boolean listSelected(CommandSender sender, String startsWith){
+    public boolean listSelected(Player player, String startsWith){
         LanguageAPI.injectable("listing")
-                .inject("%list_type%", () -> "Sound")
-                .inject("%list_value%", () -> ListUtils.getNameListStartsWith(Sound.class, startsWith))
-                .send((Player)sender);
+                .inject(() -> "Sound")
+                .inject(() -> ListUtils.getNameListStartsWith(Sound.class, startsWith))
+                .send(player);
         return true;
     }
 
     @Sub("list date {date}")
-    public boolean executeDate(CommandSender sender, Date date){
+    public boolean executeDate(CommandSender sender, LocalDateTime date){
         sender.sendMessage(date.toString());
         return true;
     }

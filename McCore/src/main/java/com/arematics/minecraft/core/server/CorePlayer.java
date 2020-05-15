@@ -1,7 +1,11 @@
 package com.arematics.minecraft.core.server;
 
 import com.arematics.minecraft.core.currency.Currency;
+import com.arematics.minecraft.core.language.ComponentHighlight;
+import com.arematics.minecraft.core.language.ComponentInject;
+import com.arematics.minecraft.core.language.LangComponent;
 import lombok.Data;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +13,16 @@ import java.util.concurrent.CompletableFuture;
 
 @Data
 public class CorePlayer {
+
+    private final Player player;
+
+    CorePlayer(Player player){
+        this.player = player;
+    }
+
+    public void message(ComponentHighlight highlight){
+        highlight.send(this.player);
+    }
 
     private Map<Currency, Double> currencies = new HashMap<>();
 
