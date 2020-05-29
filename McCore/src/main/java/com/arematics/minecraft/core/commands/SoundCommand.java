@@ -4,6 +4,9 @@ import com.arematics.minecraft.core.command.*;
 import com.arematics.minecraft.core.command.processor.Processor;
 import com.arematics.minecraft.core.command.processor.parser.sender.PlayerOnly;
 import com.arematics.minecraft.core.language.LanguageAPI;
+import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.processor.methods.commands.CommandAnnotationProcessor;
+import com.arematics.minecraft.core.processor.methods.commands.CommandProcessorData;
 import com.arematics.minecraft.core.utils.ListUtils;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
@@ -20,20 +23,16 @@ public class SoundCommand extends CoreCommand {
     }
 
     @Override
-    public Processor[] defineExecutingProcessors() {
-        return new Processor[0];
-    }
-
-    @Override
     public boolean matchAnyAccess() {
         return true;
     }
 
     @Default
     public boolean sendInfo(CommandSender sender){
-        LanguageAPI.injectable("cmd_not_valid")
-                .inject("%cmd_usage%", () -> "\n/sound list\n/sound list <startsWith>\n/sound <Name>")
-                .send((Player)sender);
+        Messages.create("cmd_not_valid")
+                .skip()
+                .replaceNext(() -> "\n/sound list\n/sound list <startsWith>\n/sound <Name>")
+                .send(sender);
         return true;
     }
 
@@ -46,9 +45,10 @@ public class SoundCommand extends CoreCommand {
     @PlayerOnly
     @Sub("list {startsWith}")
     public boolean listSelected(Player player, String startsWith){
-        LanguageAPI.injectable("listing")
-                .inject(() -> "Sound")
-                .inject(() -> ListUtils.getNameListStartsWith(Sound.class, startsWith))
+        Messages.create("listing")
+                .skip()
+                .replace("%list_type%", () -> "Sound")
+                .replace("%list_value%", () -> ListUtils.getNameListStartsWith(Sound.class, startsWith))
                 .send(player);
         return true;
     }

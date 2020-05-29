@@ -37,14 +37,17 @@ public class Parser {
     public Object[] fillParameters(CommandSender sender, String[] annotation, Class[] types, String[] src)
             throws ParserException {
         List<Object> parameters = new ArrayList<>();
-        parameters.add((CommandSender)sender);
+        parameters.add(sender);
         int b = 1;
         for(int i = 0; i < annotation.length; i++){
             String parameter = annotation[i];
             if(parameter.startsWith("{") && parameter.endsWith("}")){
-                if(EnumUtils.isValidEnum(types[b], src[i])) {
-                    parameters.add(EnumUtils.getEnum(types[b], src[i]));
-                }else {
+                try{
+                    parameters.add(Enum.valueOf(types[b], src[i]));
+                }catch (Exception exception){
+                    if(types[b].isEnum()){
+                        throw new ParserException("Not valid parameter value type");
+                    }
                     CommandParameterParser parser = parsers.get(types[b]);
                     parameters.add(parser.doParse(src[i]));
                 }

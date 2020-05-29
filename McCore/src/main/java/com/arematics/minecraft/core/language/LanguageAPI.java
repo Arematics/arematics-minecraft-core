@@ -3,6 +3,7 @@ package com.arematics.minecraft.core.language;
 import com.arematics.minecraft.core.configurations.Config;
 import com.arematics.minecraft.core.configurations.MessageHighlight;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
@@ -29,45 +30,23 @@ public class LanguageAPI {
         return users.get(p);
     }
 
-    public static void broadcast(String key){
-        for(LanguageUser user : users.values()){
-            user.getPlayer().sendMessage(user.getLanguage().getValue(key));
+    public static String prepareMessage(CommandSender sender, MessageHighlight highlight, String key){
+        if(sender instanceof Player){
+            return Config.getInstance().getPrefix() +
+                    highlight.getColorCode() +
+                    getUser((Player)sender).getLanguage().getValue(key);
         }
-    }
 
-    public static ComponentInject injectable(String key){
-        return LangComponent.create(key);
-    }
-
-    static String prepareMessage(Player player, MessageHighlight highlight, String key){
         return Config.getInstance().getPrefix() +
                 highlight.getColorCode() +
-                getUser(player).getLanguage().getValue(key);
-    }
-
-    private static void sendMessage(Player player, MessageHighlight highlight, String key){
-        player.sendMessage(prepareMessage(player, highlight, key));
-        player.playSound(player.getLocation(), highlight.getSound(), 1, 1);
-    }
-
-    public static void sendMessage(Player player, String key){
-        sendMessage(player, Config.getInstance().getHighlight(Config.SUCCESS), key);
-    }
-
-    public static void sendWarning(Player player, String key){
-        sendMessage(player, Config.getInstance().getHighlight(Config.WARNING), key);
-    }
-
-    public static void sendFailure(Player player, String key){
-        sendMessage(player, Config.getInstance().getHighlight(Config.FAILURE), key);
+                langs.get("ENGLISH").getValue(key);
     }
 
     public static void registerMessage(String langName, String key, String message){
         Optional<Language> lang = langs.values().stream().filter(language -> language.getName().equals(langName))
                 .findFirst();
         if(!lang.isPresent()) generateLanguage(langName).addText(key, message);
-        else
-            lang.get().addText(key, message);
+        else lang.get().addText(key, message);
     }
 
     private static Language generateLanguage(String name){

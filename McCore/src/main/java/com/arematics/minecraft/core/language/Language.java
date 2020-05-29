@@ -25,6 +25,6 @@ public class Language {
     }
 
     public String getValue(String key){
-        return text.getOrDefault(key, null);
+        return text.getOrDefault(key, key);
     }
 }
