@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.hooks;
 
-import com.arematics.minecraft.core.command.CMD;
+import com.arematics.minecraft.core.command.annotations.CMD;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;

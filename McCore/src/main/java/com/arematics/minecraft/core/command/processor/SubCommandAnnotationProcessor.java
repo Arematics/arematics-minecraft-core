@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.command.processor;
 
-import com.arematics.minecraft.core.command.Sub;
+import com.arematics.minecraft.core.command.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.parser.Parser;
 import com.arematics.minecraft.core.command.processor.parser.ParserException;
 import com.arematics.minecraft.core.messaging.Messages;
@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-public class SubAnnotationProcessor extends AnnotationProcessor {
+public class SubCommandAnnotationProcessor extends AnnotationProcessor {
 
     private static final String CMD_SAME_SUB_METHOD = "cmd_not_valid_length";
 
@@ -77,6 +77,6 @@ public class SubAnnotationProcessor extends AnnotationProcessor {
     }
 
     private String getSerializedValue(Method method) {
-        return method.getAnnotation(Sub.class).value();
+        return method.getAnnotation(SubCommand.class).value();
     }
 }

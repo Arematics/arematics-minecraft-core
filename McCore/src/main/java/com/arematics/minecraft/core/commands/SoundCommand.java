@@ -1,12 +1,11 @@
 package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.command.*;
-import com.arematics.minecraft.core.command.processor.Processor;
-import com.arematics.minecraft.core.command.processor.parser.sender.PlayerOnly;
-import com.arematics.minecraft.core.language.LanguageAPI;
+import com.arematics.minecraft.core.command.annotations.CMD;
+import com.arematics.minecraft.core.command.annotations.Default;
+import com.arematics.minecraft.core.command.annotations.SubCommand;
+import com.arematics.minecraft.core.command.annotations.PlayerOnly;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.processor.methods.commands.CommandAnnotationProcessor;
-import com.arematics.minecraft.core.processor.methods.commands.CommandProcessorData;
 import com.arematics.minecraft.core.utils.ListUtils;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
@@ -37,13 +36,13 @@ public class SoundCommand extends CoreCommand {
     }
 
     @PlayerOnly
-    @Sub("list")
+    @SubCommand("list")
     public boolean list(Player player){
         return listSelected(player, "");
     }
 
     @PlayerOnly
-    @Sub("list {startsWith}")
+    @SubCommand("list {startsWith}")
     public boolean listSelected(Player player, String startsWith){
         Messages.create("listing")
                 .skip()
@@ -53,19 +52,19 @@ public class SoundCommand extends CoreCommand {
         return true;
     }
 
-    @Sub("list date {date}")
+    @SubCommand("list date {date}")
     public boolean executeDate(CommandSender sender, LocalDateTime date){
         sender.sendMessage(date.toString());
         return true;
     }
 
-    @Sub("list add {message}")
+    @SubCommand("list add {message}")
     public boolean addSelected(CommandSender sender, String message){
         sender.sendMessage(message);
         return true;
     }
 
-    @Sub("{sound}")
+    @SubCommand("{sound}")
     public boolean executeSound(CommandSender sender, Sound sound){
         Player player = (Player) sender;
         player.playSound(player.getLocation(), sound, 1, 1);

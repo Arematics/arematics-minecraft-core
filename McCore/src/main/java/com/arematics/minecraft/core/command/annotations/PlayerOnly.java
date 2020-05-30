@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.command.processor.parser.sender;
+package com.arematics.minecraft.core.command.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,4 +7,4 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface ConsoleOnly {}
+public @interface PlayerOnly {}

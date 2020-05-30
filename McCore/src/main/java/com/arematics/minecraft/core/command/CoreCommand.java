@@ -1,6 +1,8 @@
 package com.arematics.minecraft.core.command;
 
-import com.arematics.minecraft.core.command.processor.SubAnnotationProcessor;
+import com.arematics.minecraft.core.command.annotations.Default;
+import com.arematics.minecraft.core.command.annotations.SubCommand;
+import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProcessor;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.processor.methods.CommonData;
 import org.bukkit.command.Command;
@@ -48,8 +50,8 @@ public abstract class CoreCommand implements CommandExecutor {
                 if(isDefault) {
                     if (method.isAnnotationPresent(Default.class))
                         return (boolean) method.invoke(this, sender);
-                }else if(method.isAnnotationPresent(Sub.class)){
-                    if(new SubAnnotationProcessor().addDataPack(dataPack).supply(this, method)) return true;
+                }else if(method.isAnnotationPresent(SubCommand.class)){
+                    if(new SubCommandAnnotationProcessor().addDataPack(dataPack).supply(this, method)) return true;
                 }
             }
         }catch (Exception exception){
