@@ -102,4 +102,9 @@ public class Message implements MessageHighlightType, MessageReplacement {
         });
         return result[0];
     }
+
+    @Override
+    public String toString(CommandSender sender) {
+        return injectValues(LanguageAPI.prepareMessage(sender, highlight, value));
+    }
 }

@@ -9,4 +9,5 @@ public interface MessageReplacement {
     MessageReplacement replaceNext(Supplier<String> supplier);
     void send(CommandSender... senders);
     void broadcast();
+    String toString(CommandSender sender);
 }

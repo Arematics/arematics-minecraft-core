@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.command.processor.parser;
 
 import com.arematics.minecraft.core.Engine;
+import com.arematics.minecraft.core.messaging.Messages;
 import org.apache.commons.lang3.EnumUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -37,7 +38,15 @@ public class Parser {
     public Object[] fillParameters(CommandSender sender, String[] annotation, Class[] types, String[] src)
             throws ParserException {
         List<Object> parameters = new ArrayList<>();
-        parameters.add(sender);
+        if (CommandSender.class.equals(types[0])) {
+            parameters.add(sender);
+        } else if (Player.class.equals(types[0])) {
+            if (sender instanceof Player) {
+                parameters.add(sender);
+            } else {
+                throw new ParserException("Only Players allowed to perform this command");
+            }
+        }
         int b = 1;
         for(int i = 0; i < annotation.length; i++){
             String parameter = annotation[i];

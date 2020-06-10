@@ -1,10 +1,7 @@
 package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.command.*;
-import com.arematics.minecraft.core.command.annotations.CMD;
-import com.arematics.minecraft.core.command.annotations.Default;
-import com.arematics.minecraft.core.command.annotations.SubCommand;
-import com.arematics.minecraft.core.command.annotations.PlayerOnly;
+import com.arematics.minecraft.core.command.annotations.*;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.utils.ListUtils;
 import org.bukkit.Sound;
@@ -13,18 +10,9 @@ import org.bukkit.entity.Player;
 
 import java.time.LocalDateTime;
 
-@CMD
+@AnyAccess
+@Command(names = {"sound"})
 public class SoundCommand extends CoreCommand {
-
-    @Override
-    public String[] getCommandNames() {
-        return new String[]{"sound"};
-    }
-
-    @Override
-    public boolean matchAnyAccess() {
-        return true;
-    }
 
     @Default
     public boolean sendInfo(CommandSender sender){
@@ -35,13 +23,11 @@ public class SoundCommand extends CoreCommand {
         return true;
     }
 
-    @PlayerOnly
     @SubCommand("list")
     public boolean list(Player player){
         return listSelected(player, "");
     }
 
-    @PlayerOnly
     @SubCommand("list {startsWith}")
     public boolean listSelected(Player player, String startsWith){
         Messages.create("listing")

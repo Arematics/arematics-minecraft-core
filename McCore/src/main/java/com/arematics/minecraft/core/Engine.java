@@ -22,6 +22,7 @@ public class Engine {
      */
     static void startEngine(Bootstrap bootstrap){
         INSTANCE = new Engine(bootstrap);
+        bootstrap.getLogger().info("Engine activated all jobs done!");
     }
 
     /**
