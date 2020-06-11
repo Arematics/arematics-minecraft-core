@@ -5,6 +5,7 @@ import com.arematics.minecraft.core.command.annotations.Default;
 import com.arematics.minecraft.core.command.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProcessor;
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import com.arematics.minecraft.core.processor.methods.CommonData;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public abstract class CoreCommand implements CommandExecutor {
 
@@ -26,21 +28,24 @@ public abstract class CoreCommand implements CommandExecutor {
     private final boolean matchAnyAccess;
 
     public CoreCommand() {
-        Class<? extends CoreCommand> theClass = this.getClass();
-        Annotation[] annotations = theClass.getAnnotations();
-
         boolean anyAccess = false;
         String[] names = {};
-        for(Annotation annotation : annotations){
-            if(annotation.annotationType() == AnyAccess.class){
+
+        for(Annotation annotation : this.getClass().getAnnotations()){
+            if(annotation.annotationType() == AnyAccess.class)
                anyAccess = true;
-            }
-            if(annotation.annotationType() == com.arematics.minecraft.core.command.annotations.Command.class){
+            if(annotation.annotationType() == com.arematics.minecraft.core.command.annotations.Command.class)
                 names = ((com.arematics.minecraft.core.command.annotations.Command)annotation).names();
-            }
         }
         this.commandNames = names;
         this.matchAnyAccess = anyAccess;
+
+        this.registerStandards();
+    }
+
+    private void registerStandards(){
+        this.accesses.add(new RangAccess());
+        this.processors.put(SubCommand.class, new SubCommandAnnotationProcessor());
     }
 
     /**
@@ -60,9 +65,9 @@ public abstract class CoreCommand implements CommandExecutor {
         return this.matchAnyAccess;
     }
 
-    private final List<CommandAccess> accesses = new ArrayList<CommandAccess>(){{
-       add(new RangAccess());
-    }};
+    private final List<CommandAccess> accesses = new ArrayList<CommandAccess>();
+
+    private final Map<Class<? extends Annotation>, AnnotationProcessor> processors = new HashMap<>();
 
     @Override
     public final boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
@@ -86,8 +91,11 @@ public abstract class CoreCommand implements CommandExecutor {
                 if(isDefault) {
                     if (method.isAnnotationPresent(Default.class))
                         return (boolean) method.invoke(this, sender);
-                }else if(method.isAnnotationPresent(SubCommand.class)){
-                    if(new SubCommandAnnotationProcessor().addDataPack(dataPack).supply(this, method)) return true;
+                } else {
+                    for(Map.Entry<Class<? extends Annotation>, AnnotationProcessor> processorEntry : this.processors.entrySet()){
+                        if(method.isAnnotationPresent(processorEntry.getKey()))
+                            if (processorEntry.getValue().supply(this, method)) return true;
+                    }
                 }
             }
         }catch (Exception exception){
@@ -104,5 +112,9 @@ public abstract class CoreCommand implements CommandExecutor {
 
     public List<CommandAccess> getAccesses() {
         return accesses;
+    }
+
+    public Map<Class<? extends Annotation>, AnnotationProcessor> getProcessors() {
+        return processors;
     }
 }

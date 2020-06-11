@@ -2,9 +2,9 @@ package com.arematics.minecraft.core.processor.methods;
 
 public enum CommonData {
 
-    COMMAND("cmd"),
-    COMMAND_SENDER("cmd_sender"),
-    COMMAND_ARGUEMNTS("cmd_args");
+    COMMAND("command"),
+    COMMAND_SENDER("sender"),
+    COMMAND_ARGUEMNTS("arguments");
 
     private final String key;
 

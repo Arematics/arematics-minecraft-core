@@ -6,6 +6,7 @@ import com.arematics.minecraft.core.command.processor.parser.ParserException;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import com.arematics.minecraft.core.processor.methods.CommonData;
+import com.arematics.minecraft.core.processor.methods.Data;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.reflect.MethodUtils;
@@ -20,32 +21,37 @@ public class SubCommandAnnotationProcessor extends AnnotationProcessor {
 
     private static final String CMD_SAME_SUB_METHOD = "cmd_not_valid_length";
 
-    @Override
-    public boolean supply(Object executing, Method method) throws Exception{
-        CommandSender sender = (CommandSender) getData(CommonData.COMMAND_SENDER);
-        List<String> annos = (List<String>) getData("annotations");
-        String[] args = (String[]) getData(CommonData.COMMAND_ARGUEMNTS);
-        Command command = (Command) getData(CommonData.COMMAND);
+    @Data
+    private Command command;
+    @Data
+    private String[] arguments;
+    @Data
+    private CommandSender sender;
+    @Data
+    private List<String> annotatios;
 
+    @Override
+    public boolean supply(Object executor, Method method) throws Exception {
+        super.supply(executor, method);
         String value = getSerializedValue(method);
-        if(annos.contains(value)){
+        if(annotatios.contains(value)){
             Messages.create(CMD_SAME_SUB_METHOD).FAILURE().replaceNext(command::getName).send(sender);
             return true;
         }
-        annos.add(value);
+        annotatios.add(value);
         String[] annotationValues = value.split(" ");
-        args = getSetupMessageArray(annotationValues, args);
-        if(annotationValues.length == args.length && isMatch(annotationValues, args)){
+        arguments = getSetupMessageArray(annotationValues, arguments);
+        if(annotationValues.length == arguments.length && isMatch(annotationValues, arguments)){
             Object[] order;
             try{
-                order = Parser.getInstance().fillParameters(sender, annotationValues, method.getParameterTypes(), args);
+                order = Parser.getInstance().fillParameters(sender, annotationValues, method.getParameterTypes(), arguments);
             }catch (ParserException exception){
                 Messages.create(exception.getMessage()).WARNING().send(sender);
                 return true;
             }
 
-            if(ArrayUtils.isEmpty(order)) return (boolean) method.invoke(executing, sender);
-            else return (boolean) MethodUtils.invokeMethod(executing, method.getName(), order,
+            if(ArrayUtils.isEmpty(order)) return (boolean) method.invoke(executor, sender);
+            else return (boolean) MethodUtils.invokeMethod(executor, method.getName(), order,
                     method.getParameterTypes());
         }
         return false;
