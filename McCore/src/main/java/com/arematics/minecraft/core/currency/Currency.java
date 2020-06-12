@@ -1,8 +1,13 @@
 package com.arematics.minecraft.core.currency;
 
-import lombok.Data;
-
-@Data
 public class Currency {
     private final String name;
+
+    public Currency(String name){
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

@@ -22,12 +22,10 @@ subprojects {
         compileOnly  name: 'WGRegionEvents'
         compileOnly group: 'com.arematics.model', name: 'SoulDataModel', version: '1.0'
 
-        //Lombok
-        compile group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
-        annotationProcessor 'org.projectlombok:lombok:1.18.12'
-
         testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.1'
         testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.1'
+        testCompile group: 'org.mockito', name: 'mockito-core', version: '3.3.3'
+
 
     }
 

@@ -1,14 +1,12 @@
 package com.arematics.minecraft.core.server;
 
 import com.arematics.minecraft.core.currency.Currency;
-import lombok.Data;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-@Data
 public class CorePlayer {
 
     private Player player;
@@ -17,10 +15,18 @@ public class CorePlayer {
         this.player = player;
     }
 
-    private Map<Currency, Double> currencies = new HashMap<>();
+    private final Map<Currency, Double> currencies = new HashMap<>();
 
     public CorePlayer() {
 
+    }
+
+    public Map<Currency, Double> getCurrencies() {
+        return currencies;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 
     /**
