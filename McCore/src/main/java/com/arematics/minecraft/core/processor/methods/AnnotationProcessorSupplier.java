@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.processor.methods.fluent;
+package com.arematics.minecraft.core.processor.methods;
 
 import java.lang.reflect.Method;
 

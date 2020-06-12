@@ -1,7 +1,10 @@
 package com.arematics.minecraft.core.commands;
 
-import com.arematics.minecraft.core.command.*;
-import com.arematics.minecraft.core.command.annotations.*;
+import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.command.annotations.AnyAccess;
+import com.arematics.minecraft.core.command.annotations.Command;
+import com.arematics.minecraft.core.command.annotations.Default;
+import com.arematics.minecraft.core.command.annotations.SubCommand;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.utils.ListUtils;
 import org.bukkit.Sound;
@@ -17,9 +20,7 @@ public class SoundCommand extends CoreCommand {
     @Default
     public boolean sendInfo(CommandSender sender){
         Messages.create("cmd_not_valid")
-                .skip()
-                .replaceNext(() -> "\n/sound list\n/sound list <startsWith>\n/sound <Name>")
-                .send(sender);
+                .skip().replaceNext(() -> "\n/sound list\n/sound list <startsWith>\n/sound <Name>").send(sender);
         return true;
     }
 

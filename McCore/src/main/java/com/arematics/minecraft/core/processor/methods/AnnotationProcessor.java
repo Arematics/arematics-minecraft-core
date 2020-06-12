@@ -1,34 +1,30 @@
 package com.arematics.minecraft.core.processor.methods;
 
-import com.arematics.minecraft.core.command.annotations.SubCommand;
-import com.arematics.minecraft.core.processor.methods.fluent.AnnotationProcessorEnvironment;
-import com.arematics.minecraft.core.processor.methods.fluent.AnnotationProcessorSupplier;
-
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.MissingResourceException;
+import java.lang.reflect.ParameterizedType;
 
-public abstract class AnnotationProcessor implements AnnotationProcessorEnvironment, AnnotationProcessorSupplier {
+public abstract class AnnotationProcessor<T extends Annotation> implements AnnotationProcessorEnvironment, AnnotationProcessorSupplier {
 
     private MethodProcessorEnvironment environment;
 
     @Override
-    public AnnotationProcessor setEnvironment(MethodProcessorEnvironment environment){
+    public AnnotationProcessor<T> setEnvironment(MethodProcessorEnvironment environment){
         this.environment = environment;
         return this;
     }
 
     @Override
     public boolean supply(Object executor, Method method) throws Exception {
-        Field[] fields = this.getClass().getFields();
+        Field[] fields = this.getClass().getDeclaredFields();
         for(Field field : fields){
             if(field.isAnnotationPresent(Data.class)){
+                String name = getSerializedName(field);
                 Object data = environment.getData(getSerializedName(field));
                 if(data == null)
-                    throw new IllegalStateException("Missing field value in MethodProcessorEnvironment");
-                if(!(data.getClass() == field.getType()))
+                    throw new IllegalStateException("Missing field value in MethodProcessorEnvironment for data " + name);
+                if(!(field.getType().isAssignableFrom(data.getClass())))
                     throw new IllegalStateException("Not same Data Types for Field " + field.getName());
                 field.setAccessible(true);
                 field.set(this, data);
@@ -41,5 +37,10 @@ public abstract class AnnotationProcessor implements AnnotationProcessorEnvironm
         String name = field.getAnnotation(Data.class).name();
         if(!name.equals("")) return name;
         return field.getName();
+    }
+
+    public Class<T> get(){
+        return ((Class<T>) ((ParameterizedType) getClass()
+                .getGenericSuperclass()).getActualTypeArguments()[0]);
     }
 }

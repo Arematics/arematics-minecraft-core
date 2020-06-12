@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-public class SubCommandAnnotationProcessor extends AnnotationProcessor {
+public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubCommand> {
 
     private static final String CMD_SAME_SUB_METHOD = "cmd_not_valid_length";
 
@@ -28,17 +28,17 @@ public class SubCommandAnnotationProcessor extends AnnotationProcessor {
     @Data
     private CommandSender sender;
     @Data
-    private List<String> annotatios;
+    private List<String> annotations;
 
     @Override
     public boolean supply(Object executor, Method method) throws Exception {
         super.supply(executor, method);
         String value = getSerializedValue(method);
-        if(annotatios.contains(value)){
+        if(annotations.contains(value)){
             Messages.create(CMD_SAME_SUB_METHOD).FAILURE().replaceNext(command::getName).send(sender);
             return true;
         }
-        annotatios.add(value);
+        annotations.add(value);
         String[] annotationValues = value.split(" ");
         arguments = getSetupMessageArray(annotationValues, arguments);
         if(annotationValues.length == arguments.length && isMatch(annotationValues, arguments)){
