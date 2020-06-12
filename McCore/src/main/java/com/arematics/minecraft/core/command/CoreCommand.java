@@ -1,9 +1,6 @@
 package com.arematics.minecraft.core.command;
 
-import com.arematics.minecraft.core.command.annotations.AnyAccess;
-import com.arematics.minecraft.core.command.annotations.Default;
-import com.arematics.minecraft.core.command.annotations.Processors;
-import com.arematics.minecraft.core.command.annotations.SubCommand;
+import com.arematics.minecraft.core.annotations.*;
 import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProcessor;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
@@ -35,8 +32,8 @@ public abstract class CoreCommand implements CommandExecutor {
         for(Annotation annotation : this.getClass().getAnnotations()){
             if(annotation.annotationType() == AnyAccess.class)
                anyAccess = true;
-            if(annotation.annotationType() == com.arematics.minecraft.core.command.annotations.Command.class)
-                names = ((com.arematics.minecraft.core.command.annotations.Command)annotation).names();
+            if(annotation.annotationType() == PluginCommand.class)
+                names = ((PluginCommand)annotation).names();
         }
         this.commandNames = names;
         this.matchAnyAccess = anyAccess;
@@ -50,8 +47,8 @@ public abstract class CoreCommand implements CommandExecutor {
 
         try {
             for(Annotation annotation : this.getClass().getAnnotations()){
-                if(annotation.annotationType() == Processors.class) {
-                    Class<? extends AnnotationProcessor<?>>[] processors = ((Processors)annotation).processors();
+                if(annotation.annotationType() == PluginCommand.class) {
+                    Class<? extends AnnotationProcessor<?>>[] processors = ((PluginCommand)annotation).processors();
                     for (Class<? extends AnnotationProcessor<?>> processor : processors) {
                         AnnotationProcessor<?> instance = processor.newInstance();
                         this.processors.put(instance.get(), instance);

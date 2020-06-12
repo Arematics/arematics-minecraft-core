@@ -1,5 +1,7 @@
 package com.arematics.minecraft.core.processor.methods;
 
+import com.arematics.minecraft.core.annotations.ProcessorData;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -19,7 +21,7 @@ public abstract class AnnotationProcessor<T extends Annotation> implements Annot
     public boolean supply(Object executor, Method method) throws Exception {
         Field[] fields = this.getClass().getDeclaredFields();
         for(Field field : fields){
-            if(field.isAnnotationPresent(Data.class)){
+            if(field.isAnnotationPresent(ProcessorData.class)){
                 String name = getSerializedName(field);
                 Object data = environment.getData(getSerializedName(field));
                 if(data == null)
@@ -34,7 +36,7 @@ public abstract class AnnotationProcessor<T extends Annotation> implements Annot
     }
 
     private String getSerializedName(Field field) {
-        String name = field.getAnnotation(Data.class).name();
+        String name = field.getAnnotation(ProcessorData.class).name();
         if(!name.equals("")) return name;
         return field.getName();
     }

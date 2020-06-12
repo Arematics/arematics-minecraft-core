@@ -1,12 +1,11 @@
 package com.arematics.minecraft.core.command.processor;
 
-import com.arematics.minecraft.core.command.annotations.SubCommand;
+import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.parser.Parser;
 import com.arematics.minecraft.core.command.processor.parser.ParserException;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
-import com.arematics.minecraft.core.processor.methods.CommonData;
-import com.arematics.minecraft.core.processor.methods.Data;
+import com.arematics.minecraft.core.annotations.ProcessorData;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.reflect.MethodUtils;
@@ -21,13 +20,13 @@ public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubComman
 
     private static final String CMD_SAME_SUB_METHOD = "cmd_not_valid_length";
 
-    @Data
+    @ProcessorData
     private Command command;
-    @Data
+    @ProcessorData
     private String[] arguments;
-    @Data
+    @ProcessorData
     private CommandSender sender;
-    @Data
+    @ProcessorData
     private List<String> annotations;
 
     @Override

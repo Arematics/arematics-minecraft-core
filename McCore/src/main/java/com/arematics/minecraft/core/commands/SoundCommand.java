@@ -1,10 +1,11 @@
 package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.command.annotations.AnyAccess;
-import com.arematics.minecraft.core.command.annotations.Command;
-import com.arematics.minecraft.core.command.annotations.Default;
-import com.arematics.minecraft.core.command.annotations.SubCommand;
+import com.arematics.minecraft.core.annotations.AnyAccess;
+import com.arematics.minecraft.core.annotations.PluginCommand;
+import com.arematics.minecraft.core.annotations.Default;
+import com.arematics.minecraft.core.annotations.SubCommand;
+import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProcessor;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.utils.ListUtils;
 import org.bukkit.Sound;
@@ -14,7 +15,7 @@ import org.bukkit.entity.Player;
 import java.time.LocalDateTime;
 
 @AnyAccess
-@Command(names = {"sound"})
+@PluginCommand(names = {"sound"})
 public class SoundCommand extends CoreCommand {
 
     @Default

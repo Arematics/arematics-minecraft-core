@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.command;
+package com.arematics.minecraft.core.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,5 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Permission {
-    String value() default "";
+public @interface Default {
 }

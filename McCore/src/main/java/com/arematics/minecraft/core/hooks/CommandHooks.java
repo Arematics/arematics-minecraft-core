@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.hooks;
 
-import com.arematics.minecraft.core.command.annotations.Command;
+import com.arematics.minecraft.core.annotations.PluginCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,7 +27,7 @@ public class CommandHooks extends PackageHook<Class<?>> {
     @Override
     public Set<Class<?>> startPreProcessor(ClassLoader loader, JavaPlugin plugin) {
         Reflections reflections = new Reflections(ScanEnvironment.getBuilder());
-        return reflections.getTypesAnnotatedWith(Command.class);
+        return reflections.getTypesAnnotatedWith(PluginCommand.class);
     }
 
     @Override
