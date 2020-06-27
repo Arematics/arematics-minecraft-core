@@ -3,6 +3,7 @@ package com.arematics.minecraft.core.command;
 import com.arematics.minecraft.core.annotations.*;
 import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProcessor;
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.utils.ClassUtils;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import com.arematics.minecraft.core.processor.methods.CommonData;
 import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment;
@@ -24,19 +25,13 @@ public abstract class CoreCommand implements CommandExecutor {
 
     private final String[] commandNames;
     private final boolean matchAnyAccess;
+    private final List<CommandAccess> accesses = new ArrayList<>();
+    private final Map<Class<? extends Annotation>, AnnotationProcessor<?>> processors = new HashMap<>();
 
     public CoreCommand() {
-        boolean anyAccess = false;
-        String[] names = {};
-
-        for(Annotation annotation : this.getClass().getAnnotations()){
-            if(annotation.annotationType() == AnyAccess.class)
-               anyAccess = true;
-            if(annotation.annotationType() == PluginCommand.class)
-                names = ((PluginCommand)annotation).names();
-        }
-        this.commandNames = names;
-        this.matchAnyAccess = anyAccess;
+        this.commandNames = ClassUtils.fetchAnnotationValueSave(this, PluginCommand.class, PluginCommand::names)
+                .orElse(new String[]{});
+        this.matchAnyAccess = ClassUtils.findAnnotation(this, AnyAccess.class).isPresent();
 
         this.registerStandards();
     }
@@ -61,14 +56,6 @@ public abstract class CoreCommand implements CommandExecutor {
     }
 
     /**
-     * Defining all Command Names Spigot should register for this executor
-     * @return Command Names
-     */
-    public final String[] getCommandNames(){
-        return this.commandNames;
-    }
-
-    /**
      * Defined Accesses protects the command from being executed by someone isn't allowed to use this command.
      * This method defines if all Accesses must be allowed for the execute ore only one access.
      * @return If only one access is enough = return true else return false
@@ -77,38 +64,38 @@ public abstract class CoreCommand implements CommandExecutor {
         return this.matchAnyAccess;
     }
 
-    private final List<CommandAccess> accesses = new ArrayList<>();
+    public List<CommandAccess> accesses() {
+        return accesses;
+    }
 
-    private final Map<Class<? extends Annotation>, AnnotationProcessor<?>> processors = new HashMap<>();
+    public String[] getCommandNames(){
+        return this.commandNames;
+    }
 
     @Override
-    public final boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
+    public final boolean onCommand(CommandSender commandSender, Command command, String labels, String[] arguments) {
         if(canAccessCommand(commandSender, command))
-            return process(commandSender, command, strings);
+            return process(commandSender, command, arguments);
         else
             Messages.create(CMD_NO_PERMS).WARNING().send(commandSender);
         return true;
     }
 
-    private boolean process(CommandSender sender, Command command, String[] args){
-        boolean isDefault = args.length == 0;
-        List<String> annos = new ArrayList<>();
+    private boolean process(CommandSender sender, Command command, String[] arguments){
+        boolean isDefault = arguments.length == 0;
+        List<String> annotations = new ArrayList<>();
         Map<String, Object> dataPack = new HashMap<>();
         dataPack.put(CommonData.COMMAND_SENDER.toString(), sender);
-        dataPack.put("annotations", annos);
-        dataPack.put(CommonData.COMMAND_ARGUEMNTS.toString(), args);
+        dataPack.put("annotations", annotations);
+        dataPack.put(CommonData.COMMAND_ARGUEMNTS.toString(), arguments);
         dataPack.put(CommonData.COMMAND.toString(), command);
         try{
             for (final Method method : this.getClass().getDeclaredMethods()){
-                MethodProcessorEnvironment environment = new MethodProcessorEnvironment(this, method, dataPack);
                 if(isDefault) {
-                    if (method.isAnnotationPresent(Default.class))
-                        return (boolean) method.invoke(this, sender);
+                    ClassUtils.execute(Default.class, method, (tempMethod) -> (Boolean) method.invoke(this, sender));
                 } else {
-                    for(Map.Entry<Class<? extends Annotation>, AnnotationProcessor<?>> processorEntry : this.processors.entrySet()){
-                        if(method.isAnnotationPresent(processorEntry.getKey()))
-                            if (processorEntry.getValue().setEnvironment(environment).supply(this, method)) return true;
-                    }
+                    MethodProcessorEnvironment environment = new MethodProcessorEnvironment(this, method, dataPack);
+                    return environment.supplyProcessors(this.processors);
                 }
             }
         }catch (Exception exception){
@@ -119,12 +106,8 @@ public abstract class CoreCommand implements CommandExecutor {
     }
 
     public boolean canAccessCommand(CommandSender sender, Command command){
-        if(matchAnyAccess()) return getAccesses().stream().anyMatch(access -> access.hasAccess(sender, command.getName()));
-        else return getAccesses().stream().allMatch(access -> access.hasAccess(sender, command.getName()));
-    }
-
-    public List<CommandAccess> getAccesses() {
-        return accesses;
+        if(matchAnyAccess()) return accesses().stream().anyMatch(access -> access.hasAccess(sender, command.getName()));
+        else return accesses().stream().allMatch(access -> access.hasAccess(sender, command.getName()));
     }
 
 }

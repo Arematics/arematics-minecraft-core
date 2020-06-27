@@ -1,6 +1,5 @@
 package com.arematics.minecraft.core;
 
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**

@@ -30,9 +30,9 @@ public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubComman
     private List<String> annotations;
 
     @Override
-    public boolean supply(Object executor, Method method) throws Exception {
-        super.supply(executor, method);
-        String value = getSerializedValue(method);
+    public boolean supply() throws Exception {
+        super.supply();
+        String value = getSerializedValue(method());
         if(annotations.contains(value)){
             Messages.create(CMD_SAME_SUB_METHOD).FAILURE().replaceNext(command::getName).send(sender);
             return true;
@@ -43,15 +43,15 @@ public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubComman
         if(annotationValues.length == arguments.length && isMatch(annotationValues, arguments)){
             Object[] order;
             try{
-                order = Parser.getInstance().fillParameters(sender, annotationValues, method.getParameterTypes(), arguments);
+                order = Parser.getInstance().fillParameters(sender, annotationValues, method().getParameterTypes(), arguments);
             }catch (ParserException exception){
                 Messages.create(exception.getMessage()).WARNING().send(sender);
                 return true;
             }
 
-            if(ArrayUtils.isEmpty(order)) return (boolean) method.invoke(executor, sender);
-            else return (boolean) MethodUtils.invokeMethod(executor, method.getName(), order,
-                    method.getParameterTypes());
+            if(ArrayUtils.isEmpty(order)) return (boolean) method().invoke(executer(), sender);
+            else return (boolean) MethodUtils.invokeMethod(executer(), method().getName(), order,
+                    method().getParameterTypes());
         }
         return false;
     }

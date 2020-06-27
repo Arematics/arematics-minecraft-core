@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.processor.methods;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,20 +9,20 @@ public class MethodProcessorEnvironment {
 
     private final Object executor;
     private final Method method;
-    private final Map<String, Object> data;
+    private final Map<String, Object> dataPack;
 
     public MethodProcessorEnvironment(Object executor, Method method){
         this(executor, method, new HashMap<>());
     }
 
-    public MethodProcessorEnvironment(Object executor, Method method, Map<String, Object> data){
+    public MethodProcessorEnvironment(Object executor, Method method, Map<String, Object> dataPack){
         this.executor = executor;
         this.method = method;
-        this.data = data;
+        this.dataPack = dataPack;
     }
 
     public MethodProcessorEnvironment addDataPack(Map<String, Object> dataPack){
-        this.data.putAll(dataPack);
+        this.dataPack.putAll(dataPack);
         return this;
     }
 
@@ -30,15 +31,32 @@ public class MethodProcessorEnvironment {
     }
 
     public MethodProcessorEnvironment addData(String key, Object object){
-        this.data.put(key, object);
+        this.dataPack.put(key, object);
         return this;
     }
 
-    protected Object getData(CommonData key){
-        return getData(key.toString());
+    protected Object findData(CommonData key){
+        return findData(key.toString());
     }
 
-    protected Object getData(String key){
-        return this.data.get(key);
+    protected Object findData(String key){
+        return this.dataPack.get(key);
+    }
+
+    public Object getExecutor() {
+        return executor;
+    }
+
+    public Method getMethod() {
+        return method;
+    }
+
+    public boolean supplyProcessors(Map<Class<? extends Annotation>, AnnotationProcessor<?>> processors) throws Exception {
+        for(Map.Entry<Class<? extends Annotation>, AnnotationProcessor<?>> processorEntry : processors.entrySet()){
+            if(method.isAnnotationPresent(processorEntry.getKey())){
+                if (processorEntry.getValue().setEnvironment(this).supply()) return true;
+            }
+        }
+        return true;
     }
 }

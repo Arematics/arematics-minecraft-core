@@ -31,7 +31,7 @@ class CorePlayerTest extends Assertions {
 
     @Test
     void addCurrency() {
-        long start = System.currentTimeMillis();
+        final long start = System.currentTimeMillis();
         assertEquals(0, corePlayer.getCurrency(currency), "Currency is not empty");
         corePlayer.setCurrency(currency, 500);
         assertEquals(500, corePlayer.getCurrency(currency), "Currency is not matching 500");

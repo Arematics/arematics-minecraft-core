@@ -78,10 +78,6 @@ public class PreFileExistHook implements Hook<String>{
     }
 
     private boolean isMirrored(String name, File dir){
-        if(dir.listFiles() != null){
-            return FileUtils.listFiles(dir, null, true).stream().anyMatch(f2 -> f2.getName().equals(name));
-        }
-
-        return false;
+        return FileUtils.listFiles(dir, null, true).stream().anyMatch(f2 -> f2.getName().equals(name));
     }
 }

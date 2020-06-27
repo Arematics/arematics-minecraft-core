@@ -34,7 +34,7 @@ public class Config {
             Bukkit.getLogger().severe("Could not load configs: " + ioe.getMessage());
         }
 
-        this.commandPrefix = getPropertyValue("command_prefix") + getPropertyValue("command_split");
+        this.commandPrefix = findByKey("command_prefix") + findByKey("command_split");
 
         addMessageHighlight(SUCCESS);
         addMessageHighlight(WARNING);
@@ -43,8 +43,8 @@ public class Config {
 
     private void addMessageHighlight(String typo){
 
-        String colorCodeSuccess = getPropertyValue("command_" + typo + "_color");
-        String soundSuccess = getPropertyValue("command_" + typo + "_sound");
+        String colorCodeSuccess = findByKey("command_" + typo + "_color");
+        String soundSuccess = findByKey("command_" + typo + "_sound");
         addMessageHighlight(typo, colorCodeSuccess, soundSuccess);
     }
 
@@ -56,7 +56,7 @@ public class Config {
         return properties;
     }
 
-    public String getPropertyValue(String key){
+    public String findByKey(String key){
         return this.properties.getProperty(key).replaceAll("'", "")
                 .replaceAll("\"", "");
     }

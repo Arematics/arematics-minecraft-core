@@ -18,12 +18,12 @@ public abstract class AnnotationProcessor<T extends Annotation> implements Annot
     }
 
     @Override
-    public boolean supply(Object executor, Method method) throws Exception {
+    public boolean supply() throws Exception {
         Field[] fields = this.getClass().getDeclaredFields();
         for(Field field : fields){
             if(field.isAnnotationPresent(ProcessorData.class)){
                 String name = getSerializedName(field);
-                Object data = environment.getData(getSerializedName(field));
+                Object data = environment.findData(getSerializedName(field));
                 if(data == null)
                     throw new IllegalStateException("Missing field value in MethodProcessorEnvironment for data " + name);
                 if(!(field.getType().isAssignableFrom(data.getClass())))
@@ -33,6 +33,18 @@ public abstract class AnnotationProcessor<T extends Annotation> implements Annot
             }
         }
         return true;
+    }
+
+    public MethodProcessorEnvironment getEnvironment() {
+        return environment;
+    }
+
+    public Object executer(){
+        return getEnvironment().getExecutor();
+    }
+
+    public Method method(){
+        return getEnvironment().getMethod();
     }
 
     private String getSerializedName(Field field) {
