@@ -1,13 +1,12 @@
 package com.arematics.minecraft.core.utils;
 
-import com.arematics.minecraft.core.generics.CheckedFunction;
+import com.arematics.minecraft.core.generics.UncheckedFunction;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author Enrico
@@ -27,10 +26,10 @@ public class ClassUtils {
         return optional.map(execute);
     }
 
-    public static <T> boolean execute(Class<T> theClass, Method method, CheckedFunction<Method, Boolean> func)
+    public static <T> boolean execute(Class<T> theClass, Method method, UncheckedFunction<Method, Boolean> func)
             throws Exception {
         if(Arrays.stream(method.getDeclaredAnnotations()).anyMatch(classes -> classes.annotationType() == theClass))
             return func.apply(method);
-        return true;
+        return false;
     }
 }

@@ -18,7 +18,7 @@ public abstract class AnnotationProcessor<T extends Annotation> implements Annot
     }
 
     @Override
-    public boolean supply() throws Exception {
+    public boolean supply(Method method) throws Exception {
         Field[] fields = this.getClass().getDeclaredFields();
         for(Field field : fields){
             if(field.isAnnotationPresent(ProcessorData.class)){
@@ -41,10 +41,6 @@ public abstract class AnnotationProcessor<T extends Annotation> implements Annot
 
     public Object executer(){
         return getEnvironment().getExecutor();
-    }
-
-    public Method method(){
-        return getEnvironment().getMethod();
     }
 
     private String getSerializedName(Field field) {

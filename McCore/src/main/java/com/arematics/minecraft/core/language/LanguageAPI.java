@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.language;
 
 import com.arematics.minecraft.core.configurations.Config;
-import com.arematics.minecraft.core.configurations.MessageHighlight;
+import com.arematics.minecraft.core.messaging.MessageHighlight;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

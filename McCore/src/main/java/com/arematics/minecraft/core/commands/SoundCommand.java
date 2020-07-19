@@ -11,6 +11,7 @@ import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @AnyAccess
@@ -20,7 +21,8 @@ public class SoundCommand extends CoreCommand {
     @Default
     public boolean sendInfo(CommandSender sender){
         Messages.create("cmd_not_valid")
-                .skip().replaceNext(() -> "\n/sound list\n/sound list <startsWith>\n/sound <Name>").send(sender);
+                .skip()
+                .replace("cmd_usage", "\n/sound list\n/sound list <startsWith>\n/sound <Name>").send(sender);
         return true;
     }
 
@@ -33,14 +35,14 @@ public class SoundCommand extends CoreCommand {
     public boolean listSelected(Player player, String startsWith){
         Messages.create("listing")
                 .skip()
-                .replace("%list_type%", () -> "Sound")
-                .replace("%list_value%", () -> ListUtils.getNameListStartsWith(Sound.class, startsWith))
+                .replace("list_type", "Sound")
+                .replace("list_value", ListUtils.getNameListStartsWith(Sound.class, startsWith))
                 .send(player);
         return true;
     }
 
     @SubCommand("list date {date}")
-    public boolean executeDate(CommandSender sender, LocalDateTime date){
+    public boolean executeDate(CommandSender sender, LocalDate date){
         sender.sendMessage(date.toString());
         return true;
     }

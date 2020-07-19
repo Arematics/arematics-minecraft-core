@@ -18,7 +18,7 @@ import java.util.List;
 
 public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubCommand> {
 
-    private static final String CMD_SAME_SUB_METHOD = "cmd_not_valid_length";
+    private static final String CMD_SAME_SUB_METHOD = "cmd_same_sub_method_exist";
 
     @ProcessorData
     private Command command;
@@ -30,11 +30,11 @@ public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubComman
     private List<String> annotations;
 
     @Override
-    public boolean supply() throws Exception {
-        super.supply();
-        String value = getSerializedValue(method());
+    public boolean supply(Method method) throws Exception {
+        super.supply(method);
+        String value = getSerializedValue(method);
         if(annotations.contains(value)){
-            Messages.create(CMD_SAME_SUB_METHOD).FAILURE().replaceNext(command::getName).send(sender);
+            Messages.create(CMD_SAME_SUB_METHOD).FAILURE().send(sender);
             return true;
         }
         annotations.add(value);
@@ -43,15 +43,15 @@ public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubComman
         if(annotationValues.length == arguments.length && isMatch(annotationValues, arguments)){
             Object[] order;
             try{
-                order = Parser.getInstance().fillParameters(sender, annotationValues, method().getParameterTypes(), arguments);
+                order = Parser.getInstance().fillParameters(sender, annotationValues, method.getParameterTypes(), arguments);
             }catch (ParserException exception){
                 Messages.create(exception.getMessage()).WARNING().send(sender);
                 return true;
             }
 
-            if(ArrayUtils.isEmpty(order)) return (boolean) method().invoke(executer(), sender);
-            else return (boolean) MethodUtils.invokeMethod(executer(), method().getName(), order,
-                    method().getParameterTypes());
+            if(ArrayUtils.isEmpty(order)) return (boolean) method.invoke(executer(), sender);
+            else return (boolean) MethodUtils.invokeMethod(executer(), method.getName(), order,
+                    method.getParameterTypes());
         }
         return false;
     }

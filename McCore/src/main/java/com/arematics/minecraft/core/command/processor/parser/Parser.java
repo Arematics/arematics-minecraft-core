@@ -1,8 +1,6 @@
 package com.arematics.minecraft.core.command.processor.parser;
 
 import com.arematics.minecraft.core.Engine;
-import com.arematics.minecraft.core.messaging.Messages;
-import org.apache.commons.lang3.EnumUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -28,7 +26,7 @@ public class Parser {
         addParser(new IntegerParser());
         addParser(new DoubleParser());
         addParser(new DateParser());
-        addParser(new LocalDateTimeParser());
+        addParser(new LocalDateParser());
     }
 
     public void addParser(CommandParameterParser<?> parser){
