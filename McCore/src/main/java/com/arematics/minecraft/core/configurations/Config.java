@@ -2,6 +2,7 @@ package com.arematics.minecraft.core.configurations;
 
 import com.arematics.minecraft.core.CoreEngine;
 import com.arematics.minecraft.core.Engine;
+import com.arematics.minecraft.core.messaging.MessageHighlight;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 

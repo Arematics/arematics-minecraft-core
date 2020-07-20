@@ -2,23 +2,24 @@ package com.arematics.minecraft.core.processor.methods;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
 
 public class MethodProcessorEnvironment {
 
-    private final Object executor;
-    private final Method method;
-    private final Map<String, Object> dataPack;
-
-    public MethodProcessorEnvironment(Object executor, Method method){
-        this(executor, method, new HashMap<>());
+    public static MethodProcessorEnvironment newEnvironment(Object executor, Map<String, Object> dataPack,
+                                                            Map<Class<? extends Annotation>, AnnotationProcessor<?>> processors) {
+        return new MethodProcessorEnvironment(executor, dataPack, processors);
     }
 
-    public MethodProcessorEnvironment(Object executor, Method method, Map<String, Object> dataPack){
+    private final Object executor;
+    private final Map<String, Object> dataPack;
+    private final Map<Class<? extends Annotation>, AnnotationProcessor<?>> processors;
+
+    private MethodProcessorEnvironment(Object executor, Map<String, Object> dataPack,
+                                       Map<Class<? extends Annotation>, AnnotationProcessor<?>> processors){
         this.executor = executor;
-        this.method = method;
         this.dataPack = dataPack;
+        this.processors = processors;
     }
 
     public MethodProcessorEnvironment addDataPack(Map<String, Object> dataPack){
@@ -26,17 +27,9 @@ public class MethodProcessorEnvironment {
         return this;
     }
 
-    public MethodProcessorEnvironment addData(CommonData key, Object object){
-        return addData(key.getKey(), object);
-    }
-
     public MethodProcessorEnvironment addData(String key, Object object){
         this.dataPack.put(key, object);
         return this;
-    }
-
-    protected Object findData(CommonData key){
-        return findData(key.toString());
     }
 
     protected Object findData(String key){
@@ -47,16 +40,10 @@ public class MethodProcessorEnvironment {
         return executor;
     }
 
-    public Method getMethod() {
-        return method;
-    }
-
-    public boolean supplyProcessors(Map<Class<? extends Annotation>, AnnotationProcessor<?>> processors) throws Exception {
-        for(Map.Entry<Class<? extends Annotation>, AnnotationProcessor<?>> processorEntry : processors.entrySet()){
-            if(method.isAnnotationPresent(processorEntry.getKey())){
-                if (processorEntry.getValue().setEnvironment(this).supply()) return true;
-            }
-        }
-        return true;
+    public boolean supply(Method method) throws Exception {
+        for(Map.Entry<Class<? extends Annotation>, AnnotationProcessor<?>> processorEntry : this.processors.entrySet())
+            if(method.isAnnotationPresent(processorEntry.getKey()) &&
+                    processorEntry.getValue().setEnvironment(this).supply(method)) return true;
+        return false;
     }
 }

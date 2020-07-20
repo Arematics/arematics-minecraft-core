@@ -1,7 +1,9 @@
 package com.arematics.minecraft.core.command;
 
 import com.arematics.minecraft.core.annotations.*;
+import com.arematics.minecraft.core.annotations.Default;
 import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProcessor;
+import com.arematics.minecraft.core.messaging.Message;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.utils.ClassUtils;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
@@ -13,10 +15,7 @@ import org.bukkit.command.CommandSender;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class CoreCommand implements CommandExecutor {
 
@@ -89,14 +88,13 @@ public abstract class CoreCommand implements CommandExecutor {
         dataPack.put("annotations", annotations);
         dataPack.put(CommonData.COMMAND_ARGUEMNTS.toString(), arguments);
         dataPack.put(CommonData.COMMAND.toString(), command);
+        MethodProcessorEnvironment environment = MethodProcessorEnvironment
+                .newEnvironment(this, dataPack, this.processors);
         try{
             for (final Method method : this.getClass().getDeclaredMethods()){
-                if(isDefault) {
-                    ClassUtils.execute(Default.class, method, (tempMethod) -> (Boolean) method.invoke(this, sender));
-                } else {
-                    MethodProcessorEnvironment environment = new MethodProcessorEnvironment(this, method, dataPack);
-                    return environment.supplyProcessors(this.processors);
-                }
+                if(isDefault && ClassUtils.execute(Default.class, method, (tempMethod)
+                        -> (Boolean) method.invoke(this, sender))) return true;
+                if(environment.supply(method)) return true;
             }
         }catch (Exception exception){
             exception.printStackTrace();

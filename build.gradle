@@ -1,6 +1,18 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.owasp:dependency-check-gradle:5.3.2.1"
+    }
+}
+
 subprojects {
+
     apply plugin: 'java'
     apply plugin: 'maven-publish'
+    apply plugin: 'org.owasp.dependencycheck'
 
     sourceCompatibility = 1.8
     compileJava.options.encoding = 'UTF-8'
@@ -20,6 +32,14 @@ subprojects {
         compileOnly  name: 'WorldEdit'
         compileOnly  name: 'WorldGuard'
         compileOnly  name: 'WGRegionEvents'
+        compileOnly group: 'com.google.guava', name: 'guava', version: '29.0-jre'
+
+        compileOnly group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
+        compileOnly group: 'commons-io', name: 'commons-io', version: '2.6'
+
+        compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
+        annotationProcessor group: 'org.projectlombok', name: 'lombok', version:  '1.18.12'
+
 
         testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.1'
         testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.1'
