@@ -18,6 +18,8 @@ public class CommandHooks extends PackageHook<Class<?>> {
             ScanEnvironment.getBuilder().getUrls().clear();
             ScanEnvironment.getBuilder().addUrls(ClasspathHelper.forPackage(url, loader));
             Set<Class<?>> classes = startPreProcessor(loader, plugin);
+            if(classes.isEmpty())
+                plugin.getLogger().warning("Could not find any Commands");
             classes.forEach(classprocess -> processAction(classprocess, plugin));
         }catch (Exception e){
             plugin.getLogger().warning("Could not find any Commands: " + e.getMessage());

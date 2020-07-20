@@ -2,23 +2,30 @@ package com.arematics.minecraft.core;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-/**
- * Bootstrap Class starting the Java Plugin an sending Startup or Shutdown Message to Engine.
- */
-public class Bootstrap extends JavaPlugin {
+public abstract class Bootstrap extends JavaPlugin {
 
-    static Bootstrap PL;
+    public abstract Bootstrap getPlugin();
+    public abstract BaseEngine getEngine() throws Exception;
 
     @Override
     public void onEnable() {
-        PL = this;
-        PL.getLogger().info("Bootstrap enabled, starting Engine!");
-        Engine.startEngine(PL);
+        getPlugin().getLogger().info("Bootstrap enabled, starting Engine!");
+        try{
+            Engine.addEngine(getEngine());
+        }catch (Exception e){
+            getPlugin().getLogger().severe("Engine startup failed. Stopping Plugin");
+            onDisable();
+        }
     }
 
     @Override
     public void onDisable() {
-        PL.getLogger().info("Bootstrap Shutdown called, stopping Engine!");
-        Engine.shutdownEngine();
+        getPlugin().getLogger().info("Bootstrap Shutdown called, stopping Engine!");
+        try{
+            Engine.shutdownEngine(getEngine().getClass());
+        }catch (Exception e){
+            getPlugin().getLogger().severe("Engine not found, hard shutdown");
+            onDisable();
+        }
     }
 }

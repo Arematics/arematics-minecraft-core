@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.configurations;
 
+import com.arematics.minecraft.core.CoreEngine;
 import com.arematics.minecraft.core.Engine;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -18,7 +19,7 @@ public class Config {
     public static final String FAILURE = "failure";
 
     public static Config getInstance(){
-        return Engine.getInstance().getConfig();
+        return Engine.getEngine(CoreEngine.class).getConfig();
     }
 
     private final Properties properties;

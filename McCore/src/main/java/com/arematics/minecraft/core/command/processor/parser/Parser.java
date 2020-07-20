@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.command.processor.parser;
 
+import com.arematics.minecraft.core.CoreEngine;
 import com.arematics.minecraft.core.Engine;
 import com.arematics.minecraft.core.messaging.Messages;
 import org.apache.commons.lang3.EnumUtils;
@@ -14,7 +15,7 @@ import java.util.Map;
 public class Parser {
 
     public static Parser getInstance(){
-        return Engine.getInstance().getParser();
+        return Engine.getEngine(CoreEngine.class).getParser();
     }
 
     private final Map<Object, CommandParameterParser<?>> parsers = new HashMap<>();

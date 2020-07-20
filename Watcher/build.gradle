@@ -1,0 +1,19 @@
+group 'com.arematics.minecraft.watcher'
+version '1.0'
+
+dependencies{
+    compileOnly group: 'com.arematics.minecraft.core', name: 'McCore', version: '0.3.2'
+
+    testCompile group: 'com.arematics.minecraft.core', name: 'McCore', version: '0.3.2'
+}
+
+def filesToCopy = copySpec{
+    from 'build/libs/Watcher-1.0.jar'
+}
+
+task copyFileToCityBuild(type:Copy) {
+    with filesToCopy
+    into new File('Server/Citybuild/plugins').absolutePath
+}
+
+copyFileToCityBuild.dependsOn(jar)

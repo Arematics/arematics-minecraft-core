@@ -1,0 +1,9 @@
+name: Watcher
+author: Klysma
+description: Watcher by Arematics
+version: 1.0.0-Alpha
+depend: [WorldEdit, WorldGuard, McCore]
+
+main: com.arematics.minecraft.watcher.WatcherBootstrap
+
+commands:

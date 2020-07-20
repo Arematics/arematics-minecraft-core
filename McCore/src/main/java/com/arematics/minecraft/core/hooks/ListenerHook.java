@@ -17,6 +17,8 @@ public class ListenerHook extends PackageHook<Method> {
             ScanEnvironment.getBuilder().getUrls().clear();
             ScanEnvironment.getBuilder().addUrls(ClasspathHelper.forPackage(url, loader));
             Set<Method> methods = startPreProcessor(loader, plugin);
+            if(methods.isEmpty())
+                plugin.getLogger().warning("Could not find any Listeners");
             methods.forEach(method -> processAction(method, plugin));
         }catch (Exception e){
             plugin.getLogger().warning("Could not find any Listeners");

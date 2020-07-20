@@ -39,7 +39,6 @@ subprojects {
     publishing {
         publications {
             maven(MavenPublication) {
-                version = this.version
                 from components.java
             }
         }

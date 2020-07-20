@@ -24,4 +24,5 @@ include 'AdvancedMobs'
 include 'AdvancedVillagers'
 include 'CrystalKeys'
 include 'Skills'
+include 'Watcher'
 
