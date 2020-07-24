@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
@@ -203,9 +204,9 @@ public class Part implements Cloneable {
                 && other.getRawFormatSet().containsAll(this.getRawFormatSet())
                 && this.BASE_COLOR == other.BASE_COLOR
                 && this.HOVER_ACTION == other.HOVER_ACTION
-                && this.HOVER_VALUE.equals(other.HOVER_VALUE)
+                && StringUtils.equals(this.HOVER_VALUE, other.HOVER_VALUE)
                 && this.CLICK_ACTION == other.CLICK_ACTION
-                && this.CLICK_VALUE.equals(other.CLICK_VALUE);
+                && StringUtils.equals(this.CLICK_VALUE, other.CLICK_VALUE);
     }
 
     public Part styleAndColorFromText() {

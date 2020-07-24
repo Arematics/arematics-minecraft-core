@@ -7,16 +7,12 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
-import com.arematics.minecraft.core.messaging.injector.AdvancedMessageInjector;
-import com.arematics.minecraft.core.messaging.injector.BasicInjector;
-import com.arematics.minecraft.core.messaging.injector.LanguageInjector;
+import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
+import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjectorImpl;
 import com.arematics.minecraft.core.utils.ListUtils;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @AnyAccess
 @PluginCommand(names = {"sound"})
@@ -42,9 +38,11 @@ public class SoundCommand extends CoreCommand {
         Messages.create("listing")
                 .to(player)
                 .setInjector(AdvancedMessageInjector.class)
-                .addHover(HoverAction.SHOW_TEXT, "Test")
                 .replace("list_type", "Sound")
+                .setHover(HoverAction.SHOW_TEXT, "Test")
+                .END()
                 .replace("list_value", ListUtils.getNameListStartsWith(Sound.class, startsWith))
+                .END()
                 .handle();
         return true;
     }
