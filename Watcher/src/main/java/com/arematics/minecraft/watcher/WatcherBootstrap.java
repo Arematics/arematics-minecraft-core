@@ -15,6 +15,6 @@ public class WatcherBootstrap extends Bootstrap {
     @Override
     public BaseEngine getEngine() throws Exception {
         if(engine != null) return engine;
-        return new WatcherEngine(this);
+        return engine = new WatcherEngine(this);
     }
 }

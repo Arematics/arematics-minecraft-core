@@ -34,7 +34,10 @@ public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubComman
         super.supply(method);
         String value = getSerializedValue(method);
         if(annotations.contains(value)){
-            Messages.create(CMD_SAME_SUB_METHOD).FAILURE().send(sender);
+            Messages.create(CMD_SAME_SUB_METHOD)
+                    .FAILURE()
+                    .to(sender)
+                    .handle();
             return true;
         }
         annotations.add(value);
@@ -45,7 +48,10 @@ public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubComman
             try{
                 order = Parser.getInstance().fillParameters(sender, annotationValues, method.getParameterTypes(), arguments);
             }catch (ParserException exception){
-                Messages.create(exception.getMessage()).WARNING().send(sender);
+                Messages.create(exception.getMessage())
+                        .WARNING()
+                        .to(sender)
+                        .handle();
                 return true;
             }
 

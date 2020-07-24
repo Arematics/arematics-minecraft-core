@@ -9,6 +9,7 @@ import java.lang.reflect.ParameterizedType;
 
 public abstract class AnnotationProcessor<T extends Annotation> implements AnnotationProcessorEnvironment, AnnotationProcessorSupplier {
 
+    @ProcessorData
     private MethodProcessorEnvironment environment;
 
     @Override

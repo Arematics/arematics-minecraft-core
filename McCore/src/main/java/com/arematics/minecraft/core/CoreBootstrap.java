@@ -15,6 +15,6 @@ public class CoreBootstrap extends Bootstrap {
     @Override
     public BaseEngine getEngine() throws Exception {
         if(engine != null) return engine;
-        return new CoreEngine(this);
+        return engine = new CoreEngine(this);
     }
 }

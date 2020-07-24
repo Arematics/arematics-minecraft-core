@@ -76,7 +76,7 @@ public abstract class CoreCommand implements CommandExecutor {
         if(canAccessCommand(commandSender, command))
             return process(commandSender, command, arguments);
         else
-            Messages.create(CMD_NO_PERMS).WARNING().send(commandSender);
+            Messages.create(CMD_NO_PERMS).WARNING().to(commandSender).handle();
         return true;
     }
 
@@ -98,7 +98,10 @@ public abstract class CoreCommand implements CommandExecutor {
             }
         }catch (Exception exception){
             exception.printStackTrace();
-            Messages.create(CMD_FAILURE).FAILURE().send(sender);
+            Messages.create(CMD_FAILURE)
+                    .FAILURE()
+                    .to(sender)
+                    .handle();
         }
         return true;
     }

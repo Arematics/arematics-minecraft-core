@@ -2,16 +2,16 @@ package com.arematics.minecraft.core;
 
 import com.arematics.minecraft.core.annotations.PluginEngine;
 import com.arematics.minecraft.core.command.processor.parser.Parser;
-import org.bukkit.Bukkit;
-
-import java.util.Map;
+import com.arematics.minecraft.core.messaging.injector.BasicInjector;
+import com.arematics.minecraft.core.messaging.injector.Injector;
+import com.arematics.minecraft.core.messaging.injector.LanguageInjector;
+import com.arematics.minecraft.core.messaging.injector.StringInjector;
 
 @PluginEngine(dir = "com.arematics.minecraft.core")
 public class CoreEngine extends BaseEngine{
 
-    private static Map<String, CoreEngine> engines;
-
-    private final Parser parser;
+    private final Parser parser = new Parser();
+    private final Class<? extends StringInjector> defaultInjectorType = LanguageInjector.class;
 
     /**
      * Hooking Config File
@@ -20,11 +20,14 @@ public class CoreEngine extends BaseEngine{
      */
     public CoreEngine(Bootstrap bootstrap) throws Exception{
         super(bootstrap, true);
-        this.parser = new Parser();
     }
 
     public Parser getParser() {
         return parser;
+    }
+
+    public Class<? extends Injector<?>> getDefaultInjectorType() {
+        return defaultInjectorType;
     }
 
     @Override

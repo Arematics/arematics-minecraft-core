@@ -1,16 +1,18 @@
 package com.arematics.minecraft.core.messaging;
 
+import com.arematics.minecraft.core.CoreEngine;
+import com.arematics.minecraft.core.Engine;
 import com.arematics.minecraft.core.configurations.Config;
-import com.arematics.minecraft.core.language.LanguageAPI;
-import org.apache.commons.lang.text.StrSubstitutor;
-import org.bukkit.Bukkit;
+import com.arematics.minecraft.core.messaging.injector.Injector;
+import com.arematics.minecraft.core.messaging.injector.StringInjector;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class Message implements MessageHighlightType, MessageReplacement {
+public class Message implements MessageHighlightType, MessageReciever, MessageInjector {
 
     static MessageHighlightType create(String key){
         return new Message(key);
@@ -18,73 +20,52 @@ public class Message implements MessageHighlightType, MessageReplacement {
 
     private final String value;
     private MessageHighlight highlight;
-
-    private final HashMap<String, String> injectors = new HashMap<>();
+    private Class<? extends Injector<?>> injectorType;
+    private List<CommandSender> senders;
 
     private Message(String value){
         this.value = value;
         this.highlight = Config.getInstance().getHighlight(Config.SUCCESS);
+        this.injectorType = Engine.getEngine(CoreEngine.class).getDefaultInjectorType();
     }
 
     @Override
-    public MessageReplacement WARNING() {
+    public MessageReciever WARNING() {
         this.highlight = Config.getInstance().getHighlight(Config.WARNING);
         return this;
     }
 
     @Override
-    public MessageReplacement FAILURE() {
+    public MessageReciever FAILURE() {
         this.highlight = Config.getInstance().getHighlight(Config.FAILURE);
         return this;
     }
 
     @Override
-    public MessageReplacement replace(String key, String value) {
-        if(!injectors.containsKey(key))
-            injectors.put(key, value);
+    public MessageInjector to(CommandSender... senders){
+        this.senders = Arrays.asList(senders);
         return this;
     }
 
     @Override
-    public MessageReplacement skip() {
-        return this;
+    public void handle() {
+        DEFAULT().handle();
     }
 
     @Override
-    public void send(CommandSender... senders) {
-        Arrays.stream(senders).forEach(sender -> handle(sender, this.highlight));
+    public StringInjector DEFAULT() {
+        return (StringInjector) setInjector(this.injectorType);
     }
 
     @Override
-    public void broadcast() {
-        send(Bukkit.getOnlinePlayers().toArray(new Player[]{}));
-    }
-
-    /**
-     * Change only this method if you want to change where prepare messages from
-     * @param sender CommandSender for getting specific Messages like Language Selection
-     * @param highlight Message Highlight Type
-     * @param value Raw Message String
-     */
-    private String prepareMessage(CommandSender sender, MessageHighlight highlight, String value){
-        return LanguageAPI.prepareMessage(sender, highlight, value);
-    }
-
-    private void handle(CommandSender sender, MessageHighlight highlight){
-        String msg = injectValues(prepareMessage(sender, highlight, value));
-        sender.sendMessage(msg);
-        if(sender instanceof Player){
-            ((Player)sender).playSound(((Player)sender).getLocation(), highlight.getSound(), 1, 1);
+    public <T extends Injector<?>> T setInjector(Class<T> injector) {
+        try{
+            this.injectorType = injector;
+            return injector.cast(this.injectorType.getConstructor(List.class, MessageHighlight.class,
+                    String.class).newInstance(senders, highlight, value));
+        }catch (Exception e){
+            throw new RuntimeException("Could not construct Injector");
         }
     }
 
-    private String injectValues(final String income){
-        StrSubstitutor substitutor = new StrSubstitutor(injectors, "%", "%");
-        return substitutor.replace(income);
-    }
-
-    @Override
-    public String toString(CommandSender sender) {
-        return injectValues(prepareMessage(sender, highlight, value));
-    }
 }
