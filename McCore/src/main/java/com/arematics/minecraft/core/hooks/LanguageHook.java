@@ -6,6 +6,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,8 +35,8 @@ public class LanguageHook implements Hook<File>{
 
     @Override
     public void processAction(File file, JavaPlugin plugin) {
-        try(FileInputStream stream = new FileInputStream(file)){
-            LanguageAPI.registerFile(stream);
+        try(FileReader reader = new FileReader(file)){
+            LanguageAPI.registerFile(reader);
         }catch (Exception e){
             e.printStackTrace();
             Bukkit.getLogger().severe("Could not add File " + file.getName() + ": " + e.getMessage());

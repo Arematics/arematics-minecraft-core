@@ -41,9 +41,12 @@ public class MethodProcessorEnvironment {
     }
 
     public boolean supply(Method method) throws Exception {
-        for(Map.Entry<Class<? extends Annotation>, AnnotationProcessor<?>> processorEntry : this.processors.entrySet())
+        for(Map.Entry<Class<? extends Annotation>, AnnotationProcessor<?>> processorEntry : this.processors.entrySet()){
             if(method.isAnnotationPresent(processorEntry.getKey()) &&
-                    processorEntry.getValue().setEnvironment(this).supply(method)) return true;
-        return false;
+                    !processorEntry.getValue().setEnvironment(this).supply(method)){
+                return false;
+            }
+        }
+        return true;
     }
 }

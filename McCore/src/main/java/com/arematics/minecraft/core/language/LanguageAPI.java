@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -55,11 +56,11 @@ public class LanguageAPI {
         return lang;
     }
 
-    public static boolean registerFile(InputStream stream){
+    public static boolean registerFile(FileReader reader){
         Properties properties = new Properties();
 
         try{
-            properties.load(new InputStreamReader(stream, StandardCharsets.UTF_8));
+            properties.load(reader);
             String langName = properties.getProperty("language_name").replaceAll("\"", "");
             properties.forEach((k, s) -> addVals(langName, k.toString(), s.toString().replaceAll("\"", "")));
         }catch (IOException ioe){
