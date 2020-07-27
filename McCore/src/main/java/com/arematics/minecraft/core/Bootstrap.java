@@ -9,6 +9,7 @@ public abstract class Bootstrap extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        System.setProperty("file.encoding", "UTF-8");
         getPlugin().getLogger().info("Bootstrap enabled, starting Engine!");
         try{
             Engine.addEngine(getEngine());

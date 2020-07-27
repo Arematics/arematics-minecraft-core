@@ -1,21 +1,17 @@
 package com.arematics.minecraft.core.commands;
 
-import com.arematics.minecraft.core.annotations.AnyAccess;
-import com.arematics.minecraft.core.annotations.Default;
-import com.arematics.minecraft.core.annotations.PluginCommand;
-import com.arematics.minecraft.core.annotations.SubCommand;
+import com.arematics.minecraft.core.annotations.*;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
-import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjectorImpl;
 import com.arematics.minecraft.core.utils.ListUtils;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-@AnyAccess
 @PluginCommand(names = {"sound"})
+@Permission(permission = "sound")
 public class SoundCommand extends CoreCommand {
 
     @Default
@@ -34,9 +30,10 @@ public class SoundCommand extends CoreCommand {
     }
 
     @SubCommand("list {startsWith}")
-    public boolean listSelected(Player player, String startsWith){
+    @Permission(permission = "list")
+    public boolean listSelected(CommandSender sender, String startsWith){
         Messages.create("listing")
-                .to(player)
+                .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("list_type", "Sound")
                 .setHover(HoverAction.SHOW_TEXT, "Test")
