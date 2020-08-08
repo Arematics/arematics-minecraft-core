@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.scoreboard.functions;
 
+import com.arematics.minecraft.core.scoreboard.model.BoardEntryData;
 import net.minecraft.server.v1_8_R3.*;
 import org.apache.commons.codec.digest.Md5Crypt;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
@@ -32,6 +33,7 @@ public class BoardPackets {
     public void nmsRemoveObjective(ScoreboardObjective obj){
         PacketPlayOutScoreboardObjective packet = new PacketPlayOutScoreboardObjective(obj, REMOVE);
         ((CraftPlayer) PLAYER).getHandle().playerConnection.sendPacket(packet);
+        System.out.println("Removing Board");
     }
 
     public void nmsSendScore(ScoreboardScore score){
@@ -57,7 +59,6 @@ public class BoardPackets {
         PacketPlayOutScoreboardTeam delteam = new PacketPlayOutScoreboardTeam(team, REMOVE);
         ((CraftPlayer) PLAYER).getHandle().playerConnection.sendPacket(delteam);
     }
-
 
     public void nmsSetTeam(String entry, String prefix, String suffix, Scoreboard scoreboard){
         if(prefix == null) prefix = "";

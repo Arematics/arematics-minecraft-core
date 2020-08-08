@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.listener;
 
+import com.arematics.minecraft.core.scoreboard.functions.BoardHandler;
 import com.arematics.minecraft.core.scoreboard.functions.Boards;
-import com.arematics.minecraft.core.scoreboard.model.Board;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,9 +12,8 @@ public class PlayerBoardTestListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event){
         Player player = event.getPlayer();
-
-        Board board = Boards.getSet(player).getOrAddBoard("main", "Soul");
-        board.addEntry("test", "Test: §7", 0, "§6", "" + "Hallo");
-        board.show();
+        BoardHandler handler = Boards.getBoardSet(player).getOrAddBoard("main", "§aSoul");
+        handler.addEntryData("Test: §7", "§6", "§4Hallo");
+        handler.show();
     }
 }
