@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.scoreboard.model.Board;
 import com.arematics.minecraft.core.scoreboard.model.BoardEntry;
 import com.arematics.minecraft.core.scoreboard.model.BoardEntryData;
 import net.minecraft.server.v1_8_R3.ScoreboardObjective;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,39 +68,43 @@ public class BoardHandler {
         return this;
     }
 
+    /**
+     * Change Value of Scoreboard Entry.
+     * You need to call buildEntries() Method after this, otherwise the value wouldn't be updated.
+     * @param name Name of Scoreboard Entry
+     * @param suffix Value to Change
+     * @return Current Handler
+     */
+    public BoardHandler setEntrySuffix(String name, String suffix){
+        this.BOARD.ENTRY_DATA
+                .stream()
+                .filter(data -> data.NAME.equals(name))
+                .findFirst()
+                .ifPresent(entryData -> entryData.SUFFIX = suffix);
+        return this;
+
+    }
+
     public void buildEntries(){
         BoardEntryData[] dataSet = this.BOARD.ENTRY_DATA.toArray(new BoardEntryData[]{});
-        System.out.println("Data Entries: " + dataSet.length);
         for(int i = dataSet.length - 1; i >= 0; i--){
             BoardEntryData data = dataSet[i];
-            System.out.println("Data Entry: " + data);
             if(this.BOARD.MODERN_BOARD){
                 int multiplied = (i + 1) * 2;
-                int first = multiplied / 10;
-                int second = multiplied % 10;
-                String boardEntrySecondName = "§" + first + "§" + second + "§a";
-                BoardEntry entry;
-                BoardEntry entrySecond;
-                try{
-                    entry = addEntry(data.NAME + 1, multiplied, data.NAME);
-                    entrySecond = addEntry(data.NAME + 2, multiplied - 1, boardEntrySecondName);
-                }catch (Exception ignore){
-                    entry = getEntry(data.NAME + 1);
-                    entrySecond = getEntry(data.NAME + 2);
-                }
-                this.BOARD_SET.onSetTeam(entry, data.NAME, data.PREFIX, "");
-                this.BOARD_SET.onSetTeam(entrySecond, boardEntrySecondName, "", data.SUFFIX);
+                String boardEntrySecondName = "§" + multiplied / 10 + "§" + multiplied % 10 + "§a";
+                generateEntry(data.NAME + 1, multiplied, data.NAME, data.PREFIX, "");
+                generateEntry(data.NAME + 2, multiplied - 1, boardEntrySecondName, "", data.SUFFIX);
             }else{
-                BoardEntry entry;
-                try{
-                    entry = addEntry(data.NAME + 1, i, data.NAME);
-                }catch (Exception ignore){
-                    entry = getEntry(data.NAME + 1);
-                }
-                this.BOARD_SET.onSetTeam(entry, data.NAME, data.PREFIX, data.SUFFIX);
+                generateEntry(data.NAME + 1, i, data.NAME, data.PREFIX, data.SUFFIX);
             }
         }
         this.buildEntries = true;
+    }
+
+    private void generateEntry(String id, int initialScore, String name, String prefix, String suffix){
+        BoardEntry entry = getEntry(id);
+        if(entry == null) entry = addEntry(id, initialScore, name);
+        this.BOARD_SET.onSetTeam(entry, name, prefix, suffix);
     }
 
     public BoardEntryData getDataByEntryName(BoardEntry boardEntry){

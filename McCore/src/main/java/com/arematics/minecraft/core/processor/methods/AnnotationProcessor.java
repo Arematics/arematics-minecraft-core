@@ -52,8 +52,8 @@ public abstract class AnnotationProcessor<T extends Annotation> implements
         return field.getName();
     }
 
-    public Class<? extends Type> get(){
-        return ((ParameterizedType) getClass()
-                .getGenericSuperclass()).getActualTypeArguments()[0].getClass();
+    public Class<T> get(){
+        return (Class<T>) ((ParameterizedType) getClass()
+                .getGenericSuperclass()).getActualTypeArguments()[0];
     }
 }
