@@ -1,0 +1,17 @@
+group 'com.arematics.minecraft.core'
+version '1.0'
+
+dependencies {
+    compileOnly  name: 'Nbt-API'
+}
+
+def filesToCopy = copySpec{
+    from 'build/libs/Metadata-1.0.jar'
+}
+
+task copyFileToCityBuild(type:Copy) {
+    with filesToCopy
+    into new File('Server/Citybuild/plugins').absolutePath
+}
+
+copyFileToCityBuild.dependsOn(jar)

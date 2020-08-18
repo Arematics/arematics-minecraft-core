@@ -25,4 +25,5 @@ include 'AdvancedVillagers'
 include 'CrystalKeys'
 include 'Skills'
 include 'Watcher'
+include 'Metadata'
 
