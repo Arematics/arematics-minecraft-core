@@ -5,7 +5,7 @@ import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ConfigurationBuilder;
 
-public class ScanEnvironment {
+public class                        ScanEnvironment {
 
     private static ConfigurationBuilder builder = null;
 

@@ -1,8 +1,12 @@
-group 'com.arematics.minecraft.core'
+group 'com.arematics.minecraft.meta'
 version '1.0'
 
 dependencies {
     compileOnly  name: 'Nbt-API'
+
+    compileOnly group: 'com.arematics.minecraft.core', name: 'McCore', version: '0.3.2'
+
+    testCompile group: 'com.arematics.minecraft.core', name: 'McCore', version: '0.3.2'
 }
 
 def filesToCopy = copySpec{

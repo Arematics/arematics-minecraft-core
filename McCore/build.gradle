@@ -2,10 +2,10 @@ group 'com.arematics.minecraft.core'
 version '0.3.2'
 
 dependencies {
-    compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
+        compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
 
-    //Provided for using AutoService Annotations
-    compile group: 'org.reflections', name: 'reflections', version: '0.9.12'
+        //Provided for using AutoService Annotations
+        compile group: 'org.reflections', name: 'reflections', version: '0.9.12'
 
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
