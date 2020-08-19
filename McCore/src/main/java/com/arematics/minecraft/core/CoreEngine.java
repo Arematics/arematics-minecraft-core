@@ -18,7 +18,7 @@ public class CoreEngine extends BaseEngine{
      * Starts the Multi Hook to get all Hooks loaded (Language, Commands, Listener)
      * @param bootstrap JavaPlugin
      */
-    public CoreEngine(Bootstrap bootstrap) throws Exception{
+    public CoreEngine(Bootstrap<?> bootstrap) throws Exception{
         super(bootstrap, true);
     }
 

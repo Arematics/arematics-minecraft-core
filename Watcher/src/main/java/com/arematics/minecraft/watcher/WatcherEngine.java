@@ -12,7 +12,7 @@ public class WatcherEngine extends BaseEngine {
      * Starts the Multi Hook to get all Hooks loaded (Language, Commands, Listener)
      * @param bootstrap JavaPlugin
      */
-    WatcherEngine(Bootstrap bootstrap) throws Exception{
+    public WatcherEngine(Bootstrap<?> bootstrap) throws Exception{
         super(bootstrap, false);
     }
 

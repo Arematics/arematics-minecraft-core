@@ -21,6 +21,7 @@ public class ListenerHook extends PackageHook<Method> {
                 plugin.getLogger().warning("Could not find any Listeners");
             methods.forEach(method -> processAction(method, plugin));
         }catch (Exception e){
+            e.printStackTrace();
             plugin.getLogger().warning("Could not find any Listeners");
         }
     }

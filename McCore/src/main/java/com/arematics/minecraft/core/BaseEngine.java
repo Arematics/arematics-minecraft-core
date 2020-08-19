@@ -7,12 +7,12 @@ import com.arematics.minecraft.core.utils.ClassUtils;
 
 public abstract class BaseEngine {
 
-    private final Bootstrap bootstrap;
+    private final Bootstrap<?> bootstrap;
     private final Config config;
 
     private String dir = null;
 
-    public BaseEngine(Bootstrap bootstrap, boolean configuration) throws Exception{
+    public BaseEngine(Bootstrap<?> bootstrap, boolean configuration) throws Exception{
         this.bootstrap = bootstrap;
         this.hook();
         if(configuration)
@@ -39,7 +39,7 @@ public abstract class BaseEngine {
 
     public abstract void shutdown();
 
-    public Bootstrap getBootstrap() {
+    public Bootstrap<?> getBootstrap() {
         return bootstrap;
     }
 

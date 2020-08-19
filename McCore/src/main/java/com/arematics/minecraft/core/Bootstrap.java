@@ -2,33 +2,49 @@ package com.arematics.minecraft.core;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-public abstract class Bootstrap extends JavaPlugin {
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
-    public abstract Bootstrap getPlugin();
-    public abstract BaseEngine getEngine() throws Exception;
+public abstract class Bootstrap<T extends BaseEngine> extends JavaPlugin {
+
+    @SuppressWarnings ("unchecked")
+    public Class<T> getTypeParameterClass()
+    {
+        Type type = getClass().getGenericSuperclass();
+        ParameterizedType paramType = (ParameterizedType) type;
+        return (Class<T>) paramType.getActualTypeArguments()[0];
+    }
+
+    private BaseEngine ENGINE;
 
     @Override
     public void onEnable() {
         System.setProperty("file.encoding", "UTF-8");
-        getPlugin().getLogger().info("Bootstrap enabled, starting Engine!");
-        System.out.println(getPlugin().getName());
-        System.out.println(this.getName());
+        this.getLogger().info("Bootstrap enabled, starting Engine!");
+        System.out.println(this.getClass());
+        try {
+            ENGINE = getTypeParameterClass().getDeclaredConstructor(Bootstrap.class).newInstance(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try{
-            Engine.addEngine(getEngine());
+            Engine.addEngine(ENGINE);
         }catch (Exception e){
-            getPlugin().getLogger().severe("Engine startup failed. Stopping Plugin");
+            this.getLogger().severe("Engine startup failed. Stopping Plugin");
+            e.printStackTrace();
             onDisable();
         }
     }
 
     @Override
     public void onDisable() {
-        getPlugin().getLogger().info("Bootstrap Shutdown called, stopping Engine!");
+        this.getLogger().info("Bootstrap Shutdown called, stopping Engine!");
         try{
-            Engine.shutdownEngine(getEngine().getClass());
+            Engine.shutdownEngine(ENGINE.getClass());
         }catch (Exception e){
-            getPlugin().getLogger().severe("Engine not found, hard shutdown");
-            onDisable();
+            this.getLogger().severe("Engine not found, hard shutdown");
+            e.printStackTrace();
         }
     }
 }
