@@ -9,6 +9,7 @@ public class MetaEngine extends BaseEngine {
 
     public MetaEngine(Bootstrap bootstrap) throws Exception {
         super(bootstrap, false);
+        System.out.println("Test");
     }
 
     @Override
