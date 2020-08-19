@@ -2,11 +2,9 @@ package com.arematics.minecraft.core.messaging.injector.advanced;
 
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.MessageHighlight;
-import com.arematics.minecraft.core.messaging.advanced.ClickAction;
-import com.arematics.minecraft.core.messaging.advanced.HoverAction;
-import com.arematics.minecraft.core.messaging.advanced.MSG;
-import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.messaging.advanced.*;
 import com.arematics.minecraft.core.messaging.injector.Injector;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -41,6 +39,18 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
     public AdvancedMessageAction setClick(ClickAction action, String value) {
         this.current.CLICK_ACTION = action;
         this.current.CLICK_VALUE = value;
+        return this;
+    }
+
+    @Override
+    public AdvancedMessageAction setColor(JsonColor jsonColor) {
+        this.current.JSON_COLOR = jsonColor;
+        return this;
+    }
+
+    @Override
+    public AdvancedMessageAction setFormat(Format format) {
+        this.current.FORMAT = format;
         return this;
     }
 
@@ -86,6 +96,8 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
         Arrays.stream(parts).forEach(part -> part
                 .setText(replace.VALUE)
                 .setHoverAction(replace.HOVER_ACTION, replace.HOVER_VALUE)
-                .setClickAction(replace.CLICK_ACTION, replace.CLICK_VALUE));
+                .setClickAction(replace.CLICK_ACTION, replace.CLICK_VALUE)
+                .setBaseColor(replace.JSON_COLOR)
+                .addFormat(replace.FORMAT));
     }
 }

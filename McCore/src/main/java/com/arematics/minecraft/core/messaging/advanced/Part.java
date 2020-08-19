@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
+import com.sk89q.worldedit.internal.expression.runtime.For;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -85,7 +86,14 @@ public class Part implements Cloneable {
     }
 
     public Part setBaseColor(JsonColor color){
+        if(color == null) return this;
         this.BASE_COLOR = color;
+        return this;
+    }
+
+    public Part addFormat(Format format){
+        if(format == null) return this;
+        this.MESSAGE_FORMATS.add(format);
         return this;
     }
 

@@ -6,8 +6,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
-public abstract class AnnotationProcessor<T extends Annotation> implements AnnotationProcessorEnvironment, AnnotationProcessorSupplier {
+public abstract class AnnotationProcessor<T extends Annotation> implements
+        AnnotationProcessorEnvironment, AnnotationProcessorSupplier {
 
     @ProcessorData
     private MethodProcessorEnvironment environment;
@@ -51,7 +53,7 @@ public abstract class AnnotationProcessor<T extends Annotation> implements Annot
     }
 
     public Class<T> get(){
-        return ((Class<T>) ((ParameterizedType) getClass()
-                .getGenericSuperclass()).getActualTypeArguments()[0]);
+        return (Class<T>) ((ParameterizedType) getClass()
+                .getGenericSuperclass()).getActualTypeArguments()[0];
     }
 }

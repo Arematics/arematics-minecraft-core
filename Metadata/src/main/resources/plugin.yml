@@ -1,0 +1,12 @@
+name: Metadata
+author: Klysma
+description: Metadata by Arematics
+version: 1.0.0-Alpha
+depend: [McCore]
+
+main: com.arematics.minecraft.meta.MetaBootstrap
+
+commands:
+  sound:
+    description: Show valid sounds
+    usage: /<command>

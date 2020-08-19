@@ -11,6 +11,8 @@ public abstract class Bootstrap extends JavaPlugin {
     public void onEnable() {
         System.setProperty("file.encoding", "UTF-8");
         getPlugin().getLogger().info("Bootstrap enabled, starting Engine!");
+        System.out.println(getPlugin().getName());
+        System.out.println(this.getName());
         try{
             Engine.addEngine(getEngine());
         }catch (Exception e){
