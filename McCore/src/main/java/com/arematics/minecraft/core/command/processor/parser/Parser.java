@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.command.processor.parser;
 
-import com.arematics.minecraft.core.CoreEngine;
-import com.arematics.minecraft.core.Engine;
+import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.Boots;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -13,7 +13,7 @@ import java.util.Map;
 public class Parser {
 
     public static Parser getInstance(){
-        return Engine.getEngine(CoreEngine.class).getParser();
+        return Boots.getBoot(CoreBoot.class).getParser();
     }
 
     private final Map<Object, CommandParameterParser<?>> parsers = new HashMap<>();

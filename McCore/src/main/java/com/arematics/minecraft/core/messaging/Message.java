@@ -1,16 +1,14 @@
 package com.arematics.minecraft.core.messaging;
 
-import com.arematics.minecraft.core.CoreEngine;
-import com.arematics.minecraft.core.Engine;
+import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.configurations.Config;
 import com.arematics.minecraft.core.messaging.injector.Injector;
 import com.arematics.minecraft.core.messaging.injector.StringInjector;
 import org.bukkit.command.CommandSender;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Message implements MessageHighlightType, MessageReciever, MessageInjector {
 
@@ -26,7 +24,7 @@ public class Message implements MessageHighlightType, MessageReciever, MessageIn
     private Message(String value){
         this.value = value;
         this.highlight = Config.getInstance().getHighlight(Config.SUCCESS);
-        this.injectorType = Engine.getEngine(CoreEngine.class).getDefaultInjectorType();
+        this.injectorType = Boots.getBoot(CoreBoot.class).getDefaultInjectorType();
     }
 
     @Override

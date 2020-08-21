@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.listener;
 
-import com.arematics.minecraft.core.CoreEngine;
-import com.arematics.minecraft.core.Engine;
+import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.scoreboard.functions.BoardHandler;
 import com.arematics.minecraft.core.scoreboard.functions.Boards;
 import org.bukkit.entity.Player;
@@ -26,6 +26,6 @@ public class PlayerBoardTestListener implements Listener {
                         .setEntrySuffix("Test: §7", "§5Ein Zebra")
                         .buildEntries();
             }
-        }.runTaskLater(Engine.getEngine(CoreEngine.class).getBootstrap(), 20*5);
+        }.runTaskLater(Boots.getBoot(CoreBoot.class), 20*5);
     }
 }

@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.configurations;
 
-import com.arematics.minecraft.core.CoreEngine;
-import com.arematics.minecraft.core.Engine;
+import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.messaging.MessageHighlight;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -20,7 +20,7 @@ public class Config {
     public static final String FAILURE = "failure";
 
     public static Config getInstance(){
-        return Engine.getEngine(CoreEngine.class).getConfig();
+        return Boots.getBoot(CoreBoot.class).getPluginConfig();
     }
 
     private final Properties properties;
