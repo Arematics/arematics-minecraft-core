@@ -8,13 +8,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.ItemStack;
 
+@SuppressWarnings("unused")
 public class DurabilityLoseListener implements Listener {
 
     @EventHandler
     public void onHit(PlayerItemDamageEvent event){
         Player player = event.getPlayer();
         int damage = event.getDamage();
-        ItemStack itemStack = player.getItemInHand();
+        ItemStack itemStack = event.getItem();
 
         DurabilityLoseEvent durabilityLoseEvent = new DurabilityLoseEvent(itemStack, damage);
         Bukkit.getServer().getPluginManager().callEvent(durabilityLoseEvent);

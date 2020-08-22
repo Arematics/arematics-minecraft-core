@@ -9,6 +9,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 
+@SuppressWarnings("unused")
 public class AnvilDragBlockListener implements Listener {
 
 

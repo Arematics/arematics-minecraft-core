@@ -10,6 +10,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
 
+@SuppressWarnings("unused")
 public class AnvilPrepareListener implements Listener {
 
     @EventHandler

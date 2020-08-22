@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 
+@SuppressWarnings("unused")
 public class NotEnchantableListener implements Listener {
 
     @EventHandler
@@ -37,9 +38,7 @@ public class NotEnchantableListener implements Listener {
     }
 
     private boolean isMatch(CoreItem content, CoreItem input){
-        if(content == null) return true;
-        if(!hasAllowedContent(content, input)) return false;
-        return hasAllowedContent(input, content);
+        return (content == null) || (hasAllowedContent(content, input) && hasAllowedContent(input, content));
     }
 
     private boolean hasAllowedContent(CoreItem check, CoreItem content){

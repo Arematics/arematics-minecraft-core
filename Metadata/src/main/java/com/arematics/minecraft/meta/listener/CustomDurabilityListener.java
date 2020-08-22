@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
+@SuppressWarnings("unused")
 public class CustomDurabilityListener implements Listener {
 
     @EventHandler
