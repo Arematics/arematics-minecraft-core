@@ -19,7 +19,10 @@ public class ListenerHook extends PackageHook<Method> {
             Set<Method> methods = startPreProcessor(loader, plugin);
             if(methods.isEmpty())
                 plugin.getLogger().warning("Could not find any Listeners");
-            methods.forEach(method -> processAction(method, plugin));
+            methods.stream()
+                    .map(Method::getDeclaringClass)
+                    .distinct()
+                    .forEach(methodClass -> processAction(methodClass, plugin));
         }catch (Exception e){
             e.printStackTrace();
             plugin.getLogger().warning("Could not find any Listeners");
@@ -33,8 +36,12 @@ public class ListenerHook extends PackageHook<Method> {
     }
 
     @Override
+    @Deprecated
     public void processAction(Method method, JavaPlugin plugin) {
-        Class<?> classprocess = method.getDeclaringClass();
+        throw new RuntimeException("This is only an workaround here");
+    }
+
+    public void processAction(Class<?> classprocess, JavaPlugin plugin) {
         try {
             Object instance = classprocess.getConstructor().newInstance();
             Bukkit.getLogger().info("Adding " + classprocess.getName() + " as Listener");

@@ -1,7 +1,9 @@
 package com.arematics.minecraft.meta.listener;
 
+import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.meta.NbtProperties;
 import com.arematics.minecraft.meta.events.DurabilityLoseEvent;
+import com.arematics.minecraft.meta.events.PrepareAnvilEvent;
 import de.tr7zw.nbtapi.NBTItem;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,12 +13,11 @@ public class CustomDurabilityListener implements Listener {
 
     @EventHandler
     public void onUse(DurabilityLoseEvent event){
-        ItemStack itemStack = event.ITEMSTACK;
-        NBTItem item = new NBTItem(itemStack);
-        int customDurability = item.getInteger(NbtProperties.DURABILITY_NBT_PREFIX) - event.LOSE_AMOUNT;
+        CoreItem item = event.getItem();
+        int customDurability = item.getInteger(NbtProperties.DURABILITY_NBT_PREFIX) - event.getLoseAmount();
         if(customDurability < 0) return;
         item.setInteger(NbtProperties.DURABILITY_NBT_PREFIX, customDurability);
-        item.applyNBT(itemStack);
+        item.applyNBT(item.getItem());
         event.setCancelled(true);
     }
 }

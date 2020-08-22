@@ -1,7 +1,7 @@
 package com.arematics.minecraft.watcher.listener;
 
-import com.arematics.minecraft.core.CoreEngine;
-import com.arematics.minecraft.core.Engine;
+import com.arematics.minecraft.core.Boots;
+import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.watcher.analyses.ChatAnalyses;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
@@ -18,7 +18,7 @@ public class ChatAnalyserListener implements Listener {
 
         if(chatAnalyses.length != 0) {
             Bukkit.getOnlinePlayers().forEach(player -> {
-                if(player.isOp()) player.sendMessage(Engine.getEngine(CoreEngine.class).getConfig().getPrefix() +
+                if(player.isOp()) player.sendMessage(Boots.getBoot(CoreBoot.class).getPluginConfig().getPrefix() +
                         "Found possible chat breaks: " +
                         StringUtils.join(chatAnalyses, ", "));
             });

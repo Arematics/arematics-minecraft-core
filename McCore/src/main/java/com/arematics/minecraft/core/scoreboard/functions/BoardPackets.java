@@ -6,6 +6,7 @@ import org.apache.commons.codec.digest.Md5Crypt;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 public class BoardPackets {
@@ -33,7 +34,6 @@ public class BoardPackets {
     public void nmsRemoveObjective(ScoreboardObjective obj){
         PacketPlayOutScoreboardObjective packet = new PacketPlayOutScoreboardObjective(obj, REMOVE);
         ((CraftPlayer) PLAYER).getHandle().playerConnection.sendPacket(packet);
-        System.out.println("Removing Board");
     }
 
     public void nmsSendScore(ScoreboardScore score){
@@ -66,7 +66,7 @@ public class BoardPackets {
 
         ScoreboardTeam t;
         if((t = scoreboard.getPlayerTeam(entry)) == null){
-            String teamName = new Random().nextLong() + System.currentTimeMillis() + System.nanoTime() + "";
+            String teamName = new SecureRandom().nextLong() + System.currentTimeMillis() + System.nanoTime() + "";
             t = scoreboard.createTeam("team-" + Md5Crypt.md5Crypt(teamName.getBytes()).substring(0, 10));
             t.setPrefix(prefix);
             t.setSuffix(suffix);

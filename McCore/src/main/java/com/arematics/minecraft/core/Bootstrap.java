@@ -8,16 +8,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class Bootstrap extends JavaPlugin {
 
-    private final Config config;
+    private Config config;
+    private final boolean configuration;
 
     private String dir = null;
 
-    public Bootstrap(boolean configuration) throws Exception{
-        this.hook();
-        if(configuration)
-            this.config = ConfigHook.loadConfig(this);
-        else
-            this.config = null;
+    public Bootstrap(boolean configuration) {
+        this.configuration = configuration;
     }
     @Override
     public void onEnable() {
@@ -25,6 +22,8 @@ public abstract class Bootstrap extends JavaPlugin {
         this.getLogger().info("Bootstrap enabled, starting Engine!");
         try{
             Boots.addBoot(this);
+            this.hook();
+            this.config = configuration ? ConfigHook.loadConfig(this) : null;
         }catch (Exception e){
             this.getLogger().severe("Engine startup failed. Stopping Plugin");
             e.printStackTrace();

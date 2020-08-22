@@ -1,29 +1,25 @@
 package com.arematics.minecraft.meta.events;
 
+import com.arematics.minecraft.core.events.BaseEvent;
+import com.arematics.minecraft.core.items.CoreItem;
+import lombok.Getter;
+import lombok.Setter;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.AnvilInventory;
+import org.bukkit.inventory.ItemStack;
 
-public class PrepareAnvilEvent extends Event implements Cancellable {
+@Getter
+@Setter
+public class PrepareAnvilEvent extends BaseEvent implements Cancellable {
+    private final AnvilInventory anvil;
+    private final CoreItem item;
+    private final Player enchanter;
+    private boolean cancelled;
 
-    private static final HandlerList HANDLERS = new HandlerList();
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return false;
-    }
-
-    @Override
-    public void setCancelled(boolean b) {
-
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
+    public PrepareAnvilEvent(AnvilInventory anvil, ItemStack item, Player enchanter){
+        this.anvil = anvil;
+        this.item = CoreItem.create(item);
+        this.enchanter = enchanter;
     }
 }
