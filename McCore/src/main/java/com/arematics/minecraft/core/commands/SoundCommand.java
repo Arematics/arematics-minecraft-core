@@ -12,9 +12,13 @@ import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-@PluginCommand(names = {"sound"})
+@PluginCommand(aliases = {})
 @Permission(permission = "sound")
 public class SoundCommand extends CoreCommand {
+
+     public SoundCommand(){
+         super("sound");
+     }
 
     @Default
     public boolean sendInfo(CommandSender sender){
@@ -27,8 +31,8 @@ public class SoundCommand extends CoreCommand {
     }
 
     @SubCommand("list")
-    public boolean list(Player player){
-        return listSelected(player, "");
+    public boolean list(CommandSender sender){
+        return listSelected(sender, "");
     }
 
     @SubCommand("list {startsWith}")
@@ -38,12 +42,8 @@ public class SoundCommand extends CoreCommand {
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("list_type", "Sound")
-                .setHover(HoverAction.SHOW_TEXT, "Test")
-                .setColor(JsonColor.BLACK)
                 .END()
                 .replace("list_value", ListUtils.getNameListStartsWith(Sound.class, startsWith))
-                .setColor(JsonColor.BLUE)
-                .setFormat(Format.STRIKETHROUGH)
                 .END()
                 .handle();
         return true;
@@ -56,8 +56,7 @@ public class SoundCommand extends CoreCommand {
     }
 
     @SubCommand("{sound}")
-    public boolean executeSound(CommandSender sender, Sound sound){
-        Player player = (Player) sender;
+    public boolean executeSound(Player player, Sound sound){
         player.playSound(player.getLocation(), sound, 1, 1);
         return true;
     }

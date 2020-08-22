@@ -5,8 +5,3 @@ version: 0.3.2
 depend: [WorldEdit, WorldGuard]
 
 main: com.arematics.minecraft.core.CoreBoot
-
-commands:
-  sound:
-    description: Show valid sounds
-    usage: /<command>

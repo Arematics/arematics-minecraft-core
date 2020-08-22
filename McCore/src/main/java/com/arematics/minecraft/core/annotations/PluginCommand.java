@@ -14,6 +14,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface PluginCommand {
-    String[] names();
+    String[] aliases();
     Class<? extends AnnotationProcessor<?>>[] processors() default {};
 }
