@@ -11,6 +11,6 @@ public abstract class PackageHook<T> implements Hook<T> {
 
     @Override
     public void startHook(ClassLoader loader, JavaPlugin plugin) {
-        Bukkit.getLogger().info("Path Hook used");
+        Bukkit.getLogger().severe("Path Hook used");
     }
 }

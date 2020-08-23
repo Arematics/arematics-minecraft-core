@@ -20,7 +20,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.StringUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public abstract class CoreCommand implements CommandExecutor {
+public abstract class CoreCommand implements CommandExecutor, TabExecutor {
 
     private static final String CMD_NO_PERMS = "cmd_noperms";
     private static final String CMD_FAILURE = "cmd_failure";
@@ -40,6 +40,12 @@ public abstract class CoreCommand implements CommandExecutor {
     private final Map<Class<? extends Annotation>, AnnotationProcessor<?>> processors = new LinkedHashMap<>();
     private final String classPermission;
 
+    /**
+     * Sorted Methods. Sorting is ordered by Default first and SubCommand Annotation Length
+     */
+    private final List<Method> sortedMethods;
+    private final List<String> subCommands;
+
     public CoreCommand(String name) {
         this.name = name;
         this.commandNames = ClassUtils
@@ -48,6 +54,11 @@ public abstract class CoreCommand implements CommandExecutor {
         this.classPermission = ClassUtils
                 .fetchAnnotationValueSave(this, Permission.class, Permission::permission)
                 .orElse("");
+        this.sortedMethods = Arrays.stream(this.getClass().getDeclaredMethods())
+                .sorted(this::sorted)
+                .collect(Collectors.toList());
+        this.subCommands = ClassUtils
+                .fetchAllAnnotationValueSave(this, SubCommand.class, SubCommand::value);
 
         this.registerStandards();
     }
@@ -75,9 +86,55 @@ public abstract class CoreCommand implements CommandExecutor {
         Bukkit.getServer().getCommandMap().register(this.name, command);
     }
 
+
+
+    private int sorted(Method p1, Method p2){
+        if(p1.isAnnotationPresent(Default.class)) return -1;
+        else if (p2.isAnnotationPresent(Default.class)) return 1;
+
+        if(p1.isAnnotationPresent(SubCommand.class)){
+            if(p2.isAnnotationPresent(SubCommand.class)){
+                String[] v1 = getSerializedValue(p1).split(" ");
+                String[] v2 = getSerializedValue(p2).split(" ");
+                return moreSubArguments(v1, v2);
+            }
+            return -1;
+        }
+        return 0;
+    }
+
+    private int moreSubArguments(String[] v1, String[] v2){
+        for(int i = 0; i < v1.length; i++){
+            String sub = v1[i];
+            if(v2.length < i) return -1;
+            String sub2 = v2[i];
+            if(!isParameter(sub) && (isParameter(sub2))) return -1;
+            else if(!isParameter(sub2)) return 1;
+        }
+
+        return 0;
+    }
+
     @Override
     public final boolean onCommand(CommandSender commandSender, Command command, String labels, String[] arguments) {
         return process(commandSender, arguments);
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender commandSender, Command command, String labels, String[] arguments) {
+        final List<String> completions = new ArrayList<>();
+        List<String> lengthMatched = this.subCommands.stream()
+                .map(s -> lengthSubstring(s, arguments.length))
+                .collect(Collectors.toList());
+        StringUtil.copyPartialMatches(StringUtils.join(arguments, " "), lengthMatched, completions);
+        Collections.sort(completions);
+        return completions;
+    }
+
+    private String lengthSubstring(String input, int length){
+        String[] array = input.split(" ");
+        String[] newArray = Arrays.copyOf(array, length);
+        return StringUtils.join(newArray, " ");
     }
 
     private boolean process(CommandSender sender, String[] arguments){
@@ -99,9 +156,7 @@ public abstract class CoreCommand implements CommandExecutor {
             }
         }
         try{
-            List<Method> methods = Arrays.stream(this.getClass().getDeclaredMethods())
-                    .sorted(this::sorted).collect(Collectors.toList());
-            for (final Method method : methods){
+            for (final Method method : this.sortedMethods){
                 if(isDefault && ClassUtils.execute(Default.class, method, (tempMethod)
                         -> (Boolean) method.invoke(this, sender))) return true;
                 if(matchingMethod(sender, arguments, method, annotations)) {
@@ -116,38 +171,6 @@ public abstract class CoreCommand implements CommandExecutor {
                     .handle();
         }
         return true;
-    }
-
-    private int sorted(Method p1, Method p2){
-        if(p1.isAnnotationPresent(Default.class)) return -1;
-        else if (p2.isAnnotationPresent(Default.class)) return 1;
-
-        if(p1.isAnnotationPresent(SubCommand.class)){
-            if(p2.isAnnotationPresent(SubCommand.class)){
-                String[] v1 = getSerializedValue(p1).split(" ");
-                String[] v2 = getSerializedValue(p2).split(" ");
-                return moreSubArguments(v1, v2);
-            }
-            return -1;
-        }
-        return 0;
-    }
-
-    private int moreSubArguments(String[] v1, String[] v2){
-        for(int i = 0; i < v1.length; i++){
-            String sub = v1[i];
-            try{
-                String sub2 = v2[i];
-                if(!isParameter(sub)) {
-                    if (isParameter(sub2)) return -1;
-                }else
-                    if(!isParameter(sub2)) return 1;
-            }catch (IndexOutOfBoundsException exception){
-                return -1;
-            }
-        }
-
-        return 0;
     }
 
     private boolean matchingMethod(CommandSender sender, String[] arguments, Method method, List<String> annotations){
