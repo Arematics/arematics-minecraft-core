@@ -21,26 +21,11 @@ public class ClassUtils {
                 .findFirst();
     }
 
-    public static <T extends Annotation> List<T> findAllAnnotation(Object watchingClass, Class<T> theClass){
-        return (List<T>) Arrays.stream(watchingClass.getClass().getAnnotations())
-                .filter(annotation -> annotation.annotationType() == theClass)
-                .collect(Collectors.toList());
-    }
-
     public static <T extends Annotation, R> Optional<R> fetchAnnotationValueSave(Object watchingClass,
                                                                                  Class<T> theClass,
                                                                                  Function<T, R> execute){
         Optional<T> optional = findAnnotation(watchingClass, theClass);
         return optional.map(execute);
-    }
-
-
-
-    public static <T extends Annotation, R> List<R> fetchAllAnnotationValueSave(Object watchingClass,
-                                                                                 Class<T> theClass,
-                                                                                 Function<T, R> execute){
-        List<T> all = findAllAnnotation(watchingClass, theClass);
-        return all.stream().map(execute).collect(Collectors.toList());
     }
 
     public static <T> boolean execute(Class<T> theClass, Method method, UncheckedFunction<Method, Boolean> func)

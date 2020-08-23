@@ -12,6 +12,7 @@ import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import com.arematics.minecraft.core.processor.methods.CommonData;
 import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment;
 import com.arematics.minecraft.core.utils.ClassUtils;
+import com.arematics.minecraft.core.utils.MethodUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -57,9 +58,9 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
         this.sortedMethods = Arrays.stream(this.getClass().getDeclaredMethods())
                 .sorted(this::sorted)
                 .collect(Collectors.toList());
-        this.subCommands = ClassUtils
+        this.subCommands = MethodUtils
                 .fetchAllAnnotationValueSave(this, SubCommand.class, SubCommand::value);
-
+        this.subCommands.forEach(System.out::println);
         this.registerStandards();
     }
 
@@ -123,10 +124,7 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String labels, String[] arguments) {
         final List<String> completions = new ArrayList<>();
-        List<String> lengthMatched = this.subCommands.stream()
-                .map(s -> lengthSubstring(s, arguments.length))
-                .collect(Collectors.toList());
-        StringUtil.copyPartialMatches(StringUtils.join(arguments, " "), lengthMatched, completions);
+        StringUtil.copyPartialMatches(StringUtils.join(arguments, " "), this.subCommands, completions);
         Collections.sort(completions);
         return completions;
     }
@@ -134,6 +132,7 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     private String lengthSubstring(String input, int length){
         String[] array = input.split(" ");
         String[] newArray = Arrays.copyOf(array, length);
+        System.out.println("Old: " + input + " \n\rNew: " + StringUtils.join(newArray, " "));
         return StringUtils.join(newArray, " ");
     }
 
@@ -142,7 +141,6 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
         List<String> annotations = new ArrayList<>();
         Map<String, Object> dataPack = new HashMap<>();
         dataPack.put(CommonData.COMMAND_SENDER.toString(), sender);
-        dataPack.put(CommonData.COMMAND_ARGUEMNTS.toString(), arguments);
         dataPack.put("classLevelPermission", this.classPermission);
         MethodProcessorEnvironment environment = MethodProcessorEnvironment
                 .newEnvironment(this, dataPack, this.processors);
@@ -159,7 +157,16 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
             for (final Method method : this.sortedMethods){
                 if(isDefault && ClassUtils.execute(Default.class, method, (tempMethod)
                         -> (Boolean) method.invoke(this, sender))) return true;
-                if(matchingMethod(sender, arguments, method, annotations)) {
+                String value = getSerializedValue(method);
+                if(annotations.contains(value)){
+                    Messages.create(CMD_SAME_SUB_METHOD).FAILURE().to(sender).handle();
+                    return false;
+                }
+                annotations.add(value);
+                String[] annotationValues = value.split(" ");
+                arguments = getSetupMessageArray(annotationValues, arguments);
+                if(annotationValues.length == arguments.length && isMatch(annotationValues, arguments)) {
+                    dataPack.put(CommonData.COMMAND_ARGUEMNTS.toString(), arguments);
                     if (environment.supply(method)) return true;
                 }
             }
@@ -171,21 +178,6 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                     .handle();
         }
         return true;
-    }
-
-    private boolean matchingMethod(CommandSender sender, String[] arguments, Method method, List<String> annotations){
-        String value = getSerializedValue(method);
-        if(annotations.contains(value)){
-            Messages.create(CMD_SAME_SUB_METHOD)
-                    .FAILURE()
-                    .to(sender)
-                    .handle();
-            return false;
-        }
-        annotations.add(value);
-        String[] annotationValues = value.split(" ");
-        arguments = getSetupMessageArray(annotationValues, arguments);
-        return annotationValues.length == arguments.length && isMatch(annotationValues, arguments);
     }
 
 

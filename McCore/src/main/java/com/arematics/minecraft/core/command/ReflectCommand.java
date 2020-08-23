@@ -3,6 +3,9 @@ package com.arematics.minecraft.core.command;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ReflectCommand extends Command {
     private CoreCommand exe = null;
 
@@ -14,5 +17,11 @@ public class ReflectCommand extends Command {
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
         if (exe != null) { return exe.onCommand(sender, this, commandLabel, args); }
         return false;
+    }
+
+    @Override
+    public List<String> tabComplete(CommandSender sender, String commandLabel, String[] args) throws IllegalArgumentException {
+        if (exe != null) { return exe.onTabComplete(sender, this, commandLabel, args); }
+        return new ArrayList<>();
     }
 }
