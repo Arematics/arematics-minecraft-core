@@ -8,8 +8,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class Bootstrap extends JavaPlugin {
 
-    private Config config;
-    private final boolean configuration;
+    public Config config;
+    public final boolean configuration;
 
     private String dir = null;
 

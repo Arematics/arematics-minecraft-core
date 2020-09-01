@@ -26,4 +26,5 @@ include 'CrystalKeys'
 include 'Skills'
 include 'Watcher'
 include 'Metadata'
+include 'SpringIntegration'
 
