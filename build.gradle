@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
+
 buildscript {
     repositories {
         mavenCentral()
@@ -8,9 +10,14 @@ buildscript {
     }
 }
 
+plugins {
+    id 'com.github.johnrengelman.shadow' version '6.0.0'apply false
+}
+
 subprojects {
 
     apply plugin: 'java'
+    apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'maven-publish'
     apply plugin: 'org.owasp.dependencycheck'
 
@@ -64,6 +71,13 @@ subprojects {
         }
 
 
+    }
+
+    shadowJar {
+        transform(ServiceFileTransformer) {
+            path = './META-INF'
+            include 'spring.*'
+        }
     }
 
     test {

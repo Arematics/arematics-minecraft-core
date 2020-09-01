@@ -1,29 +1,24 @@
 package com.arematics.minecraft.core.hooks;
 
+import com.arematics.minecraft.core.annotations.DisableAutoHook;
 import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandMap;
-import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
-import org.reflections.util.ClasspathHelper;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Set;
 
 public class CommandHooks extends PackageHook<Class<?>> {
 
+    private String url;
+    private ClassLoader classLoader;
+
     @Override
     void startPathHock(String url, ClassLoader loader, JavaPlugin plugin) {
         try{
-            ScanEnvironment.getBuilder().getUrls().clear();
-            ScanEnvironment.getBuilder().addUrls(ClasspathHelper.forPackage(url, loader));
+            this.url = url;
+            this.classLoader = loader;
             Set<Class<?>> classes = startPreProcessor(loader, plugin);
             if(classes.isEmpty())
                 plugin.getLogger().warning("Could not find any Commands");
@@ -35,12 +30,13 @@ public class CommandHooks extends PackageHook<Class<?>> {
 
     @Override
     public Set<Class<?>> startPreProcessor(ClassLoader loader, JavaPlugin plugin) {
-        Reflections reflections = new Reflections(ScanEnvironment.getBuilder());
+        Reflections reflections = new Reflections(ScanEnvironment.getBuilder(this.url, this.classLoader));
         return reflections.getTypesAnnotatedWith(PluginCommand.class);
     }
 
     @Override
     public void processAction(Class<?> o, JavaPlugin plugin) {
+        if(o.isAnnotationPresent(DisableAutoHook.class)) return;
         try {
             CoreCommand instance = (CoreCommand) o.getConstructor().newInstance();
             Bukkit.getLogger().info("Adding " + instance.getClass().getName() + " as Command");

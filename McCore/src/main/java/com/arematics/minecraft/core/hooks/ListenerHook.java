@@ -1,22 +1,25 @@
 package com.arematics.minecraft.core.hooks;
 
+import com.arematics.minecraft.core.annotations.DisableAutoHook;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
-import org.reflections.util.ClasspathHelper;
 
 import java.lang.reflect.Method;
 import java.util.Set;
 
 public class ListenerHook extends PackageHook<Method> {
 
+    private String url;
+    private ClassLoader classLoader;
+
     @Override
     void startPathHock(String url, ClassLoader loader, JavaPlugin plugin) {
         try{
-            ScanEnvironment.getBuilder().getUrls().clear();
-            ScanEnvironment.getBuilder().addUrls(ClasspathHelper.forPackage(url, loader));
-            Set<Method> methods =   startPreProcessor(loader, plugin);
+            this.url = url;
+            this.classLoader = loader;
+            Set<Method> methods = startPreProcessor(loader, plugin);
             if(methods.isEmpty())
                 plugin.getLogger().warning("Could not find any Listeners");
             methods.stream()
@@ -31,7 +34,7 @@ public class ListenerHook extends PackageHook<Method> {
 
     @Override
     public Set<Method> startPreProcessor(ClassLoader loader, JavaPlugin plugin) {
-        Reflections reflections = new Reflections(ScanEnvironment.getBuilder());
+        Reflections reflections = new Reflections(ScanEnvironment.getBuilder(this.url, this.classLoader));
         return reflections.getMethodsAnnotatedWith(EventHandler.class);
     }
 
@@ -42,6 +45,7 @@ public class ListenerHook extends PackageHook<Method> {
     }
 
     public void processAction(Class<?> classprocess, JavaPlugin plugin) {
+        if(classprocess.isAnnotationPresent(DisableAutoHook.class)) return;
         try {
             Object instance = classprocess.getConstructor().newInstance();
             Bukkit.getLogger().info("Adding " + classprocess.getName() + " as Listener");

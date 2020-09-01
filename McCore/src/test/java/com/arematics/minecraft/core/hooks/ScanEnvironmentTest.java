@@ -12,7 +12,8 @@ class ScanEnvironmentTest {
 
     @Test
     void getBuilder() {
-        ConfigurationBuilder builder = ScanEnvironment.getBuilder();
+        ConfigurationBuilder builder = ScanEnvironment.getBuilder("com.arematics.minecraft.core",
+                this.getClass().getClassLoader());
 
         assertNotNull(builder, "Builder is null");
         assertTrue(builder.getScanners().contains(new TypeAnnotationsScanner()),
