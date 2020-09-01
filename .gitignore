@@ -9,3 +9,4 @@
 **/build/
 **/plugins/
 **Server/
+gradle.properties

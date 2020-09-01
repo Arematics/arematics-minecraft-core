@@ -2,6 +2,13 @@ import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransf
 
 buildscript {
     repositories {
+        maven {
+            url "https://maven.pkg.jetbrains.space/arematics/p/scu/arematics-core"
+            credentials {
+                username = "$username"
+                password = "$password"
+            }
+        }
         mavenCentral()
     }
 
@@ -23,8 +30,16 @@ subprojects {
 
     sourceCompatibility = 1.8
     compileJava.options.encoding = 'UTF-8'
+    group 'com.arematics'
 
     repositories {
+        maven {
+            url "https://maven.pkg.jetbrains.space/arematics/p/scu/arematics-core"
+            credentials {
+                username "$mavenUser"
+                password "$mavenPassword"
+            }
+        }
         mavenLocal()
         flatDir {
             dirs '../Libs'
@@ -66,11 +81,19 @@ subprojects {
     publishing {
         publications {
             maven(MavenPublication) {
+                groupId = "com.arematics"
                 from components.java
             }
         }
-
-
+        repositories {
+            maven {
+                url "https://maven.pkg.jetbrains.space/arematics/p/scu/arematics-core"
+                credentials {
+                    username "$mavenUser"
+                    password "$mavenPassword"
+                }
+            }
+        }
     }
 
     shadowJar {

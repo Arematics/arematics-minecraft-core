@@ -1,4 +1,3 @@
-group 'com.arematics.minecraft.enchantments'
 version '1.0'
 
 def filesToCopy = copySpec{
