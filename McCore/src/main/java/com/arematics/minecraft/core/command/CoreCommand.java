@@ -60,7 +60,6 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                 .collect(Collectors.toList());
         this.subCommands = MethodUtils
                 .fetchAllAnnotationValueSave(this, SubCommand.class, SubCommand::value);
-        this.subCommands.forEach(System.out::println);
         this.registerStandards();
     }
 
@@ -127,13 +126,6 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
         StringUtil.copyPartialMatches(StringUtils.join(arguments, " "), this.subCommands, completions);
         Collections.sort(completions);
         return completions;
-    }
-
-    private String lengthSubstring(String input, int length){
-        String[] array = input.split(" ");
-        String[] newArray = Arrays.copyOf(array, length);
-        System.out.println("Old: " + input + " \n\rNew: " + StringUtils.join(newArray, " "));
-        return StringUtils.join(newArray, " ");
     }
 
     private boolean process(CommandSender sender, String[] arguments){

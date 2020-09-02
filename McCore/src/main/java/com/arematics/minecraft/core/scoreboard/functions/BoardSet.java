@@ -20,7 +20,6 @@ public class BoardSet {
     public Board SHOWN = null;
 
     public BoardSet(Player p){
-        System.out.println("Init new board");
         this.PLAYER = p;
         this.PACKETS = new BoardPackets(p);
         this.SCOREBOARD = new Scoreboard();
@@ -105,7 +104,6 @@ public class BoardSet {
         if(board == null){
             this.PACKETS.nmsDisplaySidebar(null);
             this.SHOWN = null;
-            System.out.println("Hiding board");
         }else{
             this.SHOWN = board;
             BoardHandler handler = new BoardHandler(this, board);

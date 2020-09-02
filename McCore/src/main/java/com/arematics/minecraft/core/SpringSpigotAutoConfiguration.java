@@ -7,6 +7,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -17,6 +18,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
 @EnableJpaRepositories
+@EnableCaching
 @ComponentScan("com.arematics.minecraft.core")
 @ConditionalOnClass({Bukkit.class})
 class SpringSpigotAutoConfiguration {

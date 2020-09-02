@@ -55,8 +55,6 @@ public class BoardHandler {
     }
 
     public BoardHandler setDisplayName(String displayname){
-        System.out.println(this.BOARD);
-        System.out.println(this.BOARD_SET.getScoreboard().getObjective(this.BOARD.OBJECTIVE_NAME));
         this.BOARD_SET.getScoreboard().getObjective(this.BOARD.OBJECTIVE_NAME).setDisplayName(displayname);
         this.BOARD_SET.PACKETS.nmsUpdateObjective(getObjective());
         this.BOARD.LAST_UPDATE_TIME = System.currentTimeMillis();

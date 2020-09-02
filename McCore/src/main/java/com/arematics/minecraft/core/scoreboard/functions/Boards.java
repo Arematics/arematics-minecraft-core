@@ -24,7 +24,6 @@ public class Boards {
     }
 
     private static boolean sameUUID(Player boardPlayer, Player player){
-        System.out.println(boardPlayer.getUniqueId().toString() .equals(player.getUniqueId().toString()));
         return boardPlayer.getUniqueId().toString().equals(player.getUniqueId().toString());
     }
 }

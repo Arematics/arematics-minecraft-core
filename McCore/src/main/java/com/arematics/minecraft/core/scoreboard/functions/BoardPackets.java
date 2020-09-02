@@ -74,7 +74,6 @@ public class BoardPackets {
             t.setCanSeeFriendlyInvisibles(false);
             t.setNameTagVisibility(ScoreboardTeamBase.EnumNameTagVisibility.ALWAYS);
             scoreboard.addPlayerToTeam(entry, t.getName());
-            //System.out.println("Team | Name: " + t.getName() + " | Players: " + t.getPlayerNameSet() + " | Prefix: " + t.getPrefix().replace("§", "&") + " | Suffix: " + t.getSuffix().replace("§", "&"));
             PacketPlayOutScoreboardTeam newteam = new PacketPlayOutScoreboardTeam(t, SEND);
             ((CraftPlayer) PLAYER).getHandle().playerConnection.sendPacket(newteam);
         }else{
