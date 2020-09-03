@@ -2,6 +2,8 @@ package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.Boots;
+import com.arematics.minecraft.core.data.model.ArematicsAccount;
+import com.arematics.minecraft.core.data.service.ArematicsAccountService;
 import com.arematics.minecraft.core.scoreboard.functions.BoardHandler;
 import com.arematics.minecraft.core.scoreboard.functions.Boards;
 import org.bukkit.entity.Player;
@@ -9,12 +11,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
-public class PlayerBoardTestListener implements Listener {
+public class PlayerBoardTestListener implements Listener{
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event){
+        ArematicsAccountService accountService = (ArematicsAccountService) Boots.getBoot(CoreBoot.class)
+                .getContext().getBean("arematicsAccountService");
+        ArematicsAccount account = accountService.findOrCreateBySoulConnection(event.getPlayer().getUniqueId());
+        System.out.println(account);
+
         Player player = event.getPlayer();
         final BoardHandler handler = Boards.getBoardSet(player).getOrAddBoard("main", "§aSoul");
         handler.addEntryData("Test: §7", "§6", "§4Hallo")
