@@ -1,6 +1,8 @@
-create schema soulpvp;
+create schema if not exists soulpvp;
 
-create table player_account
+use soulpvp;
+
+create table if not exists player_account
 (
 	arematics_connection binary(255) not null,
 	uuid binary(255) not null primary key,

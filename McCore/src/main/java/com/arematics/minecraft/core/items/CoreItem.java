@@ -11,8 +11,10 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -23,19 +25,18 @@ import java.util.stream.Collectors;
 @ToString
 public class CoreItem extends NBTItem implements ConfigurationSerializable {
 
-    public static CoreItem[] streamTo(BukkitObjectInputStream inputStream) throws Exception {
+    public static CoreItem[] streamTo( InputStream inputStream) throws Exception {
         BukkitObjectInputStream in = new BukkitObjectInputStream(inputStream);
-        return (CoreItem[]) Arrays.stream((CoreItem[]) in.readObject())
-                .toArray();
+        return (CoreItem[]) in.readObject();
     }
 
-    public static BukkitObjectOutputStream toStream(CoreItem[] array) throws IOException {
+    public static ByteArrayOutputStream toStream(CoreItem[] array) throws IOException {
         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
         BukkitObjectOutputStream outputStream = new BukkitObjectOutputStream(bytesOut);
         outputStream.writeObject(array);
         outputStream.flush();
         outputStream.close();
-        return outputStream;
+        return bytesOut;
     }
 
     public static CoreItem create(ItemStack item){
@@ -46,7 +47,7 @@ public class CoreItem extends NBTItem implements ConfigurationSerializable {
     private final ItemStack item;
 
     private CoreItem(ItemStack item){
-        super(item);
+        super(item, true);
         this.item = item;
     }
 
@@ -61,6 +62,11 @@ public class CoreItem extends NBTItem implements ConfigurationSerializable {
 
     @Override
     public Map<String, Object> serialize() {
-        return this.getItem().serialize();
+        Map<String, Object> result = this.getItem().serialize();
+        return result;
+    }
+
+    public static CoreItem deserialize(Map<String, Object> args){
+        return new CoreItem(ItemStack.deserialize(args));
     }
 }
