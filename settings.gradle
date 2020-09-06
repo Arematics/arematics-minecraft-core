@@ -1,6 +1,6 @@
 rootProject.name = 'Minecraft'
 include 'McCore'
-include 'CommandInventorys'
+include 'UserInterface'
 include 'RegionInteractor'
 include 'AdvancedPlots'
 include 'Clans'

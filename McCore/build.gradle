@@ -1,4 +1,4 @@
-version '0.3.2'
+version '0.3.3'
 
 
 dependencies {
@@ -25,7 +25,7 @@ dependencies {
 }
 
 def filesToCopy = copySpec{
-    from 'build/libs/McCore-0.3.2-all.jar'
+    from 'build/libs/McCore-0.3.3-all.jar'
 }
 
 task copyFileToCityBuild(type:Copy) {

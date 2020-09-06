@@ -4,9 +4,9 @@ version '1.0'
 dependencies {
     compileOnly  name: 'Nbt-API'
 
-    compileOnly group: 'com.arematics', name: 'McCore', version: '0.3.2'
+    compileOnly group: 'com.arematics', name: 'McCore', version: '0.3.3'
 
-    testCompile group: 'com.arematics', name: 'McCore', version: '0.3.2'
+    testCompile group: 'com.arematics', name: 'McCore', version: '0.3.3'
 }
 
 def filesToCopy = copySpec{

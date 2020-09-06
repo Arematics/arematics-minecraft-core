@@ -1,9 +1,8 @@
 package com.arematics.minecraft.core;
 
-import com.arematics.minecraft.core.annotations.PluginEngine;
 import com.arematics.minecraft.core.configurations.Config;
 import com.arematics.minecraft.core.hooks.*;
-import com.arematics.minecraft.core.utils.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class Bootstrap extends JavaPlugin {
@@ -11,7 +10,7 @@ public abstract class Bootstrap extends JavaPlugin {
     public Config config;
     public final boolean configuration;
 
-    private String dir = null;
+    private final String dir = ClassUtils.getPackageName(this.getClass());
 
     public Bootstrap(boolean configuration) {
         this.configuration = configuration;
@@ -42,15 +41,7 @@ public abstract class Bootstrap extends JavaPlugin {
         }
     }
 
-    public String getDir(){
-        return dir;
-    }
-
-    protected final void hook() throws Exception{
-        String dir = ClassUtils.fetchAnnotationValueSave(this, PluginEngine.class, PluginEngine::dir)
-                .orElse(getDir());
-        if(dir == null) throw new Exception("Engine Package not set in Method getDir or PluginEngine Annotation");
-        else this.dir = dir;
+    protected final void hook() {
         MultiHook hook = new MultiHook(dir, this.getClass().getClassLoader(), this);
         hook.addPreHook(new PreFileExistHook());
         hook.addHook(new LanguageHook());
