@@ -13,6 +13,11 @@ public class UIBoot extends Bootstrap {
     }
 
     @Override
+    public void onEnable() {
+        super.onEnable();
+    }
+
+    @Override
     public void shutdown() {
 
     }

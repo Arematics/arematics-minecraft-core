@@ -27,4 +27,6 @@ include 'Skills'
 include 'Watcher'
 include 'Metadata'
 include 'SpringIntegration'
+include 'SpringIntegration'
+include 'SpringHook'
 

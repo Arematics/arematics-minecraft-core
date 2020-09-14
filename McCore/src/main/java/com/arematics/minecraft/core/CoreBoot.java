@@ -33,11 +33,14 @@ public class CoreBoot extends Bootstrap{
         return context;
     }
 
+    public void setContext(ConfigurableApplicationContext context) {
+        this.context = context;
+    }
+
     @SneakyThrows
     @Override
     public void onEnable() {
         super.onEnable();
-        context = SpringSpigotBootstrapper.initialize(this, Application.class);
     }
 
     @Override

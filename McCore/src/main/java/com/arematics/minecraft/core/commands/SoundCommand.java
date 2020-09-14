@@ -1,11 +1,11 @@
 package com.arematics.minecraft.core.commands;
 
-import com.arematics.minecraft.core.annotations.*;
+import com.arematics.minecraft.core.annotations.Default;
+import com.arematics.minecraft.core.annotations.Permission;
+import com.arematics.minecraft.core.annotations.PluginCommand;
+import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.messaging.advanced.Format;
-import com.arematics.minecraft.core.messaging.advanced.HoverAction;
-import com.arematics.minecraft.core.messaging.advanced.JsonColor;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.utils.ListUtils;
 import org.bukkit.Sound;
@@ -31,6 +31,7 @@ public class SoundCommand extends CoreCommand {
     }
 
     @SubCommand("list")
+    @Permission(permission = "list")
     public boolean list(CommandSender sender){
         return listSelected(sender, "");
     }

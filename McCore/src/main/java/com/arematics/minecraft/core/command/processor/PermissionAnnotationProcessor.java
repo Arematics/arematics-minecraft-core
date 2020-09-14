@@ -39,6 +39,11 @@ public class PermissionAnnotationProcessor extends AnnotationProcessor<Permissio
         return true;
     }
 
+    @Override
+    public boolean annotationNeeded() {
+        return false;
+    }
+
     private String getSerializedPermission(Method method) {
         if(method.isAnnotationPresent(Permission.class)) return method.getAnnotation(Permission.class).permission();
         return "";

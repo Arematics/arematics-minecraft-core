@@ -1,37 +1,33 @@
 package com.arematics.minecraft.core.permissions;
 
+import com.arematics.minecraft.core.Boots;
+import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.data.model.Permission;
+import com.arematics.minecraft.core.data.model.User;
+import com.arematics.minecraft.core.data.service.UserService;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.function.Predicate;
 
 public class Permissions {
 
     public static boolean isNotAllowed(CommandSender sender, String permission){
         if(sender instanceof Player) {
-            return !(hasUpperPermissionLevel((Player)sender, permission) ||
-                    hasLowerPermissionLevel((Player)sender, permission));
+            UserService service = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
+            User user = service.getOrCreateUser(((Player)sender).getUniqueId());
+            return !hasPermission(user, permission);
         }
         return true;
     }
 
-    /**
-     * Check if Player has Class Permission Level
-     * @param player Player
-     * @param permission Permission Name
-     * @return Player has Class Permission Level
-     */
-    private static boolean hasUpperPermissionLevel(Player player, String permission){
-        if(!permission.contains(".")) return permission.equalsIgnoreCase("sound");
-        String[] upper = permission.split("\\.");
-        return upper[0].equalsIgnoreCase("sound");
+    public static boolean hasPermission(User user, String permission){
+        return user.getUserPermissions().stream().anyMatch(hasPerm(permission)) ||
+                user.getRank().getPermissions().stream().anyMatch(hasPerm(permission));
     }
 
-    /**
-     * Check if Player has direct Permission Level
-     * @param player Player
-     * @param permission Permission Name
-     * @return Player has direct Permission Level
-     */
-    private static boolean hasLowerPermissionLevel(Player player, String permission){
-        return true;
+    private static Predicate<? super Permission> hasPerm(String permission){
+        return perm -> perm.getPermission().equals(permission) ||
+                perm.getPermission().equals(permission.split("\\.")[0]);
     }
 }

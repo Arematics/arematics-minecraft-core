@@ -47,6 +47,7 @@ public class SpringSpigotBootstrapper {
                     val loader = new DefaultResourceLoader(classLoader);
                     builder.resourceLoader(loader);
                 }
+
                 return builder
                         .properties(props)
                         .initializers(new SpringSpigotInitializer(plugin))

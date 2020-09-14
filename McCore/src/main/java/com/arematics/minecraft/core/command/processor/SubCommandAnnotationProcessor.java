@@ -1,20 +1,16 @@
 package com.arematics.minecraft.core.command.processor;
 
+import com.arematics.minecraft.core.annotations.ProcessorData;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.parser.Parser;
 import com.arematics.minecraft.core.command.processor.parser.ParserException;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
-import com.arematics.minecraft.core.annotations.ProcessorData;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.reflect.MethodUtils;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
 
 public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubCommand> {
 
@@ -45,6 +41,11 @@ public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubComman
         if(ArrayUtils.isEmpty(order)) return (boolean) method.invoke(executer(), sender);
         else return (boolean) MethodUtils.invokeMethod(executer(), method.getName(), order,
                 method.getParameterTypes());
+    }
+
+    @Override
+    public boolean annotationNeeded() {
+        return true;
     }
 
     private String getSerializedValue(Method method) {

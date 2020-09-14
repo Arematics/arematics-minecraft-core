@@ -136,19 +136,22 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
         dataPack.put("classLevelPermission", this.classPermission);
         MethodProcessorEnvironment environment = MethodProcessorEnvironment
                 .newEnvironment(this, dataPack, this.processors);
-        if(!StringUtils.isBlank(this.classPermission)) {
-            if (Permissions.isNotAllowed(sender, this.classPermission)) {
-                Messages.create("cmd_noperms")
-                        .WARNING()
-                        .to(sender)
-                        .handle();
-                return true;
-            }
-        }
         try{
             for (final Method method : this.sortedMethods){
-                if(isDefault && ClassUtils.execute(Default.class, method, (tempMethod)
-                        -> (Boolean) method.invoke(this, sender))) return true;
+                if(isDefault){
+                    if(!StringUtils.isBlank(this.classPermission)) {
+                        if (Permissions.isNotAllowed(sender, this.classPermission)) {
+                            Messages.create("cmd_noperms")
+                                    .WARNING()
+                                    .to(sender)
+                                    .handle();
+                            return true;
+                        }
+                    }
+
+                    if(ClassUtils.execute(Default.class, method, (tempMethod)
+                            -> (Boolean) method.invoke(this, sender))) return true;
+                }
                 String value = getSerializedValue(method);
                 if(annotations.contains(value)){
                     Messages.create(CMD_SAME_SUB_METHOD).FAILURE().to(sender).handle();

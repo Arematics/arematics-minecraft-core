@@ -1,0 +1,7 @@
+name: SpringHook
+author: Klysma
+description: SpringHook by Arematics
+version: 1.0-Alpha
+depend: [McCore, Metadata, UserInterface, Watcher]
+
+main: com.arematics.minecraft.spring.SpringHook

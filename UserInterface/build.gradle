@@ -4,8 +4,6 @@ version '1.0-Alpha'
 dependencies {
     compileOnly group: 'com.arematics', name: 'McCore', version: '0.3.3'
 
-    testCompile group: 'com.arematics', name: 'McCore', version: '0.3.3'
-
     compileOnly  name: 'Nbt-API'
 
     compileOnly group: 'com.google.guava', name: 'guava', version: '29.0-jre'
