@@ -1,10 +1,8 @@
 package com.arematics.minecraft.core.commands;
 
-import com.arematics.minecraft.core.annotations.Default;
-import com.arematics.minecraft.core.annotations.Permission;
-import com.arematics.minecraft.core.annotations.PluginCommand;
-import com.arematics.minecraft.core.annotations.SubCommand;
+import com.arematics.minecraft.core.annotations.*;
 import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.hooks.CliCommandHook;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.utils.ListUtils;
@@ -14,6 +12,7 @@ import org.bukkit.entity.Player;
 
 @PluginCommand(aliases = {})
 @Permission(permission = "sound")
+@DisableAutoHook(whitelist = false, list = {CliCommandHook.class})
 public class SoundCommand extends CoreCommand {
 
      public SoundCommand(){

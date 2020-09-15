@@ -15,7 +15,7 @@ public class ListenerHook extends PackageHook<Method> {
     private ClassLoader classLoader;
 
     @Override
-    void startPathHock(String url, ClassLoader loader, JavaPlugin plugin) {
+    void startPathHook(String url, ClassLoader loader, JavaPlugin plugin) {
         try{
             this.url = url;
             this.classLoader = loader;
@@ -45,7 +45,7 @@ public class ListenerHook extends PackageHook<Method> {
     }
 
     public void processAction(Class<?> classprocess, JavaPlugin plugin) {
-        if(classprocess.isAnnotationPresent(DisableAutoHook.class)) return;
+        if(isHookingDisabledFor(classprocess)) return;
         try {
             Object instance = classprocess.getConstructor().newInstance();
             Bukkit.getLogger().info("Adding " + classprocess.getName() + " as Listener");

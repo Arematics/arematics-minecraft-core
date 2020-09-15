@@ -15,7 +15,7 @@ public class CommandHooks extends PackageHook<Class<?>> {
     private ClassLoader classLoader;
 
     @Override
-    void startPathHock(String url, ClassLoader loader, JavaPlugin plugin) {
+    void startPathHook(String url, ClassLoader loader, JavaPlugin plugin) {
         try{
             this.url = url;
             this.classLoader = loader;
@@ -36,7 +36,7 @@ public class CommandHooks extends PackageHook<Class<?>> {
 
     @Override
     public void processAction(Class<?> o, JavaPlugin plugin) {
-        if(o.isAnnotationPresent(DisableAutoHook.class)) return;
+        if(isHookingDisabledFor(o)) return;
         try {
             CoreCommand instance = (CoreCommand) o.getConstructor().newInstance();
             Bukkit.getLogger().info("Adding " + instance.getClass().getName() + " as Command");

@@ -1,6 +1,5 @@
 package com.arematics.minecraft.core.hooks;
 
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Arrays;
@@ -66,7 +65,7 @@ public class MultiHook {
         preHooks.forEach(hook -> hook.startHook(getLoader(), getBootstrap()));
         bootstrap.getLogger().info("Enable Hooks");
         hooks.forEach(hook -> hook.startHook(getLoader(), getBootstrap()));
-        packageHooks.forEach(phook -> phook.startPathHock(getUrl(), getLoader(), getBootstrap()));
+        packageHooks.forEach(phook -> phook.startPathHook(getUrl(), getLoader(), getBootstrap()));
         bootstrap.getLogger().info("All Hooks enabled");
     }
 }
