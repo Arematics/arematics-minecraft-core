@@ -20,6 +20,5 @@ public class SpringHook extends JavaPlugin {
                 Thread.currentThread().getContextClassLoader(),
                 WatcherBoot.class.getClassLoader(), MetaBoot.class.getClassLoader());
         coreBoot.setContext(SpringSpigotBootstrapper.initialize(coreBoot, loader, Application.class));
-        Arrays.stream(coreBoot.getContext().getBeanDefinitionNames()).forEach(System.out::println);
     }
 }

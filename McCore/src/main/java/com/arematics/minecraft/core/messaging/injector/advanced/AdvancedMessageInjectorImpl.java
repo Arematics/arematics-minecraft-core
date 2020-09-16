@@ -4,13 +4,12 @@ import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.MessageHighlight;
 import com.arematics.minecraft.core.messaging.advanced.*;
 import com.arematics.minecraft.core.messaging.injector.Injector;
-import org.bukkit.Location;
+import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class AdvancedMessageInjectorImpl extends Injector<MSG> implements AdvancedMessageReplace, AdvancedMessageAction {
 
@@ -30,27 +29,27 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
 
     @Override
     public AdvancedMessageAction setHover(HoverAction action, String value){
-        this.current.HOVER_ACTION = action;
-        this.current.HOVER_VALUE = value;
+        this.current.hoverAction = action;
+        this.current.hoverValue = value;
         return this;
     }
 
     @Override
     public AdvancedMessageAction setClick(ClickAction action, String value) {
-        this.current.CLICK_ACTION = action;
-        this.current.CLICK_VALUE = value;
+        this.current.clickAction = action;
+        this.current.clickValue = value;
         return this;
     }
 
     @Override
     public AdvancedMessageAction setColor(JsonColor jsonColor) {
-        this.current.JSON_COLOR = jsonColor;
+        this.current.jsonColor = jsonColor;
         return this;
     }
 
     @Override
     public AdvancedMessageAction setFormat(Format format) {
-        this.current.FORMAT = format;
+        this.current.format = format;
         return this;
     }
 
@@ -64,7 +63,13 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
 
     @Override
     public AdvancedMessageAction replace(String pattern, String replace){
-        this.current = new AdvancedReplace(pattern, replace);
+        this.current = new AdvancedReplace(pattern, new String[]{replace});
+        return this;
+    }
+
+    @Override
+    public AdvancedMessageAction eachReplace(String key, String[] values) {
+        this.current = new AdvancedReplace(key, values);
         return this;
     }
 
@@ -92,12 +97,23 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
     }
 
     private void handleReplacer(AdvancedReplace replace, MSG msg){
-        Part[] parts = msg.separateTerms("%" + replace.KEY + "%");
-        Arrays.stream(parts).forEach(part -> part
-                .setText(replace.VALUE)
-                .setHoverAction(replace.HOVER_ACTION, replace.HOVER_VALUE)
-                .setClickAction(replace.CLICK_ACTION, replace.CLICK_VALUE)
-                .setBaseColor(replace.JSON_COLOR)
-                .addFormat(replace.FORMAT));
+        msg.replaceAllAt("%" + replace.key + "%", buildMessage(replace), false);
+    }
+
+    private MSG buildMessage(AdvancedReplace replace){
+        MSG msg = new MSG();
+        Arrays.stream(replace.values).forEach(value -> msg.PARTS.add(new Part(value + ", ")
+                .setHoverAction(replace.hoverAction, injectPlaceholder(value, replace.hoverValue))
+                .setClickAction(replace.clickAction, injectPlaceholder(value, replace.clickValue))
+                .setBaseColor(replace.jsonColor)
+                .addFormat(replace.format)));
+        return msg;
+    }
+
+    private String injectPlaceholder(String value, String rawMessage){
+        Map<String, String> injectors = new HashMap<>();
+        injectors.put("value", value);
+        StrSubstitutor substitutor = new StrSubstitutor(injectors, "%", "%");
+        return substitutor.replace(rawMessage);
     }
 }

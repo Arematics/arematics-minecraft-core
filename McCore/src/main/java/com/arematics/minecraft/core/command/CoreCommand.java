@@ -64,6 +64,7 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     }
 
     private void registerStandards(){
+        this.processors.put(Permission.class, new PermissionAnnotationProcessor());
         try {
             for(Annotation annotation : this.getClass().getAnnotations()){
                 if(annotation.annotationType() == PluginCommand.class) {
@@ -75,7 +76,6 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                 }
             }
         } catch (Exception ignore) {}
-        this.processors.put(Permission.class, new PermissionAnnotationProcessor());
         this.processors.put(SubCommand.class, new SubCommandAnnotationProcessor());
     }
 

@@ -2,17 +2,18 @@ package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.*;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.hooks.CliCommandHook;
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.messaging.advanced.ClickAction;
+import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.utils.ListUtils;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.guieffect.qual.UI;
 
-@PluginCommand(aliases = {})
+@PluginCommand(aliases = {"s"})
 @Permission(permission = "sound")
-@DisableAutoHook(whitelist = false, list = {CliCommandHook.class})
 public class SoundCommand extends CoreCommand {
 
      public SoundCommand(){
@@ -43,7 +44,9 @@ public class SoundCommand extends CoreCommand {
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("list_type", "Sound")
                 .END()
-                .replace("list_value", ListUtils.getNameListStartsWith(Sound.class, startsWith))
+                .eachReplace("list_value", ListUtils.getNamesStartsWith(Sound.class, startsWith))
+                .setHover(HoverAction.SHOW_TEXT, "/sound %value%")
+                .setClick(ClickAction.RUN_COMMAND, "/sound %value%")
                 .END()
                 .handle();
         return true;

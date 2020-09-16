@@ -151,6 +151,51 @@ public class MSG {
     }
 
     /**
+     * Simply replaces all found 'term's with the 'replacement'
+     * @param term Term that gets replaced (case-sensitive)
+     * @param replacement Replacement
+     * @return Amount of parts that contained the term at least once
+     */
+    public void replaceAllAt(String term, MSG replacement, boolean ignoreCase) {
+        if(term == null || term.isEmpty())
+            throw new IllegalArgumentException("Term is null or empty!");
+        if(ignoreCase)
+            term = term.toLowerCase();
+
+        boolean termFound;
+        searchLoop: do {
+            termFound = false;
+
+            for(int i = 0; i < this.PARTS.size(); i++) {
+                Part part = PARTS.get(i);
+                String text = part.TEXT;
+                String textCheck = ignoreCase ? text.toLowerCase() : text;
+
+                if(!textCheck.equals(term) && textCheck.contains(term)) {
+                    int indexStart = textCheck.indexOf(term);
+                    int indexEnd = indexStart + term.length();
+
+                    Part beforeTerm = part.clone().setText(text.substring(0, indexStart));
+                    Part atTerm = part.clone().setText(text.substring(indexStart, indexEnd));
+                    Part afterTerm = part.clone().setText(text.substring(indexEnd));
+
+                    replacement.PARTS.stream()
+                            .filter(partVal -> partVal.BASE_COLOR == null)
+                            .forEach(partVal -> partVal.setBaseColor(atTerm.BASE_COLOR));
+
+                    PARTS.set(i, afterTerm);
+                    PARTS.addAll(i, replacement.PARTS);
+                    PARTS.add(i, beforeTerm);
+
+                    termFound = true;
+                    continue searchLoop;
+                }
+            }
+
+        } while (termFound);
+    }
+
+    /**
      * Copied from EnderSYS/Utils/TextUtils
      */
     private static String[] splitAndKeepDelimiter(String message, Pattern regex) {

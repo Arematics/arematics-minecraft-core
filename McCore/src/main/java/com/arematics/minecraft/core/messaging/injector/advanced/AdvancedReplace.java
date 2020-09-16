@@ -7,17 +7,17 @@ import com.arematics.minecraft.core.messaging.advanced.JsonColor;
 
 public class AdvancedReplace {
 
-    public final String KEY;
-    public final String VALUE;
-    public HoverAction HOVER_ACTION;
-    public String HOVER_VALUE;
-    public ClickAction CLICK_ACTION;
-    public String CLICK_VALUE;
-    public JsonColor JSON_COLOR;
-    public Format FORMAT;
+    public final String key;
+    public final String[] values;
+    public HoverAction hoverAction;
+    public String hoverValue;
+    public ClickAction clickAction;
+    public String clickValue;
+    public JsonColor jsonColor;
+    public Format format;
 
-    public AdvancedReplace(String key, String value){
-        this.KEY = key;
-        this.VALUE = value;
+    public AdvancedReplace(String key, String[] values){
+        this.key = key;
+        this.values = values;
     }
 }

@@ -21,6 +21,12 @@ public class AdvancedMessageInjector extends Injector<MSG> implements AdvancedMe
     }
 
     @Override
+    public AdvancedMessageAction eachReplace(String key, String[] values) {
+        this.injector.eachReplace(key, values);
+        return injector;
+    }
+
+    @Override
     public void handle() {
         this.injector.handle();
     }
