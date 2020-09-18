@@ -39,6 +39,11 @@ public class UserService {
         return repository.save(user);
     }
 
+    @CachePut(cacheNames = "userCache")
+    public User update(User user){
+        return repository.save(user);
+    }
+
     public User getOrCreateUser(UUID uuid){
         try{
             return getUserByUUID(uuid);

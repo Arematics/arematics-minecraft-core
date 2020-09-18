@@ -15,13 +15,18 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+import java.util.Optional;
 
 @Configuration
 @EnableJpaRepositories(basePackages = {"com.arematics.minecraft"})
 @EnableCaching
 @ComponentScan("com.arematics.minecraft")
 @EntityScan(basePackages = {"com.arematics.minecraft"})
+@EnableJpaAuditing
 @ConditionalOnClass({Bukkit.class})
 class SpringSpigotAutoConfiguration {
 
@@ -34,6 +39,11 @@ class SpringSpigotAutoConfiguration {
     void onStartup(ContextRefreshedEvent event) {
         if (initialized) return;
         initialized = true;
+    }
+
+    @Bean
+    AuditorAware<String> auditorProvider() {
+        return () -> Optional.of("System");
     }
 
     @Bean(destroyMethod = "")
