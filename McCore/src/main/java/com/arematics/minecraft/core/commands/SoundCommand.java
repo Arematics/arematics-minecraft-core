@@ -1,6 +1,9 @@
 package com.arematics.minecraft.core.commands;
 
-import com.arematics.minecraft.core.annotations.*;
+import com.arematics.minecraft.core.annotations.Default;
+import com.arematics.minecraft.core.annotations.Permission;
+import com.arematics.minecraft.core.annotations.PluginCommand;
+import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.ClickAction;
@@ -10,7 +13,6 @@ import com.arematics.minecraft.core.utils.ListUtils;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.guieffect.qual.UI;
 
 @PluginCommand(aliases = {"s"})
 @Permission(permission = "sound")
@@ -28,12 +30,6 @@ public class SoundCommand extends CoreCommand {
                 .replace("cmd_usage", "\n/sound list\n/sound list <startsWith>\n/sound <Name>")
                 .handle();
         return true;
-    }
-
-    @SubCommand("list")
-    @Permission(permission = "list")
-    public boolean list(CommandSender sender){
-        return listSelected(sender, "");
     }
 
     @SubCommand("list {startsWith}")
