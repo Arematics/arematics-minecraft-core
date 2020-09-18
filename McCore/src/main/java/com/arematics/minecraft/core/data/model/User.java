@@ -5,17 +5,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.WhereJoinTable;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
+@Audited
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,6 +32,7 @@ public class User implements Serializable {
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID uuid;
     private Timestamp lastJoin;
+    @NotAudited
     private String lastIp;
     private Timestamp lastIpChange;
     @OneToOne
@@ -40,6 +41,7 @@ public class User implements Serializable {
     @OneToOne
     @JoinColumn(name = "display_rank", referencedColumnName = "id")
     private Rank displayRank;
+    @NotAudited
     @WhereJoinTable(clause = "until IS NULL OR until > NOW()")
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_permission", joinColumns = {@JoinColumn(name = "uuid")},

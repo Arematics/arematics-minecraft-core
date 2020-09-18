@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.*;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.persistence.*;
@@ -15,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
+@Audited
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,6 +37,7 @@ public class Rank implements Serializable {
     private String colorCode;
     @Column(name = "last_change", nullable = false)
     private Timestamp lastChange;
+    @NotAudited
     @WhereJoinTable(clause = "until IS NULL OR until > NOW()")
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "ranks_permission", joinColumns = {@JoinColumn(name = "id")},
