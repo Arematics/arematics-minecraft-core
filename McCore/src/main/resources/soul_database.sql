@@ -117,6 +117,17 @@ create table if not exists user
             on update cascade
 );
 
+create table if not exists user_configurations
+(
+    uuid varchar(36) not null,
+    name varchar(255) not null,
+    value varchar(255) not null,
+    primary key (uuid, name),
+    constraint user_configurations_user_uuid_fk
+        foreign key (uuid) references soulpvp.user (uuid)
+            on update cascade on delete cascade
+);
+
 create table if not exists bans
 (
     uuid varchar(36) not null

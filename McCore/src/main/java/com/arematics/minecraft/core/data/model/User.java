@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.data.model;
 
+import com.arematics.minecraft.core.configurations.Config;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import org.hibernate.envers.NotAudited;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -41,6 +43,11 @@ public class User implements Serializable {
     @OneToOne
     @JoinColumn(name = "display_rank", referencedColumnName = "id")
     private Rank displayRank;
+    @NotAudited
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_configurations", joinColumns = @JoinColumn(name = "uuid"))
+    @MapKeyColumn(name = "name")
+    private Map<String, Configuration> configurations;
     @NotAudited
     @WhereJoinTable(clause = "until IS NULL OR until > NOW()")
     @OneToMany(fetch = FetchType.EAGER)

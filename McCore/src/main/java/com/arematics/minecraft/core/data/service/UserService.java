@@ -8,10 +8,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -35,7 +32,7 @@ public class UserService {
     @CachePut(cacheNames = "userCache")
     public User createUser(UUID uuid){
         User user = new User(UUID.randomUUID(), uuid, new Timestamp(System.currentTimeMillis()), null, null,
-                rankService.getDefaultRank(), null, new HashSet<>());
+                rankService.getDefaultRank(), null, new HashMap<>(), new HashSet<>());
         return repository.save(user);
     }
 
