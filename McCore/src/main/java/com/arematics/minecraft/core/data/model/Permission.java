@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.data.model;
 
+import com.arematics.minecraft.core.annotations.Perm;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,10 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Table(name = "permission")
 public class Permission implements Serializable {
+
+    public static Permission of(Perm perm, String prefix){
+        return new Permission(prefix + perm.permission(), perm.description());
+    }
 
     private static final long serialVersionUID = 1L;
 

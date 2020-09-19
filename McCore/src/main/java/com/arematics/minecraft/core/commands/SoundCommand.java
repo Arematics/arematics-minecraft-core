@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.Default;
-import com.arematics.minecraft.core.annotations.Permission;
+import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
@@ -15,7 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 @PluginCommand(aliases = {"s"})
-@Permission(permission = "sound")
+@Perm(permission = "sound", description = "Allow usage to full /sound Command")
 public class SoundCommand extends CoreCommand {
 
      public SoundCommand(){
@@ -33,7 +33,7 @@ public class SoundCommand extends CoreCommand {
     }
 
     @SubCommand("list {startsWith}")
-    @Permission(permission = "list")
+    @Perm(permission = "list", description = "Allow access to list all sounds starting with given parameter")
     public boolean listSelected(CommandSender sender, String startsWith){
         Messages.create("listing")
                 .to(sender)

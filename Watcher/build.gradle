@@ -1,9 +1,9 @@
 version '1.0'
 
 dependencies{
-    compileOnly group: 'com.arematics', name: 'McCore', version: '0.3.3'
+    compileOnly group: 'com.arematics', name: 'McCore', version: '0.3.4'
 
-    testCompile group: 'com.arematics', name: 'McCore', version: '0.3.3'
+    testCompile group: 'com.arematics', name: 'McCore', version: '0.3.4'
 }
 
 def filesToCopy = copySpec{

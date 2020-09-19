@@ -54,4 +54,8 @@ public abstract class Bootstrap extends JavaPlugin {
     public Config getPluginConfig() {
         return config;
     }
+
+    public String getDir() {
+        return dir;
+    }
 }

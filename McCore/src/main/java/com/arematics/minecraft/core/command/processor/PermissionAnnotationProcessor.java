@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.command.processor;
 
-import com.arematics.minecraft.core.annotations.Permission;
+import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.ProcessorData;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.permissions.Permissions;
@@ -10,7 +10,7 @@ import org.bukkit.command.CommandSender;
 
 import java.lang.reflect.Method;
 
-public class PermissionAnnotationProcessor extends AnnotationProcessor<Permission> {
+public class PermissionAnnotationProcessor extends AnnotationProcessor<Perm> {
 
     @ProcessorData
     private String classLevelPermission;
@@ -45,7 +45,7 @@ public class PermissionAnnotationProcessor extends AnnotationProcessor<Permissio
     }
 
     private String getSerializedPermission(Method method) {
-        if(method.isAnnotationPresent(Permission.class)) return method.getAnnotation(Permission.class).permission();
+        if(method.isAnnotationPresent(Perm.class)) return method.getAnnotation(Perm.class).permission();
         return "";
     }
 }

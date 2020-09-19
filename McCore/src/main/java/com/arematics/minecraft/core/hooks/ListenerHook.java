@@ -21,14 +21,14 @@ public class ListenerHook extends PackageHook<Method> {
             this.classLoader = loader;
             Set<Method> methods = startPreProcessor(loader, plugin);
             if(methods.isEmpty())
-                plugin.getLogger().warning("Could not find any Listeners");
+                plugin.getLogger().info("Could not find any Listeners");
             methods.stream()
                     .map(Method::getDeclaringClass)
                     .distinct()
                     .forEach(methodClass -> processAction(methodClass, plugin));
         }catch (Exception e){
             e.printStackTrace();
-            plugin.getLogger().warning("Could not find any Listeners");
+            plugin.getLogger().info("Could not find any Listeners");
         }
     }
 

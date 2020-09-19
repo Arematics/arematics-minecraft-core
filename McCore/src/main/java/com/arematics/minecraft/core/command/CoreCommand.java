@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.command;
 
 import com.arematics.minecraft.core.annotations.Default;
-import com.arematics.minecraft.core.annotations.Permission;
+import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.PermissionAnnotationProcessor;
@@ -53,7 +53,7 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                 .fetchAnnotationValueSave(this, PluginCommand.class, PluginCommand::aliases)
                 .orElse(new String[]{});
         this.classPermission = ClassUtils
-                .fetchAnnotationValueSave(this, Permission.class, Permission::permission)
+                .fetchAnnotationValueSave(this, Perm.class, Perm::permission)
                 .orElse("");
         this.sortedMethods = Arrays.stream(this.getClass().getDeclaredMethods())
                 .sorted(this::sorted)
@@ -64,7 +64,7 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     }
 
     private void registerStandards(){
-        this.processors.put(Permission.class, new PermissionAnnotationProcessor());
+        this.processors.put(Perm.class, new PermissionAnnotationProcessor());
         try {
             for(Annotation annotation : this.getClass().getAnnotations()){
                 if(annotation.annotationType() == PluginCommand.class) {
