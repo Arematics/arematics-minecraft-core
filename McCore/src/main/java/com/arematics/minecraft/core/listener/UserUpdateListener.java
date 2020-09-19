@@ -14,8 +14,8 @@ import java.sql.Timestamp;
 public class UserUpdateListener implements Listener {
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent event){
-        Player player = event.getPlayer();
+    public void onJoin(PlayerJoinEvent joinEvent){
+        Player player = joinEvent.getPlayer();
 
         UserService service = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
 

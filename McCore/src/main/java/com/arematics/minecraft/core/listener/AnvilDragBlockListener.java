@@ -9,20 +9,16 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 
-@SuppressWarnings("unused")
 public class AnvilDragBlockListener implements Listener {
 
 
     @EventHandler
-    public void onAnvilDragDisabler(InventoryClickEvent e) {
-        Player player = (Player) e.getWhoClicked();
-        if (e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY &&
+    public void onAnvilDragDisabler(InventoryClickEvent clickEvent) {
+        Player player = (Player) clickEvent.getWhoClicked();
+        if (clickEvent.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY &&
                 Inventories.isType(player.getOpenInventory().getTopInventory(), InventoryType.ANVIL)) {
-            e.setCancelled(true);
-            Messages.create("anvil_drag_disabled")
-                    .WARNING()
-                    .to(player)
-                    .handle();
+            clickEvent.setCancelled(true);
+            Messages.create("anvil_drag_disabled").WARNING().to(player).handle();
         }
     }
 }
