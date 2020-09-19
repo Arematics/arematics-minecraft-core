@@ -11,7 +11,6 @@ import org.bukkit.event.inventory.InventoryType;
 
 public class AnvilDragBlockListener implements Listener {
 
-
     @EventHandler
     public void onAnvilDragDisabler(InventoryClickEvent clickEvent) {
         Player player = (Player) clickEvent.getWhoClicked();

@@ -17,7 +17,8 @@ import java.lang.annotation.Target;
  * couldn't execute method admin.test2
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
 public @interface Permission {
     String permission();
+    String description() default "";
 }
