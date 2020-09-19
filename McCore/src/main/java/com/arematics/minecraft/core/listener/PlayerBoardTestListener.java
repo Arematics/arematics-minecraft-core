@@ -21,15 +21,14 @@ public class PlayerBoardTestListener implements Listener{
         Player player = event.getPlayer();
 
         final BoardHandler handler = Boards.getBoardSet(player).getOrAddBoard("main", "§aSoul");
-        handler.addEntryData("Test: §7", "§6", "§4Hallo")
-                .show();
+        handler.addEntryData("Test: ", "§6", "§4Hallo").show();
 
         new BukkitRunnable(){
             @Override
             public void run() {
-                handler.setEntrySuffix("Test: §7", "§4Allo")
-                        .setEntrySuffix("Test: §7", "§5Ein Zebra")
-                        .buildEntries();
+                handler.setEntryPrefix("Test: ", "§a")
+                        .setEntrySuffix("Test: ", "§5Ein Zebra")
+                        .refresh();
             }
         }.runTaskLater(Boots.getBoot(CoreBoot.class), 20*5);
     }

@@ -25,18 +25,21 @@ public class BoardHandler {
 
     public void toggleModernBoard(){
         this.BOARD.MODERN_BOARD = !this.BOARD.MODERN_BOARD;
-        this.buildEntries = false;
-        hide();
-        show();
+        refresh();
     }
 
     public void show(){
-        buildEntries();
         this.BOARD_SET.enableScoreboard(this.BOARD);
     }
 
     public void hide(){
         this.BOARD_SET.enableScoreboard(null);
+    }
+
+    public void refresh(){
+        this.buildEntries = false;
+        hide();
+        show();
     }
 
     public void toggle(){
@@ -83,7 +86,26 @@ public class BoardHandler {
 
     }
 
-    public void buildEntries(){
+    /**
+     * Change Color of Scoreboard Entry.
+     * You need to call buildEntries() Method after this, otherwise the value wouldn't be updated.
+     * @param name Name of Scoreboard Entry
+     * @param prefix Value to Change
+     * @return Current Handler
+     */
+    public BoardHandler setEntryPrefix(String name, String prefix){
+        this.BOARD.ENTRY_DATA
+                .stream()
+                .filter(data -> data.NAME.equals(name))
+                .findFirst()
+                .ifPresent(entryData -> entryData.PREFIX = prefix);
+        return this;
+
+    }
+
+    void buildEntries(){
+        Collection<BoardEntry> entries = new ArrayList<>(this.BOARD.ENTRIES.values());
+        entries.forEach(this::removeEntry);
         BoardEntryData[] dataSet = this.BOARD.ENTRY_DATA.toArray(new BoardEntryData[]{});
         for(int i = dataSet.length - 1; i >= 0; i--){
             BoardEntryData data = dataSet[i];
