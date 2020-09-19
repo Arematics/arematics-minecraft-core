@@ -15,11 +15,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.Timestamp;
 
-@Permission(permission = "listener")
 public class PlayerBoardTestListener implements Listener{
-
-    @Permission(permission = "board", description = "Is allowed to have a scoreboard")
-    private boolean isAllowed;
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event){
