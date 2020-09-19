@@ -24,7 +24,7 @@ public class PlayerBoardTestListener implements Listener{
     @EventHandler
     public void onJoin(PlayerJoinEvent event){
         Player player = event.getPlayer();
-        System.out.println("New Test");
+        System.out.println("New Test 2");
 
         final BoardHandler handler = Boards.getBoardSet(player).getOrAddBoard("main", "§aSoul");
         handler.addEntryData("Test: ", "§6", "§4Hallo").show();
