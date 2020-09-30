@@ -26,8 +26,9 @@ public class SoundCommand extends CoreCommand {
     public boolean sendInfo(CommandSender sender){
         Messages.create("cmd_not_valid")
                 .to(sender)
-                .DEFAULT()
+                .setInjector(AdvancedMessageInjector.class)
                 .replace("cmd_usage", "\n/sound list\n/sound list <startsWith>\n/sound <Name>")
+                .END()
                 .handle();
         return true;
     }
