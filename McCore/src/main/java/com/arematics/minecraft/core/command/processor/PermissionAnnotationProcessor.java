@@ -20,15 +20,9 @@ public class PermissionAnnotationProcessor extends AnnotationProcessor<Perm> {
     @Override
     public boolean supply(Method method) throws Exception {
         super.supply(method);
-        String result = getSerializedPermission(method);
-        if(StringUtils.isBlank(classLevelPermission)){
-            Messages.create("cmd_upper_permission_not_set")
-                    .FAILURE()
-                    .to(sender)
-                    .handle();
-            return false;
-        }
-        result = this.classLevelPermission + "." + result;
+        if(StringUtils.isBlank(classLevelPermission))
+            return true;
+        String result = this.classLevelPermission + "." + getSerializedPermission(method);
         if(Permissions.isNotAllowed(this.sender, result)){
             Messages.create("cmd_noperms")
                     .WARNING()
