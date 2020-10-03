@@ -27,6 +27,12 @@ public class AdvancedMessageInjector extends Injector<MSG> implements AdvancedMe
     }
 
     @Override
+    public AdvancedMessageReplace disableServerPrefix() {
+        this.injector.disableServerPrefix();
+        return this;
+    }
+
+    @Override
     public void handle() {
         this.injector.handle();
     }

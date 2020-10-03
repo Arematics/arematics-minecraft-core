@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.messaging.injector.advanced;
 
+import com.arematics.minecraft.core.language.Language;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.MessageHighlight;
 import com.arematics.minecraft.core.messaging.advanced.*;
@@ -21,6 +22,7 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
     protected final MessageHighlight HIGHLIGHT;
     protected final String RAW_MESSAGE;
     protected final List<AdvancedReplace> INJECTOR_VALUES = new ArrayList<>();
+    private boolean serverPrefix = true;
 
     protected AdvancedReplace current;
 
@@ -78,6 +80,12 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
     }
 
     @Override
+    public AdvancedMessageReplace disableServerPrefix() {
+        this.serverPrefix = false;
+        return this;
+    }
+
+    @Override
     public void handle() {
         SENDER_LIST.forEach(sender -> {
             String preparedMessage = prepareMessage(sender);
@@ -90,6 +98,8 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
 
     @Override
     protected String prepareMessage(CommandSender sender) {
+        if(!this.serverPrefix)
+            return LanguageAPI.prepareRawMessage(sender, this.RAW_MESSAGE);
         return LanguageAPI.prepareMessage(sender, this.HIGHLIGHT, this.RAW_MESSAGE);
     }
 
