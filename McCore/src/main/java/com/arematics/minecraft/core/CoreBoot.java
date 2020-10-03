@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.command.processor.parser.Parser;
 import com.arematics.minecraft.core.messaging.injector.Injector;
 import com.arematics.minecraft.core.messaging.injector.LanguageInjector;
 import com.arematics.minecraft.core.messaging.injector.StringInjector;
+import de.tr7zw.nbtinjector.NBTInjector;
 import lombok.SneakyThrows;
 import org.springframework.context.ConfigurableApplicationContext;
 

@@ -1,6 +1,5 @@
 package com.arematics.minecraft.core.data.model;
 
-import com.arematics.minecraft.core.configurations.Config;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

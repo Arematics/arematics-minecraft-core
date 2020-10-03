@@ -43,6 +43,14 @@ public class LanguageAPI {
                 langs.get("ENGLISH").getValue(key);
     }
 
+    public static String prepareRawMessage(CommandSender sender, String key){
+        if(sender instanceof Player){
+            return getUser((Player)sender).getLanguage().getValue(key);
+        }
+
+        return langs.get("ENGLISH").getValue(key);
+    }
+
     public static void registerMessage(String langName, String key, String message){
         Optional<Language> lang = langs.values().stream().filter(language -> language.getName().equals(langName))
                 .findFirst();

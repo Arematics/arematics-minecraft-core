@@ -14,7 +14,7 @@ public class CoreItemTypeDescriptor extends AbstractTypeDescriptor<CoreItem[]> {
             new CoreItemTypeDescriptor();
 
     public CoreItemTypeDescriptor() {
-        super(CoreItem[].class, ImmutableMutabilityPlan.INSTANCE);
+        super(CoreItem[].class, new ImmutableMutabilityPlan<>());
     }
 
     @Override
