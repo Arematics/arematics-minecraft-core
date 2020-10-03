@@ -21,9 +21,9 @@ import org.bukkit.entity.Player;
 @Perm(permission = "sound", description = "Allow usage to full /sound Command")
 public class SoundCommand extends CoreCommand {
 
-     public SoundCommand(){
-         super("sound");
-     }
+    public SoundCommand(){
+        super("sound");
+    }
 
     @Default
     public boolean sendInfo(CommandSender sender){
@@ -45,10 +45,11 @@ public class SoundCommand extends CoreCommand {
     @SubCommand("list {startsWith}")
     @Perm(permission = "list", description = "Allow access to list all sounds starting with given parameter")
     public boolean listStartsWith(CommandSender sender, String startsWith){
+        String key = startsWith.equals("") ? "sound list" : "sound list " + startsWith;
         Pager pager = Pager.of(sender);
-        Pageable pageable = pager.fetch("listSounds");
+        Pageable pageable = pager.fetch(key);
         if(pageable == null)
-            pageable = pager.create("listSounds", startsWith.equals("") ? "sound list" : "sound list " + startsWith,
+            pageable = pager.create(key,
                     ListUtils.getNamesStartsWith(Sound.class, startsWith));
         Page current = pageable.current();
         Messages.create("listing")
@@ -61,7 +62,7 @@ public class SoundCommand extends CoreCommand {
                 .setClick(ClickAction.RUN_COMMAND, "/sound %value%")
                 .END()
                 .handle();
-        Pager.sendDefaultPageMessage(sender);
+        Pager.sendDefaultPageMessage(sender, key);
         return true;
     }
 

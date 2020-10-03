@@ -21,21 +21,26 @@ public class Pager {
         return pagers.get(sender);
     }
 
-    public static void sendDefaultPageMessage(CommandSender sender){
+    public static void sendDefaultPageMessage(CommandSender sender, String key){
+        key = bindedCommandToKey(key);
         Messages.create("%before% | %next%")
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("before", "Before")
                 .setColor(JsonColor.DARK_RED)
                 .setHover(HoverAction.SHOW_TEXT, "Page before")
-                .setClick(ClickAction.RUN_COMMAND, "/page BEFORE")
+                .setClick(ClickAction.RUN_COMMAND, "/page BEFORE " + key)
                 .END()
                 .replace("next", "Next")
                 .setColor(JsonColor.DARK_GREEN)
                 .setHover(HoverAction.SHOW_TEXT, "Next Page")
-                .setClick(ClickAction.RUN_COMMAND, "/page NEXT")
+                .setClick(ClickAction.RUN_COMMAND, "/page NEXT " + key)
                 .END()
                 .handle();
+    }
+
+    private static String bindedCommandToKey(String bindedCommand){
+        return bindedCommand.replaceAll(" ", "");
     }
 
     private CommandSender sender;
@@ -47,15 +52,16 @@ public class Pager {
     }
 
     public Pageable fetch(String key){
+        key = Pager.bindedCommandToKey(key);
         if(isToOld(key)) return null;
         Pageable last = pageables.get(key);
         this.last = last;
         return last;
     }
 
-    public Pageable create(String key, String bindedCommand, List<String> content){
-        pageables.put(key, new Pageable(content, sender, bindedCommand));
-        return fetch(key);
+    public Pageable create(String bindedCommand, List<String> content){
+        pageables.put(Pager.bindedCommandToKey(bindedCommand), new Pageable(content, sender, bindedCommand));
+        return fetch(Pager.bindedCommandToKey(bindedCommand));
     }
 
     public boolean isToOld(String key){

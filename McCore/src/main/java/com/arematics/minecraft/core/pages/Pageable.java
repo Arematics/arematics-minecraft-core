@@ -29,7 +29,6 @@ public class Pageable {
 
     private boolean addEntry(List<String> content, long index){
         pages.put(index, new Page(content));
-        System.out.println("added entry");
         return true;
     }
 

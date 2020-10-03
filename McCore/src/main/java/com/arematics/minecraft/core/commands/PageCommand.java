@@ -30,9 +30,15 @@ public class PageCommand extends CoreCommand {
     }
 
     @SubCommand("{type}")
-    public boolean listAll(CommandSender sender, PageType type){
+    public boolean page(CommandSender sender, PageType type){
+        return pageFor(sender, type, null);
+    }
+
+    @SubCommand("{type} {key}")
+    public boolean pageFor(CommandSender sender, PageType type, String key){
         Pager pager = Pager.of(sender);
-        Pageable pageable = pager.last();
+        Pageable pageable = key == null ? pager.last() : pager.fetch(key);
+        System.out.println(pageable);
         if(pageable == null) return true;
         switch (type){
             case BEFORE:
