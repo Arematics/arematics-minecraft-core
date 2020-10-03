@@ -18,6 +18,7 @@ public class ModifiedLivingEntityCommand extends CoreCommand {
     public boolean spawnModifiedEntity(Player sender, EntityType type) {
         ModifiedLivingEntity modifiedLivingEntity = ModifiedLivingEntity.create(sender.getLocation(), type);
         modifiedLivingEntity.disableEntity();
+        modifiedLivingEntity.setBindedCommand("sound list");
         return true;
     }
 }

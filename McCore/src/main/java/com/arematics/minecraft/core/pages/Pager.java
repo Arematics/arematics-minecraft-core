@@ -26,6 +26,7 @@ public class Pager {
         Messages.create("%before% | %next%")
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
+                .disableServerPrefix()
                 .replace("before", "Before")
                 .setColor(JsonColor.DARK_RED)
                 .setHover(HoverAction.SHOW_TEXT, "Page before")

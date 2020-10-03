@@ -38,7 +38,6 @@ public class PageCommand extends CoreCommand {
     public boolean pageFor(CommandSender sender, PageType type, String key){
         Pager pager = Pager.of(sender);
         Pageable pageable = key == null ? pager.last() : pager.fetch(key);
-        System.out.println(pageable);
         if(pageable == null) return true;
         switch (type){
             case BEFORE:

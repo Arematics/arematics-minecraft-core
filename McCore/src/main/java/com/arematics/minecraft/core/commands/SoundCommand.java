@@ -49,8 +49,7 @@ public class SoundCommand extends CoreCommand {
         Pager pager = Pager.of(sender);
         Pageable pageable = pager.fetch(key);
         if(pageable == null)
-            pageable = pager.create(key,
-                    ListUtils.getNamesStartsWith(Sound.class, startsWith));
+            pageable = pager.create(key, ListUtils.getNamesStartsWith(Sound.class, startsWith));
         Page current = pageable.current();
         Messages.create("listing")
                 .to(sender)

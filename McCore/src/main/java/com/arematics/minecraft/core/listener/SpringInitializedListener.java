@@ -12,6 +12,7 @@ public class SpringInitializedListener implements Listener {
     @EventHandler
     public void springInit(SpringInitializedEvent event){
         CoreBoot boot = Boots.getBoot(CoreBoot.class);
+        boot.setSpringInitialized(true);
         MultiHook hook = new MultiHook(boot.getDir(), CoreBoot.class.getClassLoader(), boot);
         hook.addPackageHook(new PermissionCreationHook());
         hook.enable();
