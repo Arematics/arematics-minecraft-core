@@ -2,6 +2,7 @@ package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.data.model.User;
 import com.arematics.minecraft.core.data.service.UserService;
 import org.bukkit.entity.Player;
@@ -25,5 +26,7 @@ public class UserUpdateListener implements Listener {
         user.setLastIpChange(current);
         user.setLastJoin(current);
         service.update(user);
+        ChatAPI.registerThemeUser(player);
+
     }
 }

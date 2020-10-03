@@ -24,7 +24,7 @@ public class PlayerBoardTestListener implements Listener{
             public void run() {
                 handler.setEntryPrefix("Test: ", "§a")
                         .setEntrySuffix("Test: ", "§5Ein Zebra")
-                        .refresh();
+                        .toggleModernBoard();
             }
         }.runTaskLater(Boots.getBoot(CoreBoot.class), 20*5);
     }

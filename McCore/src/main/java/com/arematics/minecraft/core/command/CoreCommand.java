@@ -161,7 +161,7 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                 String[] annotationValues = value.split(" ");
                 arguments = getSetupMessageArray(annotationValues, arguments);
                 if(annotationValues.length == arguments.length && isMatch(annotationValues, arguments)) {
-                    dataPack.put(CommonData.COMMAND_ARGUEMNTS.toString(), arguments);
+                    dataPack.put(CommonData.COMMAND_ARGUMENTS.toString(), arguments);
                     if (environment.supply(method)) return true;
                 }
             }
