@@ -1,7 +1,7 @@
-package com.arematics.minecraft.core.data.service;
+package com.arematics.minecraft.data.global.service;
 
-import com.arematics.minecraft.core.data.model.CommandEntity;
-import com.arematics.minecraft.core.data.repository.CommandEntityRepository;
+import com.arematics.minecraft.data.global.model.CommandEntity;
+import com.arematics.minecraft.data.global.repository.CommandEntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
