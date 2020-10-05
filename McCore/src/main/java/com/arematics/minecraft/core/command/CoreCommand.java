@@ -104,9 +104,10 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     }
 
     private int moreSubArguments(String[] v1, String[] v2){
+        if(v2.length > v1.length) return -1;
+        if(v1.length > v2.length) return 1;
         for(int i = 0; i < v1.length; i++){
             String sub = v1[i];
-            if(v2.length < i) return -1;
             String sub2 = v2[i];
             if(!isParameter(sub) && (isParameter(sub2))) return -1;
             else if(!isParameter(sub2)) return 1;

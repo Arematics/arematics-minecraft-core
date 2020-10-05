@@ -1,16 +1,20 @@
 package com.arematics.minecraft.core;
 
 import com.arematics.minecraft.core.command.processor.parser.Parser;
-import com.arematics.minecraft.core.messaging.injector.Injector;
 import com.arematics.minecraft.core.messaging.injector.LanguageInjector;
 import com.arematics.minecraft.core.messaging.injector.StringInjector;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.springframework.context.ConfigurableApplicationContext;
 
+@Setter
+@Getter
 public class CoreBoot extends Bootstrap{
 
     private final Parser parser = new Parser();
     private final Class<? extends StringInjector> defaultInjectorType = LanguageInjector.class;
+    private boolean springInitialized;
 
     private ConfigurableApplicationContext context;
     /**
@@ -19,22 +23,7 @@ public class CoreBoot extends Bootstrap{
      */
     public CoreBoot() {
         super(true);
-    }
-
-    public Parser getParser() {
-        return parser;
-    }
-
-    public Class<? extends Injector<?>> getDefaultInjectorType() {
-        return defaultInjectorType;
-    }
-
-    public ConfigurableApplicationContext getContext() {
-        return context;
-    }
-
-    public void setContext(ConfigurableApplicationContext context) {
-        this.context = context;
+        this.springInitialized = false;
     }
 
     @SneakyThrows

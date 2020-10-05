@@ -3,6 +3,8 @@ package com.arematics.minecraft.core.utils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ListUtils {
 
@@ -18,8 +20,8 @@ public class ListUtils {
         return StringUtils.join(getNamesStartsWith(e, startsWith), ", ");
     }
 
-    public static String[] getNamesStartsWith(Class<? extends Enum<?>> e, String startsWith){
+    public static List<String> getNamesStartsWith(Class<? extends Enum<?>> e, String startsWith){
         return Arrays.stream(e.getEnumConstants()).filter(anEnum -> anEnum.name().startsWith(startsWith))
-                .map(Enum::name).toArray(String[]::new);
+                .map(Enum::name).collect(Collectors.toList());
     }
 }

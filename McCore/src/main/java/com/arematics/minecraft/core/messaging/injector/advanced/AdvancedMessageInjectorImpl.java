@@ -1,15 +1,20 @@
 package com.arematics.minecraft.core.messaging.injector.advanced;
 
+import com.arematics.minecraft.core.language.Language;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.MessageHighlight;
 import com.arematics.minecraft.core.messaging.advanced.*;
 import com.arematics.minecraft.core.messaging.injector.Injector;
+import com.google.common.collect.Streams;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class AdvancedMessageInjectorImpl extends Injector<MSG> implements AdvancedMessageReplace, AdvancedMessageAction {
 
@@ -17,6 +22,7 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
     protected final MessageHighlight HIGHLIGHT;
     protected final String RAW_MESSAGE;
     protected final List<AdvancedReplace> INJECTOR_VALUES = new ArrayList<>();
+    private boolean serverPrefix = true;
 
     protected AdvancedReplace current;
 
@@ -74,6 +80,12 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
     }
 
     @Override
+    public AdvancedMessageReplace disableServerPrefix() {
+        this.serverPrefix = false;
+        return this;
+    }
+
+    @Override
     public void handle() {
         SENDER_LIST.forEach(sender -> {
             String preparedMessage = prepareMessage(sender);
@@ -86,6 +98,8 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
 
     @Override
     protected String prepareMessage(CommandSender sender) {
+        if(!this.serverPrefix)
+            return LanguageAPI.prepareRawMessage(sender, this.RAW_MESSAGE);
         return LanguageAPI.prepareMessage(sender, this.HIGHLIGHT, this.RAW_MESSAGE);
     }
 
@@ -102,12 +116,18 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
 
     private MSG buildMessage(AdvancedReplace replace){
         MSG msg = new MSG();
-        Arrays.stream(replace.values).forEach(value -> msg.PARTS.add(new Part(value + ", ")
+        msg.PARTS.addAll(Streams.mapWithIndex(Arrays.stream(replace.values),
+                (value, index) -> addPart(replace, index, replace.values.length - 1, value))
+                .collect(Collectors.toList()));
+        return msg;
+    }
+
+    private Part addPart(AdvancedReplace replace, long index, int maxLength, String value){
+        return new Part(value + (index != maxLength ? ", " : ""))
                 .setHoverAction(replace.hoverAction, injectPlaceholder(value, replace.hoverValue))
                 .setClickAction(replace.clickAction, injectPlaceholder(value, replace.clickValue))
                 .setBaseColor(replace.jsonColor)
-                .addFormat(replace.format)));
-        return msg;
+                .addFormat(replace.format);
     }
 
     private String injectPlaceholder(String value, String rawMessage){
