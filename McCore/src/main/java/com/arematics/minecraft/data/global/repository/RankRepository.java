@@ -1,6 +1,6 @@
-package com.arematics.minecraft.core.data.repository;
+package com.arematics.minecraft.data.global.repository;
 
-import com.arematics.minecraft.core.data.model.Rank;
+import com.arematics.minecraft.data.global.model.Rank;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

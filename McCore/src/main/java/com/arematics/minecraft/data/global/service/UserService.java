@@ -1,14 +1,17 @@
-package com.arematics.minecraft.core.data.service;
+package com.arematics.minecraft.data.global.service;
 
-import com.arematics.minecraft.core.data.model.User;
-import com.arematics.minecraft.core.data.repository.UserRepository;
+import com.arematics.minecraft.data.global.model.User;
+import com.arematics.minecraft.data.global.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {

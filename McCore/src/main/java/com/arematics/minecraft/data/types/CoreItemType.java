@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.data.types;
+package com.arematics.minecraft.data.types;
 
 import com.arematics.minecraft.core.items.CoreItem;
 import org.hibernate.type.AbstractSingleColumnStandardBasicType;

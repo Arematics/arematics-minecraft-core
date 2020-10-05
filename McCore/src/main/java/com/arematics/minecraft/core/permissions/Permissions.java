@@ -2,9 +2,9 @@ package com.arematics.minecraft.core.permissions;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
-import com.arematics.minecraft.core.data.model.Permission;
-import com.arematics.minecraft.core.data.model.User;
-import com.arematics.minecraft.core.data.service.UserService;
+import com.arematics.minecraft.data.share.model.Permission;
+import com.arematics.minecraft.core.data.share.model.User;
+import com.arematics.minecraft.core.data.share.service.UserService;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

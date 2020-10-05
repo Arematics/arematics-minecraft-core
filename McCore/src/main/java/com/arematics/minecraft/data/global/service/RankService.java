@@ -1,17 +1,15 @@
-package com.arematics.minecraft.core.data.service;
+package com.arematics.minecraft.data.global.service;
 
-import com.arematics.minecraft.core.data.model.Rank;
-import com.arematics.minecraft.core.data.repository.RankRepository;
+import com.arematics.minecraft.data.global.model.Rank;
+import com.arematics.minecraft.data.global.repository.RankRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class RankService {

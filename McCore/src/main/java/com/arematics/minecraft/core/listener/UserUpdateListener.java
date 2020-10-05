@@ -2,8 +2,8 @@ package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
-import com.arematics.minecraft.core.data.model.User;
-import com.arematics.minecraft.core.data.service.UserService;
+import com.arematics.minecraft.core.data.share.model.User;
+import com.arematics.minecraft.core.data.share.service.UserService;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
