@@ -1,5 +1,6 @@
 package com.arematics.minecraft.data.global.model;
 
+import com.arematics.minecraft.data.share.model.Permission;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,7 +35,7 @@ public class Rank implements Serializable {
     @Column(name = "last_change", nullable = false)
     private Timestamp lastChange;
     @NotAudited
-    @WhereJoinTable(clause = "until IS NULL OR until > NOW()")
+    @WhereJoinTable(clause = "ranks_permission.until IS NULL OR ranks_permission.until > NOW()")
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "ranks_permission", joinColumns = {@JoinColumn(name = "id")},
             inverseJoinColumns = { @JoinColumn(name = "permission")})

@@ -19,10 +19,7 @@ import java.util.HashMap;
 
 @Configuration
 @PropertySource({"classpath:application.properties"})
-@EnableJpaRepositories(
-        basePackages = {"com.arematics.minecraft.data.global", "com.arematics.minecraft.data.share"},
-        entityManagerFactoryRef = "globalEntityManager",
-        transactionManagerRef = "globalTransactionManager")
+@EnableJpaRepositories(basePackages = {"com.arematics.minecraft.data.global", "com.arematics.minecraft.data.share"})
 public class GlobalDataAutoConfiguration {
 
     @Primary
@@ -36,7 +33,7 @@ public class GlobalDataAutoConfiguration {
     private Environment env;
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean globalEntityManager() {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean em
                 = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(globalDataSource());
@@ -56,12 +53,12 @@ public class GlobalDataAutoConfiguration {
     }
 
     @Bean
-    public PlatformTransactionManager productTransactionManager() {
+    public PlatformTransactionManager transactionManager() {
 
         JpaTransactionManager transactionManager
                 = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(
-                globalEntityManager().getObject());
+                entityManagerFactory().getObject());
         return transactionManager;
     }
 }

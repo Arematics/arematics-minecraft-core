@@ -1,4 +1,4 @@
-package com.arematics.minecraft.data.global.service;
+package com.arematics.minecraft.data.service;
 
 import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.repository.RankRepository;

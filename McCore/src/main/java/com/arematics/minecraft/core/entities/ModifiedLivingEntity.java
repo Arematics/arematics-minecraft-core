@@ -2,15 +2,13 @@ package com.arematics.minecraft.core.entities;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
-import com.arematics.minecraft.core.data.model.CommandEntity;
-import com.arematics.minecraft.core.data.service.CommandEntityService;
+import com.arematics.minecraft.data.global.model.CommandEntity;
+import com.arematics.minecraft.data.service.CommandEntityService;
 import de.tr7zw.nbtapi.NBTEntity;
 import lombok.Getter;
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.checkerframework.checker.units.qual.C;
 
 @Getter
 public class ModifiedLivingEntity extends NBTEntity {
