@@ -1,0 +1,38 @@
+package com.arematics.minecraft.core.data.service.chat;
+
+import com.arematics.minecraft.core.chat.ChatAPI;
+import com.arematics.minecraft.core.data.model.theme.ChatTheme;
+import com.arematics.minecraft.core.data.repository.chat.ChatThemeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class ChatThemeService {
+
+    private final ChatThemeRepository repository;
+
+    @Autowired
+    public ChatThemeService(ChatThemeRepository repository) {
+        this.repository = repository;
+    }
+
+    public Optional<ChatTheme> findById(String themeId) {
+        return repository.findById(themeId);
+    }
+
+    public List<ChatTheme> getAll() {
+        return repository.findAll();
+    }
+
+    public ChatTheme get(String themeKey) {
+        return findById(themeKey).orElse(null);
+    }
+
+    public ChatTheme save(ChatTheme theme) {
+        return repository.save(theme);
+    }
+
+}

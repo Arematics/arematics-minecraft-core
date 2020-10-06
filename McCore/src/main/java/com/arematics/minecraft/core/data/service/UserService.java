@@ -1,7 +1,10 @@
 package com.arematics.minecraft.core.data.service;
 
+import com.arematics.minecraft.core.annotations.Perm;
+import com.arematics.minecraft.core.data.model.Permission;
 import com.arematics.minecraft.core.data.model.User;
 import com.arematics.minecraft.core.data.repository.UserRepository;
+import org.bukkit.Bukkit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -32,7 +35,7 @@ public class UserService {
     @CachePut(cacheNames = "userCache")
     public User createUser(UUID uuid){
         User user = new User(UUID.randomUUID(), uuid, new Timestamp(System.currentTimeMillis()), null, null,
-                rankService.getDefaultRank(), null, new HashMap<>(), new HashSet<>());
+                rankService.getDefaultRank(), rankService.getDefaultRank(), new HashMap<>(), new HashSet<>());
         return repository.save(user);
     }
 

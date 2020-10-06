@@ -12,6 +12,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.sql.Timestamp;
 
+
 public class UserUpdateListener implements Listener {
 
     @EventHandler
@@ -26,7 +27,7 @@ public class UserUpdateListener implements Listener {
         user.setLastIpChange(current);
         user.setLastJoin(current);
         service.update(user);
-        ChatAPI.registerThemeUser(player);
+        ChatAPI.login(player);
 
     }
 }

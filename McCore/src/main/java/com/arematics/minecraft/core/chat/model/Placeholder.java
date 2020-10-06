@@ -1,11 +1,18 @@
 package com.arematics.minecraft.core.chat.model;
 
+import com.arematics.minecraft.core.data.model.message.ChatClickAction;
+import com.arematics.minecraft.core.data.model.message.ChatHoverAction;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
 
 public interface Placeholder {
-    String getPlaceholderName();
+    String getPlaceholderKey();
     String getPlaceholderMatch();
-    Map<Player, String> getPlaceholderValues();
+    boolean isStatic();
+    String getValue(Player player);
+    ChatClickAction getClickAction(String themeKey);
+    ChatHoverAction getHoverAction(String themeKey);
+    void setClickAction(String themeKey, ChatClickAction clickAction);
+    void setHoverAction(String themeKey, ChatHoverAction hoverAction);
 }

@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core;
 
+import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.command.processor.parser.Parser;
 import com.arematics.minecraft.core.messaging.injector.Injector;
 import com.arematics.minecraft.core.messaging.injector.LanguageInjector;

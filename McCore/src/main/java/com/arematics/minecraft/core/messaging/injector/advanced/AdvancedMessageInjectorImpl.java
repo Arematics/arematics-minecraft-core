@@ -1,20 +1,16 @@
 package com.arematics.minecraft.core.messaging.injector.advanced;
 
-import com.arematics.minecraft.core.language.Language;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.MessageHighlight;
 import com.arematics.minecraft.core.messaging.advanced.*;
 import com.arematics.minecraft.core.messaging.injector.Injector;
 import com.google.common.collect.Streams;
 import org.apache.commons.lang.text.StrSubstitutor;
-import org.apache.commons.lang3.ObjectUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class AdvancedMessageInjectorImpl extends Injector<MSG> implements AdvancedMessageReplace, AdvancedMessageAction {
 
