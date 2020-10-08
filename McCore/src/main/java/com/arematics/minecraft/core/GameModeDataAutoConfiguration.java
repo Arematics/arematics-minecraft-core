@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core;
 
+import com.arematics.minecraft.core.annotations.IgnoreInAppScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -16,6 +17,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.util.HashMap;
 
+@IgnoreInAppScan
 @Configuration
 @PropertySource({"classpath:application.properties"})
 @EnableJpaRepositories(basePackages = {"com.arematics.minecraft.data.mode"},
