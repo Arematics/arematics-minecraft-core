@@ -124,7 +124,6 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String labels, String[] arguments) {
         List<String> matches = searchAllMatches(StringUtils.join(arguments, " "));
-        matches.forEach(System.out::println);
         return matches;
     }
 
