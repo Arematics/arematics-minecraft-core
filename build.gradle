@@ -5,8 +5,8 @@ buildscript {
         maven {
             url "https://maven.pkg.jetbrains.space/arematics/p/scu/arematics-core"
             credentials {
-                username = "$username"
-                password = "$password"
+                username = "$mavenUser"
+                password = "$mavenPassword"
             }
         }
         mavenCentral()

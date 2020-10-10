@@ -27,7 +27,6 @@ public class Permissions {
     }
 
     private static Predicate<? super Permission> hasPerm(String permission){
-        return perm -> perm.getPermission().equals(permission) ||
-                perm.getPermission().equals(permission.split("\\.")[0]);
+        return perm -> perm.getPermission().equals(permission.split("\\.")[0]);
     }
 }
