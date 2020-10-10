@@ -21,7 +21,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.util.StringUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -60,6 +59,7 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                 .collect(Collectors.toList());
         this.subCommands = MethodUtils
                 .fetchAllAnnotationValueSave(this, SubCommand.class, SubCommand::value);
+        subCommands.forEach(System.out::println);
         this.registerStandards();
     }
 
@@ -123,10 +123,27 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String labels, String[] arguments) {
-        final List<String> completions = new ArrayList<>();
-        StringUtil.copyPartialMatches(StringUtils.join(arguments, " "), this.subCommands, completions);
-        Collections.sort(completions);
-        return completions;
+        List<String> matches = searchAllMatches(StringUtils.join(arguments, " "));
+        matches.forEach(System.out::println);
+        return matches;
+    }
+
+    private List<String> searchAllMatches(String arguments){
+        return this.subCommands.stream()
+                .filter(text -> !StringUtils.isBlank(text) && text.startsWith(arguments))
+                .map(text -> filterMatch(text, arguments))
+                .map(this::trimText)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private String filterMatch(String text, String arguments){
+        return text.substring(arguments.contains(" ") ? arguments.lastIndexOf(" ") : 0);
+    }
+
+    private String trimText(String text){
+        text = text.trim();
+        return text.contains(" ") ? text.substring(0, text.indexOf(" ")) : text;
     }
 
     private boolean process(CommandSender sender, String[] arguments){
