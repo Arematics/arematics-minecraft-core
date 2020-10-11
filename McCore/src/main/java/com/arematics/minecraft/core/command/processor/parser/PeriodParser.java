@@ -5,8 +5,6 @@ import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
-import java.time.format.DateTimeParseException;
-
 @Parser
 public class PeriodParser extends CommandParameterParser<Period> {
 
@@ -16,7 +14,7 @@ public class PeriodParser extends CommandParameterParser<Period> {
         Period period;
         try{
             period = Period.parse(timeInput);
-        }catch (DateTimeParseException dtpe){
+        }catch (Exception exception){
             try{
                 PeriodFormatter formatter = new PeriodFormatterBuilder()
                         .appendDays().appendSuffix("D")
