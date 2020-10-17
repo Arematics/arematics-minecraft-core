@@ -24,8 +24,7 @@ public class CooldownService {
         this.repositories.add(cooldownRepository);
     }
 
-    @Cacheable(cacheNames = "cooldowns",
-            key = "#key")
+    @Cacheable(cacheNames = "cooldowns", key = "#key")
     public Optional<Long> getCooldown(CooldownKey key){
         return repositories.stream()
                 .map(repository -> repository.findById(key))

@@ -1,7 +1,8 @@
 version '1.0'
 
 dependencies{
-    compileOnly group: 'com.arematics', name: 'McCore', version: '0.3.5'
+
+    compileOnly 'com.arematics:McCore:0.3.6'
     compileOnly group: 'com.arematics', name: 'Metadata', version: '1.0'
     compileOnly group: 'com.arematics', name: 'Watcher', version: '1.0'
 }

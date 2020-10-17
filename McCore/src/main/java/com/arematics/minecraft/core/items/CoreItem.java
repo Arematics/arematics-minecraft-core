@@ -24,6 +24,8 @@ import java.util.Map;
 @ToString
 public class CoreItem extends ItemStack implements ConfigurationSerializable {
 
+    private static final String BINDED_COMMAND = "binded_command";
+
     public static CoreItem[] streamTo( InputStream inputStream) throws Exception {
         BukkitObjectInputStream in = new BukkitObjectInputStream(inputStream);
         return (CoreItem[]) in.readObject();
@@ -54,8 +56,27 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return this.meta;
     }
 
-    public void setInteger(String key, int value){
+    public CoreItem bindCommand(String command){
+        this.getMeta().setString(BINDED_COMMAND, command);
+        return this;
+    }
+
+    public boolean hasBindedCommand(){
+        return this.getMeta().hasKey(BINDED_COMMAND);
+    }
+
+    public String getBindedCommand(){
+        return this.getMeta().getString(BINDED_COMMAND);
+    }
+
+    public CoreItem setInteger(String key, int value){
         this.getMeta().setInteger(key, value);
+        return this;
+    }
+
+    public CoreItem setString(String key, String value){
+        this.getMeta().setString(key, value);
+        return this;
     }
 
     public void applyNBT(){
@@ -122,6 +143,7 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
     }
 
     public void updateTo(Player player){
+        this.applyNBT();
         player.setItemInHand(this);
     }
 

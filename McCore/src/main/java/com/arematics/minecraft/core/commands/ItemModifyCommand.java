@@ -67,4 +67,22 @@ public class ItemModifyCommand extends CoreCommand {
         else Messages.create("no_item_in_hand").WARNING().to(player).handle();
         return true;
     }
+
+    @SubCommand("bindCommand {message}")
+    @Perm(permission = "bind_command", description = "Modify Item interact command")
+    public boolean bindCommandToItem(Player player, String message) {
+        CoreItem itemStack = CoreItem.create(player.getItemInHand());
+        if(itemStack != null) itemStack.bindCommand(message).updateTo(player);
+        else Messages.create("no_item_in_hand").WARNING().to(player).handle();
+        return true;
+    }
+
+    @SubCommand("bindMeta {key} {value}")
+    @Perm(permission = "bind_meta", description = "Modify Item Metadata")
+    public boolean bindMeta(Player player, String key, String value) {
+        CoreItem itemStack = CoreItem.create(player.getItemInHand());
+        if(itemStack != null) itemStack.setString(key, value).updateTo(player);
+        else Messages.create("no_item_in_hand").WARNING().to(player).handle();
+        return true;
+    }
 }
