@@ -1,5 +1,8 @@
 package com.arematics.minecraft.core.command.processor.parser;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class DoubleParser extends CommandParameterParser<Double>{
     @Override
     public Double doParse(String value) throws ParserException {

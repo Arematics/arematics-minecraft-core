@@ -143,8 +143,10 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
     }
 
     public void updateTo(Player player){
+        System.out.println("APPLY");
         this.applyNBT();
         player.setItemInHand(this);
+        System.out.println("DONE");
     }
 
     @Override

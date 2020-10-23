@@ -5,8 +5,10 @@ import com.arematics.minecraft.meta.NbtProperties;
 import com.arematics.minecraft.meta.events.DurabilityLoseEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.springframework.stereotype.Component;
 
 @SuppressWarnings("unused")
+@Component
 public class CustomDurabilityListener implements Listener {
 
     @EventHandler

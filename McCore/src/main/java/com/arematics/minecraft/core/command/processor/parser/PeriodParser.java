@@ -1,11 +1,11 @@
 package com.arematics.minecraft.core.command.processor.parser;
 
-import com.arematics.minecraft.core.annotations.Parser;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
+import org.springframework.stereotype.Component;
 
-@Parser
+@Component
 public class PeriodParser extends CommandParameterParser<Period> {
 
     @Override

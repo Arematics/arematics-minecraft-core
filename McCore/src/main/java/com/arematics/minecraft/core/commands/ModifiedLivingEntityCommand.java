@@ -6,7 +6,9 @@ import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.entities.ModifiedLivingEntity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.springframework.stereotype.Component;
 
+@Component
 @PluginCommand(aliases = {})
 public class ModifiedLivingEntityCommand extends CoreCommand {
 

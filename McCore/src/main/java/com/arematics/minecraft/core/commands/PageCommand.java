@@ -10,7 +10,9 @@ import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageI
 import com.arematics.minecraft.core.pages.Pageable;
 import com.arematics.minecraft.core.pages.Pager;
 import org.bukkit.command.CommandSender;
+import org.springframework.stereotype.Component;
 
+@Component
 @PluginCommand(aliases = {"pager"})
 public class PageCommand extends CoreCommand {
 

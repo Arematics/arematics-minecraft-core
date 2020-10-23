@@ -13,7 +13,9 @@ import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.springframework.stereotype.Component;
 
+@Component
 @PluginCommand(aliases = {"lang", "sprache"})
 public class LanguageCommand extends CoreCommand {
 

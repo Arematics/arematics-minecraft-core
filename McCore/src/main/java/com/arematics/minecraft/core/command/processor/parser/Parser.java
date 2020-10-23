@@ -4,33 +4,30 @@ import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.Boots;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class Parser {
 
     public static Parser getInstance(){
-        return Boots.getBoot(CoreBoot.class).getParser();
+        return Boots.getBoot(CoreBoot.class).getContext().getBean(Parser.class);
     }
 
     private final Map<Object, CommandParameterParser<?>> parsers = new HashMap<>();
 
-    public Parser(){
-        this.addDefaultParser();
-    }
-
-    private void addDefaultParser(){
-        addParser(new StringParser());
-        addParser(new IntegerParser());
-        addParser(new DoubleParser());
-        addParser(new DateParser());
-        addParser(new LocalDateParser());
+    @Autowired
+    public Parser(List<CommandParameterParser<?>> parsers){
+        parsers.forEach(this::addParser);
     }
 
     public void addParser(CommandParameterParser<?> parser){
+        System.out.println(parser.getType());
         if(!parsers.containsKey(parser.getType())) parsers.put(parser.getType(), parser);
     }
 

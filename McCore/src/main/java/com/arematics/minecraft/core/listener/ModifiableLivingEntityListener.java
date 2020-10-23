@@ -7,7 +7,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ModifiableLivingEntityListener implements Listener {
 
     @EventHandler

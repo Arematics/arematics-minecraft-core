@@ -1,11 +1,12 @@
 package com.arematics.minecraft.core.command.processor.parser;
 
+import org.springframework.stereotype.Component;
+
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+@Component
 public class LocalDateParser extends CommandParameterParser<LocalDate>{
 
     private final DateTimeFormatter[] PATTERNS = {

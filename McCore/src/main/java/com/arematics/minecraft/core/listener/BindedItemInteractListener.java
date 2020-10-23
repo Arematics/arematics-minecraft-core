@@ -9,7 +9,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BindedItemInteractListener implements Listener {
 
     @EventHandler

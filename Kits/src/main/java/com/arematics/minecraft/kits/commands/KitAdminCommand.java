@@ -9,11 +9,13 @@ import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.data.share.model.Permission;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.springframework.stereotype.Component;
 
 import java.time.Period;
 
-@Perm(permission = "kitadm", description = "Permission to full Kit Administration Command")
+@Component
 @PluginCommand(aliases = "kitmgr")
+@Perm(permission = "kitadm", description = "Permission to full Kit Administration Command")
 public class KitAdminCommand extends CoreCommand {
 
     public KitAdminCommand(){

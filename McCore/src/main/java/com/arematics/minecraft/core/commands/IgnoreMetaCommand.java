@@ -6,10 +6,12 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.Messages;
 import org.bukkit.entity.Player;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 @PluginCommand(aliases = {})
 @Perm(permission = "ignore-meta", description = "Allowed to ignore item meta actions")
 public class IgnoreMetaCommand extends CoreCommand {

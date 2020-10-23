@@ -16,7 +16,9 @@ import com.arematics.minecraft.core.utils.ListUtils;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.springframework.stereotype.Component;
 
+@Component
 @PluginCommand(aliases = {"s"})
 @Perm(permission = "sound", description = "Allow usage to full /sound Command")
 public class SoundCommand extends CoreCommand {

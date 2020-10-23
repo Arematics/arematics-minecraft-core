@@ -7,10 +7,12 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class BaseBugListener implements Listener {
 
     private static List<Material> NOT_ALLOWED = new ArrayList<Material>(){{

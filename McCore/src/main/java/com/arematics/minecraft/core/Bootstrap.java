@@ -47,7 +47,6 @@ public abstract class Bootstrap extends JavaPlugin {
     protected final void hook() {
         hook.addPreHook(new PreFileExistHook());
         hook.addHook(new LanguageHook());
-        hook.addPackageHook(new CommandHooks(), new ListenerHook(), new ParserHook());
         hook.enable();
     }
 

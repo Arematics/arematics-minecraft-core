@@ -1,8 +1,8 @@
 package com.arematics.minecraft.core.command.processor.parser;
 
-import com.arematics.minecraft.core.annotations.Parser;
+import org.springframework.stereotype.Component;
 
-@Parser
+@Component
 public class LongParser extends CommandParameterParser<Long> {
 
     @Override

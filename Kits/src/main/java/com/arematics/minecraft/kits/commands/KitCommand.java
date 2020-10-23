@@ -8,9 +8,11 @@ import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.data.mode.model.Kit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+@Component
 @PluginCommand(aliases = "kits")
 public class KitCommand extends CoreCommand {
 

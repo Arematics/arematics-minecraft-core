@@ -12,10 +12,12 @@ import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
 @SuppressWarnings("unused")
+@Component
 public class NotEnchantableListener implements Listener {
 
     @EventHandler

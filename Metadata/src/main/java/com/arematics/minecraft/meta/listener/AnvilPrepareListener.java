@@ -9,8 +9,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
+import org.springframework.stereotype.Component;
 
 @SuppressWarnings("unused")
+@Component
 public class AnvilPrepareListener implements Listener {
 
     @EventHandler

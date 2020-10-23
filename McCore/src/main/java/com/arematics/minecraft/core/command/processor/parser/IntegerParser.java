@@ -1,5 +1,8 @@
 package com.arematics.minecraft.core.command.processor.parser;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class IntegerParser extends CommandParameterParser<Integer> {
 
     @Override
