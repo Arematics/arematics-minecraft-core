@@ -25,7 +25,6 @@ public class Kit implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "permission")
     @OneToOne
     private Permission permission;
 
@@ -35,11 +34,11 @@ public class Kit implements Serializable {
     @Column(name = "min_play_time")
     private Long minPlayTime;
 
-    @Type(type = "com.arematics.minecraft.core.data.types.CoreItemType")
+    @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     @Column(name = "display_item", nullable = false)
     private CoreItem[] displayItem;
 
-    @Type(type = "com.arematics.minecraft.core.data.types.CoreItemType")
+    @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     @Column(name = "content", nullable = false)
     private CoreItem[] content;
 

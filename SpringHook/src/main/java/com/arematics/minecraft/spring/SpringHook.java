@@ -2,11 +2,12 @@ package com.arematics.minecraft.spring;
 
 import com.arematics.minecraft.core.*;
 import com.arematics.minecraft.core.events.SpringInitializedEvent;
-import com.arematics.minecraft.meta.MetaBoot;
-import com.arematics.minecraft.watcher.WatcherBoot;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class SpringHook extends JavaPlugin {
 
@@ -16,9 +17,15 @@ public class SpringHook extends JavaPlugin {
         super.onEnable();
 
         CoreBoot coreBoot = Boots.getBoot(CoreBoot.class);
-        CompoundClassLoader loader = new CompoundClassLoader(coreBoot.getClass().getClassLoader(),
-                Thread.currentThread().getContextClassLoader(),
-                WatcherBoot.class.getClassLoader(), MetaBoot.class.getClassLoader());
+        List<ClassLoader> classLoaders = Boots.getBoots().keySet()
+                .stream()
+                .filter(classItem -> classItem != CoreBoot.class)
+                .map(Class::getClassLoader)
+                .collect(Collectors.toList());
+        classLoaders.add(0, coreBoot.getClass().getClassLoader());
+        classLoaders.add(1, Thread.currentThread().getContextClassLoader());
+
+        CompoundClassLoader loader = new CompoundClassLoader(classLoaders);
         coreBoot.setContext(SpringSpigotBootstrapper.initialize(coreBoot, loader, Application.class));
         SpringInitializedEvent event = new SpringInitializedEvent(coreBoot.getContext(), coreBoot);
         Bukkit.getServer().getPluginManager().callEvent(event);

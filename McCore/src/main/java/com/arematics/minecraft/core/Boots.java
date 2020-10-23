@@ -9,6 +9,10 @@ public class Boots {
 
     private static final Map<Class<? extends Bootstrap>, Object> boots = new HashMap<>();
 
+    public static Map<Class<? extends Bootstrap>, Object> getBoots() {
+        return boots;
+    }
+
     public static <T> T getBoot(Class<T> boot){
         return boot.cast(boots.getOrDefault(boot, null));
     }
