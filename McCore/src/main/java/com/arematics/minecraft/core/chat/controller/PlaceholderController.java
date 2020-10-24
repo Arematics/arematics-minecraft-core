@@ -1,7 +1,11 @@
 package com.arematics.minecraft.core.chat.controller;
 
+import com.arematics.minecraft.core.Boots;
+import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.data.model.placeholder.DynamicPlaceholder;
+import com.arematics.minecraft.core.data.service.chat.ChatThemeService;
+import com.arematics.minecraft.core.data.service.chat.PlaceholderService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,7 +42,9 @@ public class PlaceholderController {
         DynamicPlaceholder dynamicPlaceholder = new DynamicPlaceholder();
         dynamicPlaceholder.setPlaceholderKey(placeholder);
         dynamicPlaceholder.setPlaceholderMatch(placeholderFull);
-        this.placeholders.put(placeholderFull, dynamicPlaceholder);
+        PlaceholderService service = Boots.getBoot(CoreBoot.class).getContext().getBean(PlaceholderService.class);
+        DynamicPlaceholder saved = service.save(dynamicPlaceholder);
+        this.placeholders.put(placeholderFull, saved);
     }
 
 }

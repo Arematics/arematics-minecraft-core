@@ -7,6 +7,8 @@ import com.arematics.minecraft.core.data.repository.chat.ThemePlaceholderReposit
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PlaceholderService {
 
@@ -17,6 +19,10 @@ public class PlaceholderService {
     public PlaceholderService(DynamicPlaceholderRepository dynamicRepository, ThemePlaceholderRepository themeRepository) {
         this.dynamicRepository = dynamicRepository;
         this.themeRepository = themeRepository;
+    }
+
+    public List<DynamicPlaceholder> loadGlobals(){
+        return dynamicRepository.findAll();
     }
 
     public DynamicPlaceholder getGlobalPlaceholder(String placeholderKey) {

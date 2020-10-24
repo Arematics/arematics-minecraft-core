@@ -15,10 +15,7 @@ import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Supplier;
 
 @Component
@@ -44,26 +41,25 @@ public class ChatAPI {
         supply(player);
     }
 
+    public static void logout(Player player) {
+        getChatThemeController().logout(player);
+    }
+
     public static void supply(Player player) {
         UserService service = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
         getChatController().registerSupplier(player);
         supplyPlaceholders("rank", player, () -> service.getUserByUUID(player.getUniqueId()).getDisplayRank().getName());
         supplyPlaceholders("name", player, player::getDisplayName);
         supplyPlaceholders("arematics", player, () -> "§0[§1Arem§9atics§0]§r");
-        supplyPlaceholders("api", player, () -> "v1.0");
-    }
-
-    public static void logout(Player player) {
-        getChatThemeController().logout(player);
+        supplyPlaceholders("api", player, () -> "indev");
     }
 
     public static void supplyPlaceholders(String placeholderName, Player player, Supplier<String> supplier) {
         ChatAPI.getChatThemeController().getThemes().values().forEach(theme -> {
-            DynamicPlaceholder placeholder = theme.getDynamicPlaceholders().get(placeholderName);
-            boolean presentInTheme = theme.getDynamicPlaceholders().containsKey(placeholderName);
-            if (presentInTheme) {
-                placeholder.getPlaceholderValues().put(player, supplier);
-            }
+            Map<String, Map<Player, Supplier<String>>> placeholderThemeValues = theme.getPlaceholderThemeValues();
+            Map<Player, Supplier<String>> playerSupplierMap = placeholderThemeValues.getOrDefault(placeholderName, new HashMap<>());
+            playerSupplierMap.put(player, supplier);
+            placeholderThemeValues.put(placeholderName, playerSupplierMap);
         });
     }
 
@@ -76,6 +72,7 @@ public class ChatAPI {
     public static Map<UUID, ChatThemeUser> getUsers() {
         return getChatThemeController().getUsers();
     }
+
     public static ChatThemeUser getThemeUser(Player player) {
         return getUsers().get(player.getUniqueId());
     }

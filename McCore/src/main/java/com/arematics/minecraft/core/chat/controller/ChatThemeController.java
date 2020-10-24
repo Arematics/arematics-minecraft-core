@@ -92,20 +92,20 @@ public class ChatThemeController {
      * @return
      */
     public ChatTheme createTheme(String themeKey, List<PlaceholderActionInput> dynamicPlaceholderActions, Set<ThemePlaceholder> themePlaceholders, String format) {
-        Map<String, DynamicPlaceholder> dynamicPlaceholders = dynamicPlaceholderActions.stream().map(placeholderActionInput -> {
-            DynamicPlaceholder placeholder = ChatAPI.getPlaceholder(placeholderActionInput.getPlaceholderName());
-            placeholder.setHoverAction(themeKey, placeholderActionInput.getHoverAction());
-            placeholder.setClickAction(themeKey, placeholderActionInput.getClickAction());
-            return placeholder;
-        }).collect(Collectors.toMap(DynamicPlaceholder::getPlaceholderKey, dynamicPlaceholder -> dynamicPlaceholder));
         ChatTheme chatTheme = new ChatTheme();
         chatTheme.setThemeKey(themeKey);
-        chatTheme.setDynamicPlaceholders(dynamicPlaceholders);
+        // chatTheme.setDynamicPlaceholders(dynamicPlaceholders);
         chatTheme.setThemePlaceholders(themePlaceholders);
         chatTheme.setFormat(format);
+        dynamicPlaceholderActions.forEach(placeholderActionInput -> {
+            String key = placeholderActionInput.getPlaceholderName();
+            chatTheme.getDynamicPlaceholderKeys().add(key);
+            chatTheme.getClickAction().put(key, placeholderActionInput.getClickAction());
+            chatTheme.getHoverAction().put(key, placeholderActionInput.getHoverAction());
+        });
         ChatThemeService service = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeService.class);
         ChatTheme saved = service.save(chatTheme);
-        return chatTheme;
+        return saved;
     }
 
     public ChatTheme getTheme(String name) {

@@ -3,6 +3,7 @@ package com.arematics.minecraft.core.data.model.placeholder;
 import com.arematics.minecraft.core.chat.model.Placeholder;
 import com.arematics.minecraft.core.data.model.message.ChatClickAction;
 import com.arematics.minecraft.core.data.model.message.ChatHoverAction;
+import com.arematics.minecraft.core.data.model.theme.ChatTheme;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.entity.Player;
@@ -26,15 +27,15 @@ public class ThemePlaceholder implements Placeholder {
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private ChatClickAction clickAction;
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-
     private ChatHoverAction hoverAction;
+
     @Transient
     private boolean isStatic = true;
     @Transient
     private String belongingThemeKey;
 
     @Override
-    public String getValue(Player player) {
+    public String getValue(ChatTheme theme, Player player) {
         return value;
     }
 

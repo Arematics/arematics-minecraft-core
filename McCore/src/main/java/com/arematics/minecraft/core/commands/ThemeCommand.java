@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 @PluginCommand(aliases = {"chattheme"})
 @Component
@@ -45,6 +44,14 @@ public class ThemeCommand extends CoreCommand {
     public boolean listThemes(Player player) {
         ChatAPI.getChatThemeController().getThemes().values().forEach(theme -> {
             player.sendMessage(theme.getThemeKey());
+        });
+        return true;
+    }
+    
+    @SubCommand("placeholdervalues {theme}")
+    public boolean listPlaceholderValues(Player player, String theme) {
+        ChatAPI.getTheme(theme).getPlaceholderThemeValues().forEach((s, playerSupplierMap) -> {
+            Bukkit.broadcastMessage("value for placeholder: " + s + " " + playerSupplierMap.get(player).get());
         });
         return true;
     }
@@ -101,11 +108,6 @@ public class ThemeCommand extends CoreCommand {
         player.sendMessage(apiTheme.getFormat());
         apiTheme.getActiveUsers().forEach(user -> {
             player.sendMessage(user.getPlayerId().toString());
-        });
-        apiTheme.getDynamicPlaceholders().forEach((s, dynamicPlaceholder) -> {
-            dynamicPlaceholder.getPlaceholderValues().forEach((player1, supplier) -> {
-                player.sendMessage(player1.getDisplayName() +  " dynamic value of " + s + " : " + supplier.get());
-            });
         });
         apiTheme.getThemePlaceholders().forEach(themePlaceholder -> {
             player.sendMessage("themeplaceholderkey: " + themePlaceholder.getPlaceholderKey() + " value: " + themePlaceholder.getValue());

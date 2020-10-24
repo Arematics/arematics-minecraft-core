@@ -35,10 +35,13 @@ public class ChatController {
         setChatMessage(message);
         ChatAPI.getChatThemeController().getThemes().values().forEach(chatTheme -> {
             AdvancedMessageReplace advancedMessageReplace = this.createMessage(chatTheme);
-            List<Placeholder> placeholders = Stream.concat(chatTheme.getDynamicPlaceholders().values().stream(), chatTheme.getThemePlaceholders().stream())
-                    .collect(Collectors.toList());
-            this.inject(chatTheme, placeholders, advancedMessageReplace, player);
-            advancedMessageReplace.handle();
+            chatTheme.getPlaceholderThemeValues().forEach((player1, supplier) -> {
+
+            });
+            //List<Placeholder> placeholders = Stream.concat(chatTheme.getDynamicPlaceholders().values().stream(), chatTheme.getThemePlaceholders().stream())
+              //      .collect(Collectors.toList());
+            //this.inject(chatTheme, placeholders, advancedMessageReplace, player);
+            //advancedMessageReplace.handle();
         });
     }
 
@@ -49,7 +52,7 @@ public class ChatController {
 
     private void inject(ChatTheme chatTheme, List<Placeholder> placeholders, AdvancedMessageReplace injector, Player player) {
         placeholders.forEach(placeholder -> {
-            AdvancedMessageAction action = injector.replace(placeholder.getPlaceholderKey(), placeholder.getValue(player));
+            AdvancedMessageAction action = injector.replace(placeholder.getPlaceholderKey(), placeholder.getValue(chatTheme, player));
             this.applyActions(chatTheme, placeholder, action, player);
         });
     }
@@ -58,19 +61,19 @@ public class ChatController {
         if (placeholder.getClickAction(chatTheme.getThemeKey()) != null) {
             ChatClickAction clickAction = placeholder.getClickAction(chatTheme.getThemeKey());
             if(clickAction != null){
-                action.setClick(clickAction.getAction(), prepareActionValue(placeholder, clickAction.getValue(), player));
+                action.setClick(clickAction.getAction(), prepareActionValue(placeholder, clickAction.getValue(), player, chatTheme));
             }
         }
         if (placeholder.getHoverAction(chatTheme.getThemeKey()) != null) {
             ChatHoverAction hoverAction = placeholder.getHoverAction(chatTheme.getThemeKey());
             if(hoverAction != null) {
-                action.setHover(hoverAction.getAction(), prepareActionValue(placeholder, hoverAction.getValue(), player));
+                action.setHover(hoverAction.getAction(), prepareActionValue(placeholder, hoverAction.getValue(), player, chatTheme));
             }
         }
         action.END();
     }
 
-    private String prepareActionValue(Placeholder placeholder, String chatActionValue, Player player) {
-        return chatActionValue.replace("%key%", placeholder.getPlaceholderKey()).replace("%value%", placeholder.getValue(player));
+    private String prepareActionValue(Placeholder placeholder, String chatActionValue, Player player, ChatTheme theme) {
+        return chatActionValue.replace("%key%", placeholder.getPlaceholderKey()).replace("%value%", placeholder.getValue(theme, player));
     }
 }
