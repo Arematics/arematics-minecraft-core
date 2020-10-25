@@ -32,7 +32,8 @@ public class ChatThemeService {
     }
 
     public ChatTheme save(ChatTheme theme) {
-        return repository.save(theme);
+        ChatTheme theme2 = repository.save(theme);
+        return theme2;
     }
 
 }

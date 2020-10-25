@@ -6,6 +6,7 @@ import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.chat.model.GlobalPlaceholderActions;
 import com.arematics.minecraft.core.data.model.message.ChatClickAction;
 import com.arematics.minecraft.core.data.model.message.ChatHoverAction;
+import com.arematics.minecraft.core.data.model.placeholder.GlobalPlaceholder;
 import com.arematics.minecraft.core.data.model.placeholder.ThemePlaceholder;
 import com.arematics.minecraft.core.data.model.theme.ChatTheme;
 import com.arematics.minecraft.core.data.model.theme.ChatThemeUser;
@@ -31,7 +32,7 @@ public class ChatThemeController {
     public boolean loadThemes() {
         ChatThemeService service = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeService.class);
         List<ChatTheme> savedThemes = service.getAll();
-        if(null == savedThemes || savedThemes.size() < 1) {
+        if (null == savedThemes || savedThemes.size() < 1) {
             return false;
         }
         savedThemes.forEach(theme -> {
@@ -41,17 +42,33 @@ public class ChatThemeController {
 
     }
 
+    public GlobalPlaceholderActions buildActions(String name, ChatHoverAction hoverAction, ChatClickAction clickAction) {
+        GlobalPlaceholderActions actions = new GlobalPlaceholderActions();
+        actions.setPlaceholderName(name);
+        actions.setHoverAction(hoverAction);
+        actions.setClickAction(clickAction);
+        return actions;
+    }
+
     public void createAndSaveDefaults() {
         List<GlobalPlaceholderActions> defaultDynamicAndActions = new ArrayList<GlobalPlaceholderActions>() {{
-            add(new GlobalPlaceholderActions("rank", null, null));
-            add(new GlobalPlaceholderActions("name", null, null));
-            add(new GlobalPlaceholderActions("chatMessage", null, null));
-            add(new GlobalPlaceholderActions("arematics", new ChatHoverAction(HoverAction.SHOW_TEXT, "Unser Discord"), new ChatClickAction(ClickAction.OPEN_URL, "https://discordapp.com/invite/AAXk9Jb")));
+            GlobalPlaceholderActions rank = buildActions("rank", null, null);
+            GlobalPlaceholderActions name = buildActions("name", null, null);
+            GlobalPlaceholderActions chatMessage = buildActions("chatMessage", null, null);
+            GlobalPlaceholderActions arematics = buildActions("arematics", new ChatHoverAction(HoverAction.SHOW_TEXT, "Unser Discord"), new ChatClickAction(ClickAction.OPEN_URL, "https://discordapp.com/invite/AAXk9Jb"));
+            add(rank);
+            add(name);
+            add(chatMessage);
+            add(arematics);
         }};
+
         List<GlobalPlaceholderActions> debugDynamicAndActions = new ArrayList<GlobalPlaceholderActions>() {{
-            add(new GlobalPlaceholderActions("rank", new ChatHoverAction(HoverAction.SHOW_TEXT, "%key% to %value%"), null));
-            add(new GlobalPlaceholderActions("name", new ChatHoverAction(HoverAction.SHOW_TEXT, "%key% to %value%"), null));
-            add(new GlobalPlaceholderActions("chatMessage", new ChatHoverAction(HoverAction.SHOW_TEXT, "%key% to %value%"), null));
+            GlobalPlaceholderActions rank = buildActions("rank",  new ChatHoverAction(HoverAction.SHOW_TEXT, "%key% to %value%"), null);
+            GlobalPlaceholderActions name = buildActions("name",  new ChatHoverAction(HoverAction.SHOW_TEXT, "%key% to %value%"), null);
+            GlobalPlaceholderActions chatMessage = buildActions("chatMessage",  new ChatHoverAction(HoverAction.SHOW_TEXT, "%key% to %value%"), null);
+            add(rank);
+            add(name);
+            add(chatMessage);
         }};
 
         Set<ThemePlaceholder> themePlaceholders = new HashSet<ThemePlaceholder>() {{
@@ -83,11 +100,10 @@ public class ChatThemeController {
     }
 
     /**
-     *
-     * @param themeKey internal name of theme
+     * @param themeKey                  internal name of theme
      * @param dynamicPlaceholderActions create these through api to assign hover/click actions, contains placeholder key and actions
-     * @param themePlaceholders list of theme internal placeholders
-     * @param format % encoded raw chat format
+     * @param themePlaceholders         list of theme internal placeholders
+     * @param format                    % encoded raw chat format
      * @return
      */
     public ChatTheme createTheme(String themeKey, List<GlobalPlaceholderActions> dynamicPlaceholderActions, Set<ThemePlaceholder> themePlaceholders, String format) {
@@ -95,13 +111,7 @@ public class ChatThemeController {
         chatTheme.setThemeKey(themeKey);
         chatTheme.setThemePlaceholders(themePlaceholders);
         chatTheme.setFormat(format);
-        dynamicPlaceholderActions.forEach(globalPlaceholderActions -> {
-            //TODO MAYBE SOLVE THIS MORE ELEGANTLY LULW
-            String key = globalPlaceholderActions.getPlaceholderName();
-            chatTheme.getDynamicPlaceholderKeys().add(key);
-            chatTheme.getDynamicClickActions().put(key, globalPlaceholderActions.getClickAction());
-            chatTheme.getDynamicHoverActions().put(key, globalPlaceholderActions.getHoverAction());
-        });
+        chatTheme.setDynamicWrapper(dynamicPlaceholderActions);
         ChatThemeService service = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeService.class);
         ChatTheme saved = service.save(chatTheme);
         return saved;
@@ -110,19 +120,22 @@ public class ChatThemeController {
     public ChatTheme getTheme(String name) {
         return getThemes().get(name);
     }
+
     public void registerTheme(String name, ChatTheme theme) {
         getThemes().put(name, theme);
     }
 
     /**
      * registers player as chattheme user, is called on player join
+     *
      * @param player to register
      * @return
      */
-    public void register(Player player) {
+    public ChatThemeUser register(Player player) {
         ChatThemeUser user = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeUserService.class).getOrCreate(player.getUniqueId());
         ChatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().add(user);
         getUsers().put(player.getUniqueId(), user);
+        return user;
     }
 
     public void logout(Player player) {
@@ -140,12 +153,13 @@ public class ChatThemeController {
 
     /**
      * sets active theme for chatthemeuser and adds to senders chattheme
+     *
      * @param player who is affected
-     * @param theme which is used
+     * @param theme  which is used
      */
     public boolean setTheme(Player player, String theme) {
         ChatTheme newTheme = ChatAPI.getTheme(theme);
-        if(null == newTheme) {
+        if (null == newTheme) {
             return false;
         }
         ChatThemeUser user = getUser(player);
@@ -155,4 +169,5 @@ public class ChatThemeController {
         newTheme.getActiveUsers().add(user);
         return true;
     }
+
 }

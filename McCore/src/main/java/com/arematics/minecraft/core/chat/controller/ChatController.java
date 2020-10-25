@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.chat.controller;
 
 import com.arematics.minecraft.core.chat.ChatAPI;
+import com.arematics.minecraft.core.chat.model.GlobalPlaceholderActions;
 import com.arematics.minecraft.core.data.model.message.ChatClickAction;
 import com.arematics.minecraft.core.data.model.message.ChatHoverAction;
 import com.arematics.minecraft.core.data.model.placeholder.GlobalPlaceholder;
@@ -32,16 +33,14 @@ public class ChatController {
         setChatMessage(message);
         ChatAPI.getChatThemeController().getThemes().values().forEach(chatTheme -> {
             AdvancedMessageReplace advancedMessageReplace = this.createMessage(chatTheme);
-
             chatTheme.getThemePlaceholders().forEach(themePlaceholder -> {
                 AdvancedMessageAction action = advancedMessageReplace.replace(themePlaceholder.getPlaceholderKey(), themePlaceholder.getValue());
                 applyThemeActions(themePlaceholder, action);
                 action.END();
             });
-
-            chatTheme.getDynamicPlaceholderKeys().stream().map(ChatAPI::getPlaceholder).forEach(placeholder -> {
-                AdvancedMessageAction action = advancedMessageReplace.replace(placeholder.getPlaceholderKey(), chatTheme.getPlaceholderThemeValues().get(placeholder.getPlaceholderKey()).get(player).get());
-                applyDynamicActions(placeholder, chatTheme, action);
+            chatTheme.getDynamicWrapper().forEach(globalPlaceholderActions -> {
+                AdvancedMessageAction action = advancedMessageReplace.replace(globalPlaceholderActions.getPlaceholderName(), chatTheme.getPlaceholderThemeValues().get(globalPlaceholderActions.getPlaceholderName()).get(player).get());
+                applyDynamicActions(globalPlaceholderActions, action);
                 action.END();
             });
             advancedMessageReplace.handle();
@@ -50,6 +49,7 @@ public class ChatController {
 
     /**
      * Creates a message for a theme, sets all selected players as recipients and sets the advanced injector
+     *
      * @param chatTheme to use
      * @return AdvancedMessageReplace
      */
@@ -60,32 +60,31 @@ public class ChatController {
 
     /**
      * unwraps and sets actions for a theme placeholder
+     *
      * @param themePlaceholder to inject click&hover
-     * @param action injector
+     * @param action           injector
      */
     private void applyThemeActions(ThemePlaceholder themePlaceholder, AdvancedMessageAction action) {
-        if(themePlaceholder.getHoverAction() != null) {
+        if (themePlaceholder.getHoverAction() != null) {
             action.setHover(themePlaceholder.getHoverAction().getAction(), themePlaceholder.getHoverAction().getValue());
         }
-        if(themePlaceholder.getClickAction() != null) {
+        if (themePlaceholder.getClickAction() != null) {
             action.setClick(themePlaceholder.getClickAction().getAction(), themePlaceholder.getClickAction().getValue());
         }
     }
 
     /**
      * get placeholder action values from theme and applies it
-     * @param globalPlaceholder to inject
-     * @param theme to get actions from
+     *
+     * @param globalPlaceholderActions  to get actions from
      * @param action injector
      */
-    private void applyDynamicActions(GlobalPlaceholder globalPlaceholder, ChatTheme theme, AdvancedMessageAction action) {
-        ChatHoverAction chatHoverAction = theme.getDynamicHoverActions().get(globalPlaceholder.getPlaceholderKey());
-        if(chatHoverAction != null) {
-            action.setHover(chatHoverAction.getAction(), chatHoverAction.getValue());
+    private void applyDynamicActions(GlobalPlaceholderActions globalPlaceholderActions, AdvancedMessageAction action) {
+        if(globalPlaceholderActions.getHoverAction() != null) {
+            action.setHover(globalPlaceholderActions.getHoverAction().getAction(), globalPlaceholderActions.getHoverAction().getValue());
         }
-        ChatClickAction chatClickAction = theme.getDynamicClickActions().get(globalPlaceholder.getPlaceholderKey());
-        if(chatClickAction != null) {
-            action.setClick(chatClickAction.getAction(), chatClickAction.getValue());
+        if(globalPlaceholderActions.getClickAction() != null) {
+            action.setClick(globalPlaceholderActions.getClickAction().getAction(), globalPlaceholderActions.getClickAction().getValue());
         }
     }
 

@@ -73,34 +73,6 @@ public class ThemeCommand extends CoreCommand {
         return true;
     }
 
-    @SubCommand("new {theme}")
-    public boolean create(Player player, String theme) {
-        ChatAPI.registerPlaceholder("api");
-        List<GlobalPlaceholderActions> dynamicAndActions = new ArrayList<GlobalPlaceholderActions>() {{
-            add(new GlobalPlaceholderActions("rank", null, null));
-            add(new GlobalPlaceholderActions("name", null, null));
-            add(new GlobalPlaceholderActions("chatMessage", null, null));
-            add(new GlobalPlaceholderActions("arematics", new ChatHoverAction(HoverAction.SHOW_TEXT, "Unser Discord"), new ChatClickAction(ClickAction.OPEN_URL, "https://discordapp.com/invite/AAXk9Jb")));
-            add(new GlobalPlaceholderActions("api", new ChatHoverAction(HoverAction.SHOW_TEXT, "API"), new ChatClickAction(ClickAction.OPEN_URL, "https://api.com")));
-        }};
-        Set<ThemePlaceholder> themePlaceholders = new HashSet<ThemePlaceholder>() {{
-            ThemePlaceholder chatDelim = new ThemePlaceholder();
-            chatDelim.setBelongingThemeKey("default");
-            chatDelim.setPlaceholderMatch("%chatDelim%");
-            chatDelim.setPlaceholderKey("chatDelim");
-            chatDelim.setValue(":");
-            add(chatDelim);
-        }};
-        ChatTheme newTheme = ChatAPI.createTheme(theme, dynamicAndActions, themePlaceholders, "%api% %arematics% %rank% %name%%chatDelim% %chatMessage%");
-        ChatThemeService service = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeService.class);
-        ChatTheme saved = service.get(newTheme.getThemeKey());
-        ChatAPI.registerTheme(saved.getThemeKey(), saved);
-        ChatAPI.getUsers().values().forEach(user -> {
-            ChatAPI.supply(Bukkit.getPlayer(user.getPlayerId()));
-        });
-        return true;
-    }
-
     @SubCommand("inspect {theme}")
     public boolean inspect(Player player, String theme) {
         ChatTheme apiTheme = ChatAPI.getTheme(theme);

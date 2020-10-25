@@ -27,13 +27,8 @@ public class ChatTheme {
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "theme_mapping")
     private Set<ThemePlaceholder> themePlaceholders = new HashSet<>();
-    @ElementCollection(fetch = FetchType.EAGER)
-    @LazyCollection(LazyCollectionOption.FALSE)
-    private List<String> dynamicPlaceholderKeys = new ArrayList<>();
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Map<String, ChatClickAction> dynamicClickActions = new HashMap<>();
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Map<String, ChatHoverAction> dynamicHoverActions = new HashMap<>();
+    private List<GlobalPlaceholderActions> dynamicWrapper = new ArrayList<>();
 
     @Transient
     // theme key

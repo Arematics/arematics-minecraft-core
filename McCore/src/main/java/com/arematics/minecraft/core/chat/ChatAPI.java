@@ -37,7 +37,7 @@ public class ChatAPI {
     }
 
     public static void login(Player player) {
-        getChatThemeController().register(player);
+        ChatThemeUser user = getChatThemeController().register(player);
         supply(player);
     }
 
