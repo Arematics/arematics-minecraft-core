@@ -5,8 +5,8 @@ import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.controller.ChatController;
 import com.arematics.minecraft.core.chat.controller.ChatThemeController;
 import com.arematics.minecraft.core.chat.controller.PlaceholderController;
-import com.arematics.minecraft.core.chat.model.PlaceholderActionInput;
-import com.arematics.minecraft.core.data.model.placeholder.DynamicPlaceholder;
+import com.arematics.minecraft.core.chat.model.GlobalPlaceholderActions;
+import com.arematics.minecraft.core.data.model.placeholder.GlobalPlaceholder;
 import com.arematics.minecraft.core.data.model.placeholder.ThemePlaceholder;
 import com.arematics.minecraft.core.data.model.theme.ChatTheme;
 import com.arematics.minecraft.core.data.model.theme.ChatThemeUser;
@@ -81,7 +81,7 @@ public class ChatAPI {
         return getChatThemeController().setTheme(player, themeKey);
     }
 
-    public static ChatTheme createTheme(String themeKey, List<PlaceholderActionInput> dynamicPlaceholderNames, Set<ThemePlaceholder> themePlaceholders, String format) {
+    public static ChatTheme createTheme(String themeKey, List<GlobalPlaceholderActions> dynamicPlaceholderNames, Set<ThemePlaceholder> themePlaceholders, String format) {
         return getChatThemeController().createTheme(themeKey, dynamicPlaceholderNames, themePlaceholders, format);
     }
 
@@ -99,7 +99,7 @@ public class ChatAPI {
     }
 
 
-    public static DynamicPlaceholder getPlaceholder(String placeholder) {
+    public static GlobalPlaceholder getPlaceholder(String placeholder) {
         return getPlaceholderController().getPlaceholder(placeholder);
     }
 

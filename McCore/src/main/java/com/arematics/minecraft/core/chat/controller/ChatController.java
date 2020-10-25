@@ -3,7 +3,8 @@ package com.arematics.minecraft.core.chat.controller;
 import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.data.model.message.ChatClickAction;
 import com.arematics.minecraft.core.data.model.message.ChatHoverAction;
-import com.arematics.minecraft.core.chat.model.Placeholder;
+import com.arematics.minecraft.core.data.model.placeholder.GlobalPlaceholder;
+import com.arematics.minecraft.core.data.model.placeholder.ThemePlaceholder;
 import com.arematics.minecraft.core.data.model.theme.ChatTheme;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageAction;
@@ -15,10 +16,6 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Getter
 @Setter
@@ -35,45 +32,62 @@ public class ChatController {
         setChatMessage(message);
         ChatAPI.getChatThemeController().getThemes().values().forEach(chatTheme -> {
             AdvancedMessageReplace advancedMessageReplace = this.createMessage(chatTheme);
-            chatTheme.getPlaceholderThemeValues().forEach((player1, supplier) -> {
 
+            chatTheme.getThemePlaceholders().forEach(themePlaceholder -> {
+                AdvancedMessageAction action = advancedMessageReplace.replace(themePlaceholder.getPlaceholderKey(), themePlaceholder.getValue());
+                applyThemeActions(themePlaceholder, action);
+                action.END();
             });
-            //List<Placeholder> placeholders = Stream.concat(chatTheme.getDynamicPlaceholders().values().stream(), chatTheme.getThemePlaceholders().stream())
-              //      .collect(Collectors.toList());
-            //this.inject(chatTheme, placeholders, advancedMessageReplace, player);
-            //advancedMessageReplace.handle();
+
+            chatTheme.getDynamicPlaceholderKeys().stream().map(ChatAPI::getPlaceholder).forEach(placeholder -> {
+                AdvancedMessageAction action = advancedMessageReplace.replace(placeholder.getPlaceholderKey(), chatTheme.getPlaceholderThemeValues().get(placeholder.getPlaceholderKey()).get(player).get());
+                applyDynamicActions(placeholder, chatTheme, action);
+                action.END();
+            });
+            advancedMessageReplace.handle();
         });
     }
 
+    /**
+     * Creates a message for a theme, sets all selected players as recipients and sets the advanced injector
+     * @param chatTheme to use
+     * @return AdvancedMessageReplace
+     */
     private AdvancedMessageReplace createMessage(ChatTheme chatTheme) {
         CommandSender[] sendTo = chatTheme.getActiveUsers().stream().map(chatThemeUser -> (CommandSender) Bukkit.getPlayer(chatThemeUser.getPlayerId())).toArray(CommandSender[]::new);
         return Messages.create(chatTheme.getFormat()).to(sendTo).setInjector(AdvancedMessageInjector.class).disableServerPrefix();
     }
 
-    private void inject(ChatTheme chatTheme, List<Placeholder> placeholders, AdvancedMessageReplace injector, Player player) {
-        placeholders.forEach(placeholder -> {
-            AdvancedMessageAction action = injector.replace(placeholder.getPlaceholderKey(), placeholder.getValue(chatTheme, player));
-            this.applyActions(chatTheme, placeholder, action, player);
-        });
+    /**
+     * unwraps and sets actions for a theme placeholder
+     * @param themePlaceholder to inject click&hover
+     * @param action injector
+     */
+    private void applyThemeActions(ThemePlaceholder themePlaceholder, AdvancedMessageAction action) {
+        if(themePlaceholder.getHoverAction() != null) {
+            action.setHover(themePlaceholder.getHoverAction().getAction(), themePlaceholder.getHoverAction().getValue());
+        }
+        if(themePlaceholder.getClickAction() != null) {
+            action.setClick(themePlaceholder.getClickAction().getAction(), themePlaceholder.getClickAction().getValue());
+        }
     }
 
-    private void applyActions(ChatTheme chatTheme, Placeholder placeholder, AdvancedMessageAction action, Player player) {
-        if (placeholder.getClickAction(chatTheme.getThemeKey()) != null) {
-            ChatClickAction clickAction = placeholder.getClickAction(chatTheme.getThemeKey());
-            if(clickAction != null){
-                action.setClick(clickAction.getAction(), prepareActionValue(placeholder, clickAction.getValue(), player, chatTheme));
-            }
+    /**
+     * get placeholder action values from theme and applies it
+     * @param globalPlaceholder to inject
+     * @param theme to get actions from
+     * @param action injector
+     */
+    private void applyDynamicActions(GlobalPlaceholder globalPlaceholder, ChatTheme theme, AdvancedMessageAction action) {
+        ChatHoverAction chatHoverAction = theme.getDynamicHoverActions().get(globalPlaceholder.getPlaceholderKey());
+        if(chatHoverAction != null) {
+            action.setHover(chatHoverAction.getAction(), chatHoverAction.getValue());
         }
-        if (placeholder.getHoverAction(chatTheme.getThemeKey()) != null) {
-            ChatHoverAction hoverAction = placeholder.getHoverAction(chatTheme.getThemeKey());
-            if(hoverAction != null) {
-                action.setHover(hoverAction.getAction(), prepareActionValue(placeholder, hoverAction.getValue(), player, chatTheme));
-            }
+        ChatClickAction chatClickAction = theme.getDynamicClickActions().get(globalPlaceholder.getPlaceholderKey());
+        if(chatClickAction != null) {
+            action.setClick(chatClickAction.getAction(), chatClickAction.getValue());
         }
-        action.END();
     }
 
-    private String prepareActionValue(Placeholder placeholder, String chatActionValue, Player player, ChatTheme theme) {
-        return chatActionValue.replace("%key%", placeholder.getPlaceholderKey()).replace("%value%", placeholder.getValue(theme, player));
-    }
+
 }

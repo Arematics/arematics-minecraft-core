@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.data.service.chat;
 
-import com.arematics.minecraft.core.data.model.placeholder.DynamicPlaceholder;
+import com.arematics.minecraft.core.data.model.placeholder.GlobalPlaceholder;
 import com.arematics.minecraft.core.data.model.placeholder.ThemePlaceholder;
 import com.arematics.minecraft.core.data.repository.chat.DynamicPlaceholderRepository;
 import com.arematics.minecraft.core.data.repository.chat.ThemePlaceholderRepository;
@@ -21,16 +21,16 @@ public class PlaceholderService {
         this.themeRepository = themeRepository;
     }
 
-    public List<DynamicPlaceholder> loadGlobals(){
+    public List<GlobalPlaceholder> loadGlobals(){
         return dynamicRepository.findAll();
     }
 
-    public DynamicPlaceholder getGlobalPlaceholder(String placeholderKey) {
+    public GlobalPlaceholder getGlobalPlaceholder(String placeholderKey) {
         return dynamicRepository.findById(placeholderKey).orElse(null);
     }
 
-    public DynamicPlaceholder save(DynamicPlaceholder dynamicPlaceholder){
-        return dynamicRepository.save(dynamicPlaceholder);
+    public GlobalPlaceholder save(GlobalPlaceholder globalPlaceholder){
+        return dynamicRepository.save(globalPlaceholder);
     }
 
     public ThemePlaceholder getThemePlaceholder(String placeholderKey) {

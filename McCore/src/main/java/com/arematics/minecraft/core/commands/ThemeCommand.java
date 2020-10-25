@@ -6,7 +6,7 @@ import com.arematics.minecraft.core.annotations.Default;
 import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.chat.ChatAPI;
-import com.arematics.minecraft.core.chat.model.PlaceholderActionInput;
+import com.arematics.minecraft.core.chat.model.GlobalPlaceholderActions;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.data.model.message.ChatClickAction;
 import com.arematics.minecraft.core.data.model.message.ChatHoverAction;
@@ -76,12 +76,12 @@ public class ThemeCommand extends CoreCommand {
     @SubCommand("new {theme}")
     public boolean create(Player player, String theme) {
         ChatAPI.registerPlaceholder("api");
-        List<PlaceholderActionInput> dynamicAndActions = new ArrayList<PlaceholderActionInput>() {{
-            add(new PlaceholderActionInput("rank", null, null));
-            add(new PlaceholderActionInput("name", null, null));
-            add(new PlaceholderActionInput("chatMessage", null, null));
-            add(new PlaceholderActionInput("arematics", new ChatHoverAction(HoverAction.SHOW_TEXT, "Unser Discord"), new ChatClickAction(ClickAction.OPEN_URL, "https://discordapp.com/invite/AAXk9Jb")));
-            add(new PlaceholderActionInput("api", new ChatHoverAction(HoverAction.SHOW_TEXT, "API"), new ChatClickAction(ClickAction.OPEN_URL, "https://api.com")));
+        List<GlobalPlaceholderActions> dynamicAndActions = new ArrayList<GlobalPlaceholderActions>() {{
+            add(new GlobalPlaceholderActions("rank", null, null));
+            add(new GlobalPlaceholderActions("name", null, null));
+            add(new GlobalPlaceholderActions("chatMessage", null, null));
+            add(new GlobalPlaceholderActions("arematics", new ChatHoverAction(HoverAction.SHOW_TEXT, "Unser Discord"), new ChatClickAction(ClickAction.OPEN_URL, "https://discordapp.com/invite/AAXk9Jb")));
+            add(new GlobalPlaceholderActions("api", new ChatHoverAction(HoverAction.SHOW_TEXT, "API"), new ChatClickAction(ClickAction.OPEN_URL, "https://api.com")));
         }};
         Set<ThemePlaceholder> themePlaceholders = new HashSet<ThemePlaceholder>() {{
             ThemePlaceholder chatDelim = new ThemePlaceholder();
