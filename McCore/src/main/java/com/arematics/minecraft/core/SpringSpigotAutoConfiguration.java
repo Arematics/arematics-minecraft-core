@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core;
 
+import com.arematics.minecraft.core.annotations.IgnoreInAppScan;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.plugin.Plugin;
@@ -13,6 +14,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.AuditorAware;
@@ -22,10 +24,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import java.util.Optional;
 
 @Configuration
-@EnableJpaRepositories(basePackages = {"com.arematics.minecraft"})
 @EnableCaching
-@ComponentScan("com.arematics.minecraft")
-@EntityScan(basePackages = {"com.arematics.minecraft"})
+@ComponentScan(value = "com.arematics.minecraft", excludeFilters = @ComponentScan.Filter(IgnoreInAppScan.class))
 @EnableJpaAuditing
 @ConditionalOnClass({Bukkit.class})
 class SpringSpigotAutoConfiguration {

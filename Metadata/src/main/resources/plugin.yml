@@ -5,8 +5,3 @@ version: 1.0.0-Alpha
 depend: [McCore]
 
 main: com.arematics.minecraft.meta.MetaBoot
-
-commands:
-  sound:
-    description: Show valid sounds
-    usage: /<command>

@@ -6,11 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.io.FileReader;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -21,7 +18,7 @@ public class LanguageAPI {
     private static final Map<String, Language> langs = new HashMap<>();
     private static final Map<Player, LanguageUser> users = new HashMap<>();
 
-    static LanguageUser getUser(Player p){
+    public static LanguageUser getUser(Player p){
         if(!users.containsKey(p)) {
             LanguageUser user = new LanguageUser(p);
             user.setLanguage(langs.get("ENGLISH"));
@@ -29,6 +26,10 @@ public class LanguageAPI {
         }
 
         return users.get(p);
+    }
+
+    public static Language getLanguage(String key){
+        return langs.get(key);
     }
 
     public static String prepareMessage(CommandSender sender, MessageHighlight highlight, String key){
@@ -64,7 +65,7 @@ public class LanguageAPI {
         return lang;
     }
 
-    public static boolean registerFile(FileReader reader){
+    public static boolean registerFile(BufferedReader reader){
         Properties properties = new Properties();
 
         try{

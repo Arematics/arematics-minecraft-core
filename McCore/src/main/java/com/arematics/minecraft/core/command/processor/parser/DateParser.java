@@ -1,9 +1,12 @@
 package com.arematics.minecraft.core.command.processor.parser;
 
+import org.springframework.stereotype.Component;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Component
 public class DateParser extends CommandParameterParser<Date> {
 
     private final String[] PATTERNS = {"dd/MM/yyyy", "dd-MM-yyyy", "dd.MM.yyyy",

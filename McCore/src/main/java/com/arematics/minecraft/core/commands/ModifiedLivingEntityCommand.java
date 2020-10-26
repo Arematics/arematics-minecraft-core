@@ -6,7 +6,9 @@ import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.entities.ModifiedLivingEntity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.springframework.stereotype.Component;
 
+@Component
 @PluginCommand(aliases = {})
 public class ModifiedLivingEntityCommand extends CoreCommand {
 
@@ -18,6 +20,7 @@ public class ModifiedLivingEntityCommand extends CoreCommand {
     public boolean spawnModifiedEntity(Player sender, EntityType type) {
         ModifiedLivingEntity modifiedLivingEntity = ModifiedLivingEntity.create(sender.getLocation(), type);
         modifiedLivingEntity.disableEntity();
+        modifiedLivingEntity.setBindedCommand("sound list");
         return true;
     }
 }

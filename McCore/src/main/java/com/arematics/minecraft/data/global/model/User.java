@@ -33,9 +33,12 @@ public class User implements Serializable {
     @Column(name = "uuid", nullable = false)
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID uuid;
+    @Column(name = "last_join")
     private Timestamp lastJoin;
     @NotAudited
+    @Column(name = "last_ip")
     private String lastIp;
+    @Column(name = "last_ip_change")
     private Timestamp lastIpChange;
     @OneToOne
     @JoinColumn(name = "rank", referencedColumnName = "id")
@@ -49,7 +52,7 @@ public class User implements Serializable {
     @MapKeyColumn(name = "name")
     private Map<String, Configuration> configurations;
     @NotAudited
-    @WhereJoinTable(clause = "until IS NULL OR until > NOW()")
+    @WhereJoinTable(clause = "mode = '' AND until IS NULL OR until > NOW()")
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_permission", joinColumns = {@JoinColumn(name = "uuid")},
             inverseJoinColumns = { @JoinColumn(name = "permission")})

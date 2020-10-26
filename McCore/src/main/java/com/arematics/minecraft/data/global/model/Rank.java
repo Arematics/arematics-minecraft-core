@@ -4,13 +4,11 @@ import com.arematics.minecraft.data.share.model.Permission;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.WhereJoinTable;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Set;
@@ -37,7 +35,7 @@ public class Rank implements Serializable {
     @Column(name = "last_change", nullable = false)
     private Timestamp lastChange;
     @NotAudited
-    @WhereJoinTable(clause = "until IS NULL OR until > NOW()")
+    @WhereJoinTable(clause = "mode = '' AND until IS NULL OR until > NOW()")
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "ranks_permission", joinColumns = {@JoinColumn(name = "id")},
             inverseJoinColumns = { @JoinColumn(name = "permission")})

@@ -1,5 +1,9 @@
 package com.arematics.minecraft.core.entities;
 
+import com.arematics.minecraft.core.Boots;
+import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.data.global.model.CommandEntity;
+import com.arematics.minecraft.data.service.CommandEntityService;
 import de.tr7zw.nbtapi.NBTEntity;
 import lombok.Getter;
 import org.bukkit.Location;
@@ -16,6 +20,7 @@ public class ModifiedLivingEntity extends NBTEntity {
     }
 
     private final LivingEntity livingEntity;
+    private String bindedCommand;
 
     public ModifiedLivingEntity(LivingEntity livingEntity){
         super(livingEntity);
@@ -26,6 +31,30 @@ public class ModifiedLivingEntity extends NBTEntity {
         disableAI();
         disableKill();
         disableLootPickUP();
+    }
+
+    public String getBindedCommmand(){
+        return hasBindedCommand() ? bindedCommand : null;
+    }
+
+    public boolean hasBindedCommand(){
+        if(bindedCommand != null) return true;
+        CommandEntityService service = Boots.getBoot(CoreBoot.class).getContext().getBean(CommandEntityService.class);
+        try{
+            CommandEntity entity = service.fetch(this.livingEntity.getUniqueId());
+            this.bindedCommand = entity.getBindedCommand();
+            return true;
+        }catch (RuntimeException exception){
+            exception.printStackTrace();
+            return false;
+        }
+    }
+
+    public void setBindedCommand(String bindedCommand){
+        this.bindedCommand = bindedCommand;
+        CommandEntityService service = Boots.getBoot(CoreBoot.class).getContext().getBean(CommandEntityService.class);
+        CommandEntity entity = new CommandEntity(this.livingEntity.getUniqueId(), this.bindedCommand);
+        service.add(entity);
     }
 
     public void disableAI(){

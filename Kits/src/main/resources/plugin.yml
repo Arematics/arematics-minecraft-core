@@ -1,0 +1,7 @@
+name: Kits
+author: Klysma
+description: Kits by Arematics
+version: 1.0.0
+depend: [McCore]
+
+main: com.arematics.minecraft.kits.KitBoot

@@ -1,5 +1,9 @@
 version '1.0'
 
+dependencies {
+    compileOnly 'com.arematics:McCore:0.3.8'
+}
+
 def filesToCopy = copySpec{
     from 'build/libs/Kits-1.0.jar'
 }

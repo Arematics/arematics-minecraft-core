@@ -10,7 +10,9 @@ import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageI
 import com.arematics.minecraft.core.pages.Pageable;
 import com.arematics.minecraft.core.pages.Pager;
 import org.bukkit.command.CommandSender;
+import org.springframework.stereotype.Component;
 
+@Component
 @PluginCommand(aliases = {"pager"})
 public class PageCommand extends CoreCommand {
 
@@ -38,7 +40,6 @@ public class PageCommand extends CoreCommand {
     public boolean pageFor(CommandSender sender, PageType type, String key){
         Pager pager = Pager.of(sender);
         Pageable pageable = key == null ? pager.last() : pager.fetch(key);
-        System.out.println(pageable);
         if(pageable == null) return true;
         switch (type){
             case BEFORE:

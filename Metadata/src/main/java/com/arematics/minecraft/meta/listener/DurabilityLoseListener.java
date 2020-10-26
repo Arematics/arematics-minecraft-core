@@ -7,8 +7,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.ItemStack;
+import org.springframework.stereotype.Component;
 
 @SuppressWarnings("unused")
+@Component
 public class DurabilityLoseListener implements Listener {
 
     @EventHandler

@@ -7,14 +7,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ModifiableLivingEntityListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEntityEvent event){
         Player interacter = event.getPlayer();
         ModifiedLivingEntity entity = new ModifiedLivingEntity((LivingEntity) event.getRightClicked());
-        if(entity.hasKey(ModifiedLivingEntity.CLICK_INTERACT))
-            Bukkit.dispatchCommand(interacter, entity.getString(ModifiedLivingEntity.CLICK_INTERACT));
+        if(entity.hasBindedCommand()) Bukkit.dispatchCommand(interacter, entity.getBindedCommand());
     }
 }

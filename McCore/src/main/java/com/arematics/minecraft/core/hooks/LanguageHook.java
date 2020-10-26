@@ -4,10 +4,10 @@ import com.arematics.minecraft.core.language.LanguageAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,7 +35,7 @@ public class LanguageHook implements Hook<File>{
 
     @Override
     public void processAction(File file, JavaPlugin plugin) {
-        try(FileReader reader = new FileReader(file)){
+        try(BufferedReader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)){
             LanguageAPI.registerFile(reader);
         }catch (Exception e){
             e.printStackTrace();

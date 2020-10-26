@@ -1,4 +1,4 @@
-version '0.3.4'
+version '0.3.8'
 
 
 dependencies {
@@ -15,6 +15,7 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.3.3.RELEASE'
     compile group: 'org.springframework', name: 'spring-aspects', version: '5.2.9.RELEASE'
 
+    compile group: 'joda-time', name: 'joda-time', version: '2.10.6'
 
     //Provided for using AutoService Annotations
     compile group: 'org.reflections', name: 'reflections', version: '0.9.12'
@@ -28,7 +29,7 @@ dependencies {
 }
 
 def filesToCopy = copySpec{
-    from 'build/libs/McCore-0.3.4-all.jar'
+    from 'build/libs/McCore-0.3.8-all.jar'
 }
 
 task copyFileToCityBuild(type:Copy) {

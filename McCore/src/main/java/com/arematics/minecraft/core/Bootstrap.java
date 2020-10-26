@@ -12,10 +12,13 @@ public abstract class Bootstrap extends JavaPlugin {
     public final boolean configuration;
 
     private final String dir = ClassUtils.getPackageName(this.getClass());
+    protected final MultiHook hook;
 
     public Bootstrap(boolean configuration) {
         this.configuration = configuration;
+        this.hook = new MultiHook(dir, this.getClass().getClassLoader(), this);
     }
+
     @Override
     public void onEnable() {
         System.setProperty("file.encoding", "UTF-8");
@@ -43,10 +46,8 @@ public abstract class Bootstrap extends JavaPlugin {
     }
 
     protected final void hook() {
-        MultiHook hook = new MultiHook(dir, this.getClass().getClassLoader(), this);
         hook.addPreHook(new PreFileExistHook());
         hook.addHook(new LanguageHook());
-        hook.addPackageHook(new CommandHooks(), new ListenerHook());
         hook.enable();
     }
 

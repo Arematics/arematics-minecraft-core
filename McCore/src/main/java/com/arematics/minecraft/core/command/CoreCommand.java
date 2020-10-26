@@ -21,7 +21,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.util.StringUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -123,10 +122,26 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String labels, String[] arguments) {
-        final List<String> completions = new ArrayList<>();
-        StringUtil.copyPartialMatches(StringUtils.join(arguments, " "), this.subCommands, completions);
-        Collections.sort(completions);
-        return completions;
+        List<String> matches = searchAllMatches(StringUtils.join(arguments, " "));
+        return matches;
+    }
+
+    private List<String> searchAllMatches(String arguments){
+        return this.subCommands.stream()
+                .filter(text -> !StringUtils.isBlank(text) && text.startsWith(arguments))
+                .map(text -> filterMatch(text, arguments))
+                .map(this::trimText)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private String filterMatch(String text, String arguments){
+        return text.substring(arguments.contains(" ") ? arguments.lastIndexOf(" ") : 0);
+    }
+
+    private String trimText(String text){
+        text = text.trim();
+        return text.contains(" ") ? text.substring(0, text.indexOf(" ")) : text;
     }
 
     private boolean process(CommandSender sender, String[] arguments){
@@ -139,6 +154,7 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                 .newEnvironment(this, dataPack, this.processors);
         try{
             for (final Method method : this.sortedMethods){
+                String[] args = arguments;
                 if(isDefault){
                     if(!StringUtils.isBlank(this.classPermission)) {
                         if (Permissions.isNotAllowed(sender, this.classPermission)) {
@@ -160,9 +176,9 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                 }
                 annotations.add(value);
                 String[] annotationValues = value.split(" ");
-                arguments = getSetupMessageArray(annotationValues, arguments);
-                if(annotationValues.length == arguments.length && isMatch(annotationValues, arguments)) {
-                    dataPack.put(CommonData.COMMAND_ARGUMENTS.toString(), arguments);
+                args = getSetupMessageArray(annotationValues, arguments);
+                if(annotationValues.length == args.length && isMatch(annotationValues, args)) {
+                    dataPack.put(CommonData.COMMAND_ARGUEMNTS.toString(), args);
                     if (environment.supply(method)) return true;
                 }
             }
@@ -198,13 +214,17 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     }
 
     private String[] getSetupMessageArray(String[] subArgs, String[] input){
-        if(input.length > subArgs.length && subArgs[subArgs.length - 1].equals("{message}")){
+        if(input.length > subArgs.length && equalsOne(subArgs[subArgs.length - 1])){
             String message = StringUtils.join(input, " ", subArgs.length - 1, input.length);
             input = Arrays.copyOf(input, subArgs.length);
             input[input.length - 1] = message;
         }
 
         return input;
+    }
+
+    private boolean equalsOne(String argument){
+        return argument.equals("{message}") || argument.equals("{name}");
     }
 
     private String getSerializedValue(Method method) {
