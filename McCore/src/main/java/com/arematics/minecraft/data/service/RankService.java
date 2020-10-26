@@ -3,8 +3,7 @@ package com.arematics.minecraft.data.service;
 import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.repository.RankRepository;
 import com.arematics.minecraft.data.share.repository.PermissionRepository;
-import com.arematics.minecraft.data.global.model.Rank;
-import com.arematics.minecraft.data.global.repository.RankRepository;
+import org.bukkit.Bukkit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachePut;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class RankService {
@@ -42,6 +40,7 @@ public class RankService {
 
     @CachePut(cacheNames = "rankCache")
     public Rank getDefaultRank(){
+        Bukkit.broadcastMessage(modeName);
         Optional<Rank> rank = repository.findById(1L);
         return rank.orElseGet(() -> repository.save(new Rank(1L, "User", "U", "§b",
                 new Timestamp(System.currentTimeMillis()), new HashSet<>())));

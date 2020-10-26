@@ -1,7 +1,7 @@
-package com.arematics.minecraft.data.service.chat;
+package com.arematics.minecraft.data.service;
 
-import com.arematics.minecraft.data.chat.theme.ChatTheme;
-import com.arematics.minecraft.data.chat.ChatThemeRepository;
+import com.arematics.minecraft.data.global.model.ChatTheme;
+import com.arematics.minecraft.data.global.repository.ChatThemeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +31,7 @@ public class ChatThemeService {
     }
 
     public ChatTheme save(ChatTheme theme) {
-        ChatTheme theme2 = repository.save(theme);
-        return theme2;
+        return repository.save(theme);
     }
 
 }

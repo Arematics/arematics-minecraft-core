@@ -36,9 +36,7 @@ public class UserUpdateListener implements Listener {
         user.setLastIp(player.getAddress().getAddress().getHostAddress());
         user.setLastIpChange(current);
         user.setLastJoin(current);
-        this.userService.update(user);
         ChatAPI.login(player);
-
         this.userService.update(user);
     }
 }

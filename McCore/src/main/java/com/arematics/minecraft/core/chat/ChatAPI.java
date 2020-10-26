@@ -5,11 +5,11 @@ import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.controller.ChatController;
 import com.arematics.minecraft.core.chat.controller.ChatThemeController;
 import com.arematics.minecraft.core.chat.controller.PlaceholderController;
-import com.arematics.minecraft.data.chat.placeholder.GlobalPlaceholder;
-import com.arematics.minecraft.data.chat.placeholder.GlobalPlaceholderActions;
-import com.arematics.minecraft.data.chat.placeholder.ThemePlaceholder;
-import com.arematics.minecraft.data.chat.theme.ChatTheme;
-import com.arematics.minecraft.data.chat.theme.ChatThemeUser;
+import com.arematics.minecraft.data.global.model.GlobalPlaceholder;
+import com.arematics.minecraft.data.global.model.GlobalPlaceholderActions;
+import com.arematics.minecraft.data.global.model.ThemePlaceholder;
+import com.arematics.minecraft.data.global.model.ChatTheme;
+import com.arematics.minecraft.data.global.model.ChatThemeUser;
 import com.arematics.minecraft.data.service.UserService;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -40,7 +40,6 @@ public class ChatAPI {
         if (!getChatThemeController().loadThemes()) {
             System.out.println("SYSTEM HAT THEMES INIT");
             getChatThemeController().createAndSaveDefaults();
-            getChatThemeController().loadThemes();
         } else {
             System.out.println("SYSTEM HAT THEMES LOAD");
         }

@@ -5,7 +5,7 @@ import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.data.chat.theme.ChatTheme;
+import com.arematics.minecraft.data.global.model.ChatTheme;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;

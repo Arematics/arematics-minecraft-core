@@ -1,10 +1,11 @@
-package com.arematics.minecraft.data.chat.placeholder;
+package com.arematics.minecraft.data.global.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.entity.Player;
 import org.hibernate.annotations.Formula;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -20,6 +21,7 @@ import java.util.function.Supplier;
 public class GlobalPlaceholder {
 
     @Id
+    @Column(name = "placeholder_key")
     private String placeholderKey;
     @Formula(value = "concat('%', placeholder_key, '%')")
     private String placeholderMatch;

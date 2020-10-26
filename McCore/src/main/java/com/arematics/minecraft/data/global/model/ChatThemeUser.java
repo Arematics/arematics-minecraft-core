@@ -1,4 +1,4 @@
-package com.arematics.minecraft.data.chat.theme;
+package com.arematics.minecraft.data.global.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

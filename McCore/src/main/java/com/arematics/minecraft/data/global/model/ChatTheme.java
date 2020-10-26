@@ -1,7 +1,5 @@
-package com.arematics.minecraft.data.chat.theme;
+package com.arematics.minecraft.data.global.model;
 
-import com.arematics.minecraft.data.chat.placeholder.GlobalPlaceholderActions;
-import com.arematics.minecraft.data.chat.placeholder.ThemePlaceholder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

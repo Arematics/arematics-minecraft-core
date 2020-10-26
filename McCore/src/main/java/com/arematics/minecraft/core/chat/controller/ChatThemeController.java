@@ -3,14 +3,14 @@ package com.arematics.minecraft.core.chat.controller;
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.ChatAPI;
-import com.arematics.minecraft.data.chat.placeholder.GlobalPlaceholderActions;
-import com.arematics.minecraft.data.chat.message.ChatClickAction;
-import com.arematics.minecraft.data.chat.message.ChatHoverAction;
-import com.arematics.minecraft.data.chat.placeholder.ThemePlaceholder;
-import com.arematics.minecraft.data.chat.theme.ChatTheme;
-import com.arematics.minecraft.data.chat.theme.ChatThemeUser;
-import com.arematics.minecraft.data.service.chat.ChatThemeService;
-import com.arematics.minecraft.data.service.chat.ChatThemeUserService;
+import com.arematics.minecraft.data.global.model.GlobalPlaceholderActions;
+import com.arematics.minecraft.data.global.model.ChatClickAction;
+import com.arematics.minecraft.data.global.model.ChatHoverAction;
+import com.arematics.minecraft.data.global.model.ThemePlaceholder;
+import com.arematics.minecraft.data.global.model.ChatTheme;
+import com.arematics.minecraft.data.global.model.ChatThemeUser;
+import com.arematics.minecraft.data.service.ChatThemeService;
+import com.arematics.minecraft.data.service.ChatThemeUserService;
 import com.arematics.minecraft.core.messaging.advanced.ClickAction;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import lombok.Getter;
@@ -32,7 +32,6 @@ public class ChatThemeController {
     public boolean loadThemes() {
         ChatThemeService service = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeService.class);
         List<ChatTheme> savedThemes = service.getAll();
-        Bukkit.broadcastMessage(savedThemes.size() + " themes loaded from database");
         System.out.println(savedThemes.size());
         if (savedThemes.size() < 1) {
             return false;
@@ -96,6 +95,8 @@ public class ChatThemeController {
         }};
         ChatTheme defaultTheme = ChatAPI.createTheme("default", defaultDynamicAndActions, themePlaceholders, "%arematics% %rank% %name%%chatDelim% %chatMessage%");
         ChatTheme debugTheme = ChatAPI.createTheme("debug", debugDynamicAndActions, themePlaceholdersDebug, "%debug% %rank% %name%%chatDelim% %chatMessage%");
+        registerTheme(defaultTheme.getThemeKey(), defaultTheme);
+        registerTheme(debugTheme.getThemeKey(), debugTheme);
     }
 
     /**

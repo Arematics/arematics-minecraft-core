@@ -6,7 +6,9 @@ create table if not exists permission
 (
     permission varchar(64) not null
         primary key,
-    description varchar(64) not null
+    description varchar(64) not null,
+    mode varchar(255) not null
+
 );
 
 create table if not exists permission_aud
@@ -14,6 +16,7 @@ create table if not exists permission_aud
     permission varchar(64) not null,
     rev int not null,
     description varchar(120) null,
+    mode varchar(255) not null,
     primary key (permission, rev),
     constraint permission_aud_rev_uindex
         unique (rev)
