@@ -1,9 +1,9 @@
 package com.arematics.minecraft.core.chat.controller;
 
 import com.arematics.minecraft.core.chat.ChatAPI;
-import com.arematics.minecraft.data.model.placeholder.GlobalPlaceholderActions;
-import com.arematics.minecraft.data.model.placeholder.ThemePlaceholder;
-import com.arematics.minecraft.data.model.theme.ChatTheme;
+import com.arematics.minecraft.data.chat.placeholder.GlobalPlaceholderActions;
+import com.arematics.minecraft.data.chat.placeholder.ThemePlaceholder;
+import com.arematics.minecraft.data.chat.theme.ChatTheme;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageAction;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;

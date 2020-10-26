@@ -1,4 +1,4 @@
-package com.arematics.minecraft.data.model.message;
+package com.arematics.minecraft.data.chat.message;
 
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import lombok.Data;

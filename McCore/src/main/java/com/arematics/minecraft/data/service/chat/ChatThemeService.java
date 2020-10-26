@@ -1,7 +1,7 @@
 package com.arematics.minecraft.data.service.chat;
 
-import com.arematics.minecraft.data.model.theme.ChatTheme;
-import com.arematics.minecraft.data.repository.chat.ChatThemeRepository;
+import com.arematics.minecraft.data.chat.theme.ChatTheme;
+import com.arematics.minecraft.data.chat.ChatThemeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,5 +1,6 @@
-package com.arematics.minecraft.data.model;
+package com.arematics.minecraft.data.global.model;
 
+import com.arematics.minecraft.data.share.model.Permission;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

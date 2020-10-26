@@ -1,4 +1,4 @@
-package com.arematics.minecraft.data.model.placeholder;
+package com.arematics.minecraft.data.chat.placeholder;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

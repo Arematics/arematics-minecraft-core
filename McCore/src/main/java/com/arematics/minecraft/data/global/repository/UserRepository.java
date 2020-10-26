@@ -1,6 +1,6 @@
-package com.arematics.minecraft.data.repository;
+package com.arematics.minecraft.data.global.repository;
 
-import com.arematics.minecraft.data.model.User;
+import com.arematics.minecraft.data.global.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

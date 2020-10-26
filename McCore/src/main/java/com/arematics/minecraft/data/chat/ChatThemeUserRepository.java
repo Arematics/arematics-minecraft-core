@@ -1,6 +1,6 @@
-package com.arematics.minecraft.data.repository.chat;
+package com.arematics.minecraft.data.chat;
 
-import com.arematics.minecraft.data.model.theme.ChatThemeUser;
+import com.arematics.minecraft.data.chat.theme.ChatThemeUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

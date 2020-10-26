@@ -3,7 +3,7 @@ package com.arematics.minecraft.core.hooks;
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.annotations.Perm;
-import com.arematics.minecraft.data.model.Permission;
+import com.arematics.minecraft.data.share.model.Permission;
 import com.arematics.minecraft.data.service.PermissionService;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.plugin.java.JavaPlugin;

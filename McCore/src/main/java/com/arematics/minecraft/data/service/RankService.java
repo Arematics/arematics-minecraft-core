@@ -1,7 +1,7 @@
 package com.arematics.minecraft.data.service;
 
-import com.arematics.minecraft.data.model.Rank;
-import com.arematics.minecraft.data.repository.RankRepository;
+import com.arematics.minecraft.data.global.model.Rank;
+import com.arematics.minecraft.data.global.repository.RankRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;

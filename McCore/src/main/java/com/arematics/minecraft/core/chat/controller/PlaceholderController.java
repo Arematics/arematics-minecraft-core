@@ -3,7 +3,7 @@ package com.arematics.minecraft.core.chat.controller;
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.ChatAPI;
-import com.arematics.minecraft.data.model.placeholder.GlobalPlaceholder;
+import com.arematics.minecraft.data.chat.placeholder.GlobalPlaceholder;
 import com.arematics.minecraft.data.service.chat.PlaceholderService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

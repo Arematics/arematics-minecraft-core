@@ -1,4 +1,4 @@
-package com.arematics.minecraft.data.model;
+package com.arematics.minecraft.data.share.model;
 
 import com.arematics.minecraft.core.annotations.Perm;
 import lombok.AllArgsConstructor;

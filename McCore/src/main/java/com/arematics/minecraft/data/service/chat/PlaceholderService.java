@@ -1,9 +1,9 @@
 package com.arematics.minecraft.data.service.chat;
 
-import com.arematics.minecraft.data.model.placeholder.GlobalPlaceholder;
-import com.arematics.minecraft.data.model.placeholder.ThemePlaceholder;
-import com.arematics.minecraft.data.repository.chat.DynamicPlaceholderRepository;
-import com.arematics.minecraft.data.repository.chat.ThemePlaceholderRepository;
+import com.arematics.minecraft.data.chat.placeholder.GlobalPlaceholder;
+import com.arematics.minecraft.data.chat.placeholder.ThemePlaceholder;
+import com.arematics.minecraft.data.chat.DynamicPlaceholderRepository;
+import com.arematics.minecraft.data.chat.ThemePlaceholderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

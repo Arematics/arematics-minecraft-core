@@ -3,7 +3,7 @@ package com.arematics.minecraft.core.listener;
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.ChatAPI;
-import com.arematics.minecraft.data.model.User;
+import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.UserService;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

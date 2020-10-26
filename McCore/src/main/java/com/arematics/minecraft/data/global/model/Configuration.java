@@ -1,4 +1,4 @@
-package com.arematics.minecraft.data.model;
+package com.arematics.minecraft.data.global.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

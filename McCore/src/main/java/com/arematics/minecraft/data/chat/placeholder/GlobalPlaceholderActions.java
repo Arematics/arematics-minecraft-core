@@ -1,7 +1,7 @@
-package com.arematics.minecraft.data.model.placeholder;
+package com.arematics.minecraft.data.chat.placeholder;
 
-import com.arematics.minecraft.data.model.message.ChatClickAction;
-import com.arematics.minecraft.data.model.message.ChatHoverAction;
+import com.arematics.minecraft.data.chat.message.ChatClickAction;
+import com.arematics.minecraft.data.chat.message.ChatHoverAction;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

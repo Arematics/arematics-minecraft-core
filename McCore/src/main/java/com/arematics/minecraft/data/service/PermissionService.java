@@ -1,7 +1,7 @@
 package com.arematics.minecraft.data.service;
 
-import com.arematics.minecraft.data.model.Permission;
-import com.arematics.minecraft.data.repository.PermissionRepository;
+import com.arematics.minecraft.data.share.model.Permission;
+import com.arematics.minecraft.data.share.repository.PermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;

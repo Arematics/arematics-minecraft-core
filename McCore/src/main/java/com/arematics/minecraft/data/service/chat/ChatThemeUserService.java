@@ -1,9 +1,9 @@
 package com.arematics.minecraft.data.service.chat;
 
 import com.arematics.minecraft.core.chat.ChatAPI;
-import com.arematics.minecraft.data.model.theme.ChatTheme;
-import com.arematics.minecraft.data.model.theme.ChatThemeUser;
-import com.arematics.minecraft.data.repository.chat.ChatThemeUserRepository;
+import com.arematics.minecraft.data.chat.theme.ChatTheme;
+import com.arematics.minecraft.data.chat.theme.ChatThemeUser;
+import com.arematics.minecraft.data.chat.ChatThemeUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;

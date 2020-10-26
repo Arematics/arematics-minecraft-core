@@ -1,7 +1,7 @@
 package com.arematics.minecraft.data.service;
 
-import com.arematics.minecraft.data.model.User;
-import com.arematics.minecraft.data.repository.UserRepository;
+import com.arematics.minecraft.data.global.model.User;
+import com.arematics.minecraft.data.global.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
