@@ -4,11 +4,20 @@ import com.arematics.minecraft.core.data.model.message.ChatClickAction;
 import com.arematics.minecraft.core.data.model.message.ChatHoverAction;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
-@NoArgsConstructor
+
 @Entity
+@NoArgsConstructor
 @Data
 @Table(name = "theme_placeholder")
 public class ThemePlaceholder {
@@ -18,7 +27,7 @@ public class ThemePlaceholder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String placeholderKey;
-    // with % %
+    @Formula(value = "concat('%', placeholder_key, '%')")
     private String placeholderMatch;
     private String value;
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -26,8 +35,4 @@ public class ThemePlaceholder {
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private ChatHoverAction hoverAction;
 
-    @Transient
-    private boolean isStatic = true;
-    @Transient
-    private String belongingThemeKey;
 }

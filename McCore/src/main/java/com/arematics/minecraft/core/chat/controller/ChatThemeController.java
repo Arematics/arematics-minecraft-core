@@ -3,10 +3,9 @@ package com.arematics.minecraft.core.chat.controller;
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.ChatAPI;
-import com.arematics.minecraft.core.chat.model.GlobalPlaceholderActions;
+import com.arematics.minecraft.core.data.model.placeholder.GlobalPlaceholderActions;
 import com.arematics.minecraft.core.data.model.message.ChatClickAction;
 import com.arematics.minecraft.core.data.model.message.ChatHoverAction;
-import com.arematics.minecraft.core.data.model.placeholder.GlobalPlaceholder;
 import com.arematics.minecraft.core.data.model.placeholder.ThemePlaceholder;
 import com.arematics.minecraft.core.data.model.theme.ChatTheme;
 import com.arematics.minecraft.core.data.model.theme.ChatThemeUser;
@@ -16,6 +15,7 @@ import com.arematics.minecraft.core.messaging.advanced.ClickAction;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
@@ -32,24 +32,27 @@ public class ChatThemeController {
     public boolean loadThemes() {
         ChatThemeService service = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeService.class);
         List<ChatTheme> savedThemes = service.getAll();
-        if (null == savedThemes || savedThemes.size() < 1) {
+        Bukkit.broadcastMessage(savedThemes.size() + " themes loaded from database");
+        System.out.println(savedThemes.size());
+        if (savedThemes.size() < 1) {
             return false;
         }
-        savedThemes.forEach(theme -> {
-            ChatAPI.registerTheme(theme.getThemeKey(), theme);
-        });
+        savedThemes.forEach(theme -> registerTheme(theme.getThemeKey(), theme));
         return true;
 
     }
 
     public GlobalPlaceholderActions buildActions(String name, ChatHoverAction hoverAction, ChatClickAction clickAction) {
         GlobalPlaceholderActions actions = new GlobalPlaceholderActions();
-        actions.setPlaceholderName(name);
+        actions.setPlaceholderKey(name);
         actions.setHoverAction(hoverAction);
         actions.setClickAction(clickAction);
         return actions;
     }
 
+    /**
+     * sets up default themes and saves them to database, doesnt register them in system
+     */
     public void createAndSaveDefaults() {
         List<GlobalPlaceholderActions> defaultDynamicAndActions = new ArrayList<GlobalPlaceholderActions>() {{
             GlobalPlaceholderActions rank = buildActions("rank", null, null);
@@ -63,9 +66,9 @@ public class ChatThemeController {
         }};
 
         List<GlobalPlaceholderActions> debugDynamicAndActions = new ArrayList<GlobalPlaceholderActions>() {{
-            GlobalPlaceholderActions rank = buildActions("rank",  new ChatHoverAction(HoverAction.SHOW_TEXT, "%key% to %value%"), null);
-            GlobalPlaceholderActions name = buildActions("name",  new ChatHoverAction(HoverAction.SHOW_TEXT, "%key% to %value%"), null);
-            GlobalPlaceholderActions chatMessage = buildActions("chatMessage",  new ChatHoverAction(HoverAction.SHOW_TEXT, "%key% to %value%"), null);
+            GlobalPlaceholderActions rank = buildActions("rank",  new ChatHoverAction(HoverAction.SHOW_TEXT, "%placeholderMatch% to %value%"), null);
+            GlobalPlaceholderActions name = buildActions("name",  new ChatHoverAction(HoverAction.SHOW_TEXT, "%placeholderMatch% to %value%"), null);
+            GlobalPlaceholderActions chatMessage = buildActions("chatMessage",  new ChatHoverAction(HoverAction.SHOW_TEXT, "%placeholderMatch% to %value%"), null);
             add(rank);
             add(name);
             add(chatMessage);
@@ -73,7 +76,6 @@ public class ChatThemeController {
 
         Set<ThemePlaceholder> themePlaceholders = new HashSet<ThemePlaceholder>() {{
             ThemePlaceholder chatDelim = new ThemePlaceholder();
-            chatDelim.setBelongingThemeKey("default");
             chatDelim.setPlaceholderMatch("%chatDelim%");
             chatDelim.setPlaceholderKey("chatDelim");
             chatDelim.setValue(":");
@@ -81,22 +83,19 @@ public class ChatThemeController {
         }};
         Set<ThemePlaceholder> themePlaceholdersDebug = new HashSet<ThemePlaceholder>() {{
             ThemePlaceholder chatDelim = new ThemePlaceholder();
-            chatDelim.setBelongingThemeKey("debug");
             chatDelim.setPlaceholderMatch("%chatDelim%");
             chatDelim.setPlaceholderKey("chatDelim");
             chatDelim.setValue(":");
             ThemePlaceholder debug = new ThemePlaceholder();
-            debug.setBelongingThemeKey("debug");
             debug.setPlaceholderMatch("%debug%");
             debug.setPlaceholderKey("debug");
             debug.setValue("[Debug]");
-            debug.setHoverAction(new ChatHoverAction(HoverAction.SHOW_TEXT, "debug"));
+            debug.setHoverAction(new ChatHoverAction(HoverAction.SHOW_TEXT, "name: %placeholderName% match: %placeholderMatch%"));
             add(debug);
             add(chatDelim);
         }};
         ChatTheme defaultTheme = ChatAPI.createTheme("default", defaultDynamicAndActions, themePlaceholders, "%arematics% %rank% %name%%chatDelim% %chatMessage%");
         ChatTheme debugTheme = ChatAPI.createTheme("debug", debugDynamicAndActions, themePlaceholdersDebug, "%debug% %rank% %name%%chatDelim% %chatMessage%");
-        loadThemes();
     }
 
     /**
@@ -111,10 +110,9 @@ public class ChatThemeController {
         chatTheme.setThemeKey(themeKey);
         chatTheme.setThemePlaceholders(themePlaceholders);
         chatTheme.setFormat(format);
-        chatTheme.setDynamicWrapper(dynamicPlaceholderActions);
+        chatTheme.setGlobalPlaceholderActions(dynamicPlaceholderActions);
         ChatThemeService service = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeService.class);
-        ChatTheme saved = service.save(chatTheme);
-        return saved;
+        return service.save(chatTheme);
     }
 
     public ChatTheme getTheme(String name) {
@@ -133,7 +131,8 @@ public class ChatThemeController {
      */
     public ChatThemeUser register(Player player) {
         ChatThemeUser user = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeUserService.class).getOrCreate(player.getUniqueId());
-        ChatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().add(user);
+        ChatTheme theme = ChatAPI.getTheme(user.getActiveTheme().getThemeKey());
+        theme.getActiveUsers().add(user);
         getUsers().put(player.getUniqueId(), user);
         return user;
     }
@@ -142,7 +141,6 @@ public class ChatThemeController {
         ChatThemeUserService service = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeUserService.class);
         ChatThemeUser user = getUser(player);
         service.save(user);
-        user.getActiveTheme().getActiveUsers().remove(user);
         ChatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().remove(user);
         getUsers().remove(player.getUniqueId());
     }

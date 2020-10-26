@@ -4,6 +4,8 @@ import com.arematics.minecraft.core.messaging.advanced.ClickAction;
 import com.arematics.minecraft.core.messaging.advanced.Format;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import com.arematics.minecraft.core.messaging.advanced.JsonColor;
+import lombok.Getter;
+
 
 public interface AdvancedMessageAction {
     AdvancedMessageAction setHover(HoverAction action, String value);

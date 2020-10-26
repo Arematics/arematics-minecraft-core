@@ -1,10 +1,7 @@
 package com.arematics.minecraft.core.chat.controller;
 
 import com.arematics.minecraft.core.chat.ChatAPI;
-import com.arematics.minecraft.core.chat.model.GlobalPlaceholderActions;
-import com.arematics.minecraft.core.data.model.message.ChatClickAction;
-import com.arematics.minecraft.core.data.model.message.ChatHoverAction;
-import com.arematics.minecraft.core.data.model.placeholder.GlobalPlaceholder;
+import com.arematics.minecraft.core.data.model.placeholder.GlobalPlaceholderActions;
 import com.arematics.minecraft.core.data.model.placeholder.ThemePlaceholder;
 import com.arematics.minecraft.core.data.model.theme.ChatTheme;
 import com.arematics.minecraft.core.messaging.Messages;
@@ -32,15 +29,19 @@ public class ChatController {
     public void chat(Player player, String message) {
         setChatMessage(message);
         ChatAPI.getChatThemeController().getThemes().values().forEach(chatTheme -> {
+            if (chatTheme.getActiveUsers().size() < 1) {
+                return;
+            }
             AdvancedMessageReplace advancedMessageReplace = this.createMessage(chatTheme);
             chatTheme.getThemePlaceholders().forEach(themePlaceholder -> {
                 AdvancedMessageAction action = advancedMessageReplace.replace(themePlaceholder.getPlaceholderKey(), themePlaceholder.getValue());
                 applyThemeActions(themePlaceholder, action);
                 action.END();
             });
-            chatTheme.getDynamicWrapper().forEach(globalPlaceholderActions -> {
-                AdvancedMessageAction action = advancedMessageReplace.replace(globalPlaceholderActions.getPlaceholderName(), chatTheme.getPlaceholderThemeValues().get(globalPlaceholderActions.getPlaceholderName()).get(player).get());
-                applyDynamicActions(globalPlaceholderActions, action);
+            chatTheme.getGlobalPlaceholderActions().forEach(globalPlaceholderActions -> {
+                AdvancedMessageAction action = advancedMessageReplace.replace(globalPlaceholderActions.getPlaceholderKey(),
+                        ChatAPI.getPlaceholder(globalPlaceholderActions.getPlaceholderKey()).getValues().get(player).get());
+                applyGlobalActions(globalPlaceholderActions, action);
                 action.END();
             });
             advancedMessageReplace.handle();
@@ -66,27 +67,53 @@ public class ChatController {
      */
     private void applyThemeActions(ThemePlaceholder themePlaceholder, AdvancedMessageAction action) {
         if (themePlaceholder.getHoverAction() != null) {
-            action.setHover(themePlaceholder.getHoverAction().getAction(), themePlaceholder.getHoverAction().getValue());
+            action.setHover(themePlaceholder.getHoverAction().getAction(), injectPlaceholderKeys(themePlaceholder.getHoverAction().getValue(), themePlaceholder));
         }
         if (themePlaceholder.getClickAction() != null) {
-            action.setClick(themePlaceholder.getClickAction().getAction(), themePlaceholder.getClickAction().getValue());
+            action.setClick(themePlaceholder.getClickAction().getAction(), injectPlaceholderKeys(themePlaceholder.getClickAction().getValue(), themePlaceholder));
         }
     }
 
     /**
      * get placeholder action values from theme and applies it
      *
-     * @param globalPlaceholderActions  to get actions from
-     * @param action injector
+     * @param globalPlaceholderActions to get actions from
+     * @param action                   injector
      */
-    private void applyDynamicActions(GlobalPlaceholderActions globalPlaceholderActions, AdvancedMessageAction action) {
-        if(globalPlaceholderActions.getHoverAction() != null) {
-            action.setHover(globalPlaceholderActions.getHoverAction().getAction(), globalPlaceholderActions.getHoverAction().getValue());
+    private void applyGlobalActions(GlobalPlaceholderActions globalPlaceholderActions, AdvancedMessageAction action) {
+        if (globalPlaceholderActions.getHoverAction() != null) {
+            action.setHover(globalPlaceholderActions.getHoverAction().getAction(),
+                    injectPlaceholderKeys(globalPlaceholderActions.getHoverAction().getValue(),
+                            PlaceholderController.getPlaceholderMatch(globalPlaceholderActions.getPlaceholderKey())));
         }
-        if(globalPlaceholderActions.getClickAction() != null) {
-            action.setClick(globalPlaceholderActions.getClickAction().getAction(), globalPlaceholderActions.getClickAction().getValue());
+        if (globalPlaceholderActions.getClickAction() != null) {
+            action.setClick(globalPlaceholderActions.getClickAction().getAction(),
+                    injectPlaceholderKeys(globalPlaceholderActions.getClickAction().getValue(),
+                            PlaceholderController.getPlaceholderMatch(globalPlaceholderActions.getPlaceholderKey())));
         }
     }
 
+    /**
+     * allows for using %key% to actual key in hover and click messages
+     *
+     * @param actionMessage to replace key
+     * @param value         to inject
+     * @return replaced action value
+     */
+    private String injectPlaceholderKeys(String actionMessage, String value) {
+        return actionMessage.replace(PlaceholderController.getPlaceholderMatch("placeholderMatch"), value);
+    }
 
+    /**
+     * allows for using placeholderKey and placeholderName to replace in hover and click messages,
+     * this supports more replacements but only works for themeplaceholders for now
+     *
+     * @param actionMessage    to replace key
+     * @param themePlaceholder belonging placeholder
+     * @return replaced action value
+     */
+    private String injectPlaceholderKeys(String actionMessage, ThemePlaceholder themePlaceholder) {
+        return actionMessage.replace(PlaceholderController.getPlaceholderMatch("placeholderMatch"), themePlaceholder.getPlaceholderMatch()).
+                replace(PlaceholderController.getPlaceholderMatch("placeholderName"), themePlaceholder.getPlaceholderKey());
+    }
 }

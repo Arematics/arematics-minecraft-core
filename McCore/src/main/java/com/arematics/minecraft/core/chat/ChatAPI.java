@@ -5,13 +5,14 @@ import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.controller.ChatController;
 import com.arematics.minecraft.core.chat.controller.ChatThemeController;
 import com.arematics.minecraft.core.chat.controller.PlaceholderController;
-import com.arematics.minecraft.core.chat.model.GlobalPlaceholderActions;
 import com.arematics.minecraft.core.data.model.placeholder.GlobalPlaceholder;
+import com.arematics.minecraft.core.data.model.placeholder.GlobalPlaceholderActions;
 import com.arematics.minecraft.core.data.model.placeholder.ThemePlaceholder;
 import com.arematics.minecraft.core.data.model.theme.ChatTheme;
 import com.arematics.minecraft.core.data.model.theme.ChatThemeUser;
 import com.arematics.minecraft.core.data.service.UserService;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
@@ -30,14 +31,23 @@ public class ChatAPI {
 
     // bootstrap shit
     public static void bootstrap() {
-        getPlaceholderController().initPlaceholders();
+        if (!getPlaceholderController().loadGlobalPlaceholders()) {
+            System.out.println("SYSTEM HAT PLACEHOLDER INIT");
+            getPlaceholderController().initPlaceholders();
+        } else {
+            System.out.println("SYSTEM HAT PLACEHOLDER LOAD");
+        }
         if (!getChatThemeController().loadThemes()) {
+            System.out.println("SYSTEM HAT THEMES INIT");
             getChatThemeController().createAndSaveDefaults();
+            getChatThemeController().loadThemes();
+        } else {
+            System.out.println("SYSTEM HAT THEMES LOAD");
         }
     }
 
     public static void login(Player player) {
-        ChatThemeUser user = getChatThemeController().register(player);
+        getChatThemeController().register(player);
         supply(player);
     }
 
@@ -51,16 +61,13 @@ public class ChatAPI {
         supplyPlaceholders("rank", player, () -> service.getUserByUUID(player.getUniqueId()).getDisplayRank().getName());
         supplyPlaceholders("name", player, player::getDisplayName);
         supplyPlaceholders("arematics", player, () -> "§0[§1Arem§9atics§0]§r");
-        supplyPlaceholders("api", player, () -> "indev");
     }
 
     public static void supplyPlaceholders(String placeholderName, Player player, Supplier<String> supplier) {
-        ChatAPI.getChatThemeController().getThemes().values().forEach(theme -> {
-            Map<String, Map<Player, Supplier<String>>> placeholderThemeValues = theme.getPlaceholderThemeValues();
-            Map<Player, Supplier<String>> playerSupplierMap = placeholderThemeValues.getOrDefault(placeholderName, new HashMap<>());
-            playerSupplierMap.put(player, supplier);
-            placeholderThemeValues.put(placeholderName, playerSupplierMap);
-        });
+        GlobalPlaceholder placeholder = getPlaceholder(placeholderName);
+        Bukkit.broadcastMessage(placeholder.toString());
+        Map<Player, Supplier<String>> placeholderValues = placeholder.getValues();
+        placeholderValues.put(player, supplier);
     }
 
     // CHAT
@@ -94,8 +101,12 @@ public class ChatAPI {
     }
 
     // PLACEHOLDER
-    public static void registerPlaceholder(String placeholder) {
-        getPlaceholderController().registerDynamicPlaceholder(placeholder);
+    public static void registerPlaceholder(GlobalPlaceholder placeholder) {
+        getPlaceholderController().registerPlaceholder(placeholder);
+    }
+
+    public static GlobalPlaceholder createPlaceholder(String placeholderKey) {
+        return getPlaceholderController().createPlaceholder(placeholderKey);
     }
 
 

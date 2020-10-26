@@ -4,10 +4,16 @@ import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
-@NoArgsConstructor
+
 @Data
+@NoArgsConstructor
 @Entity
 public class ChatHoverAction {
 

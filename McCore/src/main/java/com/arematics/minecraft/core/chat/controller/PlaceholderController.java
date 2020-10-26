@@ -9,7 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Setter
@@ -19,31 +21,70 @@ public class PlaceholderController {
 
     public static final String PLACEHOLDER_DELIMITER = "%";
     private final Map<String, GlobalPlaceholder> placeholders = new HashMap<>();
+    private final List<String> reservedPlaceholderKeys = new ArrayList<>();
 
     public void initPlaceholders() {
-        ChatAPI.registerPlaceholder("rank");
-        ChatAPI.registerPlaceholder("name");
-        ChatAPI.registerPlaceholder("chatMessage");
-        ChatAPI.registerPlaceholder("arematics");
+        ChatAPI.registerPlaceholder(createPlaceholder("rank"));
+        ChatAPI.registerPlaceholder(createPlaceholder("name"));
+        ChatAPI.registerPlaceholder(createPlaceholder("chatMessage"));
+        ChatAPI.registerPlaceholder(createPlaceholder("arematics"));
+        getReservedPlaceholderKeys().add("placeholderName");
+        getReservedPlaceholderKeys().add("placeholderMatch");
+        getReservedPlaceholderKeys().add("value");
     }
 
-    public String convertToPlaceholder(String placeholder) {
-        return PLACEHOLDER_DELIMITER + placeholder + PLACEHOLDER_DELIMITER;
+
+    public static String getPlaceholderMatch(String placeholderKey) {
+        return PLACEHOLDER_DELIMITER + placeholderKey + PLACEHOLDER_DELIMITER;
     }
 
-    public GlobalPlaceholder getPlaceholder(String placeholder) {
-        return (placeholder.startsWith(PLACEHOLDER_DELIMITER) && placeholder.endsWith(PLACEHOLDER_DELIMITER))
-                ? placeholders.get(placeholder) : placeholders.get(convertToPlaceholder(placeholder));
+    public GlobalPlaceholder getPlaceholder(String placeholderKey) {
+       return getPlaceholders().get(placeholderKey);
     }
 
-    public void registerDynamicPlaceholder(String placeholder) {
-        String placeholderFull = convertToPlaceholder(placeholder);
-        GlobalPlaceholder globalPlaceholder = new GlobalPlaceholder();
-        globalPlaceholder.setPlaceholderKey(placeholder);
-        globalPlaceholder.setPlaceholderMatch(placeholderFull);
+    private void validatePlaceholderKey(String placeholderKey) {
+        if (placeholders.containsKey(placeholderKey) || reservedPlaceholderKeys.contains(placeholderKey)) {
+            throw new UnsupportedOperationException("Der Placeholder: " + placeholderKey + " ist bereits registriert!");
+        } else {
+            getReservedPlaceholderKeys().add(placeholderKey);
+        }
+    }
+
+    /**
+     * saves and registers placeholder
+     * @param placeholder created by createPlaceholder
+     */
+    public void registerPlaceholder(GlobalPlaceholder placeholder) {
+        validatePlaceholderKey(placeholder.getPlaceholderKey());
         PlaceholderService service = Boots.getBoot(CoreBoot.class).getContext().getBean(PlaceholderService.class);
-        GlobalPlaceholder saved = service.save(globalPlaceholder);
-        this.placeholders.put(placeholderFull, saved);
+        GlobalPlaceholder saved = service.save(placeholder);
+        getPlaceholders().put(placeholder.getPlaceholderKey(), saved);
+    }
+
+    /**
+     * creates placeholder object doesnt save or register
+     * @param placeholderKey key
+     * @return placeholder object
+     */
+    public GlobalPlaceholder createPlaceholder(String placeholderKey) {
+        GlobalPlaceholder placeholder = new GlobalPlaceholder();
+        placeholder.setPlaceholderKey(placeholderKey);
+        placeholder.setPlaceholderMatch(getPlaceholderMatch(placeholderKey));
+        return placeholder;
+    }
+
+    /**
+     * loads and inits placeholders
+     * @return if database contains placeholders, otherwise load defaults
+     */
+    public boolean loadGlobalPlaceholders() {
+        PlaceholderService service = Boots.getBoot(CoreBoot.class).getContext().getBean(PlaceholderService.class);
+        List<GlobalPlaceholder> placeholders = service.loadGlobals();
+        if (null == placeholders || placeholders.size() < 3) {
+            return false;
+        }
+        placeholders.forEach(this::registerPlaceholder);
+        return true;
     }
 
 }

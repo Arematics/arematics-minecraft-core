@@ -1,29 +1,30 @@
 package com.arematics.minecraft.core.data.model.placeholder;
 
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.bukkit.entity.Player;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
 @Entity
 @Table(name = "global_placeholder")
 public class GlobalPlaceholder {
 
-    // without surrounding % %
     @Id
     private String placeholderKey;
-    // with % %
+    @Formula(value = "concat('%', placeholder_key, '%')")
     private String placeholderMatch;
 
     @Transient
-    private boolean isStatic = false;
-
+    private Map<Player, Supplier<String>> values = new HashMap<>();
 
 }
