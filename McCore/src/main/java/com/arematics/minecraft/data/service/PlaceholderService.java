@@ -25,6 +25,7 @@ public class PlaceholderService {
         return dynamicRepository.findAll();
     }
 
+
     public GlobalPlaceholder getGlobalPlaceholder(String placeholderKey) {
         return dynamicRepository.findById(placeholderKey).orElse(null);
     }

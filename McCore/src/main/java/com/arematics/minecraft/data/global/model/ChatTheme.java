@@ -16,10 +16,10 @@ public class ChatTheme {
     private String themeKey;
     private String format;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "theme_mapping")
     private Set<ThemePlaceholder> themePlaceholders = new HashSet<>();
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<GlobalPlaceholderActions> globalPlaceholderActions = new ArrayList<>();
 
     @Transient

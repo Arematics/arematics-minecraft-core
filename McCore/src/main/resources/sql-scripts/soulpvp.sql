@@ -215,5 +215,5 @@ create table hibernate_sequence
     next_val bigint null
 );
 
-INSERT INTO hibernate_sequence (next_val) VALUES (0);
+INSERT INTO hibernate_sequence (next_val) VALUES (1);
 
