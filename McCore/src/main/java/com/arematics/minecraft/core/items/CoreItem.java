@@ -16,8 +16,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -43,6 +45,13 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
     public static CoreItem create(ItemStack item){
         if(item == null || item.getType() == Material.AIR) return null;
         return new CoreItem(item);
+    }
+
+    public static CoreItem[] create(ItemStack[] items){
+        return Arrays.stream(items)
+                .map(CoreItem::create)
+                .collect(Collectors.toList())
+                .toArray(new CoreItem[]{});
     }
 
     private final NBTItem meta;
@@ -143,10 +152,7 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
     }
 
     public void updateTo(Player player){
-        System.out.println("APPLY");
-        this.applyNBT();
         player.setItemInHand(this);
-        System.out.println("DONE");
     }
 
     @Override

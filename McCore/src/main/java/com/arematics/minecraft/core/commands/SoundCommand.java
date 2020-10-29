@@ -18,6 +18,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @PluginCommand(aliases = {"s"})
 @Perm(permission = "sound", description = "Allow usage to full /sound Command")
@@ -28,11 +30,15 @@ public class SoundCommand extends CoreCommand {
     }
 
     @Default
-    public boolean sendInfo(CommandSender sender){
+    @Override
+    public boolean onDefaultExecute(CommandSender sender){
+        List<String> subCommands = super.getSubCommands();
         Messages.create("cmd_not_valid")
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
-                .replace("cmd_usage", "\n/sound list\n/sound list <startsWith>\n/sound <Name>")
+                .eachReplace("cmd_usage", subCommands.toArray(new String[]{}))
+                .setHover(HoverAction.SHOW_TEXT, "Open to chat")
+                .setClick(ClickAction.SUGGEST_COMMAND, "/sound %value%")
                 .END()
                 .handle();
         return true;

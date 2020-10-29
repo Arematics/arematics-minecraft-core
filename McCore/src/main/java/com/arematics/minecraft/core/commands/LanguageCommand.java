@@ -24,13 +24,14 @@ public class LanguageCommand extends CoreCommand {
     }
 
     @Default
-    public boolean sendInformation(CommandSender sender){
+    @Override
+    public boolean onDefaultExecute(CommandSender sender){
         Messages.create("cmd_not_valid")
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
-                .eachReplace("cmd_usage", new String[]{"language EN", "language DE"})
-                .setHover(HoverAction.SHOW_TEXT, "Select %value%")
-                .setClick(ClickAction.RUN_COMMAND, "/%value%")
+                .eachReplace("cmd_usage", new String[]{"EN", "DE"})
+                .setHover(HoverAction.SHOW_TEXT, "Change Language to %value%")
+                .setClick(ClickAction.RUN_COMMAND, "/language %value%")
                 .END()
                 .handle();
         return true;

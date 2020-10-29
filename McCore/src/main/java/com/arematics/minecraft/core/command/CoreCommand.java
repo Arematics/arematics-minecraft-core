@@ -11,6 +11,7 @@ import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import com.arematics.minecraft.core.processor.methods.CommonData;
 import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment;
+import com.arematics.minecraft.core.utils.ArematicsExecuter;
 import com.arematics.minecraft.core.utils.ClassUtils;
 import com.arematics.minecraft.core.utils.MethodUtils;
 import lombok.Getter;
@@ -45,9 +46,12 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
      */
     private final List<Method> sortedMethods;
     private final List<String> subCommands;
+    private final List<String> longArgumentParameters = new ArrayList<>();
 
     public CoreCommand(String name) {
         this.name = name;
+        registerLongArgument("message");
+        registerLongArgument("name");
         this.commandNames = ClassUtils
                 .fetchAnnotationValueSave(this, PluginCommand.class, PluginCommand::aliases)
                 .orElse(new String[]{});
@@ -85,7 +89,11 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
         Bukkit.getServer().getCommandMap().register(this.name, command);
     }
 
+    protected void registerLongArgument(String key){
+        this.longArgumentParameters.add("{" + key + "}");
+    }
 
+    public abstract boolean onDefaultExecute(CommandSender sender);
 
     private int sorted(Method p1, Method p2){
         if(p1.isAnnotationPresent(Default.class)) return -1;
@@ -116,14 +124,15 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     }
 
     @Override
-    public final boolean onCommand(CommandSender commandSender, Command command, String labels, String[] arguments) {
-        return process(commandSender, arguments);
+    public final boolean onCommand(final CommandSender commandSender, final Command command, String labels,
+                                   final String[] arguments) {
+        ArematicsExecuter.runAsync(() -> process(commandSender, arguments));
+        return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String labels, String[] arguments) {
-        List<String> matches = searchAllMatches(StringUtils.join(arguments, " "));
-        return matches;
+        return searchAllMatches(StringUtils.join(arguments, " "));
     }
 
     private List<String> searchAllMatches(String arguments){
@@ -213,6 +222,11 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
         return s.startsWith("{") && s.endsWith("}");
     }
 
+
+    private boolean equalsOne(String argument){
+        return this.longArgumentParameters.contains(argument);
+    }
+
     private String[] getSetupMessageArray(String[] subArgs, String[] input){
         if(input.length > subArgs.length && equalsOne(subArgs[subArgs.length - 1])){
             String message = StringUtils.join(input, " ", subArgs.length - 1, input.length);
@@ -221,10 +235,6 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
         }
 
         return input;
-    }
-
-    private boolean equalsOne(String argument){
-        return argument.equals("{message}") || argument.equals("{name}");
     }
 
     private String getSerializedValue(Method method) {
