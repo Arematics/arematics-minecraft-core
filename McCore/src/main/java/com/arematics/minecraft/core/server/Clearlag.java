@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.server;
 
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.utils.ArematicsExecuter;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.TimeUtils;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -27,12 +27,13 @@ public class Clearlag {
         Duration duration = getDuration();
         nextExecute = LocalDateTime.now().plus(duration);
 
+
         if (duration.toMillis() > 120_000) {
             long timeTillFirstExecute = duration.toMillis() - 59_999;
-            ArematicsExecuter.asyncDelayed(this::mentionClearLag, timeTillFirstExecute, TimeUnit.MILLISECONDS);
+            ArematicsExecutor.asyncDelayed(this::mentionClearLag, timeTillFirstExecute, TimeUnit.MILLISECONDS);
         }
 
-        ArematicsExecuter.asyncDelayed(this::executeClearLag, duration.toMillis() - 5_000, TimeUnit.MILLISECONDS);
+        ArematicsExecutor.asyncDelayed(this::executeClearLag, duration.toMillis() - 5_000, TimeUnit.MILLISECONDS);
     }
 
     private void mentionClearLag(){
@@ -45,7 +46,7 @@ public class Clearlag {
     }
 
     private void executeClearLag(){
-        ArematicsExecuter.syncRepeat(this::clearLag, 0, 1, TimeUnit.SECONDS, 5);
+        ArematicsExecutor.syncRepeat(this::clearLag, 0, 1, TimeUnit.SECONDS, 5);
     }
 
     private void clearLag(int time){
@@ -54,7 +55,7 @@ public class Clearlag {
                     .to(Bukkit.getOnlinePlayers().toArray(new Player[]{}))
                     .handle();
             clear();
-            ArematicsExecuter.asyncDelayed(this::start, 5, TimeUnit.SECONDS);
+            ArematicsExecutor.asyncDelayed(this::start, 5, TimeUnit.SECONDS);
         } else {
             Period period = Period.seconds(time);
             Messages.create("clear_lag_in")

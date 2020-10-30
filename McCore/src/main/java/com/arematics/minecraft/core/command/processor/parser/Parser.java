@@ -4,7 +4,7 @@ import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.inventories.anvil.AnvilGUI;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.utils.ArematicsExecuter;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +77,7 @@ public class Parser {
     }
 
     private String awaitAnvilResult(Player player) throws InterruptedException {
-        return ArematicsExecuter.awaitResult((res, latch) -> {
+        return ArematicsExecutor.awaitResult((res, latch) -> {
             new AnvilGUI(Boots.getBoot(CoreBoot.class), player, "Replace this", (p, result) -> {
                 res.set(result);
                 latch.countDown();

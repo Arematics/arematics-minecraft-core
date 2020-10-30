@@ -19,6 +19,6 @@ public class TimeUtils {
     }
 
     public static long toTicks(long time, TimeUnit unit){
-        return time < 50 ? 0 : unit.toMillis(time) / 50;
+        return unit.toMillis(time) / 50;
     }
 }

@@ -11,7 +11,7 @@ import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import com.arematics.minecraft.core.processor.methods.CommonData;
 import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment;
-import com.arematics.minecraft.core.utils.ArematicsExecuter;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.ClassUtils;
 import com.arematics.minecraft.core.utils.MethodUtils;
 import lombok.Getter;
@@ -126,7 +126,7 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     @Override
     public final boolean onCommand(final CommandSender commandSender, final Command command, String labels,
                                    final String[] arguments) {
-        ArematicsExecuter.runAsync(() -> process(commandSender, arguments));
+        ArematicsExecutor.runAsync(() -> process(commandSender, arguments));
         return true;
     }
 

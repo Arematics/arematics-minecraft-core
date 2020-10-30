@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class ArematicsExecuter {
+public class ArematicsExecutor {
 
     public static void runAsync(Runnable runnable){
         CompletableFuture.runAsync(runnable);
@@ -35,15 +35,19 @@ public class ArematicsExecuter {
     }
 
     public static void syncRepeat(Runnable runnable, long delay, long period, TimeUnit unit){
+        delay = TimeUtils.toTicks(delay, unit);
+        period = TimeUtils.toTicks(period, unit);
         new BukkitRunnable(){
             @Override
             public void run() {
                 runnable.run();
             }
-        }.runTaskTimer(Boots.getBoot(CoreBoot.class), TimeUtils.toTicks(delay, unit), TimeUtils.toTicks(period, unit));
+        }.runTaskTimer(Boots.getBoot(CoreBoot.class), delay, period);
     }
 
     public static void syncRepeat(Consumer<Integer> run, long delay, long period, TimeUnit unit, int times){
+        delay = TimeUtils.toTicks(delay, unit);
+        period = TimeUtils.toTicks(period, unit);
         new BukkitRunnable(){
             int amount = times;
             @Override
@@ -52,20 +56,23 @@ public class ArematicsExecuter {
                 amount--;
                 if(amount < 0) this.cancel();
             }
-        }.runTaskTimer(Boots.getBoot(CoreBoot.class), TimeUtils.toTicks(delay, unit), TimeUtils.toTicks(period, unit));
+        }.runTaskTimer(Boots.getBoot(CoreBoot.class), delay, period);
     }
 
     public static void asyncRepeat(Runnable runnable, long delay, long period, TimeUnit unit){
+        delay = TimeUtils.toTicks(delay, unit);
+        period = TimeUtils.toTicks(period, unit);
         new BukkitRunnable(){
             @Override
             public void run() {
                 runnable.run();
             }
-        }.runTaskTimerAsynchronously(Boots.getBoot(CoreBoot.class), TimeUtils.toTicks(delay, unit),
-                TimeUtils.toTicks(period, unit));
+        }.runTaskTimerAsynchronously(Boots.getBoot(CoreBoot.class), delay, period);
     }
 
     public static void asyncRepeat(Consumer<Integer> run, long delay, long period, TimeUnit unit, int times){
+        delay = TimeUtils.toTicks(delay, unit);
+        period = TimeUtils.toTicks(period, unit);
         new BukkitRunnable(){
             int amount = times;
             @Override
@@ -74,7 +81,6 @@ public class ArematicsExecuter {
                 amount--;
                 if(amount < times) this.cancel();
             }
-        }.runTaskTimerAsynchronously(Boots.getBoot(CoreBoot.class), TimeUtils.toTicks(delay, unit),
-                TimeUtils.toTicks(period, unit));
+        }.runTaskTimerAsynchronously(Boots.getBoot(CoreBoot.class), delay, period);
     }
 }

@@ -4,7 +4,7 @@ import com.arematics.minecraft.core.listener.SpringInitializedListener;
 import com.arematics.minecraft.core.messaging.injector.LanguageInjector;
 import com.arematics.minecraft.core.messaging.injector.StringInjector;
 import com.arematics.minecraft.core.server.Clearlag;
-import com.arematics.minecraft.core.utils.ArematicsExecuter;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -37,7 +37,7 @@ public class CoreBoot extends Bootstrap{
     public void onEnable() {
         super.onEnable();
         Bukkit.getPluginManager().registerEvents(new SpringInitializedListener(), this);
-        ArematicsExecuter.asyncDelayed(this.clearlag::start, 10, TimeUnit.SECONDS);
+        ArematicsExecutor.asyncDelayed(this.clearlag::start, 10, TimeUnit.SECONDS);
     }
 
     @Override
