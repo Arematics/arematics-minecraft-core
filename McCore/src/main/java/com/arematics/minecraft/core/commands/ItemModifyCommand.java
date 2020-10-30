@@ -45,63 +45,49 @@ public class ItemModifyCommand extends CoreCommand {
     @SubCommand("name {name}")
     @Perm(permission = "name", description = "Modify Item Name")
     public boolean changeItemName(Player player, String name) {
-        CoreItem itemStack = CoreItem.create(player.getItemInHand());
-        if(itemStack != null) itemStack.setName(name).updateTo(player);
-        else Messages.create("no_item_in_hand").WARNING().to(player).handle();
+        CoreItem.executeOnHandItem(player, item -> item.setName(name).updateTo(player));
         return true;
     }
 
     @SubCommand("lore set {index} {lore}")
     @Perm(permission = "lore", description = "Modify Item Lore")
     public boolean setLoreAt(Player player, Integer index, String lore) {
-        CoreItem itemStack = CoreItem.create(player.getItemInHand());
-        if(itemStack != null) itemStack.setLoreAt(index, lore).updateTo(player);
-        else Messages.create("no_item_in_hand").WARNING().to(player).handle();
+        CoreItem.executeOnHandItem(player, item -> item.setLoreAt(index, lore).updateTo(player));
         return true;
     }
 
     @SubCommand("lore add {lore}")
     @Perm(permission = "lore", description = "Modify Item Lore")
     public boolean addToLore(Player player, String lore) {
-        CoreItem itemStack = CoreItem.create(player.getItemInHand());
-        if(itemStack != null) itemStack.addToLore(lore).updateTo(player);
-        else Messages.create("no_item_in_hand").WARNING().to(player).handle();
+        CoreItem.executeOnHandItem(player, item -> item.addToLore(lore).updateTo(player));
         return true;
     }
 
     @SubCommand("lore rem {index}")
     @Perm(permission = "lore", description = "Modify Item Lore")
     public boolean removeFromLore(Player player, Integer index) {
-        CoreItem itemStack = CoreItem.create(player.getItemInHand());
-        if(itemStack != null) itemStack.removeFromLore(index).updateTo(player);
-        else Messages.create("no_item_in_hand").WARNING().to(player).handle();
+        CoreItem.executeOnHandItem(player, item -> item.removeFromLore(index).updateTo(player));
         return true;
     }
 
     @SubCommand("lore clear")
     @Perm(permission = "lore", description = "Modify Item Lore")
     public boolean clearLore(Player player) {
-        CoreItem itemStack = CoreItem.create(player.getItemInHand());
-        if(itemStack != null) itemStack.clearLore().updateTo(player);
-        else Messages.create("no_item_in_hand").WARNING().to(player).handle();
+        CoreItem.executeOnHandItem(player, item -> item.clearLore().updateTo(player));
         return true;
     }
 
     @SubCommand("bindCommand {command}")
     @Perm(permission = "bind_command", description = "Modify Item interact command")
-    public boolean bindCommandToItem(Player player, String command) {
-        CoreItem itemStack = CoreItem.create(player.getItemInHand());
-        if(itemStack != null) itemStack.bindCommand(command).updateTo(player);
-        else Messages.create("no_item_in_hand").WARNING().to(player).handle();
+    public boolean bindCommandToItem(Player player, String command){
+        CoreItem.executeOnHandItem(player, item -> item.bindCommand(command));
         return true;
     }
 
     @SubCommand("bindMeta {key} {value}")
     @Perm(permission = "bind_meta", description = "Modify Item Metadata")
     public boolean bindMeta(Player player, String key, String value) {
-        CoreItem itemStack = CoreItem.create(player.getItemInHand());
-        if(itemStack != null) itemStack.setString(key, value).updateTo(player);
-        else Messages.create("no_item_in_hand").WARNING().to(player).handle();
+        CoreItem.executeOnHandItem(player, item -> item.setString(key, value));
         return true;
     }
 }
