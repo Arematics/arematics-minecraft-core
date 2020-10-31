@@ -22,6 +22,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.entity.HumanEntity;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -136,12 +137,17 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     }
 
     private List<String> searchAllMatches(String arguments){
-        return this.subCommands.stream()
+        List<String> results = this.subCommands.stream()
                 .filter(text -> !StringUtils.isBlank(text) && text.startsWith(arguments))
                 .map(text -> filterMatch(text, arguments))
                 .map(this::trimText)
                 .distinct()
                 .collect(Collectors.toList());
+        results.addAll(Bukkit.getOnlinePlayers().stream()
+                .filter(player -> player.getName().startsWith(arguments))
+                .map(HumanEntity::getName)
+                .collect(Collectors.toList()));
+        return results;
     }
 
     private String filterMatch(String text, String arguments){
