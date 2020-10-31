@@ -50,7 +50,7 @@ public class KitService {
 
     public boolean isPermitted(UUID uuid, Kit kit){
         User user = userService.getUserByUUID(uuid);
-        return user.getUserPermissions().contains(kit.getPermission());
+        return kit.getPermission() == null || user.getUserPermissions().contains(kit.getPermission());
     }
 
     public boolean hasCooldownOnKit(UUID uuid, Kit kit){

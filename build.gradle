@@ -54,6 +54,7 @@ subprojects {
         compileOnly  name: 'WorldEdit'
         compileOnly  name: 'WorldGuard'
         compileOnly  name: 'WGRegionEvents'
+        compileOnly "com.compheonix:ProtocolLib:1.8.8"
         compileOnly group: 'com.google.guava', name: 'guava', version: '29.0-jre'
 
         compileOnly group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'

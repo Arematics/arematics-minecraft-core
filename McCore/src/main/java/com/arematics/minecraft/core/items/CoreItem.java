@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.items;
 
+import com.arematics.minecraft.core.messaging.Messages;
 import de.tr7zw.nbtapi.NBTItem;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,8 +17,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -45,6 +49,19 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return new CoreItem(item);
     }
 
+    public static CoreItem[] create(ItemStack[] items){
+        return Arrays.stream(items)
+                .map(CoreItem::create)
+                .collect(Collectors.toList())
+                .toArray(new CoreItem[]{});
+    }
+
+    public static void executeOnHandItem(Player player, Consumer<CoreItem> execute){
+        CoreItem itemStack = CoreItem.create(player.getItemInHand());
+        if(itemStack != null) execute.accept(itemStack);
+        else Messages.create("no_item_in_hand").WARNING().to(player).handle();
+    }
+
     private final NBTItem meta;
 
     private CoreItem(ItemStack item){
@@ -58,6 +75,7 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
 
     public CoreItem bindCommand(String command){
         this.getMeta().setString(BINDED_COMMAND, command);
+        this.applyNBT();
         return this;
     }
 
@@ -71,25 +89,18 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
 
     public CoreItem setInteger(String key, int value){
         this.getMeta().setInteger(key, value);
+        this.applyNBT();
         return this;
     }
 
     public CoreItem setString(String key, String value){
         this.getMeta().setString(key, value);
+        this.applyNBT();
         return this;
     }
 
     public void applyNBT(){
         this.getMeta().applyNBT(this);
-    }
-
-    public BukkitObjectOutputStream toSingleStream() throws IOException {
-        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-        BukkitObjectOutputStream outputStream = new BukkitObjectOutputStream(bytesOut);
-        outputStream.writeObject(this);
-        outputStream.flush();
-        outputStream.close();
-        return outputStream;
     }
 
     public CoreItem setName(String name){
@@ -143,10 +154,16 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
     }
 
     public void updateTo(Player player){
-        System.out.println("APPLY");
-        this.applyNBT();
         player.setItemInHand(this);
-        System.out.println("DONE");
+    }
+
+    public BukkitObjectOutputStream toSingleStream() throws IOException {
+        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+        BukkitObjectOutputStream outputStream = new BukkitObjectOutputStream(bytesOut);
+        outputStream.writeObject(this);
+        outputStream.flush();
+        outputStream.close();
+        return outputStream;
     }
 
     @Override
@@ -157,4 +174,6 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
     public static CoreItem deserialize(Map<String, Object> args){
         return new CoreItem(ItemStack.deserialize(args));
     }
+
+
 }

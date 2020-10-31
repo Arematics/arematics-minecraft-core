@@ -1,7 +1,10 @@
 package com.arematics.minecraft.core.command.processor.parser;
 
-import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.Boots;
+import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.inventories.anvil.AnvilGUI;
+import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +30,11 @@ public class Parser {
     }
 
     public void addParser(CommandParameterParser<?> parser){
-        System.out.println(parser.getType());
         if(!parsers.containsKey(parser.getType())) parsers.put(parser.getType(), parser);
     }
 
     public Object[] fillParameters(CommandSender sender, String[] annotation, Class[] types, String[] src)
-            throws ParserException {
+            throws ParserException, InterruptedException {
         List<Object> parameters = new ArrayList<>();
         if (CommandSender.class.equals(types[0])) {
             parameters.add(sender);
@@ -51,15 +53,36 @@ public class Parser {
                     parameters.add(Enum.valueOf(types[b], src[i]));
                 }catch (Exception exception){
                     if(types[b].isEnum()){
+                        if(src[i].equals(parameter) && sender instanceof Player){
+                            String result = awaitAnvilResult((Player)sender);
+                            Messages.create("Parameter " + parameter + " replaced with " + result).to(sender).handle();
+                            parameters.add(Enum.valueOf(types[b], result));
+                        }
                         throw new ParserException("Not valid parameter value type");
                     }
                     CommandParameterParser parser = parsers.get(types[b]);
-                    parameters.add(parser.doParse(src[i]));
+                    if(src[i].equals(parameter) && sender instanceof Player){
+                        String result = awaitAnvilResult((Player)sender);
+                        Messages.create("Parameter " + parameter + " replaced with " + result).to(sender).handle();
+                        parameters.add(parser.doParse(result));
+                    }else {
+                        parameters.add(parser.doParse(src[i]));
+                    }
                 }
                 b++;
             }
         }
 
         return parameters.toArray(new Object[]{});
+    }
+
+    private String awaitAnvilResult(Player player) throws InterruptedException {
+        return ArematicsExecutor.awaitResult((res, latch) -> {
+            new AnvilGUI(Boots.getBoot(CoreBoot.class), player, "Replace this", (p, result) -> {
+                res.set(result);
+                latch.countDown();
+                return null;
+            });
+        });
     }
 }

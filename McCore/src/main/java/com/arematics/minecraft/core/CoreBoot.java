@@ -6,11 +6,15 @@ import com.arematics.minecraft.core.messaging.injector.Injector;
 import com.arematics.minecraft.core.listener.SpringInitializedListener;
 import com.arematics.minecraft.core.messaging.injector.LanguageInjector;
 import com.arematics.minecraft.core.messaging.injector.StringInjector;
+import com.arematics.minecraft.core.server.Clearlag;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import java.util.concurrent.TimeUnit;
 
 @Setter
 @Getter
@@ -18,6 +22,7 @@ public class CoreBoot extends Bootstrap{
 
     private final Class<? extends StringInjector> defaultInjectorType = LanguageInjector.class;
     private boolean springInitialized;
+    private final Clearlag clearlag;
 
     private ConfigurableApplicationContext context;
     /**
@@ -27,6 +32,7 @@ public class CoreBoot extends Bootstrap{
     public CoreBoot() {
         super(true);
         this.springInitialized = false;
+        this.clearlag = new Clearlag();
     }
 
     @SneakyThrows
@@ -34,6 +40,7 @@ public class CoreBoot extends Bootstrap{
     public void onEnable() {
         super.onEnable();
         Bukkit.getPluginManager().registerEvents(new SpringInitializedListener(), this);
+        ArematicsExecutor.asyncDelayed(this.clearlag::start, 10, TimeUnit.SECONDS);
     }
 
     @Override

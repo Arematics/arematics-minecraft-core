@@ -21,7 +21,8 @@ public class PageCommand extends CoreCommand {
     }
 
     @Default
-    public boolean sendInfo(CommandSender sender){
+    @Override
+    public boolean onDefaultExecute(CommandSender sender){
         Messages.create("cmd_not_valid")
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)

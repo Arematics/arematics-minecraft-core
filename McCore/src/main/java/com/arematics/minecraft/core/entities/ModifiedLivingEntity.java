@@ -45,7 +45,6 @@ public class ModifiedLivingEntity extends NBTEntity {
             this.bindedCommand = entity.getBindedCommand();
             return true;
         }catch (RuntimeException exception){
-            exception.printStackTrace();
             return false;
         }
     }
