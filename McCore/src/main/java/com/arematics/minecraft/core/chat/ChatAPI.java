@@ -64,7 +64,6 @@ public class ChatAPI {
 
     public static void supplyPlaceholders(String placeholderName, Player player, Supplier<String> supplier) {
         GlobalPlaceholder placeholder = getPlaceholder(placeholderName);
-        Bukkit.broadcastMessage(placeholder.toString());
         Map<Player, Supplier<String>> placeholderValues = placeholder.getValues();
         placeholderValues.put(player, supplier);
     }

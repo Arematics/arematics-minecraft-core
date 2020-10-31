@@ -4,9 +4,11 @@ import com.arematics.minecraft.core.annotations.Default;
 import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.chat.ChatAPI;
+import com.arematics.minecraft.core.chat.controller.ChatThemeController;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.data.global.model.ChatTheme;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
@@ -14,38 +16,32 @@ import org.springframework.stereotype.Component;
 @Component
 public class ThemeCommand extends CoreCommand {
 
+    private final ChatThemeController themeController = ChatAPI.getChatThemeController();
+
     public ThemeCommand() {
         super("theme");
     }
 
+    @Override
     @Default
-    public boolean help(Player player) {
-        player.sendMessage("/theme list");
-        player.sendMessage("/theme [theme]");
-        player.sendMessage(ChatAPI.getThemeUser(player).getActiveTheme().getThemeKey());
+    public boolean onDefaultExecute(CommandSender sender) {
+        sender.sendMessage("/theme list");
+        sender.sendMessage("/theme [theme]");
         return true;
     }
 
+
     @SubCommand("list")
-    public boolean listThemes(Player player) {
-        ChatAPI.getChatThemeController().getThemes().values().forEach(theme -> {
+    public boolean list(Player player) {
+        themeController.getThemes().values().forEach(theme -> {
             player.sendMessage(theme.getThemeKey());
         });
         return true;
     }
-    
-    @SubCommand("placeholdervalues {theme}}")
-    public boolean showValues(Player player, String placeholder, String targetName) {
-        Player target = Bukkit.getPlayer(targetName);
-        ChatAPI.getPlaceholder(placeholder).getValues().forEach((s, supplier) -> {
-            player.sendMessage(placeholder + " value for " + s + " : " + supplier.get());
-        });
-        return true;
-    }
 
-    @SubCommand("{theme}")
-    public boolean switchTheme(Player player, String theme) {
-        if(ChatAPI.setTheme(player, theme)){
+    @SubCommand("switch {theme}")
+    public boolean switchCmd(Player player, String theme) {
+        if (ChatAPI.setTheme(player, theme)) {
             player.sendMessage("theme gewechselt zu " + theme);
         } else {
             player.sendMessage("theme not found");
@@ -63,11 +59,24 @@ public class ThemeCommand extends CoreCommand {
         });
         apiTheme.getThemePlaceholders().forEach(themePlaceholder -> {
             player.sendMessage("themeplaceholderkey: " + themePlaceholder.getPlaceholderKey() + " value: " + themePlaceholder.getValue());
+            if (themePlaceholder.getClickAction() != null) {
+                player.sendMessage("Click : " + themePlaceholder.getClickAction().getValue());
+            }
+            if (themePlaceholder.getHoverAction() != null) {
+                player.sendMessage("Hover : " + themePlaceholder.getHoverAction().getValue());
+            }
         });
         apiTheme.getGlobalPlaceholderActions().forEach(globalPlaceholderActions -> {
             player.sendMessage("dynamic key: " + globalPlaceholderActions.getPlaceholderKey() + " value: " + ChatAPI.getPlaceholder(globalPlaceholderActions.getPlaceholderKey()).getValues().get(player).get());
+            if (globalPlaceholderActions.getClickAction() != null) {
+                player.sendMessage("Click : " + globalPlaceholderActions.getClickAction().getValue());
+            }
+            if(globalPlaceholderActions.getHoverAction() != null) {
+                player.sendMessage("Hover : " + globalPlaceholderActions.getHoverAction().getValue());
+            }
         });
         return true;
     }
+
 
 }

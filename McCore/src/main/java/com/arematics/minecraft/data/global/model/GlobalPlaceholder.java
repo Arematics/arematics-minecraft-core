@@ -29,4 +29,8 @@ public class GlobalPlaceholder {
     @Transient
     private Map<Player, Supplier<String>> values = new HashMap<>();
 
+    public String getValue(Player player) {
+        return getValues().get(player).get();
+    }
+
 }
