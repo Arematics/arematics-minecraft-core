@@ -133,18 +133,19 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String labels, String[] arguments) {
-        return searchAllMatches(StringUtils.join(arguments, " "));
+        return searchAllMatches(arguments);
     }
 
-    private List<String> searchAllMatches(String arguments){
+    private List<String> searchAllMatches(String[] arguments){
+        String argumentsJoined = StringUtils.join(arguments, " ");
         List<String> results = this.subCommands.stream()
-                .filter(text -> !StringUtils.isBlank(text) && text.startsWith(arguments))
-                .map(text -> filterMatch(text, arguments))
+                .filter(text -> !StringUtils.isBlank(text) && text.startsWith(argumentsJoined))
+                .map(text -> filterMatch(text, argumentsJoined))
                 .map(this::trimText)
                 .distinct()
                 .collect(Collectors.toList());
         results.addAll(Bukkit.getOnlinePlayers().stream()
-                .filter(player -> player.getName().startsWith(arguments))
+                .filter(player -> player.getName().startsWith(arguments[arguments.length - 1]))
                 .map(HumanEntity::getName)
                 .collect(Collectors.toList()));
         return results;
