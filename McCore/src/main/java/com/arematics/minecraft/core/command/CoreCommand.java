@@ -10,10 +10,9 @@ import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import com.arematics.minecraft.core.processor.methods.CommonData;
 import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment;
-import com.arematics.minecraft.core.processor.methods.MethodStack;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.ClassUtils;
-import com.arematics.minecraft.core.utils.MethodUtils;
+import com.arematics.minecraft.core.utils.Methods;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +27,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Getter
 @Setter
@@ -59,9 +59,9 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                 .orElse("");
         this.sortedMethods = Arrays.stream(this.getClass().getDeclaredMethods())
                 .filter(method -> method.isAnnotationPresent(SubCommand.class))
-                .sorted(this::sorted)
+                .sorted((m1, m2) -> this.moreSubArguments(fetchSubCommand(m1), fetchSubCommand(m2)))
                 .collect(Collectors.toList());
-        this.subCommands = MethodUtils
+        this.subCommands = Methods
                 .fetchAllAnnotationValueSave(this, SubCommand.class, SubCommand::value);
         this.registerStandards();
     }
@@ -83,10 +83,14 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     }
 
     public void register(){
-        ReflectCommand command = new ReflectCommand(this.name);
-        command.setExecutor(this);
-        if (this.commandNames != null) command.setAliases(Arrays.asList(this.commandNames));
-        Bukkit.getServer().getCommandMap().register(this.name, command);
+        if(this.subCommands.stream().distinct().count() != this.subCommands.size()){
+            throw new RuntimeException("The command: " + this.getName() + " has identical sub command methods");
+        }else{
+            ReflectCommand command = new ReflectCommand(this.name);
+            command.setExecutor(this);
+            if (this.commandNames != null) command.setAliases(Arrays.asList(this.commandNames));
+            Bukkit.getServer().getCommandMap().register(this.name, command);
+        }
     }
 
     protected void registerLongArgument(String key){
@@ -94,18 +98,6 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     }
 
     public abstract boolean onDefaultExecute(CommandSender sender);
-
-    private int sorted(Method p1, Method p2){
-        if(p1.isAnnotationPresent(SubCommand.class)){
-            if(p2.isAnnotationPresent(SubCommand.class)){
-                String[] v1 = getSerializedValue(p1).split(" ");
-                String[] v2 = getSerializedValue(p2).split(" ");
-                return moreSubArguments(v1, v2);
-            }
-            return -1;
-        }
-        return 0;
-    }
 
     private int moreSubArguments(String[] v1, String[] v2){
         if(v2.length > v1.length) return -1;
@@ -158,71 +150,43 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
 
     private void process(CommandSender sender, String[] arguments){
         boolean isDefault = arguments.length == 0;
-        List<String> annotations = new ArrayList<>();
-        Map<String, Object> dataPack = new HashMap<>();
+        Map<String, Object> dataPack = new Hashtable<>();
         dataPack.put(CommonData.COMMAND_SENDER.toString(), sender);
         dataPack.put("classLevelPermission", this.classPermission);
         try{
-            if(isDefault){
+
+            if(isDefault)
                 Permissions.check(sender, this.classPermission).ifPermitted(this::onDefaultExecute).submit();
-            }else {
+            else {
                 MethodProcessorEnvironment environment = MethodProcessorEnvironment
                         .newEnvironment(this, dataPack, this.processors);
-                MethodStack stack = new MethodStack(this.sortedMethods);
-                stack.processEach((method) -> {
-                    String[] argumentsClone = arguments;
-                    String value = getSerializedValue(method);
-                    if (annotations.contains(value)) {
-                        Messages.create(CMD_SAME_SUB_METHOD).FAILURE().to(sender).handle();
-                        return false;
-                    }
-                    annotations.add(value);
-                    String[] annotationValues = value.split(" ");
-                    argumentsClone = getSetupMessageArray(annotationValues, argumentsClone);
-                    if (annotationValues.length == argumentsClone.length && isMatch(annotationValues, argumentsClone)) {
-                        dataPack.put(CommonData.COMMAND_ARGUEMNTS.toString(), argumentsClone);
-                        return environment.supply(method);
-                    }
-                    return false;
+                boolean success = Methods.of(this.sortedMethods).apply((method) -> {
+                    String[] annotation = fetchSubCommand(method);
+                    dataPack.put("arguments", getSetupMessageArray(annotation, arguments.clone()));
+                    return isMatch(annotation, arguments) && environment.supply(method);
                 });
+                if(!success)
+                    Permissions.check(sender, this.classPermission).ifPermitted(this::onDefaultExecute).submit();
             }
         }catch (Exception exception){
             exception.printStackTrace();
-            Messages.create(CMD_FAILURE)
-                    .FAILURE()
-                    .to(sender)
-                    .handle();
+            Messages.create(CMD_FAILURE).FAILURE().to(sender).handle();
         }
     }
 
 
 
     private boolean isMatch(String[] annotation, String[] src){
-        boolean match = false;
-        for(int i = 0; i < annotation.length; i++){
-            String annotationString = annotation[i];
-            if(!isParameter(annotationString)){
-                if(!annotationString.equals(src[i])) return false;
-                else match = true;
-            }else{
-                match = true;
-            }
-        }
-
-        return match;
-    }
-
-    private boolean isParameter(String s){
-        return s.startsWith("{") && s.endsWith("}");
-    }
-
-
-    private boolean equalsOne(String argument){
-        return this.longArgumentParameters.contains(argument);
+        String[] clonedSource = getSetupMessageArray(annotation, src.clone());
+        if(annotation.length != clonedSource.length) return false;
+        return IntStream.range(0, annotation.length)
+                .filter((index) -> !annotation[index].equals(clonedSource[index]))
+                .filter((index) -> !isParameter(annotation[index]))
+                .count() == 0;
     }
 
     private String[] getSetupMessageArray(String[] subArgs, String[] input){
-        if(input.length > subArgs.length && equalsOne(subArgs[subArgs.length - 1])){
+        if(input.length > subArgs.length && this.longArgumentParameters.contains(subArgs[subArgs.length - 1])){
             String message = StringUtils.join(input, " ", subArgs.length - 1, input.length);
             input = Arrays.copyOf(input, subArgs.length);
             input[input.length - 1] = message;
@@ -231,9 +195,11 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
         return input;
     }
 
-    private String getSerializedValue(Method method) {
-        if(method.isAnnotationPresent(SubCommand.class)) return method.getAnnotation(SubCommand.class).value();
-        return "";
+    private boolean isParameter(String s){
+        return s.startsWith("{") && s.endsWith("}");
     }
 
+    private String[] fetchSubCommand(Method method){
+        return method.getAnnotation(SubCommand.class).value().split(" ");
+    }
 }
