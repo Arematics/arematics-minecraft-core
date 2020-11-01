@@ -1,7 +1,5 @@
 package com.arematics.minecraft.core.commands;
 
-import com.arematics.minecraft.core.annotations.Default;
-import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.Messages;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 
 @Component
-@PluginCommand(aliases = {})
 public class PreferredModeCommand extends CoreCommand {
 
     private final UserService service;
@@ -33,7 +30,6 @@ public class PreferredModeCommand extends CoreCommand {
     }
 
     @Override
-    @Default
     public boolean onDefaultExecute(CommandSender sender) {
         Messages.create("cmd_not_valid")
                 .to(sender)

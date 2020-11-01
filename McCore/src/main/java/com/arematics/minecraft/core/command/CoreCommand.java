@@ -1,6 +1,5 @@
 package com.arematics.minecraft.core.command;
 
-import com.arematics.minecraft.core.annotations.Default;
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
@@ -11,6 +10,7 @@ import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import com.arematics.minecraft.core.processor.methods.CommonData;
 import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment;
+import com.arematics.minecraft.core.processor.methods.MethodStack;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.ClassUtils;
 import com.arematics.minecraft.core.utils.MethodUtils;
@@ -49,13 +49,11 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     private final List<String> subCommands;
     private final List<String> longArgumentParameters = new ArrayList<>();
 
-    public CoreCommand(String name) {
+    public CoreCommand(String name, String... aliases) {
         this.name = name;
         registerLongArgument("message");
         registerLongArgument("name");
-        this.commandNames = ClassUtils
-                .fetchAnnotationValueSave(this, PluginCommand.class, PluginCommand::aliases)
-                .orElse(new String[]{});
+        this.commandNames = aliases;
         this.classPermission = ClassUtils
                 .fetchAnnotationValueSave(this, Perm.class, Perm::permission)
                 .orElse("");
@@ -97,8 +95,9 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     public abstract boolean onDefaultExecute(CommandSender sender);
 
     private int sorted(Method p1, Method p2){
-        if(p1.isAnnotationPresent(Default.class)) return -1;
-        else if (p2.isAnnotationPresent(Default.class)) return 1;
+        //Default Method is first level
+        if(p1.getName().equals("onDefaultExecute")) return -1;
+        else if (p2.getName().equals("onDefaultExecute")) return 1;
 
         if(p1.isAnnotationPresent(SubCommand.class)){
             if(p2.isAnnotationPresent(SubCommand.class)){
@@ -169,8 +168,9 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
         MethodProcessorEnvironment environment = MethodProcessorEnvironment
                 .newEnvironment(this, dataPack, this.processors);
         try{
-            for (final Method method : this.sortedMethods){
-                String[] args = arguments;
+            MethodStack stack = new MethodStack(this.sortedMethods);
+            stack.processEach((method) -> {
+                String[] argumentsClone = arguments;
                 if(isDefault){
                     if(!StringUtils.isBlank(this.classPermission)) {
                         if (Permissions.isNotAllowed(sender, this.classPermission)) {
@@ -182,8 +182,7 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                         }
                     }
 
-                    if(ClassUtils.execute(Default.class, method, (tempMethod)
-                            -> (Boolean) method.invoke(this, sender))) return true;
+                    return onDefaultExecute(sender);
                 }
                 String value = getSerializedValue(method);
                 if(annotations.contains(value)){
@@ -192,12 +191,13 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                 }
                 annotations.add(value);
                 String[] annotationValues = value.split(" ");
-                args = getSetupMessageArray(annotationValues, arguments);
-                if(annotationValues.length == args.length && isMatch(annotationValues, args)) {
-                    dataPack.put(CommonData.COMMAND_ARGUEMNTS.toString(), args);
-                    if (environment.supply(method)) return true;
+                argumentsClone = getSetupMessageArray(annotationValues, argumentsClone);
+                if(annotationValues.length == argumentsClone.length && isMatch(annotationValues, argumentsClone)) {
+                    dataPack.put(CommonData.COMMAND_ARGUEMNTS.toString(), argumentsClone);
+                    return environment.supply(method);
                 }
-            }
+                return false;
+            });
         }catch (Exception exception){
             exception.printStackTrace();
             Messages.create(CMD_FAILURE)

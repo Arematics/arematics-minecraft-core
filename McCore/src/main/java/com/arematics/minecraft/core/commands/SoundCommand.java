@@ -1,8 +1,6 @@
 package com.arematics.minecraft.core.commands;
 
-import com.arematics.minecraft.core.annotations.Default;
 import com.arematics.minecraft.core.annotations.Perm;
-import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.Messages;
@@ -21,15 +19,13 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-@PluginCommand(aliases = {"s"})
 @Perm(permission = "sound", description = "Allow usage to full /sound Command")
 public class SoundCommand extends CoreCommand {
 
     public SoundCommand(){
-        super("sound");
+        super("sound", "s");
     }
 
-    @Default
     @Override
     public boolean onDefaultExecute(CommandSender sender){
         List<String> subCommands = super.getSubCommands();

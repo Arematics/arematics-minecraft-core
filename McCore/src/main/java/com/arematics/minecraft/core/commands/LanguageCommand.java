@@ -1,7 +1,5 @@
 package com.arematics.minecraft.core.commands;
 
-import com.arematics.minecraft.core.annotations.Default;
-import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.language.Language;
@@ -16,14 +14,12 @@ import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
 @Component
-@PluginCommand(aliases = {"lang", "sprache"})
 public class LanguageCommand extends CoreCommand {
 
     public LanguageCommand(){
-        super("language");
+        super("language", "lang", "sprache");
     }
 
-    @Default
     @Override
     public boolean onDefaultExecute(CommandSender sender){
         Messages.create("cmd_not_valid")

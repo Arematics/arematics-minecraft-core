@@ -1,7 +1,5 @@
 package com.arematics.minecraft.core.commands;
 
-import com.arematics.minecraft.core.annotations.Default;
-import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.entities.ModifiedLivingEntity;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-@PluginCommand(aliases = {})
 public class ModifiedLivingEntityCommand extends CoreCommand {
 
     public ModifiedLivingEntityCommand(){
@@ -25,7 +22,6 @@ public class ModifiedLivingEntityCommand extends CoreCommand {
         registerLongArgument("command");
     }
 
-    @Default
     @Override
     public boolean onDefaultExecute(CommandSender sender){
         List<String> subCommands = super.getSubCommands();

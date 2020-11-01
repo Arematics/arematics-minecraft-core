@@ -1,8 +1,6 @@
 package com.arematics.minecraft.core.commands;
 
-import com.arematics.minecraft.core.annotations.Default;
 import com.arematics.minecraft.core.annotations.Perm;
-import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.items.CoreItem;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-@PluginCommand(aliases = {})
 @Perm(permission = "itemmodifier", description = "Allows full permission to item modification command")
 public class ItemModifyCommand extends CoreCommand {
 
@@ -27,7 +24,6 @@ public class ItemModifyCommand extends CoreCommand {
         registerLongArgument("command");
     }
 
-    @Default
     @Override
     public boolean onDefaultExecute(CommandSender sender){
         List<String> subCommands = super.getSubCommands();

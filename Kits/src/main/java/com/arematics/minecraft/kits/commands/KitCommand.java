@@ -1,7 +1,5 @@
 package com.arematics.minecraft.kits.commands;
 
-import com.arematics.minecraft.core.annotations.Default;
-import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.Messages;
@@ -13,15 +11,14 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-@PluginCommand(aliases = "kits")
 public class KitCommand extends CoreCommand {
 
     public KitCommand() {
-        super("kit");
+        super("kit", "kits");
     }
 
-    @Default
-    public boolean sendDefault(CommandSender sender){
+    @Override
+    public boolean onDefaultExecute(CommandSender sender){
         Messages.create("kit_list")
                 .to(sender)
                 .DEFAULT()
