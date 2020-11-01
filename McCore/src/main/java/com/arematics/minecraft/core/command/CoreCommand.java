@@ -58,6 +58,7 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                 .fetchAnnotationValueSave(this, Perm.class, Perm::permission)
                 .orElse("");
         this.sortedMethods = Arrays.stream(this.getClass().getDeclaredMethods())
+                .filter(method -> method.isAnnotationPresent(SubCommand.class))
                 .sorted(this::sorted)
                 .collect(Collectors.toList());
         this.subCommands = MethodUtils
@@ -95,10 +96,6 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     public abstract boolean onDefaultExecute(CommandSender sender);
 
     private int sorted(Method p1, Method p2){
-        //Default Method is first level
-        if(p1.getName().equals("onDefaultExecute")) return -1;
-        else if (p2.getName().equals("onDefaultExecute")) return 1;
-
         if(p1.isAnnotationPresent(SubCommand.class)){
             if(p2.isAnnotationPresent(SubCommand.class)){
                 String[] v1 = getSerializedValue(p1).split(" ");
@@ -159,45 +156,36 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
         return text.contains(" ") ? text.substring(0, text.indexOf(" ")) : text;
     }
 
-    private boolean process(CommandSender sender, String[] arguments){
+    private void process(CommandSender sender, String[] arguments){
         boolean isDefault = arguments.length == 0;
         List<String> annotations = new ArrayList<>();
         Map<String, Object> dataPack = new HashMap<>();
         dataPack.put(CommonData.COMMAND_SENDER.toString(), sender);
         dataPack.put("classLevelPermission", this.classPermission);
-        MethodProcessorEnvironment environment = MethodProcessorEnvironment
-                .newEnvironment(this, dataPack, this.processors);
         try{
-            MethodStack stack = new MethodStack(this.sortedMethods);
-            stack.processEach((method) -> {
-                String[] argumentsClone = arguments;
-                if(isDefault){
-                    if(!StringUtils.isBlank(this.classPermission)) {
-                        if (Permissions.isNotAllowed(sender, this.classPermission)) {
-                            Messages.create("cmd_noperms")
-                                    .WARNING()
-                                    .to(sender)
-                                    .handle();
-                            return true;
-                        }
+            if(isDefault){
+                Permissions.check(sender, this.classPermission).ifPermitted(this::onDefaultExecute).submit();
+            }else {
+                MethodProcessorEnvironment environment = MethodProcessorEnvironment
+                        .newEnvironment(this, dataPack, this.processors);
+                MethodStack stack = new MethodStack(this.sortedMethods);
+                stack.processEach((method) -> {
+                    String[] argumentsClone = arguments;
+                    String value = getSerializedValue(method);
+                    if (annotations.contains(value)) {
+                        Messages.create(CMD_SAME_SUB_METHOD).FAILURE().to(sender).handle();
+                        return false;
                     }
-
-                    return onDefaultExecute(sender);
-                }
-                String value = getSerializedValue(method);
-                if(annotations.contains(value)){
-                    Messages.create(CMD_SAME_SUB_METHOD).FAILURE().to(sender).handle();
+                    annotations.add(value);
+                    String[] annotationValues = value.split(" ");
+                    argumentsClone = getSetupMessageArray(annotationValues, argumentsClone);
+                    if (annotationValues.length == argumentsClone.length && isMatch(annotationValues, argumentsClone)) {
+                        dataPack.put(CommonData.COMMAND_ARGUEMNTS.toString(), argumentsClone);
+                        return environment.supply(method);
+                    }
                     return false;
-                }
-                annotations.add(value);
-                String[] annotationValues = value.split(" ");
-                argumentsClone = getSetupMessageArray(annotationValues, argumentsClone);
-                if(annotationValues.length == argumentsClone.length && isMatch(annotationValues, argumentsClone)) {
-                    dataPack.put(CommonData.COMMAND_ARGUEMNTS.toString(), argumentsClone);
-                    return environment.supply(method);
-                }
-                return false;
-            });
+                });
+            }
         }catch (Exception exception){
             exception.printStackTrace();
             Messages.create(CMD_FAILURE)
@@ -205,7 +193,6 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                     .to(sender)
                     .handle();
         }
-        return true;
     }
 
 

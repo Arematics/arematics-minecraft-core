@@ -26,6 +26,10 @@ public class Permissions {
                 user.getRank().getPermissions().stream().anyMatch(hasPerm(permission));
     }
 
+    public static PermConsumer check(CommandSender sender, String permission){
+        return new PermissionData(sender, permission);
+    }
+
     private static Predicate<? super Permission> hasPerm(String permission){
         return perm -> perm.getPermission().equals(permission.split("\\.")[0]);
     }
