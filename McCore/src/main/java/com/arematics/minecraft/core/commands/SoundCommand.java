@@ -6,6 +6,7 @@ import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.ClickAction;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
+import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.pages.Page;
 import com.arematics.minecraft.core.pages.Pageable;
@@ -16,8 +17,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 @Perm(permission = "sound", description = "Allow usage to full /sound Command")
 public class SoundCommand extends CoreCommand {
@@ -26,18 +25,10 @@ public class SoundCommand extends CoreCommand {
         super("sound", "s");
     }
 
-    @Override
-    public boolean onDefaultExecute(CommandSender sender){
-        List<String> subCommands = super.getSubCommands();
-        Messages.create("cmd_not_valid")
-                .to(sender)
-                .setInjector(AdvancedMessageInjector.class)
-                .eachReplace("cmd_usage", subCommands.toArray(new String[]{}))
-                .setHover(HoverAction.SHOW_TEXT, "Open to chat")
-                .setClick(ClickAction.SUGGEST_COMMAND, "/sound %value%")
-                .END()
-                .handle();
-        return true;
+    private Part soundNameToPart(String name){
+        return new Part(name + ", ")
+                .setHoverAction(HoverAction.SHOW_TEXT, "Execute sound " + name)
+                .setClickAction(ClickAction.RUN_COMMAND, "/sound " + name);
     }
 
     @SubCommand("list")
@@ -55,15 +46,12 @@ public class SoundCommand extends CoreCommand {
         if(pageable == null)
             pageable = pager.create(key, ListUtils.getNamesStartsWith(Sound.class, startsWith));
         Page current = pageable.current();
+        Part[] parts = current.getContent().stream().map(this::soundNameToPart).toArray(Part[]::new);
         Messages.create("listing")
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
-                .replace("list_type", "Sound")
-                .END()
-                .eachReplace("list_value", current.getContent().toArray(new String[0]))
-                .setHover(HoverAction.SHOW_TEXT, "/sound %value%")
-                .setClick(ClickAction.RUN_COMMAND, "/sound %value%")
-                .END()
+                .replace("list_type", new Part("Sound"))
+                .eachReplace("list_value", parts)
                 .handle();
         Pager.sendDefaultPageMessage(sender, key);
         return true;

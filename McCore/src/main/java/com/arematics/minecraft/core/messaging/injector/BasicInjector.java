@@ -16,6 +16,7 @@ public class BasicInjector extends StringInjector {
     protected final MessageHighlight HIGHLIGHT;
     protected final String RAW_MESSAGE;
     protected final Map<String, String> INJECTOR_VALUES = new HashMap<>();
+    protected boolean serverPrefix = true;
 
     public BasicInjector(List<CommandSender> senderList, MessageHighlight highlight,
                          String rawMessage){
@@ -30,9 +31,17 @@ public class BasicInjector extends StringInjector {
         return this;
     }
 
+    public BasicInjector disableServerPrefix() {
+        this.serverPrefix = false;
+        return this;
+    }
+
     @Override
     protected String prepareMessage(CommandSender sender) {
-        return Config.getInstance().getPrefix() + this.HIGHLIGHT.getColorCode() + this.RAW_MESSAGE;
+        StringBuilder builder = new StringBuilder();
+        if(serverPrefix) builder.append(Config.getInstance().getPrefix()).append(this.HIGHLIGHT.getColorCode());
+        builder.append(this.RAW_MESSAGE);
+        return builder.toString();
     }
 
     @Override

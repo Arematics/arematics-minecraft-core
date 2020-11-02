@@ -1,23 +1,14 @@
 package com.arematics.minecraft.core.messaging.injector.advanced;
 
-import com.arematics.minecraft.core.messaging.advanced.ClickAction;
-import com.arematics.minecraft.core.messaging.advanced.Format;
-import com.arematics.minecraft.core.messaging.advanced.HoverAction;
-import com.arematics.minecraft.core.messaging.advanced.JsonColor;
+import com.arematics.minecraft.core.messaging.advanced.Part;
 
 public class AdvancedReplace {
 
     public final String key;
-    public final String[] values;
-    public HoverAction hoverAction;
-    public String hoverValue;
-    public ClickAction clickAction;
-    public String clickValue;
-    public JsonColor jsonColor;
-    public Format format;
+    public final Part[] parts;
 
-    public AdvancedReplace(String key, String[] values){
+    public AdvancedReplace(String key, Part[] parts){
         this.key = key;
-        this.values = values;
+        this.parts = parts;
     }
 }

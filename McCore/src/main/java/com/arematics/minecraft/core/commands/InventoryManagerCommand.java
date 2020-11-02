@@ -6,9 +6,9 @@ import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.ClickAction;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
+import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.data.service.InventoryService;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,20 +25,6 @@ public class InventoryManagerCommand extends CoreCommand {
     public InventoryManagerCommand(InventoryService inventoryService){
         super("inv-manager");
         this.service = inventoryService;
-    }
-
-    @Override
-    public boolean onDefaultExecute(CommandSender sender){
-        List<String> subCommands = super.getSubCommands();
-        Messages.create("cmd_not_valid")
-                .to(sender)
-                .setInjector(AdvancedMessageInjector.class)
-                .eachReplace("cmd_usage", subCommands.toArray(new String[]{}))
-                .setHover(HoverAction.SHOW_TEXT, "Open to chat")
-                .setClick(ClickAction.SUGGEST_COMMAND, "/inv-manager %value%")
-                .END()
-                .handle();
-        return true;
     }
 
     @SubCommand("checkAmboss {value}")
@@ -60,14 +46,18 @@ public class InventoryManagerCommand extends CoreCommand {
     @SubCommand("keys {by}")
     public boolean getKeysBy(Player player, String by) {
         List<String> keys = service.findKeys(by);
+        Part[] items = keys.stream().map(this::toInventoryModifierPart).toArray(Part[]::new);
         Messages.create("cmd_not_valid")
                 .to(player)
                 .setInjector(AdvancedMessageInjector.class)
-                .eachReplace("cmd_usage", keys.toArray(new String[]{}))
-                .setHover(HoverAction.SHOW_TEXT, "Edit Inventory %value%")
-                .setClick(ClickAction.RUN_COMMAND, "/inv-manager modify %value%")
-                .END()
+                .eachReplace("cmd_usage", items)
                 .handle();
         return true;
+    }
+
+    private Part toInventoryModifierPart(String key){
+        return new Part(key)
+                .setHoverAction(HoverAction.SHOW_TEXT, "Edit Inventory " + key)
+                .setClickAction(ClickAction.RUN_COMMAND, "/inv-manager modify " + key);
     }
 }

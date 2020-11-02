@@ -4,6 +4,7 @@ package com.arematics.minecraft.core.commands;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.pages.Pageable;
 import com.arematics.minecraft.core.pages.Pager;
@@ -18,14 +19,12 @@ public class PageCommand extends CoreCommand {
     }
 
     @Override
-    public boolean onDefaultExecute(CommandSender sender){
+    public void onDefaultExecute(CommandSender sender){
         Messages.create("cmd_not_valid")
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
-                .replace("cmd_usage", "\n/page before\n/page next")
-                .END()
+                .replace("cmd_usage", new Part("\n/page before\n/page next"))
                 .handle();
-        return true;
     }
 
     @SubCommand("{type}")

@@ -8,6 +8,7 @@ import com.arematics.minecraft.core.language.LanguageUser;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.ClickAction;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
+import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -16,21 +17,26 @@ import org.springframework.stereotype.Component;
 @Component
 public class LanguageCommand extends CoreCommand {
 
+    private final Part[] languages;
+
     public LanguageCommand(){
         super("language", "lang", "sprache");
+        this.languages = new Part[]{changeLanguagePart("EN"), changeLanguagePart("DE")};
     }
 
     @Override
-    public boolean onDefaultExecute(CommandSender sender){
+    public void onDefaultExecute(CommandSender sender){
         Messages.create("cmd_not_valid")
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
-                .eachReplace("cmd_usage", new String[]{"EN", "DE"})
-                .setHover(HoverAction.SHOW_TEXT, "Change Language to %value%")
-                .setClick(ClickAction.RUN_COMMAND, "/language %value%")
-                .END()
+                .eachReplace("cmd_usage", languages)
                 .handle();
-        return true;
+    }
+
+    private Part changeLanguagePart(String language){
+        return new Part(language)
+                .setHoverAction(HoverAction.SHOW_TEXT, "Change Language to "  + language)
+                .setClickAction(ClickAction.RUN_COMMAND, "/language " + language);
     }
 
     @SubCommand("{language}")

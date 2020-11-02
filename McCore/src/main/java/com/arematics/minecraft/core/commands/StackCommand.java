@@ -2,12 +2,7 @@ package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.messaging.advanced.ClickAction;
-import com.arematics.minecraft.core.messaging.advanced.HoverAction;
-import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.sk89q.worldedit.blocks.ItemType;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -15,27 +10,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class StackCommand extends CoreCommand {
 
     public StackCommand(){
         super("stack");
-    }
-
-    @Override
-    public boolean onDefaultExecute(CommandSender sender){
-        List<String> subCommands = super.getSubCommands();
-        Messages.create("cmd_not_valid")
-                .to(sender)
-                .setInjector(AdvancedMessageInjector.class)
-                .eachReplace("cmd_usage", subCommands.toArray(new String[]{}))
-                .setHover(HoverAction.SHOW_TEXT, "Open to chat")
-                .setClick(ClickAction.SUGGEST_COMMAND, "/stack %value%")
-                .END()
-                .handle();
-        return true;
     }
 
     @SubCommand("items")

@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.ClickAction;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import com.arematics.minecraft.core.messaging.advanced.JsonColor;
+import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import org.bukkit.command.CommandSender;
 
@@ -27,16 +28,14 @@ public class Pager {
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
                 .disableServerPrefix()
-                .replace("before", "Before")
-                .setColor(JsonColor.DARK_RED)
-                .setHover(HoverAction.SHOW_TEXT, "Page before")
-                .setClick(ClickAction.RUN_COMMAND, "/page BEFORE " + key)
-                .END()
-                .replace("next", "Next")
-                .setColor(JsonColor.DARK_GREEN)
-                .setHover(HoverAction.SHOW_TEXT, "Next Page")
-                .setClick(ClickAction.RUN_COMMAND, "/page NEXT " + key)
-                .END()
+                .replace("before", new Part("Before")
+                        .setBaseColor(JsonColor.DARK_RED)
+                        .setHoverAction(HoverAction.SHOW_TEXT, "Page before")
+                        .setClickAction(ClickAction.RUN_COMMAND, "/page BEFORE " + key))
+                .replace("next", new Part("Next")
+                        .setBaseColor(JsonColor.DARK_GREEN)
+                        .setHoverAction(HoverAction.SHOW_TEXT, "Next Page")
+                        .setClickAction(ClickAction.RUN_COMMAND, "/page NEXT " + key))
                 .handle();
     }
 

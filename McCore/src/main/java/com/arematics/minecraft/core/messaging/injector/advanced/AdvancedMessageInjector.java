@@ -2,6 +2,7 @@ package com.arematics.minecraft.core.messaging.injector.advanced;
 
 import com.arematics.minecraft.core.messaging.MessageHighlight;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
+import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.Injector;
 import org.bukkit.command.CommandSender;
 
@@ -15,13 +16,13 @@ public class AdvancedMessageInjector extends Injector<MSG> implements AdvancedMe
     }
 
     @Override
-    public AdvancedMessageAction replace(String key, String value) {
+    public AdvancedMessageReplace replace(String key, Part value) {
         this.injector.replace(key, value);
         return injector;
     }
 
     @Override
-    public AdvancedMessageAction eachReplace(String key, String[] values) {
+    public AdvancedMessageReplace eachReplace(String key, Part[] values) {
         this.injector.eachReplace(key, values);
         return injector;
     }

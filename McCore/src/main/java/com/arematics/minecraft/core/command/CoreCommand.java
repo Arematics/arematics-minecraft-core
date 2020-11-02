@@ -6,6 +6,10 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.PermissionAnnotationProcessor;
 import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProcessor;
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.messaging.advanced.ClickAction;
+import com.arematics.minecraft.core.messaging.advanced.HoverAction;
+import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import com.arematics.minecraft.core.processor.methods.CommonData;
@@ -48,6 +52,8 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     private final List<Method> sortedMethods;
     private final List<String> subCommands;
     private final List<String> longArgumentParameters = new ArrayList<>();
+    private final String commandInformationString;
+    private final Part[] commandInformationValues;
 
     public CoreCommand(String name, String... aliases) {
         this.name = name;
@@ -63,7 +69,18 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                 .collect(Collectors.toList());
         this.subCommands = Methods
                 .fetchAllAnnotationValueSave(this, SubCommand.class, SubCommand::value);
+        this.commandInformationString = "§a\n\n§7Command" + " » " + "§c/" + this.getName() + "\n" +
+                "%subcmds%";
+        this.commandInformationValues = this.subCommands.stream()
+                .map(this::toSubCommandExecute)
+                .toArray(Part[]::new);
         this.registerStandards();
+    }
+
+    private Part toSubCommandExecute(String cmdName){
+        return new Part("     §7/" + this.getName() + " §c" + cmdName + "\n")
+                .setHoverAction(HoverAction.SHOW_TEXT, "§7Paste Sub Command §c" + cmdName)
+                .setClickAction(ClickAction.SUGGEST_COMMAND, "/" + this.getName() + " " + cmdName);
     }
 
     private void registerStandards(){
@@ -97,7 +114,14 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
         this.longArgumentParameters.add("{" + key + "}");
     }
 
-    public abstract boolean onDefaultExecute(CommandSender sender);
+    public void onDefaultExecute(CommandSender sender){
+        Messages.create(this.commandInformationString)
+                .to(sender)
+                .setInjector(AdvancedMessageInjector.class)
+                .eachReplace("subcmds", this.commandInformationValues)
+                .disableServerPrefix()
+                .handle();
+    }
 
     private int moreSubArguments(String[] v1, String[] v2){
         if(v2.length > v1.length) return -1;
