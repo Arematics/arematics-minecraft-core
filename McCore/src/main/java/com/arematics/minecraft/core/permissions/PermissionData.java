@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.messaging.Messages;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 
 import java.util.function.Consumer;
@@ -22,7 +23,7 @@ public class PermissionData implements PermConsumer {
     }
 
     public void orElse(Consumer<CommandSender> orElse){
-        if(!Permissions.isNotAllowed(sender, permission))
+        if(StringUtils.isBlank(permission) || !Permissions.isNotAllowed(sender, permission))
             permitted.accept(sender);
         else orElse.accept(sender);
     }

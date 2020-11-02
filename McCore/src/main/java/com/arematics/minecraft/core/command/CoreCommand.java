@@ -1,7 +1,6 @@
 package com.arematics.minecraft.core.command;
 
 import com.arematics.minecraft.core.annotations.Perm;
-import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.PermissionAnnotationProcessor;
 import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProcessor;
@@ -27,7 +26,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.HumanEntity;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,7 +41,6 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
 
     private final String name;
     private final String[] commandNames;
-    private final Map<Class<? extends Annotation>, AnnotationProcessor<?>> processors = new LinkedHashMap<>();
     private final String classPermission;
 
     /**
@@ -55,7 +52,13 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     private final String commandInformationString;
     private final Part[] commandInformationValues;
 
-    public CoreCommand(String name, String... aliases) {
+    private final List<AnnotationProcessor<?>> processors = new ArrayList<>();
+
+    public CoreCommand(String name, String... aliases){
+        this(name, new AnnotationProcessor<?>[]{}, aliases);
+    }
+
+    public CoreCommand(String name, AnnotationProcessor<?>[] processors, String... aliases) {
         this.name = name;
         registerLongArgument("message");
         registerLongArgument("name");
@@ -74,7 +77,7 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
         this.commandInformationValues = this.subCommands.stream()
                 .map(this::toSubCommandExecute)
                 .toArray(Part[]::new);
-        this.registerStandards();
+        this.registerStandards(processors);
     }
 
     private Part toSubCommandExecute(String cmdName){
@@ -83,20 +86,10 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                 .setClickAction(ClickAction.SUGGEST_COMMAND, "/" + this.getName() + " " + cmdName);
     }
 
-    private void registerStandards(){
-        this.processors.put(Perm.class, new PermissionAnnotationProcessor());
-        try {
-            for(Annotation annotation : this.getClass().getAnnotations()){
-                if(annotation.annotationType() == PluginCommand.class) {
-                    Class<? extends AnnotationProcessor<?>>[] processors = ((PluginCommand)annotation).processors();
-                    for (Class<? extends AnnotationProcessor<?>> processor : processors) {
-                        AnnotationProcessor<?> instance = processor.newInstance();
-                        this.processors.put(instance.get(), instance);
-                    }
-                }
-            }
-        } catch (Exception ignore) {}
-        this.processors.put(SubCommand.class, new SubCommandAnnotationProcessor());
+    private void registerStandards(AnnotationProcessor<?>[] processors){
+        this.processors.add(new PermissionAnnotationProcessor());
+        this.processors.addAll(Arrays.asList(processors));
+        this.processors.add(new SubCommandAnnotationProcessor());
     }
 
     public void register(){

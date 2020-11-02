@@ -30,7 +30,6 @@ public class KitCommand extends CoreCommand {
     @SubCommand("{kit}")
     public boolean giveKit(Player player, Kit kit) {
         UUID uuid = player.getUniqueId();
-
         return true;
     }
 }
