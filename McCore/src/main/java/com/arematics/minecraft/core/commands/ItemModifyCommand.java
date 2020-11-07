@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.messaging.Messages;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
@@ -53,16 +54,27 @@ public class ItemModifyCommand extends CoreCommand {
     }
 
     @SubCommand("bindCommand {command}")
-    @Perm(permission = "bind_command", description = "Modify Item interact command")
+    @Perm(permission = "meta_interaction", description = "Modify Item Meta")
     public boolean bindCommandToItem(Player player, String command){
-        CoreItem.executeOnHandItem(player, item -> item.bindCommand(command));
+        CoreItem.executeOnHandItem(player, item -> item.bindCommand(command).updateTo(player));
+        return true;
+    }
+
+    @SubCommand("readMeta {key}")
+    @Perm(permission = "meta_interaction", description = "Modify Item Meta")
+    public boolean readMeta(Player player, String key){
+        CoreItem.executeOnHandItem(player, item -> Messages.create("item_meta_key_value").to(player)
+                .DEFAULT()
+                .replace("key", key)
+                .replace("value", item.readMetaValue(key))
+                .handle());
         return true;
     }
 
     @SubCommand("bindMeta {key} {value}")
-    @Perm(permission = "bind_meta", description = "Modify Item Metadata")
+    @Perm(permission = "meta_interaction", description = "Modify Item Meta")
     public boolean bindMeta(Player player, String key, String value) {
-        CoreItem.executeOnHandItem(player, item -> item.setString(key, value));
+        CoreItem.executeOnHandItem(player, item -> item.setString(key, value).updateTo(player));
         return true;
     }
 }

@@ -5,6 +5,7 @@ import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.mode.repository.KitRepository;
 import com.arematics.minecraft.data.share.model.CooldownKey;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -26,26 +27,21 @@ public class KitService {
         this.cooldownService = cooldownService;
     }
 
-    private Kit findKit(long id){
-        Optional<Kit> result = repository.findById(id);
-        if(!result.isPresent()) throw new RuntimeException("Kit with id: " + id + " could not be found");
-        return result.get();
-    }
-
     @Cacheable(cacheNames = "kitCache", key = "#name")
     public Kit findKit(String name){
-        try{
-            return findKit(Integer.parseInt(name));
-        }catch (NumberFormatException nfe){
-            Optional<Kit> result = repository.findByName(name);
-            if(!result.isPresent()) throw new RuntimeException("Kit with name: " + name + " could not be found");
-            return result.get();
-        }
+        Optional<Kit> result = repository.findByName(name);
+        if(!result.isPresent()) throw new RuntimeException("Kit with name: " + name + " could not be found");
+        return result.get();
     }
 
     @CachePut(cacheNames = "kitCache", key = "#kit.name")
     public void update(Kit kit){
         repository.save(kit);
+    }
+
+    @CacheEvict(cacheNames = "kitCache", key = "#kit.name")
+    public void delete(Kit kit){
+        repository.delete(kit);
     }
 
     public boolean isPermitted(UUID uuid, Kit kit){

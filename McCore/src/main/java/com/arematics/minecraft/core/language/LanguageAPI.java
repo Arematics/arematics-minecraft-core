@@ -56,7 +56,7 @@ public class LanguageAPI {
         Optional<Language> lang = langs.values().stream().filter(language -> language.getName().equals(langName))
                 .findFirst();
         if(!lang.isPresent()) generateLanguage(langName).addText(key, message);
-        else lang.get().addText(key, message);
+        else lang.get().addText(key, message.replaceAll("&", "§"));
     }
 
     private static Language generateLanguage(String name){

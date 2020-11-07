@@ -11,6 +11,7 @@ public class PermissionParser extends CommandParameterParser<Permission> {
 
     @Override
     public Permission doParse(String name) throws ParserException {
+        if(name.equals("null")) return null;
         PermissionService service = Boots.getBoot(CoreBoot.class).getContext().getBean(PermissionService.class);
         Permission permission;
         try{

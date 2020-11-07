@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.PermissionAnnotationProcessor;
 import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProcessor;
+import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.ClickAction;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
@@ -21,26 +22,24 @@ import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.HumanEntity;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Getter
 @Setter
-public abstract class CoreCommand implements CommandExecutor, TabExecutor {
+public abstract class CoreCommand extends Command {
 
     private static final String CMD_NO_PERMS = "cmd_noperms";
     private static final String CMD_FAILURE = "cmd_failure";
     private static final String CMD_SAME_SUB_METHOD = "cmd_same_sub_method_exist";
+    private static final String PASTE_SUB_COMMAND = "paste_sub_command";
 
-    private final String name;
-    private final String[] commandNames;
     private final String classPermission;
 
     /**
@@ -50,7 +49,6 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     private final List<String> subCommands;
     private final List<String> longArgumentParameters = new ArrayList<>();
     private final String commandInformationString;
-    private final Part[] commandInformationValues;
 
     private final List<AnnotationProcessor<?>> processors = new ArrayList<>();
 
@@ -59,10 +57,10 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     }
 
     public CoreCommand(String name, AnnotationProcessor<?>[] processors, String... aliases) {
-        this.name = name;
+        super(name);
+        setAliases(Arrays.asList(aliases));
         registerLongArgument("message");
         registerLongArgument("name");
-        this.commandNames = aliases;
         this.classPermission = ClassUtils
                 .fetchAnnotationValueSave(this, Perm.class, Perm::permission)
                 .orElse("");
@@ -74,16 +72,7 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
                 .fetchAllAnnotationValueSave(this, SubCommand.class, SubCommand::value);
         this.commandInformationString = "§a\n\n§7Command" + " » " + "§c/" + this.getName() + "\n" +
                 "%subcmds%";
-        this.commandInformationValues = this.subCommands.stream()
-                .map(this::toSubCommandExecute)
-                .toArray(Part[]::new);
         this.registerStandards(processors);
-    }
-
-    private Part toSubCommandExecute(String cmdName){
-        return new Part("     §7/" + this.getName() + " §c" + cmdName + "\n")
-                .setHoverAction(HoverAction.SHOW_TEXT, "§7Paste Sub Command §c" + cmdName)
-                .setClickAction(ClickAction.SUGGEST_COMMAND, "/" + this.getName() + " " + cmdName);
     }
 
     private void registerStandards(AnnotationProcessor<?>[] processors){
@@ -93,14 +82,10 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     }
 
     public void register(){
-        if(this.subCommands.stream().distinct().count() != this.subCommands.size()){
+        if(this.subCommands.stream().distinct().count() != this.subCommands.size())
             throw new RuntimeException("The command: " + this.getName() + " has identical sub command methods");
-        }else{
-            ReflectCommand command = new ReflectCommand(this.name);
-            command.setExecutor(this);
-            if (this.commandNames != null) command.setAliases(Arrays.asList(this.commandNames));
-            Bukkit.getServer().getCommandMap().register(this.name, command);
-        }
+        else
+            Bukkit.getServer().getCommandMap().register(this.getName(), this);
     }
 
     protected void registerLongArgument(String key){
@@ -108,12 +93,22 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     }
 
     public void onDefaultExecute(CommandSender sender){
+        Part[] commandInformationValues = this.subCommands.stream()
+                .map(subcmd -> toSubCommandExecute(sender, subcmd))
+                .toArray(Part[]::new);
         Messages.create(this.commandInformationString)
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
-                .eachReplace("subcmds", this.commandInformationValues)
+                .eachReplace("subcmds", commandInformationValues)
                 .disableServerPrefix()
                 .handle();
+    }
+
+    private Part toSubCommandExecute(CommandSender sender, String cmdName){
+        return new Part("     §7/" + this.getName() + " §c" + cmdName + "\n")
+                .setHoverAction(HoverAction.SHOW_TEXT,
+                        LanguageAPI.prepareRawMessage(sender, PASTE_SUB_COMMAND).replaceAll("%subcmd%", cmdName))
+                .setClickAction(ClickAction.SUGGEST_COMMAND, "/" + this.getName() + " " + cmdName);
     }
 
     private int moreSubArguments(String[] v1, String[] v2){
@@ -130,14 +125,13 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
     }
 
     @Override
-    public final boolean onCommand(final CommandSender commandSender, final Command command, String labels,
-                                   final String[] arguments) {
+    public final boolean execute(final CommandSender commandSender, String labels, final String[] arguments) {
         ArematicsExecutor.runAsync(() -> process(commandSender, arguments));
         return true;
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String labels, String[] arguments) {
+    public final List<String> tabComplete(CommandSender commandSender, String labels, String[] arguments) {
         return searchAllMatches(arguments);
     }
 
@@ -177,12 +171,14 @@ public abstract class CoreCommand implements CommandExecutor, TabExecutor {
             else {
                 MethodProcessorEnvironment environment = MethodProcessorEnvironment
                         .newEnvironment(this, dataPack, this.processors);
+                AtomicBoolean matchFound = new AtomicBoolean(false);
                 boolean success = Methods.of(this.sortedMethods).apply((method) -> {
                     String[] annotation = fetchSubCommand(method);
                     dataPack.put("arguments", getSetupMessageArray(annotation, arguments.clone()));
-                    return isMatch(annotation, arguments) && environment.supply(method);
+                    matchFound.set(isMatch(annotation, arguments));
+                    return matchFound.get() && environment.supply(method);
                 });
-                if(!success)
+                if(!matchFound.get())
                     Permissions.check(sender, this.classPermission).ifPermitted(this::onDefaultExecute).submit();
             }
         }catch (Exception exception){

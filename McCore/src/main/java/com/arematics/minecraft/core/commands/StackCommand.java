@@ -8,9 +8,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
-import org.springframework.stereotype.Component;
 
-@Component
 public class StackCommand extends CoreCommand {
 
     public StackCommand(){

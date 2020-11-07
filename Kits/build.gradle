@@ -1,7 +1,7 @@
 version '1.0'
 
 dependencies {
-    compileOnly 'com.arematics:McCore:0.3.9'
+    compileOnly 'com.arematics:McCore:0.4.1'
 }
 
 def filesToCopy = copySpec{

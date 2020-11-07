@@ -17,15 +17,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class LanguageCommand extends CoreCommand {
 
-    private final Part[] languages;
 
     public LanguageCommand(){
         super("language", "lang", "sprache");
-        this.languages = new Part[]{changeLanguagePart("EN"), changeLanguagePart("DE")};
     }
 
     @Override
     public void onDefaultExecute(CommandSender sender){
+        Part[] languages = new Part[]{changeLanguagePart(sender, "EN"), changeLanguagePart(sender, "DE")};
         Messages.create("cmd_not_valid")
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
@@ -33,9 +32,10 @@ public class LanguageCommand extends CoreCommand {
                 .handle();
     }
 
-    private Part changeLanguagePart(String language){
+    private Part changeLanguagePart(CommandSender sender, String language){
         return new Part(language)
-                .setHoverAction(HoverAction.SHOW_TEXT, "Change Language to "  + language)
+                .setHoverAction(HoverAction.SHOW_TEXT, LanguageAPI.prepareRawMessage(sender, "language_change_to")
+                        .replaceAll("%language%", language))
                 .setClickAction(ClickAction.RUN_COMMAND, "/language " + language);
     }
 

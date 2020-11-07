@@ -4,7 +4,9 @@ package com.arematics.minecraft.data.mode.model;
 
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.data.share.model.Permission;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -12,6 +14,8 @@ import java.io.Serializable;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "kit")
 public class Kit implements Serializable {
 
@@ -37,9 +41,5 @@ public class Kit implements Serializable {
     @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     @Column(name = "display_item", nullable = false)
     private CoreItem[] displayItem;
-
-    @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
-    @Column(name = "content", nullable = false)
-    private CoreItem[] content;
 
 }

@@ -79,6 +79,10 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return this;
     }
 
+    public String readMetaValue(String key){
+        return this.getMeta().getString(key);
+    }
+
     public boolean hasBindedCommand(){
         return this.getMeta().hasKey(BINDED_COMMAND);
     }
@@ -104,6 +108,7 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
     }
 
     public CoreItem setName(String name){
+        name = name.replaceAll("&", "§");
         ItemMeta meta = this.getItemMeta();
         meta.setDisplayName(name);
         this.setItemMeta(meta);

@@ -1,7 +1,7 @@
 name: McCore
 author: Klysma
 description: McCore by Arematics
-version: 0.3.9
+version: 0.4.1
 depend: [WorldEdit, WorldGuard]
 
 main: com.arematics.minecraft.core.CoreBoot
