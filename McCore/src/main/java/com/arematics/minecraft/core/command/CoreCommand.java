@@ -1,12 +1,17 @@
 package com.arematics.minecraft.core.command;
 
+import com.arematics.minecraft.core.Boots;
+import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.PermissionAnnotationProcessor;
 import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProcessor;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.messaging.advanced.*;
+import com.arematics.minecraft.core.messaging.advanced.ClickAction;
+import com.arematics.minecraft.core.messaging.advanced.HoverAction;
+import com.arematics.minecraft.core.messaging.advanced.MSG;
+import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
@@ -15,6 +20,7 @@ import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.ClassUtils;
 import com.arematics.minecraft.core.utils.Methods;
+import com.arematics.minecraft.data.service.InventoryService;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -22,6 +28,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -48,6 +56,8 @@ public abstract class CoreCommand extends Command {
     private final List<String> longArgumentParameters = new ArrayList<>();
     private final String commandInformationString;
 
+    private final byte uiSlots;
+
     private final List<AnnotationProcessor<?>> processors = new ArrayList<>();
 
     public CoreCommand(String name, String... aliases){
@@ -71,6 +81,7 @@ public abstract class CoreCommand extends Command {
         this.commandInformationString = "§a\n\n§7Command" + " » " + "§c/" + this.getName() + "\n" +
                 "%subcmds%";
         this.registerStandards(processors);
+        this.uiSlots = calculateSlots();
     }
 
     private void registerStandards(AnnotationProcessor<?>[] processors){
@@ -91,6 +102,10 @@ public abstract class CoreCommand extends Command {
     }
 
     public void onDefaultExecute(CommandSender sender){
+        CommandSupplier.create().setCLI(this::onCLI).setUI(this::onUI).accept(sender);
+    }
+
+    private boolean onCLI(CommandSender sender){
         Part[] commandInformationValues = this.subCommands.stream()
                 .map(subcmd -> toSubCommandExecute(sender, subcmd))
                 .toArray(Part[]::new);
@@ -100,7 +115,36 @@ public abstract class CoreCommand extends Command {
                 .replace("subcmds", new MSG(commandInformationValues))
                 .disableServerPrefix()
                 .handle();
+        return true;
     }
+
+    private boolean onUI(CommandSender sender){
+        InventoryService service = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
+        Player player = (Player) sender;
+        Inventory inv = service.getOrCreate("command.default.menu." + this.getName(),
+                "§8Command: §c" + this.getName(), this.uiSlots);
+        player.openInventory(inv);
+        return true;
+    }
+
+    private byte calculateSlots(){
+        int size = this.subCommands.size();
+        int min = 1;
+        int max = 5;
+        byte val = 9;
+        while(!(between(min, max, size))){
+            min = max + 1;
+            max = max + 5;
+            val += 9;
+            if(val >= 54) return 54;
+        }
+        return val;
+    }
+
+    private boolean between(int min, int max, int value){
+        return value >= min && value <= max;
+    }
+
 
     private Part toSubCommandExecute(CommandSender sender, String cmdName){
         return new Part("     §7/" + this.getName() + " §c" + cmdName + "\n")

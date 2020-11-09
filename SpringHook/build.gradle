@@ -6,14 +6,3 @@ dependencies{
     compileOnly group: 'com.arematics', name: 'Metadata', version: '1.0'
     compileOnly group: 'com.arematics', name: 'Watcher', version: '1.0'
 }
-
-def filesToCopy = copySpec{
-    from 'build/libs/SpringHook-1.0.jar'
-}
-
-task copyFileToCityBuild(type:Copy) {
-    with filesToCopy
-    into new File('Server/Citybuild/plugins').absolutePath
-}
-
-copyFileToCityBuild.dependsOn(jar)

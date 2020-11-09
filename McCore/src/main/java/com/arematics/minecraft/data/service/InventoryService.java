@@ -37,16 +37,35 @@ public class InventoryService {
     }
 
     public Inventory getOrCreate(String key, String title, byte slots){
-        if(inventories.containsKey(key)) return inventories.get(key);
+        if(inventories.containsKey(key)) return patchSlotsOrTilte(key, title, slots);
         Optional<InventoryData> data = repository.findByDataKey(key);
         if(!data.isPresent()){
             data = Optional.of(saveNew(key, title, slots));
-        };
-        return fromData(data.get());
+        }
+        InventoryData d = data.get();
+        d.setTitle(title);
+        d.setSlots(slots);
+        saveRaw(d);
+        return fromData(d);
+    }
+
+    private Inventory patchSlotsOrTilte(String key, String title, byte slots){
+        Inventory inv = inventories.get(key);
+        if(!inv.getTitle().equals(title) || inv.getSize() != slots) {
+            Inventory newInv = Bukkit.createInventory(null, slots, title);
+            newInv.setContents(inv.getContents());
+            inventories.replace(key, newInv);
+        }
+
+        return inventories.get(key);
     }
 
     public InventoryData saveNew(String key, String title, int slots){
         return repository.save(new InventoryData(null, key, title, slots, new CoreItem[]{}));
+    }
+
+    private void saveRaw(InventoryData data){
+        repository.save(data);
     }
 
     public void save(String key){

@@ -98,6 +98,7 @@ subprojects {
     }
 
     shadowJar {
+        archiveVersion.convention("")
         transform(ServiceFileTransformer) {
             path = './META-INF'
             include 'spring.*'
@@ -107,4 +108,15 @@ subprojects {
     test {
         useJUnitPlatform()
     }
+
+    def filesToCopy = copySpec{
+        from "build/libs/${project.name}-all.jar"
+    }
+
+    task copyFileToCityBuild(type:Copy) {
+        with filesToCopy
+        into rootProject.file('Server/Citybuild/plugins').absolutePath
+    }
+
+    copyFileToCityBuild.dependsOn(shadowJar)
 }

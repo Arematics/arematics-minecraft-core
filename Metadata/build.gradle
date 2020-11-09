@@ -6,14 +6,3 @@ dependencies {
 
     compileOnly project(':McCore')
 }
-
-def filesToCopy = copySpec{
-    from 'build/libs/Metadata-1.0.jar'
-}
-
-task copyFileToCityBuild(type:Copy) {
-    with filesToCopy
-    into new File('Server/Citybuild/plugins').absolutePath
-}
-
-copyFileToCityBuild.dependsOn(jar)

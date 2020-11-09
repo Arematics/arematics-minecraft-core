@@ -28,17 +28,6 @@ dependencies {
 
 }
 
-def filesToCopy = copySpec{
-    from 'build/libs/McCore-0.4.2-all.jar'
-}
-
-task copyFileToCityBuild(type:Copy) {
-    with filesToCopy
-    into new File('Server/Citybuild/plugins').absolutePath
-}
-
-copyFileToCityBuild.dependsOn(shadowJar)
-
 
 
 
