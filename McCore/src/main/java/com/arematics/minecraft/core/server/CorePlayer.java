@@ -1,32 +1,30 @@
 package com.arematics.minecraft.core.server;
 
 import com.arematics.minecraft.core.currency.Currency;
+import com.arematics.minecraft.data.service.InventoryService;
+import lombok.Data;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+@Data
 public class CorePlayer {
+    private final Player player;
+    private final Map<Currency, Double> currencies = new HashMap<>();
 
-    private Player player;
-
-    CorePlayer(Player player){
+    public CorePlayer(Player player){
         this.player = player;
     }
 
-    private final Map<Currency, Double> currencies = new HashMap<>();
-
-    public CorePlayer() {
-
+    public Inventory getInventory(InventoryService service, String key) throws RuntimeException{
+        return service.getInventory(player.getUniqueId() + "." + key);
     }
 
-    public Map<Currency, Double> getCurrencies() {
-        return currencies;
-    }
-
-    public Player getPlayer() {
-        return player;
+    public Inventory getOrCreateInventory(InventoryService service, String key, String title, byte slots){
+        return service.getOrCreate(player.getUniqueId() + "." + key, title, slots);
     }
 
     /**
