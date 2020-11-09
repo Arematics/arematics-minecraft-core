@@ -3,12 +3,13 @@ package com.arematics.minecraft.kits.commands;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.permissions.Permissions;
-import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.service.InventoryService;
+import com.arematics.minecraft.data.service.KitService;
 import com.arematics.minecraft.data.service.UserService;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -20,14 +21,28 @@ import java.util.Arrays;
 @Component
 public class KitCommand extends CoreCommand {
 
+    private final KitService service;
     private final UserService userService;
     private final InventoryService inventoryService;
 
     @Autowired
-    public KitCommand(UserService userService, InventoryService inventoryService) {
+    public KitCommand(KitService kitService, UserService userService, InventoryService inventoryService) {
         super("kit", "kits");
+        this.service = kitService;
         this.userService = userService;
         this.inventoryService = inventoryService;
+    }
+
+    @Override
+    public void onDefaultExecute(CommandSender sender) {
+        String msg = "§a\n\n§7Kits" + " » " + "§c%kits%";
+        String joined = StringUtils.join(service.findKitNames(), ", ");
+        Messages.create(msg)
+                .to(sender)
+                .DEFAULT()
+                .replace("kits", StringUtils.isBlank(joined) ? "-" : joined)
+                .disableServerPrefix()
+                .handle();
     }
 
     @SubCommand("{kit}")
@@ -37,8 +52,7 @@ public class KitCommand extends CoreCommand {
     }
 
     private void giveToPlayer(Kit kit, Player player, boolean force){
-        User user = userService.getOrCreateUser(player.getUniqueId());
-        if(!force && (kit.getPermission() != null && !Permissions.hasPermission(user, kit.getPermission().getPermission()))){
+        if(!force && !service.isPermitted(player.getUniqueId(), kit)){
             Messages.create("cmd_noperms")
                     .WARNING()
                     .to(player)

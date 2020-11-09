@@ -4,9 +4,7 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.messaging.advanced.ClickAction;
-import com.arematics.minecraft.core.messaging.advanced.HoverAction;
-import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.messaging.advanced.*;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.data.global.model.Configuration;
 import com.arematics.minecraft.data.global.model.User;
@@ -29,7 +27,7 @@ public class PreferredModeCommand extends CoreCommand {
         this.service = userService;
     }
 
-    private Part toPerferredModePart(CommandSender sender, String name){
+    private Part asPart(CommandSender sender, String name){
         return new Part(name)
                 .setHoverAction(HoverAction.SHOW_TEXT, LanguageAPI.prepareRawMessage(sender, "preferred_mode_set")
                         .replaceAll("%mode%", name))
@@ -38,11 +36,11 @@ public class PreferredModeCommand extends CoreCommand {
 
     @Override
     public void onDefaultExecute(CommandSender sender) {
-        Part[] modes = new Part[]{toPerferredModePart(sender, "cli"), toPerferredModePart(sender, "ui")};
+        MSG modes = MSGBuilder.join(',', asPart(sender, "cli"), asPart(sender, "ui"));
         Messages.create("cmd_not_valid")
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
-                .eachReplace("cmd_usage", modes)
+                .replace("cmd_usage", modes)
                 .handle();
     }
 

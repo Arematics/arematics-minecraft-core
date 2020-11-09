@@ -6,9 +6,7 @@ import com.arematics.minecraft.core.command.processor.PermissionAnnotationProces
 import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProcessor;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.messaging.advanced.ClickAction;
-import com.arematics.minecraft.core.messaging.advanced.HoverAction;
-import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.messaging.advanced.*;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
@@ -99,7 +97,7 @@ public abstract class CoreCommand extends Command {
         Messages.create(this.commandInformationString)
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
-                .eachReplace("subcmds", commandInformationValues)
+                .replace("subcmds", new MSG(commandInformationValues))
                 .disableServerPrefix()
                 .handle();
     }

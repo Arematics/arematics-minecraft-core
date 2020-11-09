@@ -6,9 +6,7 @@ import com.arematics.minecraft.core.language.Language;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.language.LanguageUser;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.messaging.advanced.ClickAction;
-import com.arematics.minecraft.core.messaging.advanced.HoverAction;
-import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.messaging.advanced.*;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,15 +22,15 @@ public class LanguageCommand extends CoreCommand {
 
     @Override
     public void onDefaultExecute(CommandSender sender){
-        Part[] languages = new Part[]{changeLanguagePart(sender, "EN"), changeLanguagePart(sender, "DE")};
+        MSG languages = MSGBuilder.join(',', asPart(sender, "EN"), asPart(sender, "DE"));
         Messages.create("cmd_not_valid")
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
-                .eachReplace("cmd_usage", languages)
+                .replace("cmd_usage", languages)
                 .handle();
     }
 
-    private Part changeLanguagePart(CommandSender sender, String language){
+    private Part asPart(CommandSender sender, String language){
         return new Part(language)
                 .setHoverAction(HoverAction.SHOW_TEXT, LanguageAPI.prepareRawMessage(sender, "language_change_to")
                         .replaceAll("%language%", language))

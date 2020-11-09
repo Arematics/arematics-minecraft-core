@@ -4,7 +4,7 @@ version '1.0'
 dependencies {
     compileOnly "de.tr7zw:NBT-API:1.0"
 
-    compileOnly 'com.arematics:McCore:0.4.1'
+    compileOnly project(':McCore')
 }
 
 def filesToCopy = copySpec{

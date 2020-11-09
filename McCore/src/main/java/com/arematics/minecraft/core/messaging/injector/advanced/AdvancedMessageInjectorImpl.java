@@ -8,16 +8,14 @@ import com.arematics.minecraft.core.messaging.injector.Injector;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class AdvancedMessageInjectorImpl extends Injector<MSG> implements AdvancedMessageReplace {
 
     protected final List<CommandSender> SENDER_LIST;
     protected final MessageHighlight HIGHLIGHT;
     protected final String RAW_MESSAGE;
-    protected final List<AdvancedReplace> INJECTOR_VALUES = new ArrayList<>();
+    protected final Map<String, MSG> INJECTOR_VALUES = new HashMap<>();
     private boolean serverPrefix = true;
 
     public AdvancedMessageInjectorImpl(List<CommandSender> senderList, MessageHighlight highlight,
@@ -29,13 +27,13 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
 
     @Override
     public AdvancedMessageReplace replace(String pattern, Part replace){
-        this.INJECTOR_VALUES.add(new AdvancedReplace(pattern, new Part[]{replace}));
+        this.INJECTOR_VALUES.put(pattern, new MSG(replace));
         return this;
     }
 
     @Override
-    public AdvancedMessageReplace eachReplace(String key, Part[] values) {
-        this.INJECTOR_VALUES.add(new AdvancedReplace(key, values));
+    public AdvancedMessageReplace replace(String key, MSG msg) {
+        this.INJECTOR_VALUES.put(key, msg);
         return this;
     }
 
@@ -66,11 +64,7 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
     @Override
     protected MSG injectValues(String income) {
         MSG msg = new MSG(income);
-        this.INJECTOR_VALUES.forEach(replace -> handleReplacer(replace, msg));
+        this.INJECTOR_VALUES.forEach((key, value) -> msg.replaceAllAt("%" + key + "%", value, false));
         return msg;
-    }
-
-    private void handleReplacer(AdvancedReplace replace, MSG msg){
-        msg.replaceAllAt("%" + replace.key + "%", new MSG(Arrays.asList(replace.parts)), false);
     }
 }

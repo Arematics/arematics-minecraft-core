@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,13 +46,17 @@ public class KitService {
     }
 
     public boolean isPermitted(UUID uuid, Kit kit){
-        User user = userService.getUserByUUID(uuid);
+        User user = userService.getOrCreateUser(uuid);
         return kit.getPermission() == null || user.getUserPermissions().contains(kit.getPermission());
     }
 
     public boolean hasCooldownOnKit(UUID uuid, Kit kit){
         CooldownKey key = from(uuid, kit);
         return cooldownService.hasCooldown(key);
+    }
+
+    public List<String> findKitNames(){
+        return repository.findNames();
     }
 
     private CooldownKey from(UUID uuid, Kit kit){

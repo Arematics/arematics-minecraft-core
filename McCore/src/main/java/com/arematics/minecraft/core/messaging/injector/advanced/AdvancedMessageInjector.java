@@ -22,8 +22,8 @@ public class AdvancedMessageInjector extends Injector<MSG> implements AdvancedMe
     }
 
     @Override
-    public AdvancedMessageReplace eachReplace(String key, Part[] values) {
-        this.injector.eachReplace(key, values);
+    public AdvancedMessageReplace replace(String key, MSG msg) {
+        this.injector.replace(key, msg);
         return injector;
     }
 

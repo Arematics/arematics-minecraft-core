@@ -7,6 +7,7 @@ import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.ClickAction;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
+import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.utils.TimeUtils;
@@ -68,7 +69,7 @@ public class KitAdminCommand extends CoreCommand {
         Messages.create(msg)
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
-                .eachReplace("information", parts.toArray(new Part[]{}))
+                .replace("information", new MSG(parts))
                 .disableServerPrefix()
                 .handle();
     }
