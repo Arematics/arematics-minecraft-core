@@ -15,7 +15,7 @@ public class Permissions {
     public static boolean isNotAllowed(CommandSender sender, String permission){
         if(sender instanceof Player) {
             UserService service = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
-            User user = service.getOrCreateUser(((Player)sender).getUniqueId());
+            User user = service.getOrCreateUser(((Player)sender).getUniqueId(), sender.getName());
             return !hasPermission(user, permission);
         }
         return true;

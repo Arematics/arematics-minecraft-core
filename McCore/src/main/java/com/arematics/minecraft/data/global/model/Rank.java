@@ -32,6 +32,8 @@ public class Rank implements Serializable {
     private String shortName;
     @Column(name = "color_code", nullable = false)
     private String colorCode;
+    @Column(name = "in_team", nullable = false)
+    private boolean inTeam;
     @Column(name = "last_change", nullable = false)
     private Timestamp lastChange;
     @NotAudited

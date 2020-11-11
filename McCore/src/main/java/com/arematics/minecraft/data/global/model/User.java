@@ -33,6 +33,8 @@ public class User implements Serializable {
     @Column(name = "uuid", nullable = false)
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID uuid;
+    @Column(name = "last_name")
+    private String lastName;
     @Column(name = "last_join")
     private Timestamp lastJoin;
     @NotAudited

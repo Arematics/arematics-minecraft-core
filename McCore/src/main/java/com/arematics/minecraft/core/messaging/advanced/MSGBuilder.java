@@ -27,7 +27,7 @@ public class MSGBuilder {
 
     private static MSG joinParts(ArrayList<Part> parts, char joining){
         IntStream.range(1, parts.size())
-                .forEach(index -> parts.add(index, new Part(joining + " ")));
+                .forEach(index -> parts.add(parts.lastIndexOf(new Part(joining + " ")) + 2, new Part(joining + " ")));
         return new MSG(parts);
     }
 }

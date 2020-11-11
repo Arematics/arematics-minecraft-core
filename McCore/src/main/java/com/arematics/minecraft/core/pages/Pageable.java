@@ -1,12 +1,13 @@
 package com.arematics.minecraft.core.pages;
 
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Pageable {
@@ -16,20 +17,46 @@ public class Pageable {
     private final Map<Long, Page> pages = new HashMap<>();
     private final CommandSender sender;
     private final String bindedCommand;
+    private final int maxCacheSeconds;
     private long page = 0;
     private long lastUse;
 
-    public Pageable(List<String> content, CommandSender sender, String bindedCommand){
+    public Pageable(List<String> content, CommandSender sender, String bindedCommand, int maxCacheSeconds){
         this.sender = sender;
         this.bindedCommand = bindedCommand;
-        List<List<String>> partitions = Lists.partition(content, 36);
+        this.maxCacheSeconds = maxCacheSeconds;
+        generate(content);
+    }
+
+    private void generate(List<String> content){
+        this.pages.clear();
+        List<List<String>> partitions = Lists.partition(content, maxItems);
         IntStream.range(0, partitions.size()).forEach(index -> addEntry(partitions.get(index), index));
+        if(page >= this.pages.size()) page = Math.max(this.pages.size() - 1, 0);
         used();
     }
 
-    private boolean addEntry(List<String> content, long index){
+    private void addEntry(List<String> content, long index){
         pages.put(index, new Page(content));
-        return true;
+    }
+
+    public void remove(String... contents){
+        Set<String> content = pages.values().stream()
+                .map(Page::getContent)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+        content.removeAll(Arrays.asList(contents));
+        generate(new ArrayList<>(content));
+        dispatchSyncBindedCommand();
+    }
+
+    public void add(String... contents){
+        Set<String> content = pages.values().stream()
+                .map(Page::getContent)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+        content.addAll(Arrays.asList(contents));
+        generate(new ArrayList<>(content));
     }
 
     public Page current(){
@@ -40,17 +67,26 @@ public class Pageable {
     public void next(){
         used();
         page++;
-        Bukkit.getServer().dispatchCommand(sender, bindedCommand);
+        dispatchSyncBindedCommand();
     }
 
     public void before(){
         used();
         page--;
-        Bukkit.getServer().dispatchCommand(sender, bindedCommand);
+        dispatchSyncBindedCommand();
+    }
+
+    private void dispatchSyncBindedCommand(){
+        ArematicsExecutor.syncRun(() -> {
+            if(sender instanceof Player && ((Player) sender).getOpenInventory() != null) {
+                ((Player) sender).closeInventory();
+                Bukkit.getServer().dispatchCommand(sender, bindedCommand);
+            }
+        });
     }
 
     public boolean hasNext(){
-        return page != pages.size() - 1;
+        return page < pages.size() - 1;
     }
 
     public boolean hasBefore(){
@@ -59,6 +95,10 @@ public class Pageable {
 
     public void used(){
         this.lastUse = System.currentTimeMillis();
+    }
+
+    public int getMaxCacheSeconds() {
+        return maxCacheSeconds;
     }
 
     long getLastUse(){

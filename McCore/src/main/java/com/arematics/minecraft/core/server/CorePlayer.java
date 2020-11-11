@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.server;
 
 import com.arematics.minecraft.core.currency.Currency;
+import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.data.service.InventoryService;
 import lombok.Data;
 import org.bukkit.entity.Player;
@@ -8,15 +9,38 @@ import org.bukkit.inventory.Inventory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Data
-public class CorePlayer {
+public class CorePlayer{
+    private static Map<UUID, CorePlayer> players = new HashMap<>();
+
+    public static CorePlayer get(Player player){
+        if(!players.containsKey(player.getUniqueId()))
+            players.put(player.getUniqueId(), new CorePlayer(player));
+        return players.get(player.getUniqueId());
+    }
+
+    public static void unload(Player player){
+        players.remove(player.getUniqueId()).unload();
+    }
+
     private final Player player;
     private final Map<Currency, Double> currencies = new HashMap<>();
+    private final Pager pager;
 
     public CorePlayer(Player player){
         this.player = player;
+        this.pager = new Pager(player);
+    }
+
+    private void unload(){
+
+    }
+
+    public UUID getUUID(){
+        return this.player.getUniqueId();
     }
 
     public Inventory getInventory(InventoryService service, String key) throws RuntimeException{

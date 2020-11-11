@@ -42,10 +42,19 @@ public class UserService {
         return entity;
     }
 
+    public User findByName(String name){
+        Optional<User> user = repository.findByLastName(name);
+        if(!user.isPresent()) throw new RuntimeException("User with lastName: " + name + " could not be found");
+        User entity = user.get();
+        entity.getUserPermissions().addAll(permissionRepository
+                .findAllByUserUUIDAndMode(entity.getUuid().toString(), modeName));
+        return entity;
+    }
+
     @CachePut(cacheNames = "userCache")
-    public User createUser(UUID uuid){
-        User user = new User(UUID.randomUUID(), uuid, new Timestamp(System.currentTimeMillis()), null, null,
-                rankService.getDefaultRank(), null, new HashMap<>(), new HashSet<>());
+    public User createUser(UUID uuid, String name){
+        User user = new User(UUID.randomUUID(), uuid, name, new Timestamp(System.currentTimeMillis()), null,
+                null, rankService.getDefaultRank(), null, new HashMap<>(), new HashSet<>());
         return repository.save(user);
     }
 
@@ -54,11 +63,11 @@ public class UserService {
         return repository.save(user);
     }
 
-    public User getOrCreateUser(UUID uuid){
+    public User getOrCreateUser(UUID uuid, String name){
         try{
             return getUserByUUID(uuid);
         }catch (RuntimeException exception){
-            return createUser(uuid);
+            return createUser(uuid, name);
         }
     }
 }

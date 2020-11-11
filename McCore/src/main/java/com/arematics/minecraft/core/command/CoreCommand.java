@@ -123,7 +123,7 @@ public abstract class CoreCommand extends Command {
         Player player = (Player) sender;
         Inventory inv = service.getOrCreate("command.default.menu." + this.getName(),
                 "§8Command: §c" + this.getName(), this.uiSlots);
-        player.openInventory(inv);
+        ArematicsExecutor.syncRun(() -> player.openInventory(inv));
         return true;
     }
 
@@ -167,7 +167,7 @@ public abstract class CoreCommand extends Command {
     }
 
     @Override
-    public final boolean execute(final CommandSender commandSender, String labels, final String[] arguments) {
+    public final boolean execute(final CommandSender commandSender, String labels, String[] arguments) {
         ArematicsExecutor.runAsync(() -> process(commandSender, arguments));
         return true;
     }
@@ -207,7 +207,6 @@ public abstract class CoreCommand extends Command {
         dataPack.put(CommonData.COMMAND_SENDER.toString(), sender);
         dataPack.put("classLevelPermission", this.classPermission);
         try{
-
             if(isDefault)
                 Permissions.check(sender, this.classPermission).ifPermitted(this::onDefaultExecute).submit();
             else {

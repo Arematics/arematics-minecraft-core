@@ -50,7 +50,7 @@ public class CommandSupplier implements CommandCLI, CommandUI, CommandAccept{
     }
 
     private boolean hasUserUIEnabled(Player player){
-        User user = this.userService.getOrCreateUser(player.getUniqueId());
+        User user = this.userService.getOrCreateUser(player.getUniqueId(), player.getName());
         return user.getConfigurations().getOrDefault("command-mode", new Configuration(""))
                 .getValue().equals("ui");
     }

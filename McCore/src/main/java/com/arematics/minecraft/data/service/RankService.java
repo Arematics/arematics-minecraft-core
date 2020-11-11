@@ -40,7 +40,7 @@ public class RankService {
     @CachePut(cacheNames = "rankCache")
     public Rank getDefaultRank(){
         Optional<Rank> rank = repository.findById(1L);
-        return rank.orElseGet(() -> repository.save(new Rank(1L, "User", "U", "§b",
-                new Timestamp(System.currentTimeMillis()), new HashSet<>())));
+        return rank.orElseGet(() -> repository.save(new Rank(1L, "User", "U",
+                "§b", false, new Timestamp(System.currentTimeMillis()), new HashSet<>())));
     }
 }

@@ -4,6 +4,7 @@ import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.mode.repository.KitRepository;
 import com.arematics.minecraft.data.share.model.CooldownKey;
+import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -45,8 +46,8 @@ public class KitService {
         repository.delete(kit);
     }
 
-    public boolean isPermitted(UUID uuid, Kit kit){
-        User user = userService.getOrCreateUser(uuid);
+    public boolean isPermitted(Player player, Kit kit){
+        User user = userService.getOrCreateUser(player.getUniqueId(), player.getName());
         return kit.getPermission() == null || user.getUserPermissions().contains(kit.getPermission());
     }
 

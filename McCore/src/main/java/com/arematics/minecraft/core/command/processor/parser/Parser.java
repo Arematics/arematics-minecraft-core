@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.inventories.anvil.AnvilGUI;
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -38,7 +39,13 @@ public class Parser {
         List<Object> parameters = new ArrayList<>();
         if (CommandSender.class.equals(types[0])) {
             parameters.add(sender);
-        } else if (Player.class.equals(types[0])) {
+        } else if (CorePlayer.class.equals(types[0])) {
+            if (sender instanceof Player) {
+                parameters.add(CorePlayer.get((Player)sender));
+            } else {
+                throw new ParserException("Only Players allowed to perform this command");
+            }
+        }else if (Player.class.equals(types[0])) {
             if (sender instanceof Player) {
                 parameters.add(sender);
             } else {

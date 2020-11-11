@@ -52,7 +52,7 @@ public class KitCommand extends CoreCommand {
     }
 
     private void giveToPlayer(Kit kit, Player player, boolean force){
-        if(!force && !service.isPermitted(player.getUniqueId(), kit)){
+        if(!force && !service.isPermitted(player, kit)){
             Messages.create("cmd_noperms")
                     .WARNING()
                     .to(player)

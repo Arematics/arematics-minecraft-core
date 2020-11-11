@@ -26,7 +26,8 @@ public class UserUpdateListener implements Listener {
         Player player = joinEvent.getPlayer();
 
         Timestamp current = new Timestamp(System.currentTimeMillis());
-        User user = this.userService.getOrCreateUser(player.getUniqueId());
+        User user = this.userService.getOrCreateUser(player.getUniqueId(), player.getName());
+        user.setLastName(player.getName());
         user.setLastIp(player.getAddress().getAddress().getHostAddress());
         user.setLastIpChange(current);
         user.setLastJoin(current);
