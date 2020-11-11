@@ -7,7 +7,9 @@ import lombok.Setter;
 import lombok.ToString;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -154,6 +156,15 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
     public CoreItem clearLore(){
         ItemMeta meta = this.getItemMeta();
         meta.setLore(new ArrayList<>());
+        this.setItemMeta(meta);
+        return this;
+    }
+
+    public CoreItem setGlow(){
+        this.addUnsafeEnchantment(Enchantment.LUCK, 3);
+        ItemMeta meta = this.getItemMeta();
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         this.setItemMeta(meta);
         return this;
     }

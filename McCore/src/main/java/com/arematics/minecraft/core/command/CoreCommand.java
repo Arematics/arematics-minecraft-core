@@ -105,7 +105,7 @@ public abstract class CoreCommand extends Command {
         CommandSupplier.create().setCLI(this::onCLI).setUI(this::onUI).accept(sender);
     }
 
-    private boolean onCLI(CommandSender sender){
+    protected boolean onCLI(CommandSender sender){
         Part[] commandInformationValues = this.subCommands.stream()
                 .map(subcmd -> toSubCommandExecute(sender, subcmd))
                 .toArray(Part[]::new);
@@ -118,9 +118,8 @@ public abstract class CoreCommand extends Command {
         return true;
     }
 
-    private boolean onUI(CommandSender sender){
+    protected boolean onUI(Player player){
         InventoryService service = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
-        Player player = (Player) sender;
         Inventory inv = service.getOrCreate("command.default.menu." + this.getName(),
                 "§8Command: §c" + this.getName(), this.uiSlots);
         ArematicsExecutor.syncRun(() -> player.openInventory(inv));

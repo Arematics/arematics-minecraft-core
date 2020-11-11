@@ -17,7 +17,7 @@ public class CommandSupplier implements CommandCLI, CommandUI, CommandAccept{
     }
 
     private Function<CommandSender, Boolean> onCli;
-    private Function<CommandSender, Boolean> onUI = null;
+    private Function<Player, Boolean> onUI = null;
 
     private final UserService userService;
 
@@ -32,7 +32,7 @@ public class CommandSupplier implements CommandCLI, CommandUI, CommandAccept{
     }
 
     @Override
-    public CommandAccept setUI(Function<CommandSender, Boolean> onUI) {
+    public CommandAccept setUI(Function<Player, Boolean> onUI) {
         this.onUI = onUI;
         return this;
     }
@@ -40,7 +40,7 @@ public class CommandSupplier implements CommandCLI, CommandUI, CommandAccept{
     @Override
     public boolean accept(CommandSender sender) {
         if(isUIAccepted(sender))
-            return onUI.apply(sender);
+            return onUI.apply((Player)sender);
         return onCli.apply(sender);
     }
 
