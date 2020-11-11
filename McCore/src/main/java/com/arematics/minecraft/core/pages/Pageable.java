@@ -47,6 +47,7 @@ public class Pageable {
                 .collect(Collectors.toSet());
         content.removeAll(Arrays.asList(contents));
         generate(new ArrayList<>(content));
+        invalidateInventories();
         dispatchSyncBindedCommand();
     }
 
@@ -56,7 +57,12 @@ public class Pageable {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
         content.addAll(Arrays.asList(contents));
+        invalidateInventories();
         generate(new ArrayList<>(content));
+    }
+
+    public void invalidateInventories(){
+        this.pages.values().forEach(page -> page.setInventory(null));
     }
 
     public Page current(){

@@ -97,17 +97,23 @@ public class IgnoreCommand extends CoreCommand {
 
     private boolean onUI(CorePlayer player, Page page){
         if(page == null) page = new Page(new ArrayList<>());
-        Inventory inv = Bukkit.createInventory(null, 54, "§cIgnored Players");
-        for(int i = 0; i<=8; i++) inv.setItem(i, Items.PLAYERHOLDER);
-        for(int i = 45; i<=53; i++) inv.setItem(i, Items.PLAYERHOLDER);
-        if(player.getPager().fetch(IgnoreCommand.PAGER_KEY).hasBefore()) inv.setItem(45, Items.BEFORE_PAGE);
-        if(player.getPager().fetch(IgnoreCommand.PAGER_KEY).hasNext()) inv.setItem(53, Items.NEXT_PAGE);
-        int slot = 9;
-        for(String ignored : page.getContent()) inv.setItem(slot++, Items.fetchPlayerSkull(ignored)
-                .bindCommand("ignore rem " + ignored)
-                .setName("§8Player: §c" + ignored)
-                .addToLore("§cClick to unignore player"));
-        ArematicsExecutor.syncRun(() -> player.getPlayer().openInventory(inv));
+        Inventory inventory = page.getInventory();
+        if(inventory == null) {
+            inventory = Bukkit.createInventory(null, 54, "§cIgnored Players");
+            for (int i = 0; i <= 8; i++) inventory.setItem(i, Items.PLAYERHOLDER);
+            for (int i = 45; i <= 53; i++) inventory.setItem(i, Items.PLAYERHOLDER);
+            if (player.getPager().fetch(IgnoreCommand.PAGER_KEY).hasBefore()) inventory.setItem(45, Items.BEFORE_PAGE);
+            if (player.getPager().fetch(IgnoreCommand.PAGER_KEY).hasNext()) inventory.setItem(53, Items.NEXT_PAGE);
+            int slot = 9;
+            for (String ignored : page.getContent())
+                inventory.setItem(slot++, Items.fetchPlayerSkull(ignored)
+                        .bindCommand("ignore rem " + ignored)
+                        .setName("§8Player: §c" + ignored)
+                        .addToLore("§cClick to unignore player"));
+            page.setInventory(inventory);
+        }
+        Inventory finalInventory = inventory;
+        ArematicsExecutor.syncRun(() -> player.getPlayer().openInventory(finalInventory));
         return true;
     }
 
