@@ -4,7 +4,6 @@ import com.arematics.minecraft.core.messaging.Messages;
 import de.tr7zw.nbtapi.NBTItem;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.enchantments.Enchantment;
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-@ToString
 public class CoreItem extends ItemStack implements ConfigurationSerializable {
 
     private static final String BINDED_COMMAND = "binded_command";
@@ -180,6 +178,13 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         outputStream.flush();
         outputStream.close();
         return outputStream;
+    }
+
+    @Override
+    public String toString() {
+        return "CoreItem{item" + super.toString() +
+                ",meta=" + meta +
+                '}';
     }
 
     @Override

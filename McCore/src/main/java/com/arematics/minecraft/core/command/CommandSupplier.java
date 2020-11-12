@@ -2,6 +2,7 @@ package com.arematics.minecraft.core.command;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.global.model.Configuration;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.UserService;
@@ -17,7 +18,7 @@ public class CommandSupplier implements CommandCLI, CommandUI, CommandAccept{
     }
 
     private Function<CommandSender, Boolean> onCli;
-    private Function<Player, Boolean> onUI = null;
+    private Function<CorePlayer, Boolean> onUI = null;
 
     private final UserService userService;
 
@@ -32,7 +33,7 @@ public class CommandSupplier implements CommandCLI, CommandUI, CommandAccept{
     }
 
     @Override
-    public CommandAccept setUI(Function<Player, Boolean> onUI) {
+    public CommandAccept setUI(Function<CorePlayer, Boolean> onUI) {
         this.onUI = onUI;
         return this;
     }
@@ -40,7 +41,7 @@ public class CommandSupplier implements CommandCLI, CommandUI, CommandAccept{
     @Override
     public boolean accept(CommandSender sender) {
         if(isUIAccepted(sender))
-            return onUI.apply((Player)sender);
+            return onUI.apply(CorePlayer.get((Player)sender));
         return onCli.apply(sender);
     }
 

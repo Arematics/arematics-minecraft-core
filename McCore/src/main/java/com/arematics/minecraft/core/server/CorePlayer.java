@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.server;
 
 import com.arematics.minecraft.core.currency.Currency;
+import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.data.service.InventoryService;
 import lombok.Data;
@@ -29,6 +30,7 @@ public class CorePlayer{
     private final Player player;
     private final Map<Currency, Double> currencies = new HashMap<>();
     private final Pager pager;
+    private boolean ignoreMeta = false;
 
     public CorePlayer(Player player){
         this.player = player;
@@ -41,6 +43,10 @@ public class CorePlayer{
 
     public UUID getUUID(){
         return this.player.getUniqueId();
+    }
+
+    public CoreItem getItemInHand(){
+        return CoreItem.create(player.getItemInHand());
     }
 
     public Inventory getInventory(InventoryService service, String key) throws RuntimeException{

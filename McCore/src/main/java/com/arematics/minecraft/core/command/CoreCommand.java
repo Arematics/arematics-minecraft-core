@@ -17,6 +17,7 @@ import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import com.arematics.minecraft.core.processor.methods.CommonData;
 import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.ClassUtils;
 import com.arematics.minecraft.core.utils.Methods;
@@ -28,7 +29,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import java.lang.reflect.Method;
@@ -102,10 +102,10 @@ public abstract class CoreCommand extends Command {
     }
 
     public void onDefaultExecute(CommandSender sender){
-        CommandSupplier.create().setCLI(this::onCLI).setUI(this::onUI).accept(sender);
+        CommandSupplier.create().setCLI(this::onDefaultCLI).setUI(this::onDefaultUI).accept(sender);
     }
 
-    protected boolean onCLI(CommandSender sender){
+    protected boolean onDefaultCLI(CommandSender sender){
         Part[] commandInformationValues = this.subCommands.stream()
                 .map(subcmd -> toSubCommandExecute(sender, subcmd))
                 .toArray(Part[]::new);
@@ -118,11 +118,11 @@ public abstract class CoreCommand extends Command {
         return true;
     }
 
-    protected boolean onUI(Player player){
+    protected boolean onDefaultUI(CorePlayer player){
         InventoryService service = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
         Inventory inv = service.getOrCreate("command.default.menu." + this.getName(),
                 "§8Command: §c" + this.getName(), this.uiSlots);
-        ArematicsExecutor.syncRun(() -> player.openInventory(inv));
+        ArematicsExecutor.syncRun(() -> player.getPlayer().openInventory(inv));
         return true;
     }
 

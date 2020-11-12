@@ -9,7 +9,10 @@ import com.arematics.minecraft.core.language.LanguageUser;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.*;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
+import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.service.InventoryService;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -30,7 +33,7 @@ public class LanguageCommand extends CoreCommand {
     }
 
     @Override
-    protected boolean onCLI(CommandSender sender){
+    protected boolean onDefaultCLI(CommandSender sender){
         MSG languages = MSGBuilder.join(',', asPart(sender, "EN"), asPart(sender, "DE"));
         Messages.create("cmd_not_valid")
                 .to(sender)
@@ -41,14 +44,24 @@ public class LanguageCommand extends CoreCommand {
     }
 
     @Override
-    protected boolean onUI(Player player){
+    protected boolean onDefaultUI(CorePlayer player){
         Inventory inv = service.getOrCreate("language.default.selection", "§9Language", (byte) 9);
-        CoreItem[] items = CoreItem.create(inv.getContents());
-        items = Arrays.stream(items).map(item -> process(player, item)).toArray(CoreItem[]::new);
+        if(player.isIgnoreMeta()){
+            ArematicsExecutor.syncRun(() -> player.getPlayer().openInventory(inv));
+            return true;
+        }
+        CoreItem[] items = Arrays.stream(CoreItem.create(inv.getContents()))
+                .map(item -> process(player.getPlayer(), item))
+                .toArray(CoreItem[]::new);
+        Arrays.stream(items).forEach(System.out::println);
+        Inventory clone = Bukkit.createInventory(null, (byte) 9, "§9Language");
+        clone.setContents(items);
+        ArematicsExecutor.syncRun(() -> player.getPlayer().openInventory(clone));
         return true;
     }
 
     private CoreItem process(Player player, CoreItem item){
+        if(item == null) return null;
         String value = item.readMetaValue("language");
         if(value != null){
             value = mapLanguageInput(value);

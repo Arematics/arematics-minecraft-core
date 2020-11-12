@@ -5,38 +5,30 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.TitleAPI;
-import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Component
 @Perm(permission = "ignore-meta", description = "Allowed to ignore item meta actions")
 public class IgnoreMetaCommand extends CoreCommand {
 
-    private static final Set<Player> ignoreList = new HashSet<>();
-
-    public static boolean isIgnoreMeta(Player player){
-        return ignoreList.contains(player);
-    }
-
-    public static void setIgnoreMeta(Player player){
-        ignoreList.add(player);
-        TitleAPI.sendTitle(player, LanguageAPI.prepareRawMessage(player, "ignore_item_meta_enabled"),
-                LanguageAPI.prepareRawMessage(player, "ignore_item_meta_inventory_can_edit"),
+    public static void setIgnoreMeta(CorePlayer player){
+        player.setIgnoreMeta(true);
+        TitleAPI.sendTitle(player.getPlayer(),
+                LanguageAPI.prepareRawMessage(player.getPlayer(), "ignore_item_meta_enabled"),
+                LanguageAPI.prepareRawMessage(player.getPlayer(), "ignore_item_meta_inventory_can_edit"),
                 10, 20*5, 10);
         Messages.create("ignore_item_meta_enabled")
                 .FAILURE()
-                .to(player)
+                .to(player.getPlayer())
                 .handle();
     }
 
-    public static void unsetIgnoreMeta(Player player){
-        ignoreList.remove(player);
+    public static void unsetIgnoreMeta(CorePlayer player){
+        player.setIgnoreMeta(false);
         Messages.create("ignore_item_meta_disabled")
-                .to(player)
+                .to(player.getPlayer())
                 .handle();
     }
 
@@ -45,20 +37,20 @@ public class IgnoreMetaCommand extends CoreCommand {
     }
 
     @SubCommand("toggle")
-    public boolean toggleIgnoreMeta(Player player) {
-        if(ignoreList.contains(player)) disableIgnoreMeta(player);
+    public boolean toggleIgnoreMeta(CorePlayer player) {
+        if(player.isIgnoreMeta()) disableIgnoreMeta(player);
         else enableIgnoreMeta(player);
         return true;
     }
 
     @SubCommand("enable")
-    public boolean enableIgnoreMeta(Player player) {
+    public boolean enableIgnoreMeta(CorePlayer player) {
         IgnoreMetaCommand.setIgnoreMeta(player);
         return true;
     }
 
     @SubCommand("disable")
-    public boolean disableIgnoreMeta(Player player) {
+    public boolean disableIgnoreMeta(CorePlayer player) {
         IgnoreMetaCommand.unsetIgnoreMeta(player);
         return true;
     }

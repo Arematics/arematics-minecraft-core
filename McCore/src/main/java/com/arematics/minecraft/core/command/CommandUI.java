@@ -1,9 +1,9 @@
 package com.arematics.minecraft.core.command;
 
-import org.bukkit.entity.Player;
+import com.arematics.minecraft.core.server.CorePlayer;
 
 import java.util.function.Function;
 
 public interface CommandUI {
-    CommandAccept setUI(Function<Player, Boolean> onUI);
+    CommandAccept setUI(Function<CorePlayer, Boolean> onUI);
 }
