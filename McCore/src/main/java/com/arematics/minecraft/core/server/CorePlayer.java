@@ -1,8 +1,13 @@
 package com.arematics.minecraft.core.server;
 
+import com.arematics.minecraft.core.Boots;
+import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.currency.Currency;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.pages.Pager;
+import com.arematics.minecraft.core.scoreboard.functions.BoardSet;
+import com.arematics.minecraft.data.mode.model.GameStats;
+import com.arematics.minecraft.data.service.GameStatsService;
 import com.arematics.minecraft.data.service.InventoryService;
 import lombok.Data;
 import org.bukkit.entity.Player;
@@ -12,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 @Data
 public class CorePlayer{
@@ -30,15 +36,61 @@ public class CorePlayer{
     private final Player player;
     private final Map<Currency, Double> currencies = new HashMap<>();
     private final Pager pager;
+    private final BoardSet boardSet;
+    private final GameStatsService service;
     private boolean ignoreMeta = false;
 
     public CorePlayer(Player player){
         this.player = player;
         this.pager = new Pager(player);
+        this.boardSet = new BoardSet(player);
+        this.service = Boots.getBoot(CoreBoot.class).getContext().getBean(GameStatsService.class);
     }
 
     private void unload(){
 
+    }
+
+    public BoardSet getBoard(){
+        return this.boardSet;
+    }
+
+    public GameStats getStats(){
+        return this.service.getOrCreate(getUUID());
+    }
+
+    private void saveStats(GameStats stats){
+        this.service.save(stats);
+    }
+
+    public void cleanStats(){
+        this.service.delete(getStats());
+    }
+
+    public void onStats(Consumer<GameStats> execute){
+        GameStats stats = getStats();
+        execute.accept(stats);
+        saveStats(stats);
+    }
+
+    public void setKills(int kills){
+        onStats(stats -> stats.setKills(kills));
+    }
+
+    public void addKill(){
+        onStats(stats -> stats.setKills(stats.getKills() + 1));
+    }
+
+    public void setDeaths(int deaths){
+        onStats(stats -> stats.setDeaths(deaths));
+    }
+
+    public void addDeath(){
+        onStats(stats -> stats.setDeaths(stats.getDeaths() + 1));
+    }
+
+    public void setBounty(int bounty){
+        onStats(stats -> stats.setBounty(bounty));
     }
 
     public UUID getUUID(){

@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -69,9 +68,8 @@ public class IgnoreCommand extends CoreCommand {
     @SubCommand("list")
     public boolean listIgnored(CorePlayer player) {
         Pageable pageable = player.getPager().fetch(IgnoreCommand.PAGER_KEY);
-        List<UUID> ignored = service.fetchAllIgnored(player.getUUID());
         if(pageable == null) {
-            List<String> ignoredNames = ignored.stream()
+            List<String> ignoredNames = service.fetchAllIgnored(player.getUUID()).stream()
                     .map(uuid -> this.userService.getUserByUUID(uuid).getLastName())
                     .collect(Collectors.toList());
             pageable = player.getPager().create(IgnoreCommand.PAGER_KEY, ignoredNames);

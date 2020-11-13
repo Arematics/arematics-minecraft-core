@@ -68,7 +68,10 @@ public class LanguageCommand extends CoreCommand {
             Language language = LanguageAPI.getUser(player).getLanguage();
             item = item.setName("§aLanguage: §c" + value);
             if(language.getName().equals(value)){
-                return item.setGlow().addToLore("§aSelected Language");
+                return item.unbindCommand().disableClick()
+                        .setName("§aLanguage: §c" + value)
+                        .setGlow()
+                        .addToLore("§aSelected Language");
             }
         }
         return item;

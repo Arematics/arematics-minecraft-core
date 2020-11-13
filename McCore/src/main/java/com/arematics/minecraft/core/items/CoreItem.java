@@ -28,7 +28,9 @@ import java.util.stream.Collectors;
 @Setter
 public class CoreItem extends ItemStack implements ConfigurationSerializable {
 
-    private static final String BINDED_COMMAND = "binded_command";
+    public static final String BINDED_COMMAND = "binded_command";
+    public static final String DISABLE_CLICK = "disable_click";
+    public static final String CLOSE_INVENTORY = "close_inventory_on_click";
 
     public static CoreItem[] streamTo( InputStream inputStream) throws Exception {
         BukkitObjectInputStream in = new BukkitObjectInputStream(inputStream);
@@ -77,6 +79,32 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         this.getMeta().setString(BINDED_COMMAND, command);
         this.applyNBT();
         return this;
+    }
+
+    public CoreItem unbindCommand(){
+        this.getMeta().removeKey(BINDED_COMMAND);
+        this.applyNBT();
+        return this;
+    }
+
+    public CoreItem disableClick(){
+        this.getMeta().setString(DISABLE_CLICK, "true");
+        this.applyNBT();
+        return this;
+    }
+
+    public CoreItem closeInventoryOnClick(){
+        this.getMeta().setString(CLOSE_INVENTORY, "true");
+        this.applyNBT();
+        return this;
+    }
+
+    public boolean closeOnClick(){
+        return this.getMeta().hasKey(CLOSE_INVENTORY);
+    }
+
+    public boolean clickDisabled(){
+        return this.getMeta().hasKey(DISABLE_CLICK);
     }
 
     public String readMetaValue(String key){

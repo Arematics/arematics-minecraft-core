@@ -91,6 +91,7 @@ public class AnvilGUI {
                     final CoreItem clicked = CoreItem.create(inventory.getItem(e.getRawSlot()));
                     if(clicked == null || clicked.getType() == Material.AIR) return;
                     final String ret = clickHandler.onClick(clicker, clicked.hasItemMeta() ? clicked.getItemMeta().getDisplayName() : clicked.getType().toString());
+                    System.out.println(clicked.getItemMeta().getDisplayName());
                     if(ret != null) {
                         final ItemMeta meta = clicked.getItemMeta();
                         meta.setDisplayName(ret);
@@ -105,6 +106,8 @@ public class AnvilGUI {
         @EventHandler
         public void onInventoryClose(InventoryCloseEvent e) {
             if(e.getInventory().equals(inventory)) {
+                System.out.println("Close and set null");
+                clickHandler.onClick((Player) e.getPlayer(), "null");
                 if(open)
                     closeInventory(true);
                 e.getInventory().clear();

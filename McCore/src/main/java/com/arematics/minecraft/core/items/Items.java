@@ -16,7 +16,7 @@ public class Items {
 
     static{
         ItemStack itemStack = new ItemStack(Material.STAINED_GLASS_PANE, 1, DyeColor.GRAY.getData());
-        PLAYERHOLDER = CoreItem.create(itemStack).setName("§7");
+        PLAYERHOLDER = CoreItem.create(itemStack).disableClick().setName("§7");
         NEXT_PAGE = nextPage().bindCommand("page NEXT");
         BEFORE_PAGE = pageBefore().bindCommand("page BEFORE");
     }
