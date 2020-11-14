@@ -18,7 +18,7 @@ public class UserParser extends CommandParameterParser<User> {
     }
 
     @Override
-    public User doParse(String value) throws ParserException {
+    public User parse(String value) throws ParserException {
         try{
             return this.service.findByName(value);
         }catch (RuntimeException re){

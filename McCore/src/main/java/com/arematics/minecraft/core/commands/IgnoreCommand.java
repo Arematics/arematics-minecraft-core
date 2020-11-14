@@ -1,8 +1,8 @@
 package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.SubCommand;
-import com.arematics.minecraft.core.command.CommandSupplier;
 import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.command.supplier.page.PageCommandSupplier;
 import com.arematics.minecraft.core.items.Items;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.*;
@@ -66,17 +66,15 @@ public class IgnoreCommand extends CoreCommand {
     }
 
     @SubCommand("list")
-    public boolean listIgnored(CorePlayer player) {
-        Pageable pageable = player.getPager().fetch(IgnoreCommand.PAGER_KEY);
-        if(pageable == null) {
-            List<String> ignoredNames = service.fetchAllIgnored(player.getUUID()).stream()
-                    .map(uuid -> this.userService.getUserByUUID(uuid).getLastName())
-                    .collect(Collectors.toList());
-            pageable = player.getPager().create(IgnoreCommand.PAGER_KEY, ignoredNames);
-        }
-        Page current = pageable.current();
-        return CommandSupplier.create().setCLI(sender -> onCLI(player, current)).setUI(sender -> onUI(player, current))
-                .accept(player.getPlayer());
+    public void listIgnored(CorePlayer player) {
+        Pageable pageable = player.getPager().fetchOrCreate(IgnoreCommand.PAGER_KEY, this::getIgnoredNames);
+        PageCommandSupplier.create(pageable.current()).setCLI(this::onCLI).setUI(this::onUI).accept(player);
+    }
+
+    private List<String> getIgnoredNames(CorePlayer player){
+        return service.fetchAllIgnored(player.getUUID()).stream()
+                .map(uuid -> this.userService.getUserByUUID(uuid).getLastName())
+                .collect(Collectors.toList());
     }
 
     private boolean onCLI(CorePlayer player, Page page){

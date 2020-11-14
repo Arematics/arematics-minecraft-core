@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 public class BooleanParser extends CommandParameterParser<Boolean> {
 
     @Override
-    public Boolean doParse(String value) throws ParserException {
+    public Boolean parse(String value) throws ParserException {
         return Boolean.parseBoolean(value);
     }
 }

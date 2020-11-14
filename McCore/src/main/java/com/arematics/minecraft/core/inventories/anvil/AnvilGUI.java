@@ -26,7 +26,7 @@ public class AnvilGUI {
 
     private final ListenUp listener = new ListenUp();
 
-    private boolean open = false;
+    private boolean open;
 
     public AnvilGUI(Bootstrap bootstrap, Player holder, String insert, ClickHandler clickHandler) {
         this.bootstrap = bootstrap;

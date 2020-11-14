@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class OfflinePlayerParser extends CommandParameterParser<OfflinePlayer> {
 
     @Override
-    public OfflinePlayer doParse(String value) throws ParserException {
+    public OfflinePlayer parse(String value) throws ParserException {
         OfflinePlayer player = Bukkit.getOfflinePlayer(value);
         if(player == null) throw new ParserException("Player with name: " + value + " could not be found");
         return player;

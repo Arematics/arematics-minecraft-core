@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 public class LongParser extends CommandParameterParser<Long> {
 
     @Override
-    public Long doParse(String value) throws ParserException {
+    public Long parse(String value) throws ParserException {
         long parsed;
         try{
             parsed = Long.parseLong(value);

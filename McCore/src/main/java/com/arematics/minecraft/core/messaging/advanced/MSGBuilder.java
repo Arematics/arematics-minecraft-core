@@ -7,22 +7,22 @@ import java.util.stream.IntStream;
 
 public class MSGBuilder {
 
-    public static MSG join(Part[] values, char joining){
-        return build(values, joining);
+    public static MSG join(char joining, Part... values){
+        return join(values, joining);
     }
 
-    public static MSG join(char joining, Part... values){
-        return build(values, joining);
+    public static MSG join(Part[] values, char joining){
+        return join(Arrays.asList(values), joining);
     }
 
     public static MSG join(List<Part> parts, char joining){
-        return build(parts.toArray(new Part[]{}), joining);
+        return build(parts, joining);
     }
 
-    private static MSG build(Part[] values, char joining){
+    private static MSG build(List<Part> values, char joining){
         if(values == null) return new MSG("");
-        if(values.length == 1) return new MSG(values);
-        else return joinParts(new ArrayList<>(Arrays.asList(values)), joining);
+        if(values.size() == 1) return new MSG(values);
+        else return joinParts(new ArrayList<>(values), joining);
     }
 
     private static MSG joinParts(ArrayList<Part> parts, char joining){

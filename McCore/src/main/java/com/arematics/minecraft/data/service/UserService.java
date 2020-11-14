@@ -1,5 +1,6 @@
 package com.arematics.minecraft.data.service;
 
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.global.repository.UserRepository;
 import com.arematics.minecraft.data.share.repository.PermissionRepository;
@@ -54,7 +55,8 @@ public class UserService {
     @CachePut(cacheNames = "userCache")
     public User createUser(UUID uuid, String name){
         User user = new User(UUID.randomUUID(), uuid, name, new Timestamp(System.currentTimeMillis()), null,
-                null, rankService.getDefaultRank(), null, new HashMap<>(), new HashSet<>());
+                null, rankService.getDefaultRank(), null, new HashMap<>(), new HashSet<>(),
+                new HashSet<>());
         return repository.save(user);
     }
 
@@ -68,6 +70,14 @@ public class UserService {
             return getUserByUUID(uuid);
         }catch (RuntimeException exception){
             return createUser(uuid, name);
+        }
+    }
+
+    public User getOrCreateUser(CorePlayer player){
+        try{
+            return getUserByUUID(player.getUUID());
+        }catch (RuntimeException exception){
+            return createUser(player.getUUID(), player.getPlayer().getName());
         }
     }
 }

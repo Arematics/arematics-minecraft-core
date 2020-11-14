@@ -29,7 +29,7 @@ public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubComman
         String[] annotationValues = value.split(" ");
         Object[] order;
         try{
-            order = Parser.getInstance().fillParameters(sender, annotationValues, method.getParameterTypes(), arguments);
+            order = Parser.getInstance().fillParameters(sender, annotationValues, method.getParameters(), arguments);
         }catch (ParserException exception){
             Messages.create(exception.getMessage())
                     .WARNING()
@@ -38,9 +38,13 @@ public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubComman
             return true;
         }
 
-        if(ArrayUtils.isEmpty(order)) return (boolean) method.invoke(executer(), sender);
-        else return (boolean) MethodUtils.invokeMethod(executer(), method.getName(), order,
+        if(ArrayUtils.isEmpty(order)){
+            method.invoke(executer(), sender);
+            return true;
+        }
+        MethodUtils.invokeMethod(executer(), method.getName(), order,
                 method.getParameterTypes());
+        return true;
     }
 
     @Override

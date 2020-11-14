@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 public class StringParser extends CommandParameterParser<String> {
 
     @Override
-    public String doParse(String value) {
+    public String parse(String value) {
         return value;
     }
 }

@@ -1,13 +1,13 @@
 package com.arematics.minecraft.kits.commands;
 
 import com.arematics.minecraft.core.annotations.SubCommand;
-import com.arematics.minecraft.core.command.CommandSupplier;
 import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.command.supplier.page.PageCommandSupplier;
 import com.arematics.minecraft.core.items.Items;
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.messaging.advanced.JsonColor;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.MSGBuilder;
-import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.pages.Page;
@@ -29,7 +29,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -58,30 +57,20 @@ public class KitCommand extends CoreCommand {
             return;
         }
         CorePlayer player = CorePlayer.get((Player)sender);
-        Pageable pageable = player.getPager().fetch(KitCommand.PAGER_KEY);
-        if(pageable == null) {
-            List<String> kitNames = service.findKitNames();
-            pageable = player.getPager().create(KitCommand.PAGER_KEY, kitNames);
-        }
-        Page current = pageable.current();
-        CommandSupplier.create()
-                .setCLI(s -> onCLI(player, current))
-                .setUI(s -> onUI(player, current))
-                .accept(player.getPlayer());
+        Pageable pageable = player.getPager().fetchOrCreate(KitCommand.PAGER_KEY, (p) -> service.findKitNames());
+        PageCommandSupplier.create(pageable.current()).setCLI(this::onCLI).setUI(this::onUI).accept(player);
     }
 
     private boolean onCLI(CorePlayer player, Page page){
-        String msg = "§a\n\n§7Kits" + " » " + "§c%kits%";
-        List<Part> parts = page.getContent().stream()
+        String msg = "§a\n\n§7Kits" + " » " + "%kits%";
+        MSG result = page == null ? new MSG("-") : MSGBuilder.join(page.getContent().stream()
                 .map(kit -> PartBuilder.createHoverAndSuggest(kit, "Get kit " + kit, "/kit " + kit))
-                .collect(Collectors.toList());
-        parts.forEach(System.out::println);
-        MSG kits = MSGBuilder.join(parts, ',');
-        System.out.println(kits);
+                .collect(Collectors.toList()), ',');
+        result.PARTS.forEach(part -> part.setBaseColor(JsonColor.RED));
         Messages.create(msg)
                 .to(player.getPlayer())
                 .setInjector(AdvancedMessageInjector.class)
-                .replace("kits", kits)
+                .replace("kits", result)
                 .disableServerPrefix()
                 .handle();
         return true;

@@ -4,6 +4,8 @@ import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.currency.Currency;
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.messaging.MessageInjector;
+import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.scoreboard.functions.BoardSet;
 import com.arematics.minecraft.data.mode.model.GameStats;
@@ -37,18 +39,36 @@ public class CorePlayer{
     private final Map<Currency, Double> currencies = new HashMap<>();
     private final Pager pager;
     private final BoardSet boardSet;
-    private final GameStatsService service;
     private boolean ignoreMeta = false;
+
+    private final GameStatsService service;
 
     public CorePlayer(Player player){
         this.player = player;
-        this.pager = new Pager(player);
+        this.pager = new Pager(this);
         this.boardSet = new BoardSet(player);
         this.service = Boots.getBoot(CoreBoot.class).getContext().getBean(GameStatsService.class);
     }
 
     private void unload(){
 
+    }
+
+    public MessageInjector info(String msg){
+        return Messages.create(msg)
+                .to(this.getPlayer());
+    }
+
+    public MessageInjector warn(String msg){
+        return Messages.create(msg)
+                .WARNING()
+                .to(this.getPlayer());
+    }
+
+    public MessageInjector failure(String msg){
+        return Messages.create(msg)
+                .FAILURE()
+                .to(this.getPlayer());
     }
 
     public BoardSet getBoard(){

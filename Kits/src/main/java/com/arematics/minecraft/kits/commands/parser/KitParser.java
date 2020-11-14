@@ -18,7 +18,7 @@ public class KitParser extends CommandParameterParser<Kit> {
     }
 
     @Override
-    public Kit doParse(String name) throws ParserException {
+    public Kit parse(String name) throws ParserException {
         try{
             return service.findKit(name);
         }catch (RuntimeException re){
