@@ -25,6 +25,10 @@ public class CompoundClassLoader extends ClassLoader {
         _loaders = loaders;
     }
 
+    public Collection<ClassLoader> getLoaders() {
+        return _loaders;
+    }
+
     /**
      * {@inheritDoc}
      */

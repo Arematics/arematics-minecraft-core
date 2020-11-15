@@ -1,74 +1,57 @@
 package com.arematics.minecraft.core.commands;
 
-import com.arematics.minecraft.core.annotations.Default;
 import com.arematics.minecraft.core.annotations.Perm;
-import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.messaging.advanced.ClickAction;
-import com.arematics.minecraft.core.messaging.advanced.HoverAction;
-import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.utils.TitleAPI;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
-@PluginCommand(aliases = {})
 @Perm(permission = "ignore-meta", description = "Allowed to ignore item meta actions")
 public class IgnoreMetaCommand extends CoreCommand {
 
-    private static final List<Player> ignoreList = new ArrayList<>();
+    public static void setIgnoreMeta(CorePlayer player){
+        player.setIgnoreMeta(true);
+        TitleAPI.sendTitle(player.getPlayer(),
+                LanguageAPI.prepareRawMessage(player.getPlayer(), "ignore_item_meta_enabled"),
+                LanguageAPI.prepareRawMessage(player.getPlayer(), "ignore_item_meta_inventory_can_edit"),
+                10, 20*5, 10);
+        Messages.create("ignore_item_meta_enabled")
+                .FAILURE()
+                .to(player.getPlayer())
+                .handle();
+    }
 
-    public static boolean isIgnoreMeta(Player player){
-        return ignoreList.contains(player);
+    public static void unsetIgnoreMeta(CorePlayer player){
+        player.setIgnoreMeta(false);
+        Messages.create("ignore_item_meta_disabled")
+                .to(player.getPlayer())
+                .handle();
     }
 
     public IgnoreMetaCommand(){
         super("ignore-meta");
     }
 
-    @Default
-    @Override
-    public boolean onDefaultExecute(CommandSender sender){
-        List<String> subCommands = super.getSubCommands();
-        Messages.create("cmd_not_valid")
-                .to(sender)
-                .setInjector(AdvancedMessageInjector.class)
-                .eachReplace("cmd_usage", subCommands.toArray(new String[]{}))
-                .setHover(HoverAction.SHOW_TEXT, "Open to chat")
-                .setClick(ClickAction.SUGGEST_COMMAND, "/ignore-meta %value%")
-                .END()
-                .handle();
-        return true;
-    }
-
     @SubCommand("toggle")
-    public boolean toggleIgnoreMeta(Player player) {
-        if(ignoreList.contains(player)) disableIgnoreMeta(player);
+    public boolean toggleIgnoreMeta(CorePlayer player) {
+        if(player.isIgnoreMeta()) disableIgnoreMeta(player);
         else enableIgnoreMeta(player);
         return true;
     }
 
     @SubCommand("enable")
-    public boolean enableIgnoreMeta(Player player) {
-        if(!ignoreList.contains(player)) ignoreList.add(player);
-        Messages.create("Ignoring Item Meta has been enabled! Be careful.")
-                .WARNING()
-                .to(player)
-                .handle();
+    public boolean enableIgnoreMeta(CorePlayer player) {
+        IgnoreMetaCommand.setIgnoreMeta(player);
         return true;
     }
 
     @SubCommand("disable")
-    public boolean disableIgnoreMeta(Player player) {
-        ignoreList.remove(player);
-        Messages.create("Ignoring Item Meta has been disabled")
-                .to(player)
-                .handle();
+    public boolean disableIgnoreMeta(CorePlayer player) {
+        IgnoreMetaCommand.unsetIgnoreMeta(player);
         return true;
     }
 }

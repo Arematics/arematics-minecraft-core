@@ -33,7 +33,7 @@ public class LocalDateParser extends CommandParameterParser<LocalDate>{
     };
 
     @Override
-    public LocalDate doParse(String value) throws ParserException {
+    public LocalDate parse(String value) throws ParserException {
         LocalDate date = null;
         for(DateTimeFormatter formatter: PATTERNS){
             try{

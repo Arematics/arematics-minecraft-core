@@ -1,9 +1,7 @@
 package com.arematics.minecraft.data.global.model;
 
 import com.arematics.minecraft.data.share.model.Permission;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.WhereJoinTable;
 import org.hibernate.envers.Audited;
@@ -13,12 +11,15 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
 @Audited
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "user")
@@ -33,6 +34,8 @@ public class User implements Serializable {
     @Column(name = "uuid", nullable = false)
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID uuid;
+    @Column(name = "last_name")
+    private String lastName;
     @Column(name = "last_join")
     private Timestamp lastJoin;
     @NotAudited
@@ -56,4 +59,22 @@ public class User implements Serializable {
     @JoinTable(name = "user_permission", joinColumns = {@JoinColumn(name = "uuid")},
             inverseJoinColumns = { @JoinColumn(name = "permission")})
     private Set<Permission> userPermissions;
+    @NotAudited
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_friends", joinColumns = {@JoinColumn(name = "uuid")},
+            inverseJoinColumns = { @JoinColumn(name = "target_uuid")})
+    private Set<User> friends;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(uuid, user.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid);
+    }
 }

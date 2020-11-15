@@ -2,25 +2,21 @@ package com.arematics.minecraft.core.messaging.injector.advanced;
 
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.MessageHighlight;
-import com.arematics.minecraft.core.messaging.advanced.*;
+import com.arematics.minecraft.core.messaging.advanced.MSG;
+import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.Injector;
-import com.google.common.collect.Streams;
-import org.apache.commons.lang.text.StrSubstitutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class AdvancedMessageInjectorImpl extends Injector<MSG> implements AdvancedMessageReplace, AdvancedMessageAction {
+public class AdvancedMessageInjectorImpl extends Injector<MSG> implements AdvancedMessageReplace {
 
     protected final List<CommandSender> SENDER_LIST;
     protected final MessageHighlight HIGHLIGHT;
     protected final String RAW_MESSAGE;
-    protected final List<AdvancedReplace> INJECTOR_VALUES = new ArrayList<>();
+    protected final Map<String, MSG> INJECTOR_VALUES = new HashMap<>();
     private boolean serverPrefix = true;
-
-    protected AdvancedReplace current;
 
     public AdvancedMessageInjectorImpl(List<CommandSender> senderList, MessageHighlight highlight,
                                        String rawMessage) {
@@ -30,48 +26,14 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
     }
 
     @Override
-    public AdvancedMessageAction setHover(HoverAction action, String value){
-        this.current.hoverAction = action;
-        this.current.hoverValue = value;
+    public AdvancedMessageReplace replace(String pattern, Part replace){
+        this.INJECTOR_VALUES.put(pattern, new MSG(replace));
         return this;
     }
 
     @Override
-    public AdvancedMessageAction setClick(ClickAction action, String value) {
-        this.current.clickAction = action;
-        this.current.clickValue = value;
-        return this;
-    }
-
-    @Override
-    public AdvancedMessageAction setColor(JsonColor jsonColor) {
-        this.current.jsonColor = jsonColor;
-        return this;
-    }
-
-    @Override
-    public AdvancedMessageAction setFormat(Format format) {
-        this.current.format = format;
-        return this;
-    }
-
-    @Override
-    public AdvancedMessageReplace END() {
-        if(current != null)
-            this.INJECTOR_VALUES.add(current);
-        this.current = null;
-        return this;
-    }
-
-    @Override
-    public AdvancedMessageAction replace(String pattern, String replace){
-        this.current = new AdvancedReplace(pattern, new String[]{replace});
-        return this;
-    }
-
-    @Override
-    public AdvancedMessageAction eachReplace(String key, String[] values) {
-        this.current = new AdvancedReplace(key, values);
+    public AdvancedMessageReplace replace(String key, MSG msg) {
+        this.INJECTOR_VALUES.put(key, msg);
         return this;
     }
 
@@ -102,34 +64,7 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
     @Override
     protected MSG injectValues(String income) {
         MSG msg = new MSG(income);
-        this.INJECTOR_VALUES.forEach(replace -> handleReplacer(replace, msg));
+        this.INJECTOR_VALUES.forEach((key, value) -> msg.replaceAllAt("%" + key + "%", value, false));
         return msg;
-    }
-
-    private void handleReplacer(AdvancedReplace replace, MSG msg){
-        msg.replaceAllAt("%" + replace.key + "%", buildMessage(replace), false);
-    }
-
-    private MSG buildMessage(AdvancedReplace replace){
-        MSG msg = new MSG();
-        msg.PARTS.addAll(Streams.mapWithIndex(Arrays.stream(replace.values),
-                (value, index) -> addPart(replace, index, replace.values.length - 1, value))
-                .collect(Collectors.toList()));
-        return msg;
-    }
-
-    private Part addPart(AdvancedReplace replace, long index, int maxLength, String value){
-        return new Part(value + (index != maxLength ? ", " : ""))
-                .setHoverAction(replace.hoverAction, injectPlaceholder(value, replace.hoverValue))
-                .setClickAction(replace.clickAction, injectPlaceholder(value, replace.clickValue))
-                .setBaseColor(replace.jsonColor)
-                .addFormat(replace.format);
-    }
-
-    private String injectPlaceholder(String value, String rawMessage){
-        Map<String, String> injectors = new HashMap<>();
-        injectors.put("value", value);
-        StrSubstitutor substitutor = new StrSubstitutor(injectors, "%", "%");
-        return substitutor.replace(rawMessage);
     }
 }

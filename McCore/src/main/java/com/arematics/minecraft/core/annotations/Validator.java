@@ -1,14 +1,14 @@
 package com.arematics.minecraft.core.annotations;
 
+import com.arematics.minecraft.core.command.processor.validator.ParameterValidator;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Default Command Method if no Sub Command is send
- */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Default {
+@Target({ElementType.PARAMETER})
+public @interface Validator {
+    Class<? extends ParameterValidator<?>>[] validators();
 }

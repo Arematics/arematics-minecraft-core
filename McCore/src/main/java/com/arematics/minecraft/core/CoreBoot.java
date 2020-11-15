@@ -41,6 +41,8 @@ public class CoreBoot extends Bootstrap{
         super.onEnable();
         Bukkit.getPluginManager().registerEvents(new SpringInitializedListener(), this);
         ArematicsExecutor.asyncDelayed(this.clearlag::start, 10, TimeUnit.SECONDS);
+
+
     }
 
     @Override

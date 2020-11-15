@@ -15,6 +15,8 @@ public class LanguageInjector extends BasicInjector {
 
     @Override
     public String prepareMessage(CommandSender sender) {
-        return LanguageAPI.prepareMessage(sender, super.HIGHLIGHT, super.RAW_MESSAGE);
+        if(!this.serverPrefix)
+            return LanguageAPI.prepareRawMessage(sender, this.RAW_MESSAGE);
+        return LanguageAPI.prepareMessage(sender, this.HIGHLIGHT, this.RAW_MESSAGE);
     }
 }

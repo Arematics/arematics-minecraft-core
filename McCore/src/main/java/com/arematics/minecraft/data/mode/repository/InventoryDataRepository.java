@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface InventoryDataRepository extends JpaRepository<InventoryData, Long> {
-    Optional<InventoryData> findByKey(String key);
-    @Query("SELECT data.key FROM InventoryData data WHERE data.key LIKE %?1%")
-    List<String> findAllKeysBy(String value);
+    Optional<InventoryData> findByDataKey(String dataKey);
+    @Query("SELECT data.dataKey FROM InventoryData data WHERE data.dataKey LIKE %?1%")
+    List<String> findAllDataKeysBy(String value);
 }

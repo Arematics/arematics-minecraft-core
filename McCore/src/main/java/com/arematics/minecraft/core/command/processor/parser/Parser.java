@@ -4,12 +4,14 @@ import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.inventories.anvil.AnvilGUI;
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,12 +35,18 @@ public class Parser {
         if(!parsers.containsKey(parser.getType())) parsers.put(parser.getType(), parser);
     }
 
-    public Object[] fillParameters(CommandSender sender, String[] annotation, Class[] types, String[] src)
+    public Object[] fillParameters(CommandSender sender, String[] annotation, Parameter[] subParameters, String[] src)
             throws ParserException, InterruptedException {
         List<Object> parameters = new ArrayList<>();
-        if (CommandSender.class.equals(types[0])) {
+        if (CommandSender.class.equals(subParameters[0].getType())) {
             parameters.add(sender);
-        } else if (Player.class.equals(types[0])) {
+        } else if (CorePlayer.class.equals(subParameters[0].getType())) {
+            if (sender instanceof Player) {
+                parameters.add(CorePlayer.get((Player)sender));
+            } else {
+                throw new ParserException("Only Players allowed to perform this command");
+            }
+        }else if (Player.class.equals(subParameters[0].getType())) {
             if (sender instanceof Player) {
                 parameters.add(sender);
             } else {
@@ -50,23 +58,23 @@ public class Parser {
             String parameter = annotation[i];
             if(parameter.startsWith("{") && parameter.endsWith("}")){
                 try{
-                    parameters.add(Enum.valueOf(types[b], src[i]));
+                    parameters.add(Enum.valueOf((Class)subParameters[b].getType().getClass(), src[i]));
                 }catch (Exception exception){
-                    if(types[b].isEnum()){
+                    if(subParameters[b].getType().isEnum()){
                         if(src[i].equals(parameter) && sender instanceof Player){
                             String result = awaitAnvilResult((Player)sender);
                             Messages.create("Parameter " + parameter + " replaced with " + result).to(sender).handle();
-                            parameters.add(Enum.valueOf(types[b], result));
+                            parameters.add(Enum.valueOf((Class)subParameters[b].getType().getClass(), result));
                         }
                         throw new ParserException("Not valid parameter value type");
                     }
-                    CommandParameterParser parser = parsers.get(types[b]);
+                    CommandParameterParser<?> parser = parsers.get(subParameters[b].getType());
                     if(src[i].equals(parameter) && sender instanceof Player){
                         String result = awaitAnvilResult((Player)sender);
                         Messages.create("Parameter " + parameter + " replaced with " + result).to(sender).handle();
-                        parameters.add(parser.doParse(result));
+                        parameters.add(parser.processParse(result, subParameters[b], parameters));
                     }else {
-                        parameters.add(parser.doParse(src[i]));
+                        parameters.add(parser.processParse(src[i], subParameters[b], parameters));
                     }
                 }
                 b++;

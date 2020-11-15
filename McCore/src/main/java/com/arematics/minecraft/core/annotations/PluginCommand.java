@@ -10,10 +10,12 @@ import java.lang.annotation.Target;
 /**
  * Says that the annotated class should be handled as an command
  * Class must extends {@link com.arematics.minecraft.core.command.CoreCommand} for this
+ *
+ * Would be removed in future releases
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Deprecated
 public @interface PluginCommand {
-    String[] aliases();
     Class<? extends AnnotationProcessor<?>>[] processors() default {};
 }

@@ -1,8 +1,8 @@
-version '0.3.8'
+version '0.4.2'
 
 
 dependencies {
-    compileOnly  name: 'Nbt-API'
+    compileOnly "de.tr7zw:NBT-API:1.0"
 
     compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
 
@@ -27,17 +27,6 @@ dependencies {
     compile group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
 
 }
-
-def filesToCopy = copySpec{
-    from 'build/libs/McCore-0.3.8-all.jar'
-}
-
-task copyFileToCityBuild(type:Copy) {
-    with filesToCopy
-    into new File('Server/Citybuild/plugins').absolutePath
-}
-
-copyFileToCityBuild.dependsOn(shadowJar)
 
 
 

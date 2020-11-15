@@ -2,7 +2,6 @@ package com.arematics.minecraft.core.scoreboard.functions;
 
 import com.arematics.minecraft.core.scoreboard.model.Board;
 import com.arematics.minecraft.core.scoreboard.model.BoardEntry;
-import com.arematics.minecraft.core.scoreboard.model.BoardEntryData;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.entity.Player;
 
@@ -32,7 +31,6 @@ public class BoardSet {
     public void remove(){
         Collection<Board> boards = new ArrayList<>(this.BOARDS.values());
         boards.forEach(board -> new BoardHandler(this, board).remove());
-        Boards.removeBoardSet(this);
     }
 
     private ScoreboardObjective fetchObjective(BoardEntry entry){

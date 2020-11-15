@@ -11,6 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Inventory {
     InventoryType type();
+    String key();
     String title();
     int slots() default 54;
 }

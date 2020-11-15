@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.listener;
 
-import com.arematics.minecraft.core.commands.IgnoreMetaCommand;
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.server.CorePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,11 +16,13 @@ public class BindedItemInteractListener implements Listener {
 
     @EventHandler
     public void executeOnInteract(PlayerInteractEvent event){
-        Player player = event.getPlayer();
+        CorePlayer player = CorePlayer.get(event.getPlayer());
         if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK){
-            CoreItem item = CoreItem.create(player.getItemInHand());
-            if(item != null && item.hasBindedCommand() && !IgnoreMetaCommand.isIgnoreMeta(player)){
-                Bukkit.getServer().dispatchCommand(player, item.getBindedCommand());
+            CoreItem item = player.getItemInHand();
+            if(item != null && item.hasBindedCommand() && !player.isIgnoreMeta()){
+                if(item.closeOnClick() && player.getPlayer().getOpenInventory() != null)
+                    player.getPlayer().closeInventory();
+                Bukkit.getServer().dispatchCommand(player.getPlayer(), item.getBindedCommand());
                 event.setCancelled(true);
             }
         }
@@ -28,10 +30,17 @@ public class BindedItemInteractListener implements Listener {
 
     @EventHandler
     public void executeOnInteract(InventoryClickEvent event){
-        Player player = (Player) event.getWhoClicked();
+        CorePlayer player = CorePlayer.get((Player)event.getWhoClicked());
         CoreItem clicked = CoreItem.create(event.getCurrentItem());
-        if(clicked != null && clicked.hasBindedCommand() && !IgnoreMetaCommand.isIgnoreMeta(player)){
-            Bukkit.getServer().dispatchCommand(player, clicked.getBindedCommand());
+        if(clicked == null) return;
+        if(clicked.clickDisabled()){
+            event.setCancelled(true);
+            return;
+        }
+        if(clicked.clickDisabled() || clicked.hasBindedCommand() && !player.isIgnoreMeta()){
+            if(clicked.closeOnClick() && player.getPlayer().getOpenInventory() != null)
+                player.getPlayer().closeInventory();
+            Bukkit.getServer().dispatchCommand(player.getPlayer(), clicked.getBindedCommand());
             event.setCancelled(true);
         }
     }

@@ -1,46 +1,40 @@
 package com.arematics.minecraft.core.commands;
 
 
-import com.arematics.minecraft.core.annotations.Default;
-import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.pages.Pageable;
-import com.arematics.minecraft.core.pages.Pager;
+import com.arematics.minecraft.core.server.CorePlayer;
 import org.bukkit.command.CommandSender;
 import org.springframework.stereotype.Component;
 
 @Component
-@PluginCommand(aliases = {"pager"})
 public class PageCommand extends CoreCommand {
 
     public PageCommand() {
-        super("page");
+        super("page", "pager");
     }
 
-    @Default
     @Override
-    public boolean onDefaultExecute(CommandSender sender){
+    public void onDefaultExecute(CommandSender sender){
         Messages.create("cmd_not_valid")
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
-                .replace("cmd_usage", "\n/page before\n/page next")
-                .END()
+                .replace("cmd_usage", new Part("\n/page before\n/page next"))
                 .handle();
-        return true;
     }
 
     @SubCommand("{type}")
-    public boolean page(CommandSender sender, PageType type){
-        return pageFor(sender, type, null);
+    public boolean page(CorePlayer player, PageType type){
+        return pageFor(player, type, null);
     }
 
     @SubCommand("{type} {key}")
-    public boolean pageFor(CommandSender sender, PageType type, String key){
-        Pager pager = Pager.of(sender);
-        Pageable pageable = key == null ? pager.last() : pager.fetch(key);
+    public boolean pageFor(CorePlayer player, PageType type, String key){
+        Pageable pageable = key == null ? player.getPager().last() : player.getPager().fetch(key);
         if(pageable == null) return true;
         switch (type){
             case BEFORE:

@@ -1,16 +1,5 @@
 version '1.0'
 
 dependencies {
-    compileOnly 'com.arematics:McCore:0.3.8'
+    compileOnly project(':McCore')
 }
-
-def filesToCopy = copySpec{
-    from 'build/libs/Kits-1.0.jar'
-}
-
-task copyFileToCityBuild(type:Copy) {
-    with filesToCopy
-    into new File('Server/Citybuild/plugins').absolutePath
-}
-
-copyFileToCityBuild.dependsOn(jar)

@@ -4,39 +4,33 @@ import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.ClickAction;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import com.arematics.minecraft.core.messaging.advanced.JsonColor;
+import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
-import org.bukkit.command.CommandSender;
+import com.arematics.minecraft.core.server.CorePlayer;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class Pager {
 
-    private final static Map<CommandSender, Pager> pagers = new HashMap<>();
-
-    public static Pager of(CommandSender sender){
-        if(!pagers.containsKey(sender))
-            pagers.put(sender, new Pager(sender));
-        return pagers.get(sender);
-    }
-
-    public static void sendDefaultPageMessage(CommandSender sender, String key){
+    public static void sendDefaultPageMessage(CorePlayer player, String key){
         key = bindedCommandToKey(key);
-        Messages.create("%before% | %next%")
-                .to(sender)
+        Pageable pageable = player.getPager().fetch(key);
+        if(pageable.hasNext() || pageable.hasBefore())
+        Messages.create("§7<------ %before% | %next% §7------>")
+                .to(player.getPlayer())
                 .setInjector(AdvancedMessageInjector.class)
                 .disableServerPrefix()
-                .replace("before", "Before")
-                .setColor(JsonColor.DARK_RED)
-                .setHover(HoverAction.SHOW_TEXT, "Page before")
-                .setClick(ClickAction.RUN_COMMAND, "/page BEFORE " + key)
-                .END()
-                .replace("next", "Next")
-                .setColor(JsonColor.DARK_GREEN)
-                .setHover(HoverAction.SHOW_TEXT, "Next Page")
-                .setClick(ClickAction.RUN_COMMAND, "/page NEXT " + key)
-                .END()
+                .replace("before", new Part("Before")
+                        .setBaseColor(JsonColor.DARK_RED)
+                        .setHoverAction(HoverAction.SHOW_TEXT, "Page before")
+                        .setClickAction(ClickAction.RUN_COMMAND, "/page BEFORE " + key))
+                .replace("next", new Part("Next")
+                        .setBaseColor(JsonColor.DARK_GREEN)
+                        .setHoverAction(HoverAction.SHOW_TEXT, "Next Page")
+                        .setClickAction(ClickAction.RUN_COMMAND, "/page NEXT " + key))
                 .handle();
     }
 
@@ -44,12 +38,12 @@ public class Pager {
         return bindedCommand.replaceAll(" ", "");
     }
 
-    private CommandSender sender;
+    private final CorePlayer player;
     private Pageable last;
     private final Map<String, Pageable> pageables = new HashMap<>();
 
-    private Pager(CommandSender sender){
-        this.sender = sender;
+    public Pager(CorePlayer player){
+        this.player = player;
     }
 
     public Pageable fetch(String key){
@@ -60,15 +54,32 @@ public class Pager {
         return last;
     }
 
+    public Pageable fetchOrCreate(String key, Function<CorePlayer, List<String>> values){
+        if(isToOld(Pager.bindedCommandToKey(key)))
+            pageables.put(Pager.bindedCommandToKey(key), new Pageable(values.apply(this.player), player, key,
+                    120));
+        Pageable last = pageables.get(Pager.bindedCommandToKey(key));
+        this.last = last;
+        System.out.println(last);
+        return last;
+    }
+
     public Pageable create(String bindedCommand, List<String> content){
-        pageables.put(Pager.bindedCommandToKey(bindedCommand), new Pageable(content, sender, bindedCommand));
+        pageables.put(Pager.bindedCommandToKey(bindedCommand),
+                new Pageable(content, player, bindedCommand, 120));
+        return fetch(Pager.bindedCommandToKey(bindedCommand));
+    }
+
+    public Pageable create(String bindedCommand, List<String> content, int maxCacheSeconds){
+        pageables.put(Pager.bindedCommandToKey(bindedCommand),
+                new Pageable(content, player, bindedCommand, maxCacheSeconds));
         return fetch(Pager.bindedCommandToKey(bindedCommand));
     }
 
     public boolean isToOld(String key){
-        if(!pageables.containsKey(key)) return false;
+        if(!pageables.containsKey(key)) return true;
         Pageable pageable = pageables.get(key);
-        if((System.currentTimeMillis()) - (pageable.getLastUse() + (1000*60)) > 0){
+        if((System.currentTimeMillis()) - (pageable.getLastUse() + (1000*pageable.getMaxCacheSeconds())) > 0){
             pageables.remove(key);
             return true;
         }

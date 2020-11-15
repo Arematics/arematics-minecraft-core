@@ -1,12 +1,13 @@
 package com.arematics.minecraft.core.utils;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class MethodUtils {
+public class Methods {
 
     public static <T extends Annotation> List<T> findAllAnnotation(Object watchingClass, Class<T> theClass){
         return Arrays.stream(watchingClass.getClass().getDeclaredMethods())
@@ -20,5 +21,9 @@ public class MethodUtils {
                                                                                 Function<T, R> execute){
         List<T> all = findAllAnnotation(watchingClass, theClass);
         return all.stream().map(execute).collect(Collectors.toList());
+    }
+
+    public static FirstMethodSuccess of(List<Method> methods){
+        return new FirstMethodSuccess(methods);
     }
 }

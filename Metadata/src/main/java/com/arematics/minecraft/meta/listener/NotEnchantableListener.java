@@ -1,7 +1,7 @@
 package com.arematics.minecraft.meta.listener;
 
-import com.arematics.minecraft.core.commands.IgnoreMetaCommand;
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.Base64Utils;
 import com.arematics.minecraft.meta.NbtProperties;
 import com.arematics.minecraft.meta.events.PrepareAnvilEvent;
@@ -22,26 +22,28 @@ public class NotEnchantableListener implements Listener {
 
     @EventHandler
     public void onEnchant(EnchantItemEvent event){
+        CorePlayer player = CorePlayer.get(event.getEnchanter());
         NBTItem item = new NBTItem(event.getItem());
-        if(!IgnoreMetaCommand.isIgnoreMeta(event.getEnchanter()) && item.hasKey(NbtProperties.NOT_ENCHTABLE_PREFIX))
+        if(!player.isIgnoreMeta() && item.hasKey(NbtProperties.NOT_ENCHTABLE_PREFIX))
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onPrepareEnchant(PrepareItemEnchantEvent event){
         NBTItem item = new NBTItem(event.getItem());
-        if(!IgnoreMetaCommand.isIgnoreMeta(event.getEnchanter()) && item.hasKey(NbtProperties.NOT_ENCHTABLE_PREFIX))
+        CorePlayer player = CorePlayer.get(event.getEnchanter());
+        if(!player.isIgnoreMeta() && item.hasKey(NbtProperties.NOT_ENCHTABLE_PREFIX))
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onPrepareAnvil(PrepareAnvilEvent event){
         AnvilInventory inventory = event.getAnvil();
-        if(!IgnoreMetaCommand.isIgnoreMeta(event.getEnchanter())) {
+        CorePlayer player = CorePlayer.get(event.getEnchanter());
+        if(!player.isIgnoreMeta())
             event.setCancelled(!Arrays.stream(inventory.getContents())
                     .map(CoreItem::create)
                     .allMatch(item -> isMatch(item, event.getItem())));
-        }
     }
 
     private boolean isMatch(CoreItem content, CoreItem input){

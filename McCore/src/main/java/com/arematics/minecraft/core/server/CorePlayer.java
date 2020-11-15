@@ -1,32 +1,132 @@
 package com.arematics.minecraft.core.server;
 
+import com.arematics.minecraft.core.Boots;
+import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.currency.Currency;
+import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.messaging.MessageInjector;
+import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.pages.Pager;
+import com.arematics.minecraft.core.scoreboard.functions.BoardSet;
+import com.arematics.minecraft.data.mode.model.GameStats;
+import com.arematics.minecraft.data.service.GameStatsService;
+import com.arematics.minecraft.data.service.InventoryService;
+import lombok.Data;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
-public class CorePlayer {
+@Data
+public class CorePlayer{
+    private static Map<UUID, CorePlayer> players = new HashMap<>();
 
-    private Player player;
-
-    CorePlayer(Player player){
-        this.player = player;
+    public static CorePlayer get(Player player){
+        if(!players.containsKey(player.getUniqueId()))
+            players.put(player.getUniqueId(), new CorePlayer(player));
+        return players.get(player.getUniqueId());
     }
 
+    public static void unload(Player player){
+        players.remove(player.getUniqueId()).unload();
+    }
+
+    private final Player player;
     private final Map<Currency, Double> currencies = new HashMap<>();
+    private final Pager pager;
+    private final BoardSet boardSet;
+    private boolean ignoreMeta = false;
 
-    public CorePlayer() {
+    private final GameStatsService service;
+
+    public CorePlayer(Player player){
+        this.player = player;
+        this.pager = new Pager(this);
+        this.boardSet = new BoardSet(player);
+        this.service = Boots.getBoot(CoreBoot.class).getContext().getBean(GameStatsService.class);
+    }
+
+    private void unload(){
 
     }
 
-    public Map<Currency, Double> getCurrencies() {
-        return currencies;
+    public MessageInjector info(String msg){
+        return Messages.create(msg)
+                .to(this.getPlayer());
     }
 
-    public Player getPlayer() {
-        return player;
+    public MessageInjector warn(String msg){
+        return Messages.create(msg)
+                .WARNING()
+                .to(this.getPlayer());
+    }
+
+    public MessageInjector failure(String msg){
+        return Messages.create(msg)
+                .FAILURE()
+                .to(this.getPlayer());
+    }
+
+    public BoardSet getBoard(){
+        return this.boardSet;
+    }
+
+    public GameStats getStats(){
+        return this.service.getOrCreate(getUUID());
+    }
+
+    private void saveStats(GameStats stats){
+        this.service.save(stats);
+    }
+
+    public void cleanStats(){
+        this.service.delete(getStats());
+    }
+
+    public void onStats(Consumer<GameStats> execute){
+        GameStats stats = getStats();
+        execute.accept(stats);
+        saveStats(stats);
+    }
+
+    public void setKills(int kills){
+        onStats(stats -> stats.setKills(kills));
+    }
+
+    public void addKill(){
+        onStats(stats -> stats.setKills(stats.getKills() + 1));
+    }
+
+    public void setDeaths(int deaths){
+        onStats(stats -> stats.setDeaths(deaths));
+    }
+
+    public void addDeath(){
+        onStats(stats -> stats.setDeaths(stats.getDeaths() + 1));
+    }
+
+    public void setBounty(int bounty){
+        onStats(stats -> stats.setBounty(bounty));
+    }
+
+    public UUID getUUID(){
+        return this.player.getUniqueId();
+    }
+
+    public CoreItem getItemInHand(){
+        return CoreItem.create(player.getItemInHand());
+    }
+
+    public Inventory getInventory(InventoryService service, String key) throws RuntimeException{
+        return service.getInventory(player.getUniqueId() + "." + key);
+    }
+
+    public Inventory getOrCreateInventory(InventoryService service, String key, String title, byte slots){
+        return service.getOrCreate(player.getUniqueId() + "." + key, title, slots);
     }
 
     /**

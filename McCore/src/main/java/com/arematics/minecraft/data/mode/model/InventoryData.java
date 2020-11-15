@@ -6,21 +6,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "inventories")
-public class InventoryData {
+public class InventoryData implements Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String key;
+    @Column(name = "data_key")
+    private String dataKey;
     private String title;
-    private byte slots;
+    private int slots;
     @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     private CoreItem[] items;
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 public class IntegerParser extends CommandParameterParser<Integer> {
 
     @Override
-    public Integer doParse(String value) throws ParserException {
+    public Integer parse(String value) throws ParserException {
         try{
             return Integer.parseInt(value);
         }catch (NumberFormatException e){

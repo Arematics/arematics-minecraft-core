@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class PeriodParser extends CommandParameterParser<Period> {
 
     @Override
-    public Period doParse(String timeInput) throws ParserException {
+    public Period parse(String timeInput) throws ParserException {
         if(timeInput.startsWith("-")) throw new ParserException("No negative times allowed");
         Period period;
         try{

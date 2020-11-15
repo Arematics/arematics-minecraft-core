@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.hooks;
 
 import com.arematics.minecraft.core.Boots;
+import com.arematics.minecraft.core.CompoundClassLoader;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.data.share.model.Permission;
@@ -19,7 +20,7 @@ public class PermissionCreationHook extends PackageHook<Class<?>> {
     private ClassLoader classLoader;
 
     @Override
-    void startPathHook(String url, ClassLoader loader, JavaPlugin plugin) {
+    public void startPathHook(String url, ClassLoader loader, JavaPlugin plugin) {
 
         try{
             this.url = url;
@@ -35,7 +36,8 @@ public class PermissionCreationHook extends PackageHook<Class<?>> {
 
     @Override
     public Set<Class<?>> startPreProcessor(ClassLoader loader, JavaPlugin plugin) {
-        Reflections reflections = new Reflections(ScanEnvironment.getBuilder(this.url, this.classLoader));
+        Reflections reflections = new Reflections(ScanEnvironment.getBuilder(this.url, (CompoundClassLoader)
+                this.classLoader));
         return reflections.getTypesAnnotatedWith(Perm.class);
     }
 

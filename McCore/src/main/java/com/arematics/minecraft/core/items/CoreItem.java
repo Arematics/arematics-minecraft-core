@@ -4,10 +4,11 @@ import com.arematics.minecraft.core.messaging.Messages;
 import de.tr7zw.nbtapi.NBTItem;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -25,10 +26,11 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-@ToString
 public class CoreItem extends ItemStack implements ConfigurationSerializable {
 
-    private static final String BINDED_COMMAND = "binded_command";
+    public static final String BINDED_COMMAND = "binded_command";
+    public static final String DISABLE_CLICK = "disable_click";
+    public static final String CLOSE_INVENTORY = "close_inventory_on_click";
 
     public static CoreItem[] streamTo( InputStream inputStream) throws Exception {
         BukkitObjectInputStream in = new BukkitObjectInputStream(inputStream);
@@ -79,6 +81,36 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return this;
     }
 
+    public CoreItem unbindCommand(){
+        this.getMeta().removeKey(BINDED_COMMAND);
+        this.applyNBT();
+        return this;
+    }
+
+    public CoreItem disableClick(){
+        this.getMeta().setString(DISABLE_CLICK, "true");
+        this.applyNBT();
+        return this;
+    }
+
+    public CoreItem closeInventoryOnClick(){
+        this.getMeta().setString(CLOSE_INVENTORY, "true");
+        this.applyNBT();
+        return this;
+    }
+
+    public boolean closeOnClick(){
+        return this.getMeta().hasKey(CLOSE_INVENTORY);
+    }
+
+    public boolean clickDisabled(){
+        return this.getMeta().hasKey(DISABLE_CLICK);
+    }
+
+    public String readMetaValue(String key){
+        return this.getMeta().getString(key);
+    }
+
     public boolean hasBindedCommand(){
         return this.getMeta().hasKey(BINDED_COMMAND);
     }
@@ -104,6 +136,7 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
     }
 
     public CoreItem setName(String name){
+        name = name.replaceAll("&", "§");
         ItemMeta meta = this.getItemMeta();
         meta.setDisplayName(name);
         this.setItemMeta(meta);
@@ -153,6 +186,15 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return this;
     }
 
+    public CoreItem setGlow(){
+        this.addUnsafeEnchantment(Enchantment.LUCK, 3);
+        ItemMeta meta = this.getItemMeta();
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        this.setItemMeta(meta);
+        return this;
+    }
+
     public void updateTo(Player player){
         player.setItemInHand(this);
     }
@@ -164,6 +206,13 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         outputStream.flush();
         outputStream.close();
         return outputStream;
+    }
+
+    @Override
+    public String toString() {
+        return "CoreItem{item" + super.toString() +
+                ",meta=" + meta +
+                '}';
     }
 
     @Override
