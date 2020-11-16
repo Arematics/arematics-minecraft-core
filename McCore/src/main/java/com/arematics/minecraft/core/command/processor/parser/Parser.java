@@ -58,13 +58,13 @@ public class Parser {
             String parameter = annotation[i];
             if(parameter.startsWith("{") && parameter.endsWith("}")){
                 try{
-                    parameters.add(Enum.valueOf((Class)subParameters[b].getType().getClass(), src[i]));
+                    parameters.add(Enum.valueOf((Class)subParameters[b].getType(), src[i]));
                 }catch (Exception exception){
                     if(subParameters[b].getType().isEnum()){
                         if(src[i].equals(parameter) && sender instanceof Player){
                             String result = awaitAnvilResult((Player)sender);
                             Messages.create("Parameter " + parameter + " replaced with " + result).to(sender).handle();
-                            parameters.add(Enum.valueOf((Class)subParameters[b].getType().getClass(), result));
+                            parameters.add(Enum.valueOf((Class) subParameters[b].getType(), result));
                         }
                         throw new ParserException("Not valid parameter value type");
                     }

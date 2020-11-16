@@ -26,7 +26,6 @@ public abstract class CommandParameterParser<T> {
                     .collect(Collectors.toList());
             for(ParameterValidator<?> validator : validators){
                 Class<?> classType = validator.getType();
-                System.out.println(classType);
                 if(classType.equals(getType()))
                     ((ParameterValidator<T>) validator).supply(result, data);
             }
