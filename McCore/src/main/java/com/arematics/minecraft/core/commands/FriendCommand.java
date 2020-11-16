@@ -4,7 +4,7 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.annotations.Validator;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.validator.FriendValidator;
-import com.arematics.minecraft.core.command.processor.validator.OnlineValidator;
+import com.arematics.minecraft.core.command.processor.validator.RequestValidator;
 import com.arematics.minecraft.core.command.supplier.page.PageCommandSupplier;
 import com.arematics.minecraft.core.items.Items;
 import com.arematics.minecraft.core.messaging.Messages;
@@ -60,7 +60,7 @@ public class FriendCommand extends CoreCommand {
 
     @SubCommand("add {name}")
     public void addFriend(CorePlayer player,
-                          @Validator(validators = {FriendValidator.class, OnlineValidator.class})
+                          @Validator(validators = {FriendValidator.class, RequestValidator.class})
                                   User target) {
         User user = service.getOrCreateUser(player);
         CorePlayer invited = CorePlayer.get(Bukkit.getPlayer(target.getUuid()));
@@ -73,6 +73,7 @@ public class FriendCommand extends CoreCommand {
                         "/friend deny " + player.getPlayer().getName()).setBaseColor(JsonColor.RED))
                 .handle();
         player.info("Friend request send to " + invited.getPlayer().getName()).handle();
+        invited.getRequestSettings().addTimeout(target, player.getPlayer().getName());
         friendInvites.put(user, target);
         ArematicsExecutor.asyncDelayed(() -> friendInvites.remove(user, target), 2, TimeUnit.MINUTES);
     }
@@ -121,6 +122,7 @@ public class FriendCommand extends CoreCommand {
                 CorePlayer.get(Bukkit.getPlayer(requester.getUuid())).getPager()
                         .fetchOrCreate(FriendCommand.PAGER_KEY, this::getFriends)
                         .add(user.getLastName());
+                friendInvites.remove(requester, target);
             }
         }
         return true;
