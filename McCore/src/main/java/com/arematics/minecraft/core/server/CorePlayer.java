@@ -31,6 +31,11 @@ public class CorePlayer{
         return players.get(player.getUniqueId());
     }
 
+    public static void invalidate(Player player){
+        if(players.containsKey(player.getUniqueId())) players.get(player.getUniqueId()).unload();
+        players.remove(player.getUniqueId());
+    }
+
     public static void unload(Player player){
         players.remove(player.getUniqueId()).unload();
     }
@@ -39,6 +44,7 @@ public class CorePlayer{
     private final Map<Currency, Double> currencies = new HashMap<>();
     private final Pager pager;
     private final BoardSet boardSet;
+    private final PlayerRequestSettings requestSettings;
     private boolean ignoreMeta = false;
 
     private final GameStatsService service;
@@ -47,11 +53,17 @@ public class CorePlayer{
         this.player = player;
         this.pager = new Pager(this);
         this.boardSet = new BoardSet(player);
+        this.requestSettings = new PlayerRequestSettings(this);
         this.service = Boots.getBoot(CoreBoot.class).getContext().getBean(GameStatsService.class);
     }
 
     private void unload(){
+        this.pager.unload();
+        this.boardSet.remove();
+    }
 
+    public PlayerRequestSettings getRequestSettings(){
+        return this.requestSettings;
     }
 
     public MessageInjector info(String msg){

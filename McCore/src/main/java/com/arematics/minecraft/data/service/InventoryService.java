@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,23 +24,20 @@ public class InventoryService {
         this.repository = inventoryDataRepository;
     }
 
-    public List<String> findKeys(String input){
-        return repository.findAllDataKeysBy(input);
-    }
-
     public Inventory getInventory(String key){
-        if(inventories.containsKey(key)) return inventories.get(key);
+        if(inventories.containsKey(key))
+            return inventories.get(key);
         Optional<InventoryData> data = repository.findByDataKey(key);
         if(!data.isPresent()) throw new RuntimeException("Inventory with key: " + key + " could not be found");
         return fromData(data.get());
     }
 
     public Inventory getOrCreate(String key, String title, byte slots){
-        if(inventories.containsKey(key)) return patchSlotsOrTilte(key, title, slots);
+        if(inventories.containsKey(key))
+            return patchSlotsOrTitle(key, title, slots);
         Optional<InventoryData> data = repository.findByDataKey(key);
-        if(!data.isPresent()){
+        if(!data.isPresent())
             data = Optional.of(saveNew(key, title, slots));
-        }
         InventoryData d = data.get();
         d.setTitle(title);
         d.setSlots(slots);
@@ -49,7 +45,7 @@ public class InventoryService {
         return fromData(d);
     }
 
-    private Inventory patchSlotsOrTilte(String key, String title, byte slots){
+    private Inventory patchSlotsOrTitle(String key, String title, byte slots){
         Inventory inv = inventories.get(key);
         if(!inv.getTitle().equals(title) || inv.getSize() != slots) {
             Inventory newInv = Bukkit.createInventory(null, slots, title);
@@ -82,6 +78,7 @@ public class InventoryService {
     }
 
     private Inventory fromData(InventoryData data){
+        System.out.println("Gen");
         idMap.put(data.getDataKey(), data.getId());
         Inventory inv = Bukkit.createInventory(null, data.getSlots(), data.getTitle());
         inv.setContents(data.getItems());

@@ -53,7 +53,6 @@ public class LanguageCommand extends CoreCommand {
         CoreItem[] items = Arrays.stream(CoreItem.create(inv.getContents()))
                 .map(item -> process(player.getPlayer(), item))
                 .toArray(CoreItem[]::new);
-        Arrays.stream(items).forEach(System.out::println);
         Inventory clone = Bukkit.createInventory(null, (byte) 9, "§9Language");
         clone.setContents(items);
         ArematicsExecutor.syncRun(() -> player.getPlayer().openInventory(clone));

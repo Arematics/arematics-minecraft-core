@@ -16,7 +16,8 @@ public class ModifiedLivingEntity extends NBTEntity {
     public static final String CLICK_INTERACT = "clickInteract";
 
     public static ModifiedLivingEntity create(Location location, EntityType type){
-        return new ModifiedLivingEntity((LivingEntity) location.getWorld().spawnEntity(location, type));
+        LivingEntity entity = (LivingEntity) location.getWorld().spawnEntity(location, type);
+        return new ModifiedLivingEntity(entity);
     }
 
     private final LivingEntity livingEntity;

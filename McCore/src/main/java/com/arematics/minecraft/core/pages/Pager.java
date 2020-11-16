@@ -60,7 +60,6 @@ public class Pager {
                     120));
         Pageable last = pageables.get(Pager.bindedCommandToKey(key));
         this.last = last;
-        System.out.println(last);
         return last;
     }
 
@@ -88,5 +87,9 @@ public class Pager {
 
     public Pageable last(){
         return this.last;
+    }
+
+    public void unload(){
+        this.pageables.values().forEach(value -> value = null);
     }
 }

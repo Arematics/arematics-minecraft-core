@@ -10,6 +10,7 @@ import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.TimeUtils;
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.service.InventoryService;
@@ -127,7 +128,7 @@ public class KitAdminCommand extends CoreCommand {
             Kit kit = service.findKit(name);
             Inventory inv = inventoryService.getOrCreate("kit.inventory." + kit.getName(), "§6Kit " + name,
                     (byte)27);
-            player.openInventory(inv);
+            ArematicsExecutor.syncRun(() -> player.openInventory(inv));
             return true;
         }catch (RuntimeException re){
             Messages.create(KIT_NOT_FOUND)
