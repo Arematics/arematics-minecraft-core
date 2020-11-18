@@ -31,8 +31,13 @@ public class GlobalDataAutoConfiguration {
         return DataSourceBuilder.create().build();
     }
 
+
+    private final Environment env;
+
     @Autowired
-    private Environment env;
+    public GlobalDataAutoConfiguration(Environment env){
+        this.env = env;
+    }
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {

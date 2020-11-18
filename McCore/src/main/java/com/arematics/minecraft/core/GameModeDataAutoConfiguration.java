@@ -31,8 +31,12 @@ public class GameModeDataAutoConfiguration {
         return DataSourceBuilder.create().build();
     }
 
+    private final Environment env;
+
     @Autowired
-    private Environment env;
+    public GameModeDataAutoConfiguration(Environment env){
+        this.env = env;
+    }
 
     @Bean
     public LocalContainerEntityManagerFactoryBean gameModeEntityManager() {

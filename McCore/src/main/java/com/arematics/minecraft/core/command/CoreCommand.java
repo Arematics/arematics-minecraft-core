@@ -6,6 +6,7 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.PermissionAnnotationProcessor;
 import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProcessor;
+import com.arematics.minecraft.core.command.processor.parser.ParserException;
 import com.arematics.minecraft.core.command.supplier.standard.CommandSupplier;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.Messages;
@@ -32,6 +33,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.Inventory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -222,7 +224,12 @@ public abstract class CoreCommand extends Command {
                 if(!matchFound.get())
                     Permissions.check(sender, this.classPermission).ifPermitted(this::onDefaultExecute).submit();
             }
-        }catch (Exception exception){
+        }catch (InvocationTargetException pe){
+            if(pe.getCause() instanceof RuntimeException)
+                Messages.create(pe.getCause().getMessage()).WARNING().to(sender).handle();
+        }catch (RuntimeException pe){
+            Messages.create(pe.getMessage()).WARNING().to(sender).handle();
+        } catch (Exception exception){
             exception.printStackTrace();
             Messages.create(CMD_FAILURE).FAILURE().to(sender).handle();
         }

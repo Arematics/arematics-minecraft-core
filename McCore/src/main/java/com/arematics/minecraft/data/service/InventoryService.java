@@ -78,7 +78,6 @@ public class InventoryService {
     }
 
     private Inventory fromData(InventoryData data){
-        System.out.println("Gen");
         idMap.put(data.getDataKey(), data.getId());
         Inventory inv = Bukkit.createInventory(null, data.getSlots(), data.getTitle());
         inv.setContents(data.getItems());
