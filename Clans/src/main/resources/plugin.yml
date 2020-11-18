@@ -1,0 +1,7 @@
+name: Clans
+author: Klysma
+description: Clans by Arematics
+version: 1.0.0
+depend: [McCore]
+
+main: com.arematics.minecraft.clans.ClanBoot
