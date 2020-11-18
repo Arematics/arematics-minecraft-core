@@ -5,11 +5,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class DoubleParser extends CommandParameterParser<Double>{
     @Override
-    public Double parse(String value) throws ParserException {
+    public Double parse(String value) throws CommandProcessException {
         try{
             return Double.parseDouble(value);
         }catch (NumberFormatException e){
-            throw new ParserException(value + " must be a number");
+            throw new CommandProcessException(value + " must be a number");
         }
     }
 }

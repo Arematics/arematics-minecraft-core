@@ -6,7 +6,7 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.PermissionAnnotationProcessor;
 import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProcessor;
-import com.arematics.minecraft.core.command.processor.parser.ParserException;
+import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.command.supplier.standard.CommandSupplier;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.Messages;
@@ -225,17 +225,20 @@ public abstract class CoreCommand extends Command {
                     Permissions.check(sender, this.classPermission).ifPermitted(this::onDefaultExecute).submit();
             }
         }catch (InvocationTargetException pe){
-            if(pe.getCause() instanceof RuntimeException)
-                Messages.create(pe.getCause().getMessage()).WARNING().to(sender).handle();
-        }catch (RuntimeException pe){
-            Messages.create(pe.getMessage()).WARNING().to(sender).handle();
+            if(pe.getCause() instanceof CommandProcessException)
+                handleProcessorException(sender, (CommandProcessException) pe.getCause());
+        }catch (CommandProcessException pe){
+            handleProcessorException(sender, pe);
         } catch (Exception exception){
             exception.printStackTrace();
             Messages.create(CMD_FAILURE).FAILURE().to(sender).handle();
         }
     }
 
-
+    private void handleProcessorException(CommandSender sender, CommandProcessException pe){
+        if(pe.getInjector() != null) pe.getInjector().handle();
+        else Messages.create(pe.getMessage()).WARNING().to(sender).handle();
+    }
 
     private boolean isMatch(String[] annotation, String[] src){
         String[] clonedSource = getSetupMessageArray(annotation, src.clone());

@@ -18,14 +18,14 @@ public class UserParser extends CommandParameterParser<User> {
     }
 
     @Override
-    public User parse(String value) throws ParserException {
+    public User parse(String value) throws CommandProcessException {
         try{
             return this.service.findByName(value);
         }catch (RuntimeException re){
             try{
                 return this.service.getUserByUUID(UUID.fromString(value));
             }catch (RuntimeException re2){
-                throw new ParserException("User with value: " + value + " never played here");
+                throw new CommandProcessException("User with value: " + value + " never played here");
             }
         }
     }

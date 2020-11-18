@@ -13,7 +13,7 @@ public class DateParser extends CommandParameterParser<Date> {
     "dd/MM/yyyy HH:mm", "dd-MM-yyyy HH:mm", "dd.MM.yyyy HH:mm"};
 
     @Override
-    public Date parse(String value) throws ParserException {
+    public Date parse(String value) throws CommandProcessException {
         Date date = null;
         for(String pattern: PATTERNS){
             try{
@@ -22,7 +22,7 @@ public class DateParser extends CommandParameterParser<Date> {
             }catch (ParseException ignore){}
             if(date != null) break;
         }
-        if(date == null) throw new ParserException(value + " is not valid date");
+        if(date == null) throw new CommandProcessException(value + " is not valid date");
         return date;
     }
 }

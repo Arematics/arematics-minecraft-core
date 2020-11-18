@@ -36,21 +36,18 @@ public class Parser {
     }
 
     public Object[] fillParameters(CommandSender sender, String[] annotation, Parameter[] subParameters, String[] src)
-            throws ParserException, InterruptedException {
+            throws CommandProcessException, InterruptedException {
         List<Object> parameters = new ArrayList<>();
         if (CommandSender.class.equals(subParameters[0].getType())) {
             parameters.add(sender);
         } else if (CorePlayer.class.equals(subParameters[0].getType())) {
-            if (sender instanceof Player) {
-                parameters.add(CorePlayer.get((Player)sender));
-            } else {
-                throw new ParserException("Only Players allowed to perform this command");
-            }
+            CorePlayerParser parser = new CorePlayerParser();
+            parameters.add(parser.processParse(sender.getName(), subParameters[0], parameters));
         }else if (Player.class.equals(subParameters[0].getType())) {
             if (sender instanceof Player) {
                 parameters.add(sender);
             } else {
-                throw new ParserException("Only Players allowed to perform this command");
+                throw new CommandProcessException("Only Players allowed to perform this command");
             }
         }
         int b = 1;
@@ -66,7 +63,7 @@ public class Parser {
                             Messages.create("Parameter " + parameter + " replaced with " + result).to(sender).handle();
                             parameters.add(Enum.valueOf((Class) subParameters[b].getType(), result));
                         }
-                        throw new ParserException("Not valid parameter value type");
+                        throw new CommandProcessException("Not valid parameter value type");
                     }
                     CommandParameterParser<?> parser = parsers.get(subParameters[b].getType());
                     if(src[i].equals(parameter) && sender instanceof Player){

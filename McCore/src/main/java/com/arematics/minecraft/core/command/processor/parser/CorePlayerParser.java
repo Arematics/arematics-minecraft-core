@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class CorePlayerParser extends CommandParameterParser<CorePlayer> {
     @Override
-    public CorePlayer parse(String value) throws ParserException {
+    public CorePlayer parse(String value) throws CommandProcessException {
         Player player = Bukkit.getPlayer(value);
-        if(player == null) throw new ParserException("Player " + value + " is not online");
+        if(player == null) throw new CommandProcessException("Player " + value + " is not online");
         return CorePlayer.get(player);
     }
 }

@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.server;
 
+import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.Configuration;
 import com.arematics.minecraft.data.global.model.User;
@@ -39,15 +40,15 @@ public class PlayerRequestSettings {
         service.update(user);
     }
 
-    public void checkAllowed(User user, User requester) throws RuntimeException{
+    public void checkAllowed(User user, User requester) throws CommandProcessException {
         if(hasTimeout(requester.getLastName()))
-            throw new RuntimeException("You must wait to send this player an request again");
+            throw new CommandProcessException("You must wait to send this player an request again");
         switch(getRequestFilter(user)){
             case FRIENDS:
                 if(!user.getFriends().contains(requester))
-                    throw new RuntimeException("This player is accepting requests from friends only");
+                    throw new CommandProcessException("This player is accepting requests from friends only");
             case NOBODY:
-                throw new RuntimeException("This player does not accept requests");
+                throw new CommandProcessException("This player does not accept requests");
         }
     }
 

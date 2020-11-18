@@ -13,13 +13,13 @@ import java.util.stream.Collectors;
 
 public abstract class CommandParameterParser<T> {
 
-    public final T processParse(String value, Parameter parameter, List<Object> data) throws ParserException{
+    public final T processParse(String value, Parameter parameter, List<Object> data) throws CommandProcessException {
         T parsed = parse(value);
         postParse(parsed, parameter, data);
         return parsed;
     }
 
-    public final void postParse(T result, Parameter parameter, List<Object> data) throws ParserException{
+    public final void postParse(T result, Parameter parameter, List<Object> data) throws CommandProcessException {
         if(parameter.isAnnotationPresent(Validator.class)){
             List<ParameterValidator<?>> validators = Arrays.stream(parameter.getAnnotation(Validator.class).validators())
                     .map(parameterValidatorClass -> Boots.getBoot(CoreBoot.class).getContext().getBean(parameterValidatorClass))
@@ -32,7 +32,7 @@ public abstract class CommandParameterParser<T> {
         }
     }
 
-    public abstract T parse(String value) throws ParserException;
+    public abstract T parse(String value) throws CommandProcessException;
 
     Class<T> getType(){
         return ((Class<T>) ((ParameterizedType) getClass()
