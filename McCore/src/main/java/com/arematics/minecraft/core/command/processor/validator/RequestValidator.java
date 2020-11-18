@@ -43,6 +43,6 @@ public class RequestValidator extends ParameterValidator<User> {
     private void isValid(CorePlayer player, User target) throws RuntimeException{
         User user = service.getOrCreateUser(player);
         CorePlayer targetPlayer = CorePlayer.get(Bukkit.getPlayer(target.getUuid()));
-        targetPlayer.getRequestSettings().checkAllowed(target, user);
+        targetPlayer.getRequestSettings().checkAllowed(user);
     }
 }

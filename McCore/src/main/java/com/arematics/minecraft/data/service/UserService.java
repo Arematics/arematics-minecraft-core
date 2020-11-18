@@ -55,7 +55,7 @@ public class UserService {
     @CachePut(cacheNames = "userCache")
     public User createUser(UUID uuid, String name){
         User user = new User(UUID.randomUUID(), uuid, name, new Timestamp(System.currentTimeMillis()), null,
-                null, rankService.getDefaultRank(), null, new HashMap<>(), new HashSet<>(),
+                null, rankService.getDefaultRank(), null, 0, new HashMap<>(), new HashSet<>(),
                 new HashSet<>());
         return repository.save(user);
     }

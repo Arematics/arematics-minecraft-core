@@ -73,7 +73,7 @@ public class FriendCommand extends CoreCommand {
                         "/friend deny " + player.getPlayer().getName()).setBaseColor(JsonColor.RED))
                 .handle();
         player.info("Friend request send to " + invited.getPlayer().getName()).handle();
-        invited.getRequestSettings().addTimeout(target, player.getPlayer().getName());
+        invited.getRequestSettings().addTimeout(player.getPlayer().getName());
         friendInvites.put(user, target);
         ArematicsExecutor.asyncDelayed(() -> friendInvites.remove(user, target), 2, TimeUnit.MINUTES);
     }

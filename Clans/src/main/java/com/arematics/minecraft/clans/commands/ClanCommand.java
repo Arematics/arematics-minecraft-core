@@ -99,8 +99,7 @@ public class ClanCommand extends CoreCommand {
             player.warn("Not permitted to perform this command for your clan").handle();
             return;
         }
-        User targetUser = userService.getOrCreateUser(target);
-        target.getRequestSettings().checkAllowed(targetUser, userService.getOrCreateUser(player));
+        target.getRequestSettings().checkAllowed(userService.getOrCreateUser(player));
         Clan clan = clanService.findClanById(member.getRank().getClanRankId().getClanId());
         String clanName = clan.getName();
         target.info("You have been invited to join clan %clan%. %accept% | %deny%")
@@ -112,7 +111,7 @@ public class ClanCommand extends CoreCommand {
                         "/clan deny " + clanName).setBaseColor(JsonColor.RED))
                 .handle();
         player.info("Clan request send to " + target.getPlayer().getName()).handle();
-        target.getRequestSettings().addTimeout(targetUser, player.getPlayer().getName());
+        target.getRequestSettings().addTimeout(player.getPlayer().getName());
         ClanInvite inviteKey = new ClanInvite(player, clan);
         clanInvites.put(inviteKey, target);
         ArematicsExecutor.asyncDelayed(() -> clanInvites.remove(inviteKey, target), 2, TimeUnit.MINUTES);

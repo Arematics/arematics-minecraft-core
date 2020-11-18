@@ -20,19 +20,20 @@ public class PlayerRequestSettings {
         this.player = player;
     }
 
-    public RequestFilter getRequestFilter(User user){
-        return RequestFilter.valueOf(user.getConfigurations()
+    public RequestFilter getRequestFilter(){
+        return RequestFilter.valueOf(player.getUser().getConfigurations()
                 .getOrDefault("requestFilter", new Configuration(RequestFilter.EVERYONE.toString())).getValue());
     }
 
-    public int getRequestTimeout(User user){
-        return Integer.parseInt(user.getConfigurations()
+    public int getRequestTimeout(){
+        return Integer.parseInt(player.getUser().getConfigurations()
                 .getOrDefault("requestTimeout", new Configuration("60")).getValue());
     }
 
-    public void setRequestFilter(UserService service, User user, RequestFilter filter){
+    public void setRequestFilter(RequestFilter filter){
+        User user = player.getUser();
         user.getConfigurations().put("requestFilter", new Configuration(filter.toString()));
-        service.update(user);
+        player.update(user);
     }
 
     public void setRequestTimeout(UserService service, User user, int seconds){
@@ -40,12 +41,12 @@ public class PlayerRequestSettings {
         service.update(user);
     }
 
-    public void checkAllowed(User user, User requester) throws CommandProcessException {
+    public void checkAllowed(User requester) throws CommandProcessException {
         if(hasTimeout(requester.getLastName()))
             throw new CommandProcessException("You must wait to send this player an request again");
-        switch(getRequestFilter(user)){
+        switch(getRequestFilter()){
             case FRIENDS:
-                if(!user.getFriends().contains(requester))
+                if(!player.getUser().getFriends().contains(requester))
                     throw new CommandProcessException("This player is accepting requests from friends only");
             case NOBODY:
                 throw new CommandProcessException("This player does not accept requests");
@@ -56,9 +57,9 @@ public class PlayerRequestSettings {
         return timeouts.contains(key);
     }
 
-    public void addTimeout(User user, String key){
+    public void addTimeout(String key){
         this.timeouts.add(key);
-        ArematicsExecutor.asyncDelayed(() -> this.timeouts.remove(key), this.getRequestTimeout(user), TimeUnit.SECONDS);
+        ArematicsExecutor.asyncDelayed(() -> this.timeouts.remove(key), this.getRequestTimeout(), TimeUnit.SECONDS);
     }
 
     public void removeTimeout(String key){
