@@ -2,7 +2,6 @@ package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.service.InventoryService;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.Inventory;
@@ -28,7 +27,7 @@ public class SettingsCommand extends CoreCommand {
     @Override
     protected boolean onDefaultUI(CorePlayer player) {
         Inventory inv = service.getOrCreate("player.settings", "§6Settings", (byte) 45);
-        ArematicsExecutor.syncRun(() -> player.getPlayer().openInventory(inv));
+        player.openInventory(inv);
         return true;
     }
 }

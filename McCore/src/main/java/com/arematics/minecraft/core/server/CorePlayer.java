@@ -8,6 +8,7 @@ import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.scoreboard.functions.BoardSet;
+import com.arematics.minecraft.core.utils.Inventories;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.GameStats;
 import com.arematics.minecraft.data.service.GameStatsService;
@@ -16,6 +17,7 @@ import com.arematics.minecraft.data.service.UserService;
 import lombok.Data;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +50,7 @@ public class CorePlayer{
     private final BoardSet boardSet;
     private final PlayerRequestSettings requestSettings;
     private boolean ignoreMeta = false;
+    private boolean disableLowerInventory = false;
 
     private final GameStatsService service;
     private final UserService userService;
@@ -61,9 +64,21 @@ public class CorePlayer{
         this.service = Boots.getBoot(CoreBoot.class).getContext().getBean(GameStatsService.class);
     }
 
-    private void unload(){
+    private void unload() {
         this.pager.unload();
         this.boardSet.remove();
+    }
+
+    public InventoryView getView(){
+        return player.getOpenInventory();
+    }
+
+    public void openInventory(Inventory inventory){
+        Inventories.openLowerDisabledInventory(inventory, this);
+    }
+
+    public void openLowerEnabledInventory(Inventory inventory){
+        Inventories.openInventory(inventory, this);
     }
 
     public User getUser(){

@@ -4,10 +4,12 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.messaging.advanced.*;
+import com.arematics.minecraft.core.messaging.advanced.MSG;
+import com.arematics.minecraft.core.messaging.advanced.MSGBuilder;
+import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.Configuration;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.InventoryService;
@@ -53,7 +55,7 @@ public class PreferredModeCommand extends CoreCommand {
     @Override
     protected boolean onDefaultUI(CorePlayer player) {
         Inventory inv = inventoryService.getOrCreate("preferred.mode.default", "§9Preferred Mode", (byte) 9);
-        ArematicsExecutor.syncRun(() -> player.getPlayer().openInventory(inv));
+        player.openInventory(inv);
         return true;
     }
 

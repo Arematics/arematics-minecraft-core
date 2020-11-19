@@ -170,7 +170,7 @@ public class FriendCommand extends CoreCommand {
             page.setInventory(inventory);
         }
         Inventory finalInventory = inventory;
-        ArematicsExecutor.syncRun(() -> player.getPlayer().openInventory(finalInventory));
+        player.openInventory(finalInventory);
         return true;
     }
 }

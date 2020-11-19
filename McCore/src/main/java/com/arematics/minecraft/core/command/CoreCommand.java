@@ -126,7 +126,7 @@ public abstract class CoreCommand extends Command {
         InventoryService service = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
         Inventory inv = service.getOrCreate("command.default.menu." + this.getName(),
                 "§8Command: §c" + this.getName(), this.uiSlots);
-        ArematicsExecutor.syncRun(() -> player.getPlayer().openInventory(inv));
+        player.openInventory(inv);
         return true;
     }
 

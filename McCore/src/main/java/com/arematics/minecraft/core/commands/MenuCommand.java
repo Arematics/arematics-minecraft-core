@@ -1,7 +1,6 @@
 package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.service.InventoryService;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -28,7 +27,7 @@ public class MenuCommand extends CoreCommand {
     private boolean onUI(CommandSender sender){
         Player player = (Player) sender;
         Inventory inv = service.getOrCreate("player-menu", "§6Menu", (byte) 54);
-        ArematicsExecutor.syncRun(() -> player.openInventory(inv));
+        player.openInventory(inv);
         return true;
     }
 }
