@@ -85,6 +85,7 @@ public abstract class CoreCommand extends Command {
                 "%subcmds%";
         this.registerStandards(processors);
         this.uiSlots = calculateSlots();
+        System.out.println(this.uiSlots);
     }
 
     private void registerStandards(AnnotationProcessor<?>[] processors){
@@ -132,8 +133,8 @@ public abstract class CoreCommand extends Command {
     private byte calculateSlots(){
         int size = this.subCommands.size();
         int min = 1;
-        int max = 5;
-        byte val = 9;
+        int max = 15;
+        byte val = 27;
         while(!(between(min, max, size))){
             min = max + 1;
             max = max + 5;

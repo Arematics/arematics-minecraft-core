@@ -2,7 +2,7 @@ package com.arematics.minecraft.core.entities;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
-import com.arematics.minecraft.data.global.model.CommandEntity;
+import com.arematics.minecraft.data.mode.model.CommandEntity;
 import com.arematics.minecraft.data.service.CommandEntityService;
 import de.tr7zw.nbtapi.NBTEntity;
 import lombok.Getter;

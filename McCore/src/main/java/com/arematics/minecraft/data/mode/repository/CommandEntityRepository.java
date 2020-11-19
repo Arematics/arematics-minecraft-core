@@ -1,6 +1,6 @@
-package com.arematics.minecraft.data.global.repository;
+package com.arematics.minecraft.data.mode.repository;
 
-import com.arematics.minecraft.data.global.model.CommandEntity;
+import com.arematics.minecraft.data.mode.model.CommandEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

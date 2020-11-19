@@ -4,7 +4,6 @@ import com.arematics.minecraft.core.command.processor.parser.CommandProcessExcep
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.Configuration;
 import com.arematics.minecraft.data.global.model.User;
-import com.arematics.minecraft.data.service.UserService;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,9 +35,10 @@ public class PlayerRequestSettings {
         player.update(user);
     }
 
-    public void setRequestTimeout(UserService service, User user, int seconds){
+    public void setRequestTimeout(int seconds){
+        User user = player.getUser();
         user.getConfigurations().put("requestTimeout", new Configuration("" + seconds));
-        service.update(user);
+        player.update(user);
     }
 
     public void checkAllowed(User requester) throws CommandProcessException {
