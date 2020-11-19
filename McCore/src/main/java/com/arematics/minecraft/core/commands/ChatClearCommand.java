@@ -1,0 +1,30 @@
+package com.arematics.minecraft.core.commands;
+
+import com.arematics.minecraft.core.annotations.Perm;
+import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.server.CorePlayer;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.springframework.stereotype.Component;
+
+@Component
+@Perm(permission = "clear", description = "clear the Chat")
+public class ChatClearCommand extends CoreCommand  {
+
+    public ChatClearCommand() {
+        super("cc");
+    }
+
+    @Override
+    public void onDefaultExecute(CommandSender sender) {
+
+        for(int i = 0; i < 90; i++)
+            Bukkit.getOnlinePlayers().stream()
+                    .map(CorePlayer::get)
+                    .forEach(player -> player.info(" ").DEFAULT().disableServerPrefix().handle());
+
+            Bukkit.getOnlinePlayers().stream()
+                    .map(CorePlayer::get)
+                    .forEach(player -> player.info("Chat cleared from " + sender.getName()).handle());
+        }
+}
