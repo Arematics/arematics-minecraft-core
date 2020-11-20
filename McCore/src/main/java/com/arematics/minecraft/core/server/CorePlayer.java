@@ -15,6 +15,7 @@ import com.arematics.minecraft.data.service.GameStatsService;
 import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.UserService;
 import lombok.Data;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -182,6 +183,10 @@ public class CorePlayer{
 
     public Inventory getOrCreateInventory(InventoryService service, String key, String title, byte slots){
         return service.getOrCreate(player.getUniqueId() + "." + key, title, slots);
+    }
+
+    public Location getLocation() {
+        return this.player.getLocation();
     }
 
     /**
