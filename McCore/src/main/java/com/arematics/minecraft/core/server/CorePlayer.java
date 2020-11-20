@@ -51,6 +51,7 @@ public class CorePlayer{
     private final PlayerRequestSettings requestSettings;
     private boolean ignoreMeta = false;
     private boolean disableLowerInventory = false;
+    private boolean disableUpperInventory = false;
 
     private final GameStatsService service;
     private final UserService userService;
@@ -74,6 +75,10 @@ public class CorePlayer{
     }
 
     public void openInventory(Inventory inventory){
+        Inventories.openLowerDisabledInventory(inventory, this);
+    }
+
+    public void openTotalBlockedInventory(Inventory inventory){
         Inventories.openLowerDisabledInventory(inventory, this);
     }
 

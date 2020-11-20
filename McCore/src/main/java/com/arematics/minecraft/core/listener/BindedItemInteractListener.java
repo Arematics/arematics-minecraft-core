@@ -31,8 +31,15 @@ public class BindedItemInteractListener implements Listener {
     @EventHandler
     public void executeOnInteract(InventoryClickEvent event){
         CorePlayer player = CorePlayer.get((Player)event.getWhoClicked());
-        if(!player.isIgnoreMeta() && event.getClickedInventory().equals(player.getView().getBottomInventory()) &&
+        if(!player.isIgnoreMeta() && event.getClickedInventory() != null &&
+                event.getClickedInventory().equals(player.getView().getBottomInventory()) &&
                 player.isDisableLowerInventory()){
+            event.setCancelled(true);
+            return;
+        }
+        if(!player.isIgnoreMeta() && event.getClickedInventory() != null &&
+                event.getClickedInventory().equals(player.getView().getTopInventory()) &&
+                player.isDisableUpperInventory()){
             event.setCancelled(true);
             return;
         }

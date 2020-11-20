@@ -17,6 +17,14 @@ public class Inventories {
         });
     }
 
+    public static void openTotalBlockedInventory(Inventory inventory, CorePlayer player){
+        ArematicsExecutor.syncRun(() -> {
+            player.setDisableUpperInventory(true);
+            player.setDisableLowerInventory(true);
+            player.getPlayer().openInventory(inventory);
+        });
+    }
+
     public static void openInventory(Inventory inventory, CorePlayer player){
         ArematicsExecutor.syncRun(() -> {
             player.getPlayer().openInventory(inventory);
