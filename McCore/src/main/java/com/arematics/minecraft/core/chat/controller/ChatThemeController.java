@@ -81,7 +81,7 @@ public class ChatThemeController {
         }};
         Set<ThemePlaceholder> themePlaceholdersDebug = new HashSet<ThemePlaceholder>() {{
             ThemePlaceholder chatDelim = ThemePlaceholder.builder().placeholderMatch("%chatDelim%").placeholderKey("chatDelim").value(":").build();
-            ThemePlaceholder debug = ThemePlaceholder.builder().placeholderMatch("%debug%").placeholderMatch("debug").value("§c[DEBUG]").
+            ThemePlaceholder debug = ThemePlaceholder.builder().placeholderMatch("%debug%").placeholderKey("debug").value("[DEBUG]").
                     hoverAction(ChatHoverAction.builder().action(HoverAction.SHOW_TEXT).value("name: %placeholderName% match: %placeholderMatch% value: %value%").build()).build();
             add(debug);
             add(chatDelim);
