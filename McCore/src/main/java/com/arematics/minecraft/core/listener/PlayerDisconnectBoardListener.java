@@ -1,6 +1,5 @@
 package com.arematics.minecraft.core.listener;
 
-import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.server.CorePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,7 +14,6 @@ public class PlayerDisconnectBoardListener implements Listener {
     public void onQuit(PlayerQuitEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
         player.getBoardSet().remove();
-        ChatAPI.logout(event.getPlayer());
         CorePlayer.invalidate(event.getPlayer());
     }
 }
