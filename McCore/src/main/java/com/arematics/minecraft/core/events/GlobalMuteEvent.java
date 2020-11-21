@@ -13,7 +13,7 @@ public class GlobalMuteEvent implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public static void onGlobalMute(AsyncPlayerChatEvent e) {
-        if (GlobalMuteCommand.isGlobalMuteActive) {
+        if (GlobalMuteCommand.getGlobalMuteStatus()) {
             if (!CorePlayer.get(e.getPlayer()).getUser().getRank().isInTeam())
                 e.setCancelled(true);
         }

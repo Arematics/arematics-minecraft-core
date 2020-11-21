@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Perm(permission = "globalmute", description = "mute the global chat")
 public class GlobalMuteCommand extends CoreCommand {
 
-    public static boolean isGlobalMuteActive = false;
+    private static boolean isGlobalMuteActive = false;
 
     public GlobalMuteCommand() { super("globalmute", "glm"); }
 
@@ -29,7 +29,7 @@ public class GlobalMuteCommand extends CoreCommand {
         player.info("Globalmute: " + isGlobalMuteActive).handle();
     }
 
-    private static void enableGlobalMute(CommandSender sender) {
+    private void enableGlobalMute(CommandSender sender) {
         isGlobalMuteActive = !isGlobalMuteActive;
         String globalMuteStatus = isGlobalMuteActive ? "muted" : "demuted";
 
@@ -38,5 +38,9 @@ public class GlobalMuteCommand extends CoreCommand {
                 .forEach(player -> player
                         .info("The chat was " + globalMuteStatus +" by " + ((Player) sender).getDisplayName()).handle());
 
+    }
+
+    public static boolean getGlobalMuteStatus() {
+        return isGlobalMuteActive;
     }
 }
