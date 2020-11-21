@@ -4,17 +4,18 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.CorePlayer;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
 @Component
+@Getter
 @Perm(permission = "globalmute", description = "mute the global chat")
 public class GlobalMuteCommand extends CoreCommand {
 
-    private static boolean isGlobalMuteActive = false;
+    private boolean isGlobalMuteActive = false;
 
     public GlobalMuteCommand() { super("globalmute", "glm"); }
 
@@ -40,7 +41,7 @@ public class GlobalMuteCommand extends CoreCommand {
 
     }
 
-    public static boolean getGlobalMuteStatus() {
+    public boolean getGlobalMuteStatus() {
         return isGlobalMuteActive;
     }
 }
