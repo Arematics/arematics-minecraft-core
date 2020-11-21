@@ -8,12 +8,12 @@ import com.arematics.minecraft.core.chat.controller.PlaceholderController;
 import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholder;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholderAction;
-import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.model.ThemePlaceholder;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.UserService;
 import lombok.Getter;
 import org.bukkit.entity.Player;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -24,11 +24,18 @@ import java.util.function.Supplier;
 public class ChatAPI {
 
     @Getter
-    private static final ChatThemeController chatThemeController = new ChatThemeController();
+    private static ChatThemeController chatThemeController;
     @Getter
-    private static final PlaceholderController placeholderController = new PlaceholderController();
+    private static PlaceholderController placeholderController;
     @Getter
-    private static final ChatController chatController = new ChatController();
+    private static ChatController chatController;
+
+    @Autowired
+    public ChatAPI(ChatController chatController, PlaceholderController placeholderController, ChatThemeController chatThemeController) {
+        ChatAPI.chatController = chatController;
+        ChatAPI.placeholderController = placeholderController;
+        ChatAPI.chatThemeController = chatThemeController;
+    }
 
     // bootstrap shit
     public static void bootstrap() {
@@ -85,8 +92,7 @@ public class ChatAPI {
         UserService service = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
         getChatController().registerSupplier(player);
         User user = service.getUserByUUID(player.getUniqueId());
-        Rank rank = user.getDisplayRank() != null ? user.getDisplayRank() : user.getRank();
-        supplyPlaceholders("rank", player, rank::getName);
+        supplyPlaceholders("rank", player, () -> user.getDisplayRank() != null ? user.getDisplayRank().getName() : user.getRank().getName());
         supplyPlaceholders("name", player, player::getDisplayName);
         supplyPlaceholders("arematics", player, () -> "§0[§1Arem§9atics§0]§r");
     }

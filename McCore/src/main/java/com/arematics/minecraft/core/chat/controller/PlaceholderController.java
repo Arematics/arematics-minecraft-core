@@ -8,6 +8,7 @@ import com.arematics.minecraft.data.service.PlaceholderService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.Map;
 @Setter
 @Getter
 @NoArgsConstructor
+@Component
 public class PlaceholderController {
 
     public static final String PLACEHOLDER_DELIMITER = "%";
