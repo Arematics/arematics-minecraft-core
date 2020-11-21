@@ -29,7 +29,7 @@ public class BanCheckLoginListener implements Listener {
             if(ban.getBannedUntil() == null){
                 event.disallow(PlayerLoginEvent.Result.KICK_BANNED, "§cYou have been banned permanent \n§b" + ban.getReason());
             }
-            if(ban.getBannedUntil().before(Timestamp.valueOf(LocalDateTime.now()))){
+            if(!ban.getBannedUntil().before(Timestamp.valueOf(LocalDateTime.now()))){
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
                 event.disallow(PlayerLoginEvent.Result.KICK_BANNED, "§cYou have been banned until \n§c" +
                         formatter.format(ban.getBannedUntil().toLocalDateTime()) + "\n§b" + ban.getReason());
