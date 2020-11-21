@@ -8,13 +8,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bukkit.entity.Player;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@Component
 public class ChatController {
 
     private String chatMessage;
@@ -30,7 +33,7 @@ public class ChatController {
                 return;
             }
             MSG msg = buildThemeMessage(chatTheme, player);
-            msg.sendAll(chatTheme.getActiveUsers());
+            msg.sendAll(chatTheme.getActiveUsers(), new ArrayList<>());
         });
     }
 

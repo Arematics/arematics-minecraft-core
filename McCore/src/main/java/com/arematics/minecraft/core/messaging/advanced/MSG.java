@@ -301,6 +301,7 @@ public class MSG {
         return parts.toArray(new String[]{});
     }
 
+
     /**
      * Copied from EnderSYS/Utils/JSONUtil
      */
@@ -374,11 +375,13 @@ public class MSG {
         });
     }
 
-    public void sendAll(List<User> users){
+    public void sendAll(List<User> users, List<User> ignoredBy){
         final String json = toJsonString();
         users.forEach(user -> {
             Player player = Bukkit.getPlayer(user.getUuid());
-            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(createPacketPlayOutChat(json));
+            if(!ignoredBy.contains(user)) {
+                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(createPacketPlayOutChat(json));
+            }
         });
     }
 
