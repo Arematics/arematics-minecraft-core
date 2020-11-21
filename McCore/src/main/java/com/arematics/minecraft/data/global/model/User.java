@@ -66,6 +66,9 @@ public class User implements Serializable {
     @JoinTable(name = "user_friends", joinColumns = {@JoinColumn(name = "uuid")},
             inverseJoinColumns = { @JoinColumn(name = "target_uuid")})
     private Set<User> friends;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotAudited
+    private ChatTheme activeTheme;
 
     @Override
     public boolean equals(Object o) {

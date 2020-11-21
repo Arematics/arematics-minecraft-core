@@ -1,33 +1,27 @@
 package com.arematics.minecraft.core.commands;
 
-import com.arematics.minecraft.core.annotations.Default;
-import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.chat.controller.ChatThemeController;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.data.global.model.ChatTheme;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
-@PluginCommand(aliases = {"chattheme"})
 @Component
 public class ThemeCommand extends CoreCommand {
 
     private final ChatThemeController themeController = ChatAPI.getChatThemeController();
 
     public ThemeCommand() {
-        super("theme");
+        super("theme", "chattheme");
     }
 
     @Override
-    @Default
-    public boolean onDefaultExecute(CommandSender sender) {
+    public void onDefaultExecute(CommandSender sender) {
         sender.sendMessage("/theme list");
         sender.sendMessage("/theme [theme]");
-        return true;
     }
 
 
@@ -49,14 +43,19 @@ public class ThemeCommand extends CoreCommand {
         return true;
     }
 
+    @SubCommand("info {theme}")
+    public boolean info(Player player, String theme) {
+        ChatTheme apiTheme = ChatAPI.getTheme(theme);
+        player.sendMessage(apiTheme.getThemeKey());
+        player.sendMessage(apiTheme.getFormat());
+        return true;
+    }
+
     @SubCommand("inspect {theme}")
     public boolean inspect(Player player, String theme) {
         ChatTheme apiTheme = ChatAPI.getTheme(theme);
         player.sendMessage(apiTheme.getThemeKey());
         player.sendMessage(apiTheme.getFormat());
-        apiTheme.getActiveUsers().forEach(user -> {
-            player.sendMessage(user.getPlayerId().toString());
-        });
         apiTheme.getThemePlaceholders().forEach(themePlaceholder -> {
             player.sendMessage("themeplaceholderkey: " + themePlaceholder.getPlaceholderKey() + " value: " + themePlaceholder.getValue());
             if (themePlaceholder.getClickAction() != null) {

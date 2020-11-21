@@ -5,18 +5,19 @@ import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.controller.ChatController;
 import com.arematics.minecraft.core.chat.controller.ChatThemeController;
 import com.arematics.minecraft.core.chat.controller.PlaceholderController;
-import com.arematics.minecraft.data.global.model.GlobalPlaceholder;
-import com.arematics.minecraft.data.global.model.GlobalPlaceholderActions;
-import com.arematics.minecraft.data.global.model.ThemePlaceholder;
 import com.arematics.minecraft.data.global.model.ChatTheme;
-import com.arematics.minecraft.data.global.model.ChatThemeUser;
+import com.arematics.minecraft.data.global.model.GlobalPlaceholder;
+import com.arematics.minecraft.data.global.model.GlobalPlaceholderAction;
+import com.arematics.minecraft.data.global.model.Rank;
+import com.arematics.minecraft.data.global.model.ThemePlaceholder;
+import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.UserService;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Set;
 import java.util.function.Supplier;
 
 @Component
@@ -46,26 +47,7 @@ public class ChatAPI {
     }
 
     public static void login(Player player) {
-        getChatThemeController().register(player);
         supply(player);
-    }
-
-    public static void logout(Player player) {
-        getChatThemeController().logout(player);
-    }
-
-    public static void supply(Player player) {
-        UserService service = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
-        getChatController().registerSupplier(player);
-        supplyPlaceholders("rank", player, () -> service.getUserByUUID(player.getUniqueId()).getDisplayRank().getName());
-        supplyPlaceholders("name", player, player::getDisplayName);
-        supplyPlaceholders("arematics", player, () -> "§0[§1Arem§9atics§0]§r");
-    }
-
-    public static void supplyPlaceholders(String placeholderName, Player player, Supplier<String> supplier) {
-        GlobalPlaceholder placeholder = getPlaceholder(placeholderName);
-        Map<Player, Supplier<String>> placeholderValues = placeholder.getValues();
-        placeholderValues.put(player, supplier);
     }
 
     // CHAT
@@ -73,29 +55,21 @@ public class ChatAPI {
         getChatController().chat(player, message);
     }
 
-    // CHAT THEMES
-    public static Map<UUID, ChatThemeUser> getUsers() {
-        return getChatThemeController().getUsers();
-    }
-
-    public static ChatThemeUser getThemeUser(Player player) {
-        return getUsers().get(player.getUniqueId());
+    //THEME
+    public static Collection<ChatTheme> getThemes() {
+        return getChatThemeController().getThemes().values();
     }
 
     public static boolean setTheme(Player player, String themeKey) {
         return getChatThemeController().setTheme(player, themeKey);
     }
 
-    public static ChatTheme createTheme(String themeKey, List<GlobalPlaceholderActions> dynamicPlaceholderNames, Set<ThemePlaceholder> themePlaceholders, String format) {
-        return getChatThemeController().createTheme(themeKey, dynamicPlaceholderNames, themePlaceholders, format);
+    public static ChatTheme createTheme(String themeKey, Set<GlobalPlaceholderAction> globalPlaceholderActions, Set<ThemePlaceholder> themePlaceholders, String format) {
+        return getChatThemeController().createTheme(themeKey, globalPlaceholderActions, themePlaceholders, format);
     }
 
     public static ChatTheme getTheme(String themeKey) {
         return getChatThemeController().getTheme(themeKey);
-    }
-
-    public static void registerTheme(String name, ChatTheme theme) {
-        getChatThemeController().registerTheme(name, theme);
     }
 
     // PLACEHOLDER
@@ -103,13 +77,22 @@ public class ChatAPI {
         getPlaceholderController().registerPlaceholder(placeholder);
     }
 
-    public static GlobalPlaceholder createPlaceholder(String placeholderKey) {
-        return getPlaceholderController().createPlaceholder(placeholderKey);
-    }
-
-
     public static GlobalPlaceholder getPlaceholder(String placeholder) {
         return getPlaceholderController().getPlaceholder(placeholder);
+    }
+
+    public static void supply(Player player) {
+        UserService service = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
+        getChatController().registerSupplier(player);
+        User user = service.getUserByUUID(player.getUniqueId());
+        Rank rank = user.getDisplayRank() != null ? user.getDisplayRank() : user.getRank();
+        supplyPlaceholders("rank", player, rank::getName);
+        supplyPlaceholders("name", player, player::getDisplayName);
+        supplyPlaceholders("arematics", player, () -> "§0[§1Arem§9atics§0]§r");
+    }
+
+    public static void supplyPlaceholders(String placeholderName, Player player, Supplier<String> supplier) {
+        getPlaceholder(placeholderName).getValues().put(player, supplier);
     }
 
 }

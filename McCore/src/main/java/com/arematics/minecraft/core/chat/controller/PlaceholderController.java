@@ -34,8 +34,12 @@ public class PlaceholderController {
     }
 
 
-    public static String getPlaceholderMatch(String placeholderKey) {
+    public static String applyDelimiter(String placeholderKey) {
         return PLACEHOLDER_DELIMITER + placeholderKey + PLACEHOLDER_DELIMITER;
+    }
+
+    public static String stripPlaceholderDelimiter(String placeholderMatch) {
+        return placeholderMatch.replaceAll(PLACEHOLDER_DELIMITER, "");
     }
 
     public GlobalPlaceholder getPlaceholder(String placeholderKey) {
@@ -43,7 +47,7 @@ public class PlaceholderController {
     }
 
     private void validatePlaceholderKey(String placeholderKey) {
-        if (placeholders.containsKey(placeholderKey) || reservedPlaceholderKeys.contains(placeholderKey)) {
+        if (getPlaceholders().containsKey(placeholderKey) || getReservedPlaceholderKeys().contains(placeholderKey)) {
             throw new UnsupportedOperationException("Der Placeholder: " + placeholderKey + " ist bereits registriert!");
         } else {
             getReservedPlaceholderKeys().add(placeholderKey);
@@ -69,7 +73,7 @@ public class PlaceholderController {
     public GlobalPlaceholder createPlaceholder(String placeholderKey) {
         GlobalPlaceholder placeholder = new GlobalPlaceholder();
         placeholder.setPlaceholderKey(placeholderKey);
-        placeholder.setPlaceholderMatch(getPlaceholderMatch(placeholderKey));
+        placeholder.setPlaceholderMatch(applyDelimiter(placeholderKey));
         return placeholder;
     }
 

@@ -1,9 +1,5 @@
 package com.arematics.minecraft.core.listener;
 
-import com.arematics.minecraft.data.global.model.User;
-import com.arematics.minecraft.data.service.UserService;
-import com.arematics.minecraft.core.Boots;
-import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.UserService;
@@ -17,7 +13,6 @@ import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
 
 @Component
-
 public class UserUpdateListener implements Listener {
 
     private final UserService userService;
@@ -30,7 +25,6 @@ public class UserUpdateListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent joinEvent){
         Player player = joinEvent.getPlayer();
-
         Timestamp current = new Timestamp(System.currentTimeMillis());
         User user = this.userService.getOrCreateUser(player.getUniqueId(), player.getName());
         user.setLastName(player.getName());
@@ -38,6 +32,7 @@ public class UserUpdateListener implements Listener {
         user.setLastIpChange(current);
         user.setLastJoin(current);
         ChatAPI.login(player);
+        ChatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().add(user);
         this.userService.update(user);
     }
 }

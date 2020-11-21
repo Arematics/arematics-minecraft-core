@@ -1,9 +1,6 @@
 package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.chat.ChatAPI;
-import com.arematics.minecraft.core.scoreboard.functions.Boards;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import com.arematics.minecraft.core.server.CorePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

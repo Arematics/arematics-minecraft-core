@@ -1,6 +1,8 @@
 package com.arematics.minecraft.data.global.model;
 
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,17 +12,16 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
+@Table(name = "chat_hover_action")
 public class ChatHoverAction {
-
-    public ChatHoverAction(HoverAction action, String value) {
-        setAction(action);
-        setValue(value);
-    }
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -28,4 +29,5 @@ public class ChatHoverAction {
     @Enumerated(EnumType.STRING)
     private HoverAction action;
     private String value;
+
 }

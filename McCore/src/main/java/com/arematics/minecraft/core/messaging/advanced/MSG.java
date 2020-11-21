@@ -1,6 +1,12 @@
 package com.arematics.minecraft.core.messaging.advanced;
 
+import com.arematics.minecraft.data.global.model.PlaceholderAction;
+import com.arematics.minecraft.core.chat.ChatAPI;
+import com.arematics.minecraft.core.chat.controller.PlaceholderController;
 import com.arematics.minecraft.core.utils.JSONUtil;
+import com.arematics.minecraft.data.global.model.GlobalPlaceholderAction;
+import com.arematics.minecraft.data.global.model.ThemePlaceholder;
+import com.arematics.minecraft.data.global.model.User;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -17,6 +23,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -32,8 +41,7 @@ public class MSG {
     public MSG(List<Part> parts){
         this.PARTS.addAll(parts);
     }
-
-    /**
+     /**
      * Constructs a MSG from message with all its formatting (Color- and Format-Codes)
      * @param message Message to construct from
      */
@@ -69,6 +77,15 @@ public class MSG {
     public Part[] separateTerms(String term) {
         return separateTerms(term, false);
     }
+
+    /**
+     *
+     */
+    public Part find(String term) {
+        Optional<Part> found = PARTS.stream().filter(part -> part.TEXT.equalsIgnoreCase(term)).findFirst();
+        return found.orElse(null);
+    }
+
 
     /**
      * @param term Term to search for
@@ -196,6 +213,67 @@ public class MSG {
     }
 
     /**
+     * Splits encoded chat format into seperate parts and applies action & placeholder value on them
+     * @param actions to use
+     * @param player needed for globalplaceholder value, chatter
+     */
+    public void createThemeParts(Map<String, PlaceholderAction> actions, Player player) {
+        if(PARTS.size() > 1 ) {
+            Bukkit.broadcastMessage("Something wrong here, dont split this again");
+            return;
+        }
+        Part basePart = PARTS.get(0);
+        String base = basePart.TEXT;
+        PARTS.clear();
+        String[] partStrings = base.split(",");
+        for (String partString : partStrings) {
+            Part part = new Part(partString);
+            PlaceholderAction placeholderAction = actions.get(partString);
+            applyChatActionsToPart(part, placeholderAction, player);
+            PARTS.add(part);
+        }
+    }
+
+    /**
+     * replaces placeholder with actual value and applies hover/click actions on them
+     * @param part to apply actions and value
+     * @param placeholderAction to use
+     * @param player needed for globalplaceholder value, chatter
+     */
+    private void applyChatActionsToPart(Part part, PlaceholderAction placeholderAction, Player player) {
+        String value = "";
+        if(placeholderAction instanceof GlobalPlaceholderAction) {
+            value = ChatAPI.getPlaceholder(placeholderAction.getPlaceholderKey()).getValues().get(player).get();
+            part.setText(value);
+        } else if(placeholderAction instanceof ThemePlaceholder) {
+            value = ((ThemePlaceholder) placeholderAction).getValue();
+            part.setText(value);
+        }
+        if(null == placeholderAction) {
+            return;
+        }
+        if(null != placeholderAction.getHoverAction()) {
+            part.setHoverAction(placeholderAction.getHoverAction().getAction(), injectPlaceholders(placeholderAction.getHoverAction().getValue(), placeholderAction.getPlaceholderKey(), value));
+        }
+        if(null != placeholderAction.getClickAction()) {
+            part.setClickAction(placeholderAction.getClickAction().getAction(), injectPlaceholders(placeholderAction.getClickAction().getValue(), placeholderAction.getPlaceholderKey(), value));
+        }
+    }
+
+    /**
+     * allows for using %key% to actual key in hover and click messages
+     *
+     * @param actionMessage to replace key
+     * @param value         to inject
+     * @return replaced action value
+     */
+    private String injectPlaceholders(String actionMessage, String placeholderMatch, String value) {
+        return actionMessage.replace(PlaceholderController.applyDelimiter("placeholderMatch"), placeholderMatch).
+                replace(PlaceholderController.applyDelimiter("placeholderName"), PlaceholderController.stripPlaceholderDelimiter(placeholderMatch)).
+                replace(PlaceholderController.applyDelimiter("value"), value);
+    }
+
+    /**
      * Copied from EnderSYS/Utils/TextUtils
      */
     private static String[] splitAndKeepDelimiter(String message, Pattern regex) {
@@ -293,6 +371,14 @@ public class MSG {
                 ((CraftPlayer) sender).getHandle().playerConnection.sendPacket(createPacketPlayOutChat(json));
             else
                 sender.sendMessage(JSONUtil.toPlainText(json));
+        });
+    }
+
+    public void sendAll(List<User> users){
+        final String json = toJsonString();
+        users.forEach(user -> {
+            Player player = Bukkit.getPlayer(user.getUuid());
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(createPacketPlayOutChat(json));
         });
     }
 

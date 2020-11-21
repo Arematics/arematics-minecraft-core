@@ -1,5 +1,7 @@
 package com.arematics.minecraft.data.global.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,12 +12,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 
 @Data
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 @Entity
-public class GlobalPlaceholderActions {
+@Table(name = "global_placeholder_action")
+public class GlobalPlaceholderAction implements PlaceholderAction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

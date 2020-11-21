@@ -1,19 +1,16 @@
 package com.arematics.minecraft.core.chat.controller;
 
 import com.arematics.minecraft.core.chat.ChatAPI;
-import com.arematics.minecraft.data.global.model.GlobalPlaceholderActions;
-import com.arematics.minecraft.data.global.model.ThemePlaceholder;
+import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.data.global.model.ChatTheme;
-import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageAction;
-import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
-import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageReplace;
+import com.arematics.minecraft.data.global.model.PlaceholderAction;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -28,92 +25,41 @@ public class ChatController {
 
     public void chat(Player player, String message) {
         setChatMessage(message);
-        ChatAPI.getChatThemeController().getThemes().values().forEach(chatTheme -> {
+        ChatAPI.getThemes().forEach(chatTheme -> {
             if (chatTheme.getActiveUsers().size() < 1) {
                 return;
             }
-            AdvancedMessageReplace advancedMessageReplace = this.createMessage(chatTheme);
-            chatTheme.getThemePlaceholders().forEach(themePlaceholder -> {
-                AdvancedMessageAction action = advancedMessageReplace.replace(themePlaceholder.getPlaceholderKey(), themePlaceholder.getValue());
-                applyThemeActions(themePlaceholder, action);
-                action.END();
-            });
-            chatTheme.getGlobalPlaceholderActions().forEach(globalPlaceholderActions -> {
-                AdvancedMessageAction action = advancedMessageReplace.replace(globalPlaceholderActions.getPlaceholderKey(),
-                        ChatAPI.getPlaceholder(globalPlaceholderActions.getPlaceholderKey()).getValues().get(player).get());
-                applyGlobalActions(globalPlaceholderActions, action);
-                action.END();
-            });
-            advancedMessageReplace.handle();
+            MSG msg = buildThemeMessage(chatTheme, player);
+            msg.sendAll(chatTheme.getActiveUsers());
         });
     }
 
     /**
-     * Creates a message for a theme, sets all selected players as recipients and sets the advanced injector
-     *
-     * @param chatTheme to use
-     * @return AdvancedMessageReplace
+     * creates a map out of all themeplaceholders and globalplaceholderactions with placeholder as key
+     * @param theme to get actions from
+     * @return map of all actions with delimited placeholder as key
      */
-    private AdvancedMessageReplace createMessage(ChatTheme chatTheme) {
-        CommandSender[] sendTo = chatTheme.getActiveUsers().stream().map(chatThemeUser -> (CommandSender) Bukkit.getPlayer(chatThemeUser.getPlayerId())).toArray(CommandSender[]::new);
-        return Messages.create(chatTheme.getFormat()).to(sendTo).setInjector(AdvancedMessageInjector.class).disableServerPrefix();
+    public Map<String, PlaceholderAction> getActionsMap(ChatTheme theme) {
+        Map<String, PlaceholderAction> actions = new HashMap<>();
+        theme.getGlobalPlaceholderActions().forEach(globalPlaceholderAction -> mergeActionsIntoMap(actions, globalPlaceholderAction));
+        theme.getThemePlaceholders().forEach(themePlaceholder -> mergeActionsIntoMap(actions, themePlaceholder));
+        return actions;
+    }
+
+    private void mergeActionsIntoMap(Map<String, PlaceholderAction> actions, PlaceholderAction placeholderAction) {
+        actions.put(PlaceholderController.applyDelimiter(placeholderAction.getPlaceholderKey()), placeholderAction);
     }
 
     /**
-     * unwraps and sets actions for a theme placeholder
-     *
-     * @param themePlaceholder to inject click&hover
-     * @param action           injector
+     * creates chat message in a theme for a given player
+     * @param theme to use
+     * @param player who chatted
+     * @return themed chatmessage for player
      */
-    private void applyThemeActions(ThemePlaceholder themePlaceholder, AdvancedMessageAction action) {
-        if (themePlaceholder.getHoverAction() != null) {
-            action.setHover(themePlaceholder.getHoverAction().getAction(), injectPlaceholderKeys(themePlaceholder.getHoverAction().getValue(), themePlaceholder));
-        }
-        if (themePlaceholder.getClickAction() != null) {
-            action.setClick(themePlaceholder.getClickAction().getAction(), injectPlaceholderKeys(themePlaceholder.getClickAction().getValue(), themePlaceholder));
-        }
-    }
-
-    /**
-     * get placeholder action values from theme and applies it
-     *
-     * @param globalPlaceholderActions to get actions from
-     * @param action                   injector
-     */
-    private void applyGlobalActions(GlobalPlaceholderActions globalPlaceholderActions, AdvancedMessageAction action) {
-        if (globalPlaceholderActions.getHoverAction() != null) {
-            action.setHover(globalPlaceholderActions.getHoverAction().getAction(),
-                    injectPlaceholderKeys(globalPlaceholderActions.getHoverAction().getValue(),
-                            PlaceholderController.getPlaceholderMatch(globalPlaceholderActions.getPlaceholderKey())));
-        }
-        if (globalPlaceholderActions.getClickAction() != null) {
-            action.setClick(globalPlaceholderActions.getClickAction().getAction(),
-                    injectPlaceholderKeys(globalPlaceholderActions.getClickAction().getValue(),
-                            PlaceholderController.getPlaceholderMatch(globalPlaceholderActions.getPlaceholderKey())));
-        }
-    }
-
-    /**
-     * allows for using %key% to actual key in hover and click messages
-     *
-     * @param actionMessage to replace key
-     * @param value         to inject
-     * @return replaced action value
-     */
-    private String injectPlaceholderKeys(String actionMessage, String value) {
-        return actionMessage.replace(PlaceholderController.getPlaceholderMatch("placeholderMatch"), value);
-    }
-
-    /**
-     * allows for using placeholderKey and placeholderName to replace in hover and click messages,
-     * this supports more replacements but only works for themeplaceholders for now
-     *
-     * @param actionMessage    to replace key
-     * @param themePlaceholder belonging placeholder
-     * @return replaced action value
-     */
-    private String injectPlaceholderKeys(String actionMessage, ThemePlaceholder themePlaceholder) {
-        return actionMessage.replace(PlaceholderController.getPlaceholderMatch("placeholderMatch"), themePlaceholder.getPlaceholderMatch()).
-                replace(PlaceholderController.getPlaceholderMatch("placeholderName"), themePlaceholder.getPlaceholderKey());
+    private MSG buildThemeMessage(ChatTheme theme, Player player) {
+        MSG msg = new MSG(theme.getFormat());
+        Map<String, PlaceholderAction> actions = getActionsMap(theme);
+        msg.createThemeParts(actions, player);
+        return msg;
     }
 }

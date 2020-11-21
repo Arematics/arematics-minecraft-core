@@ -3,32 +3,32 @@ package com.arematics.minecraft.core.chat.controller;
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.ChatAPI;
-import com.arematics.minecraft.data.global.model.GlobalPlaceholderActions;
+import com.arematics.minecraft.data.global.model.GlobalPlaceholderAction;
 import com.arematics.minecraft.data.global.model.ChatClickAction;
 import com.arematics.minecraft.data.global.model.ChatHoverAction;
 import com.arematics.minecraft.data.global.model.ThemePlaceholder;
 import com.arematics.minecraft.data.global.model.ChatTheme;
-import com.arematics.minecraft.data.global.model.ChatThemeUser;
-import com.arematics.minecraft.data.global.repository.DynamicPlaceholderRepository;
+import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.ChatThemeService;
-import com.arematics.minecraft.data.service.ChatThemeUserService;
 import com.arematics.minecraft.core.messaging.advanced.ClickAction;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
-import com.arematics.minecraft.data.service.PlaceholderService;
+import com.arematics.minecraft.data.service.UserService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Getter
 @NoArgsConstructor
 @Component
 public class ChatThemeController {
 
-    private final Map<UUID, ChatThemeUser> users = new HashMap<>();
     private final Map<String, ChatTheme> themes = new HashMap<>();
 
     public boolean loadThemes() {
@@ -40,63 +40,54 @@ public class ChatThemeController {
         }
         savedThemes.forEach(theme -> registerTheme(theme.getThemeKey(), theme));
         return true;
-
-    }
-
-    public GlobalPlaceholderActions buildActions(String name, ChatHoverAction hoverAction, ChatClickAction clickAction) {
-        GlobalPlaceholderActions actions = new GlobalPlaceholderActions();
-        actions.setPlaceholderKey(name);
-        actions.setHoverAction(hoverAction);
-        actions.setClickAction(clickAction);
-        return actions;
     }
 
     /**
      * sets up default themes and saves them to database, doesnt register them in system
      */
     public void createAndSaveDefaults() {
-        List<GlobalPlaceholderActions> defaultDynamicAndActions = new ArrayList<GlobalPlaceholderActions>() {{
-            GlobalPlaceholderActions rank = buildActions("rank", null, null);
-            GlobalPlaceholderActions name = buildActions("name", null, null);
-            GlobalPlaceholderActions chatMessage = buildActions("chatMessage", null, null);
-            GlobalPlaceholderActions arematics = buildActions("arematics", new ChatHoverAction(HoverAction.SHOW_TEXT, "Unser Discord"), new ChatClickAction(ClickAction.OPEN_URL, "https://discordapp.com/invite/AAXk9Jb"));
+        Set<GlobalPlaceholderAction> defaultDynamicAndActions = new HashSet<GlobalPlaceholderAction>() {{
+            GlobalPlaceholderAction rank = GlobalPlaceholderAction.builder().placeholderKey("rank").build();
+            GlobalPlaceholderAction name = GlobalPlaceholderAction.builder().placeholderKey("name").build();
+            GlobalPlaceholderAction chatMessage = GlobalPlaceholderAction.builder().placeholderKey("chatMessage").build();
+            GlobalPlaceholderAction arematics = GlobalPlaceholderAction.builder().placeholderKey("arematics").
+                    hoverAction(ChatHoverAction.builder().action(HoverAction.SHOW_TEXT).value("Join unserem Discord!").build()).
+                    clickAction(ChatClickAction.builder().action(ClickAction.OPEN_URL).value("https://discordapp.com/invite/AAXk9Jb").build()).
+                    build();
             add(rank);
             add(name);
             add(chatMessage);
             add(arematics);
         }};
 
-        List<GlobalPlaceholderActions> debugDynamicAndActions = new ArrayList<GlobalPlaceholderActions>() {{
-            GlobalPlaceholderActions rank = buildActions("rank",  new ChatHoverAction(HoverAction.SHOW_TEXT, "%placeholderMatch% to %value%"), null);
-            GlobalPlaceholderActions name = buildActions("name",  new ChatHoverAction(HoverAction.SHOW_TEXT, "%placeholderMatch% to %value%"), null);
-            GlobalPlaceholderActions chatMessage = buildActions("chatMessage",  new ChatHoverAction(HoverAction.SHOW_TEXT, "%placeholderMatch% to %value%"), null);
+        Set<GlobalPlaceholderAction> debugDynamicAndActions = new HashSet<GlobalPlaceholderAction>() {{
+            GlobalPlaceholderAction rank = GlobalPlaceholderAction.builder().placeholderKey("rank").
+                    hoverAction(ChatHoverAction.builder().action(HoverAction.SHOW_TEXT).value("%placeholderMatch% to %value%").build()).
+                    build();
+            GlobalPlaceholderAction name = GlobalPlaceholderAction.builder().placeholderKey("name").
+                    hoverAction(ChatHoverAction.builder().action(HoverAction.SHOW_TEXT).value("%placeholderMatch% to %value%").build()).
+                    build();
+            GlobalPlaceholderAction chatMessage = GlobalPlaceholderAction.builder().placeholderKey("chatMessage").
+                    hoverAction(ChatHoverAction.builder().action(HoverAction.SHOW_TEXT).value("%placeholderMatch% to %value%").build()).
+                    build();
             add(rank);
             add(name);
             add(chatMessage);
         }};
 
         Set<ThemePlaceholder> themePlaceholders = new HashSet<ThemePlaceholder>() {{
-            ThemePlaceholder chatDelim = new ThemePlaceholder();
-            chatDelim.setPlaceholderMatch("%chatDelim%");
-            chatDelim.setPlaceholderKey("chatDelim");
-            chatDelim.setValue(":");
+            ThemePlaceholder chatDelim = ThemePlaceholder.builder().placeholderMatch("%chatDelim%").placeholderKey("chatDelim").value("|").build();
             add(chatDelim);
         }};
         Set<ThemePlaceholder> themePlaceholdersDebug = new HashSet<ThemePlaceholder>() {{
-            ThemePlaceholder chatDelim = new ThemePlaceholder();
-            chatDelim.setPlaceholderMatch("%chatDelim%");
-            chatDelim.setPlaceholderKey("chatDelim");
-            chatDelim.setValue(":");
-            ThemePlaceholder debug = new ThemePlaceholder();
-            debug.setPlaceholderMatch("%debug%");
-            debug.setPlaceholderKey("debug");
-            debug.setValue("[Debug]");
-            debug.setHoverAction(new ChatHoverAction(HoverAction.SHOW_TEXT, "name: %placeholderName% match: %placeholderMatch%"));
+            ThemePlaceholder chatDelim = ThemePlaceholder.builder().placeholderMatch("%chatDelim%").placeholderKey("chatDelim").value(":").build();
+            ThemePlaceholder debug = ThemePlaceholder.builder().placeholderMatch("%debug%").placeholderMatch("debug").value("§c[DEBUG]").
+                    hoverAction(ChatHoverAction.builder().action(HoverAction.SHOW_TEXT).value("name: %placeholderName% match: %placeholderMatch% value: %value%").build()).build();
             add(debug);
             add(chatDelim);
         }};
-        ChatTheme defaultTheme = ChatAPI.createTheme("default", defaultDynamicAndActions, themePlaceholders, "%arematics% %rank% %name%%chatDelim% %chatMessage%");
-        ChatTheme debugTheme = ChatAPI.createTheme("debug", debugDynamicAndActions, themePlaceholdersDebug, "%debug% %rank% %name%%chatDelim% %chatMessage%");
+        ChatTheme defaultTheme = createTheme("default", defaultDynamicAndActions, themePlaceholders, "%arematics%, ,%rank%, ,%name%,%chatDelim%, ,%chatMessage%,");
+        ChatTheme debugTheme = createTheme("debug", debugDynamicAndActions, themePlaceholdersDebug, "%debug%, ,%rank%, ,%name%,%chatDelim%, ,%chatMessage%,");
         registerTheme(defaultTheme.getThemeKey(), defaultTheme);
         registerTheme(debugTheme.getThemeKey(), debugTheme);
     }
@@ -108,7 +99,7 @@ public class ChatThemeController {
      * @param format                    % encoded raw chat format
      * @return
      */
-    public ChatTheme createTheme(String themeKey, List<GlobalPlaceholderActions> dynamicPlaceholderActions, Set<ThemePlaceholder> themePlaceholders, String format) {
+    public ChatTheme createTheme(String themeKey, Set<GlobalPlaceholderAction> dynamicPlaceholderActions, Set<ThemePlaceholder> themePlaceholders, String format) {
         ChatTheme chatTheme = new ChatTheme();
         chatTheme.setThemeKey(themeKey);
         chatTheme.setThemePlaceholders(themePlaceholders);
@@ -126,31 +117,6 @@ public class ChatThemeController {
         getThemes().put(name, theme);
     }
 
-    /**
-     * registers player as chattheme user, is called on player join
-     *
-     * @param player to register
-     * @return
-     */
-    public ChatThemeUser register(Player player) {
-        ChatThemeUser user = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeUserService.class).getOrCreate(player.getUniqueId());
-        ChatTheme theme = ChatAPI.getTheme(user.getActiveTheme().getThemeKey());
-        theme.getActiveUsers().add(user);
-        getUsers().put(player.getUniqueId(), user);
-        return user;
-    }
-
-    public void logout(Player player) {
-        ChatThemeUserService service = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeUserService.class);
-        ChatThemeUser user = getUser(player);
-        service.save(user);
-        ChatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().remove(user);
-        getUsers().remove(player.getUniqueId());
-    }
-
-    public ChatThemeUser getUser(Player player) {
-        return getUsers().get(player.getUniqueId());
-    }
 
     /**
      * sets active theme for chatthemeuser and adds to senders chattheme
@@ -163,7 +129,8 @@ public class ChatThemeController {
         if (null == newTheme) {
             return false;
         }
-        ChatThemeUser user = getUser(player);
+        UserService service = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
+        User user = service.getUserByUUID(player.getUniqueId());
         ChatTheme old = ChatAPI.getTheme(user.getActiveTheme().getThemeKey());
         old.getActiveUsers().remove(user);
         user.setActiveTheme(newTheme);

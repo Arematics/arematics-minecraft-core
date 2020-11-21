@@ -4,7 +4,7 @@ use soulpvp;create table chat_click_action
 (
     id     bigint auto_increment
         primary key,
-    action varchar(255) null,
+    placeholderAction varchar(255) null,
     value  varchar(255) null
 );
 
@@ -12,7 +12,7 @@ create table chat_hover_action
 (
     id     bigint auto_increment
         primary key,
-    action varchar(255) null,
+    placeholderAction varchar(255) null,
     value  varchar(255) null
 );
 

@@ -1,5 +1,7 @@
 package com.arematics.minecraft.data.global.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Formula;
@@ -13,14 +15,14 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Data
 @Table(name = "theme_placeholder")
-public class ThemePlaceholder {
+public class ThemePlaceholder implements PlaceholderAction {
 
-    // without surrounding % %
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

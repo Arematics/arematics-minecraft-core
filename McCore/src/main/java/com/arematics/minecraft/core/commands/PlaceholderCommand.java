@@ -1,7 +1,5 @@
 package com.arematics.minecraft.core.commands;
 
-import com.arematics.minecraft.core.annotations.Default;
-import com.arematics.minecraft.core.annotations.PluginCommand;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.chat.controller.PlaceholderController;
@@ -11,22 +9,18 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
-@PluginCommand(aliases = {"globalplaceholder"})
 @Component
 public class PlaceholderCommand extends CoreCommand {
 
     private final PlaceholderController placeholderController = ChatAPI.getPlaceholderController();
-
 
     public PlaceholderCommand() {
         super("placeholder");
     }
 
     @Override
-    @Default
-    public boolean onDefaultExecute(CommandSender sender) {
+    public void onDefaultExecute(CommandSender sender) {
         sender.sendMessage("lulw");
-        return false;
     }
 
     @SubCommand("list")

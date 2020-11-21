@@ -3,6 +3,7 @@ package com.arematics.minecraft.core.listener;
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CompoundClassLoader;
 import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.events.SpringInitializedEvent;
 import com.arematics.minecraft.core.hooks.PermissionCreationHook;
@@ -28,11 +29,13 @@ public class SpringInitializedListener implements Listener {
                 .collect(Collectors.toList());
         CompoundClassLoader loader = new CompoundClassLoader(classLoaders);
         PermissionCreationHook hook = new PermissionCreationHook();
+        ChatAPI.bootstrap();
         hook.startPathHook("com.arematics.minecraft", loader, boot);
         boot.getContext().getBeansOfType(Listener.class)
                 .forEach((s, listener) -> Bukkit.getPluginManager().registerEvents(listener, boot));
         boot.getContext().getBeansOfType(CoreCommand.class).forEach((s, cmd) -> cmd.register());
         ArematicsExecutor.asyncRepeat(SpringInitializedListener::saveInventories, 0, 2, TimeUnit.MINUTES);
+
     }
 
     private static void saveInventories(){

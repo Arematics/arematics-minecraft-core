@@ -1,5 +1,6 @@
 package com.arematics.minecraft.data.service;
 
+import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.global.repository.UserRepository;
@@ -56,7 +57,7 @@ public class UserService {
     public User createUser(UUID uuid, String name){
         User user = new User(UUID.randomUUID(), uuid, name, new Timestamp(System.currentTimeMillis()), null,
                 null, rankService.getDefaultRank(), null, 0, new HashMap<>(), new HashSet<>(),
-                new HashSet<>());
+                new HashSet<>(), ChatAPI.getTheme("default"));
         return repository.save(user);
     }
 

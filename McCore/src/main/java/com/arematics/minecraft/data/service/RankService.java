@@ -40,7 +40,6 @@ public class RankService {
 
     @CachePut(cacheNames = "rankCache")
     public Rank getDefaultRank(){
-        Bukkit.broadcastMessage(modeName);
         Optional<Rank> rank = repository.findById(1L);
         return rank.orElseGet(() -> repository.save(new Rank(1L, "User", "U",
                 "§b", false, new Timestamp(System.currentTimeMillis()), new HashSet<>())));
