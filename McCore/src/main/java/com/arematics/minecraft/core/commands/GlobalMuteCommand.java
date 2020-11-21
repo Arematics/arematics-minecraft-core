@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.Perm;
+import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.CorePlayer;
 import org.bukkit.Bukkit;
@@ -21,6 +22,11 @@ public class GlobalMuteCommand extends CoreCommand {
     protected boolean onDefaultCLI(CommandSender sender) {
         enableGlobalMute(sender);
         return true;
+    }
+
+    @SubCommand("info")
+    public void getInfo(CorePlayer player) {
+        player.info("Globalmute: " + isGlobalMuteActive).handle();
     }
 
     private static void enableGlobalMute(CommandSender sender) {
