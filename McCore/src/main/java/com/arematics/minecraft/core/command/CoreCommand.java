@@ -6,6 +6,7 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.PermissionAnnotationProcessor;
 import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProcessor;
+import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.command.supplier.standard.CommandSupplier;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.Messages;
@@ -32,6 +33,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.Inventory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -83,6 +85,7 @@ public abstract class CoreCommand extends Command {
                 "%subcmds%";
         this.registerStandards(processors);
         this.uiSlots = calculateSlots();
+        System.out.println(this.uiSlots);
     }
 
     private void registerStandards(AnnotationProcessor<?>[] processors){
@@ -123,15 +126,15 @@ public abstract class CoreCommand extends Command {
         InventoryService service = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
         Inventory inv = service.getOrCreate("command.default.menu." + this.getName(),
                 "§8Command: §c" + this.getName(), this.uiSlots);
-        ArematicsExecutor.syncRun(() -> player.getPlayer().openInventory(inv));
+        player.openInventory(inv);
         return true;
     }
 
     private byte calculateSlots(){
         int size = this.subCommands.size();
         int min = 1;
-        int max = 5;
-        byte val = 9;
+        int max = 15;
+        byte val = 27;
         while(!(between(min, max, size))){
             min = max + 1;
             max = max + 5;
@@ -222,13 +225,21 @@ public abstract class CoreCommand extends Command {
                 if(!matchFound.get())
                     Permissions.check(sender, this.classPermission).ifPermitted(this::onDefaultExecute).submit();
             }
-        }catch (Exception exception){
+        }catch (InvocationTargetException pe){
+            if(pe.getCause() instanceof CommandProcessException)
+                handleProcessorException(sender, (CommandProcessException) pe.getCause());
+        }catch (CommandProcessException pe){
+            handleProcessorException(sender, pe);
+        } catch (Exception exception){
             exception.printStackTrace();
             Messages.create(CMD_FAILURE).FAILURE().to(sender).handle();
         }
     }
 
-
+    private void handleProcessorException(CommandSender sender, CommandProcessException pe){
+        if(pe.getInjector() != null) pe.getInjector().handle();
+        else Messages.create(pe.getMessage()).WARNING().to(sender).handle();
+    }
 
     private boolean isMatch(String[] annotation, String[] src){
         String[] clonedSource = getSetupMessageArray(annotation, src.clone());

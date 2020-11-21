@@ -3,8 +3,6 @@ package com.arematics.minecraft.core.command.processor;
 import com.arematics.minecraft.core.annotations.ProcessorData;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.parser.Parser;
-import com.arematics.minecraft.core.command.processor.parser.ParserException;
-import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.reflect.MethodUtils;
@@ -28,20 +26,13 @@ public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubComman
         String value = getSerializedValue(method);
         String[] annotationValues = value.split(" ");
         Object[] order;
-        try{
-            order = Parser.getInstance().fillParameters(sender, annotationValues, method.getParameters(), arguments);
-        }catch (ParserException exception){
-            Messages.create(exception.getMessage())
-                    .WARNING()
-                    .to(sender)
-                    .handle();
-            return true;
-        }
+        order = Parser.getInstance().fillParameters(sender, annotationValues, method.getParameters(), arguments);
 
         if(ArrayUtils.isEmpty(order)){
             method.invoke(executer(), sender);
             return true;
         }
+
         MethodUtils.invokeMethod(executer(), method.getName(), order,
                 method.getParameterTypes());
         return true;

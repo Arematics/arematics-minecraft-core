@@ -19,5 +19,6 @@ public class PlayerDisconnectBoardListener implements Listener {
         CorePlayer player = CorePlayer.get(event.getPlayer());
         player.getBoardSet().remove();
         ChatAPI.logout(event.getPlayer());
+        CorePlayer.invalidate(event.getPlayer());
     }
 }

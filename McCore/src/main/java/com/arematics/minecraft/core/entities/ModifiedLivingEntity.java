@@ -2,7 +2,7 @@ package com.arematics.minecraft.core.entities;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
-import com.arematics.minecraft.data.global.model.CommandEntity;
+import com.arematics.minecraft.data.mode.model.CommandEntity;
 import com.arematics.minecraft.data.service.CommandEntityService;
 import de.tr7zw.nbtapi.NBTEntity;
 import lombok.Getter;
@@ -16,7 +16,8 @@ public class ModifiedLivingEntity extends NBTEntity {
     public static final String CLICK_INTERACT = "clickInteract";
 
     public static ModifiedLivingEntity create(Location location, EntityType type){
-        return new ModifiedLivingEntity((LivingEntity) location.getWorld().spawnEntity(location, type));
+        LivingEntity entity = (LivingEntity) location.getWorld().spawnEntity(location, type);
+        return new ModifiedLivingEntity(entity);
     }
 
     private final LivingEntity livingEntity;

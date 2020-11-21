@@ -49,6 +49,8 @@ public class User implements Serializable {
     @OneToOne
     @JoinColumn(name = "display_rank", referencedColumnName = "id")
     private Rank displayRank;
+    @Column(name = "user_karma", nullable = false)
+    private int karma;
     @NotAudited
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_configurations", joinColumns = @JoinColumn(name = "uuid"))

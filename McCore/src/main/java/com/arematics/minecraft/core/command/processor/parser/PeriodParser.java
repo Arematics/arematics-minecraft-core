@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 public class PeriodParser extends CommandParameterParser<Period> {
 
     @Override
-    public Period parse(String timeInput) throws ParserException {
-        if(timeInput.startsWith("-")) throw new ParserException("No negative times allowed");
+    public Period parse(String timeInput) throws CommandProcessException {
+        if(timeInput.startsWith("-")) throw new CommandProcessException("No negative times allowed");
         Period period;
         try{
             period = Period.parse(timeInput);
@@ -25,7 +25,7 @@ public class PeriodParser extends CommandParameterParser<Period> {
 
                 period = formatter.parsePeriod(timeInput);
             }catch (IllegalArgumentException dtpe2){
-                throw new ParserException("Not valid time input please use: %D%H%M%S");
+                throw new CommandProcessException("Not valid time input please use: %D%H%M%S");
             }
         }
         return period;

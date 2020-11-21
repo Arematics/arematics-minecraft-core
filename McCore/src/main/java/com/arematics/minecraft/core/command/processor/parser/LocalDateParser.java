@@ -33,7 +33,7 @@ public class LocalDateParser extends CommandParameterParser<LocalDate>{
     };
 
     @Override
-    public LocalDate parse(String value) throws ParserException {
+    public LocalDate parse(String value) throws CommandProcessException {
         LocalDate date = null;
         for(DateTimeFormatter formatter: PATTERNS){
             try{
@@ -41,7 +41,7 @@ public class LocalDateParser extends CommandParameterParser<LocalDate>{
             }catch (DateTimeParseException | IllegalArgumentException ignore){}
             if(date != null) break;
         }
-        if(date == null) throw new ParserException(value + " is not valid LocalDate");
+        if(date == null) throw new CommandProcessException(value + " is not valid LocalDate");
         return date;
     }
 }

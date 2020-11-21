@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.command.processor.validator;
 
-import com.arematics.minecraft.core.command.processor.parser.ParserException;
+import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.UserService;
@@ -20,12 +20,12 @@ public class FriendValidator extends ParameterValidator<User> {
     }
 
     @Override
-    public void supply(User result, List<Object> data) throws ParserException {
+    public void supply(User result, List<Object> data) throws CommandProcessException {
         CorePlayer player = data.stream().filter(o -> o.getClass().equals(CorePlayer.class))
                 .map(o -> (CorePlayer)o)
                 .findFirst()
                 .orElse(null);
         if(player != null && service.getOrCreateUser(player).getFriends().contains(result))
-            throw new ParserException("Player " + result.getLastName() + " is already a friend");
+            throw new CommandProcessException("Player " + result.getLastName() + " is already a friend");
     }
 }

@@ -31,13 +31,25 @@ public class BindedItemInteractListener implements Listener {
     @EventHandler
     public void executeOnInteract(InventoryClickEvent event){
         CorePlayer player = CorePlayer.get((Player)event.getWhoClicked());
-        CoreItem clicked = CoreItem.create(event.getCurrentItem());
-        if(clicked == null) return;
-        if(clicked.clickDisabled()){
+        if(!player.isIgnoreMeta() && event.getClickedInventory() != null &&
+                event.getClickedInventory().equals(player.getView().getBottomInventory()) &&
+                player.isDisableLowerInventory()){
             event.setCancelled(true);
             return;
         }
-        if(clicked.clickDisabled() || clicked.hasBindedCommand() && !player.isIgnoreMeta()){
+        if(!player.isIgnoreMeta() && event.getClickedInventory() != null &&
+                event.getClickedInventory().equals(player.getView().getTopInventory()) &&
+                player.isDisableUpperInventory()){
+            event.setCancelled(true);
+            return;
+        }
+        CoreItem clicked = CoreItem.create(event.getCurrentItem());
+        if(clicked == null) return;
+        if(clicked.clickDisabled() && !player.isIgnoreMeta()){
+            event.setCancelled(true);
+            return;
+        }
+        if(clicked.hasBindedCommand() && !player.isIgnoreMeta()){
             if(clicked.closeOnClick() && player.getPlayer().getOpenInventory() != null)
                 player.getPlayer().closeInventory();
             Bukkit.getServer().dispatchCommand(player.getPlayer(), clicked.getBindedCommand());

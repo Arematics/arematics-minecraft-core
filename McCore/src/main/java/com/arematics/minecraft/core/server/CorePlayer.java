@@ -8,12 +8,17 @@ import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.scoreboard.functions.BoardSet;
+import com.arematics.minecraft.core.utils.Inventories;
+import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.GameStats;
 import com.arematics.minecraft.data.service.GameStatsService;
 import com.arematics.minecraft.data.service.InventoryService;
+import com.arematics.minecraft.data.service.UserService;
 import lombok.Data;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +36,11 @@ public class CorePlayer{
         return players.get(player.getUniqueId());
     }
 
+    public static void invalidate(Player player){
+        if(players.containsKey(player.getUniqueId())) players.get(player.getUniqueId()).unload();
+        players.remove(player.getUniqueId());
+    }
+
     public static void unload(Player player){
         players.remove(player.getUniqueId()).unload();
     }
@@ -39,19 +49,70 @@ public class CorePlayer{
     private final Map<Currency, Double> currencies = new HashMap<>();
     private final Pager pager;
     private final BoardSet boardSet;
+    private final PlayerRequestSettings requestSettings;
     private boolean ignoreMeta = false;
+    private boolean disableLowerInventory = false;
+    private boolean disableUpperInventory = false;
 
     private final GameStatsService service;
+    private final UserService userService;
 
     public CorePlayer(Player player){
         this.player = player;
         this.pager = new Pager(this);
         this.boardSet = new BoardSet(player);
+        this.userService = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
+        this.requestSettings = new PlayerRequestSettings(this);
         this.service = Boots.getBoot(CoreBoot.class).getContext().getBean(GameStatsService.class);
     }
 
-    private void unload(){
+    private void unload() {
+        this.pager.unload();
+        this.boardSet.remove();
+    }
 
+    public InventoryView getView(){
+        return player.getOpenInventory();
+    }
+
+    public void openInventory(Inventory inventory){
+        Inventories.openLowerDisabledInventory(inventory, this);
+    }
+
+    public void openTotalBlockedInventory(Inventory inventory){
+        Inventories.openLowerDisabledInventory(inventory, this);
+    }
+
+    public void openLowerEnabledInventory(Inventory inventory){
+        Inventories.openInventory(inventory, this);
+    }
+
+    public User getUser(){
+        return this.userService.getOrCreateUser(this);
+    }
+
+    UserService getUserService(){
+        return this.userService;
+    }
+
+    public void update(User user){
+        this.userService.update(user);
+    }
+
+    public void addKarma(int amount){
+        User user = getUser();
+        user.setKarma(user.getKarma() + amount);
+        update(user);
+    }
+
+    public void removeKarma(int amount){
+        User user = getUser();
+        user.setKarma(user.getKarma() - amount);
+        update(user);
+    }
+
+    public PlayerRequestSettings getRequestSettings(){
+        return this.requestSettings;
     }
 
     public MessageInjector info(String msg){
@@ -127,6 +188,10 @@ public class CorePlayer{
 
     public Inventory getOrCreateInventory(InventoryService service, String key, String title, byte slots){
         return service.getOrCreate(player.getUniqueId() + "." + key, title, slots);
+    }
+
+    public Location getLocation() {
+        return this.player.getLocation();
     }
 
     /**

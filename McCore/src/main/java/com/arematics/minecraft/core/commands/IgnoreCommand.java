@@ -11,7 +11,6 @@ import com.arematics.minecraft.core.pages.Page;
 import com.arematics.minecraft.core.pages.Pageable;
 import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.server.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.IgnoredService;
 import com.arematics.minecraft.data.service.UserService;
@@ -109,7 +108,7 @@ public class IgnoreCommand extends CoreCommand {
             page.setInventory(inventory);
         }
         Inventory finalInventory = inventory;
-        ArematicsExecutor.syncRun(() -> player.getPlayer().openInventory(finalInventory));
+        player.openInventory(finalInventory);
         return true;
     }
 

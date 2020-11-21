@@ -21,7 +21,6 @@ public class Pageable {
     private long lastUse;
 
     public Pageable(List<String> content, CorePlayer player, String bindedCommand, int maxCacheSeconds){
-        System.out.println(content);
         this.player = player;
         this.bindedCommand = bindedCommand;
         this.maxCacheSeconds = maxCacheSeconds;

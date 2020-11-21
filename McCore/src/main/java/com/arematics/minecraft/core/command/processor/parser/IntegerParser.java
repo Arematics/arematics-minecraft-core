@@ -6,11 +6,11 @@ import org.springframework.stereotype.Component;
 public class IntegerParser extends CommandParameterParser<Integer> {
 
     @Override
-    public Integer parse(String value) throws ParserException {
+    public Integer parse(String value) throws CommandProcessException {
         try{
             return Integer.parseInt(value);
         }catch (NumberFormatException e){
-            throw new ParserException(value + " must be a number");
+            throw new CommandProcessException(value + " must be a number");
         }
     }
 }

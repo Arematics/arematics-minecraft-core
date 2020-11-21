@@ -10,14 +10,14 @@ import org.springframework.stereotype.Component;
 public class PermissionParser extends CommandParameterParser<Permission> {
 
     @Override
-    public Permission parse(String name) throws ParserException {
+    public Permission parse(String name) throws CommandProcessException {
         if(name.equals("null")) return null;
         PermissionService service = Boots.getBoot(CoreBoot.class).getContext().getBean(PermissionService.class);
         Permission permission;
         try{
             permission = service.findByName(name);
         }catch (RuntimeException re){
-            throw new ParserException(re.getMessage());
+            throw new CommandProcessException(re.getMessage());
         }
         return permission;
     }

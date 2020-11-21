@@ -6,12 +6,12 @@ import org.springframework.stereotype.Component;
 public class LongParser extends CommandParameterParser<Long> {
 
     @Override
-    public Long parse(String value) throws ParserException {
+    public Long parse(String value) throws CommandProcessException {
         long parsed;
         try{
             parsed = Long.parseLong(value);
         }catch (NumberFormatException nfe){
-            throw new ParserException(value + " must be a number");
+            throw new CommandProcessException(value + " must be a number");
         }
         return parsed;
     }
