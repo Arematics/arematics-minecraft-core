@@ -6,7 +6,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.springframework.stereotype.Component;
 
+@Component
 public class GlobalMuteEvent implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)

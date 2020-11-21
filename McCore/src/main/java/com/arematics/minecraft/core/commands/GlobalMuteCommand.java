@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.commands;
 
+import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.CorePlayer;
 import org.bukkit.Bukkit;
@@ -9,26 +10,27 @@ import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
 @Component
+@Perm(permission = "globalmute", description = "mute the global chat")
 public class GlobalMuteCommand extends CoreCommand {
 
     public static boolean isGlobalMuteActive = false;
 
-    public GlobalMuteCommand() {
-        super("globalmute", "glm");
-    }
+    public GlobalMuteCommand() { super("globalmute", "glm"); }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
+    protected boolean onDefaultCLI(CommandSender sender) {
+        enableGlobalMute(sender);
+        return true;
+    }
 
-            isGlobalMuteActive = !isGlobalMuteActive;
-            String commandSenderName = sender instanceof Player ? ((Player) sender).getDisplayName() : "an higher instance";
+    private static void enableGlobalMute(CommandSender sender) {
+        isGlobalMuteActive = !isGlobalMuteActive;
+        String globalMuteStatus = isGlobalMuteActive ? "muted" : "demuted";
 
-            Bukkit.getOnlinePlayers()
-                    .stream()
-                    .map(CorePlayer::get)
-                    .forEach(player -> player
-                            .info("The chat was " + (isGlobalMuteActive ? "muted" : "demuted") +" by " + commandSenderName));
-
+        Bukkit.getOnlinePlayers().stream()
+                .map(CorePlayer::get)
+                .forEach(player -> player
+                        .info("The chat was " + globalMuteStatus +" by " + ((Player) sender).getDisplayName()).handle());
 
     }
 }
