@@ -21,7 +21,7 @@ public class BanService {
         this.repository = bansRepository;
     }
 
-    @Cacheable(cacheNames = "banCache")
+    @Cacheable(cacheNames = "banCache", key = "#uuid")
     public Ban getBan(UUID uuid){
         Optional<Ban> ban = repository.findById(uuid);
         if(!ban.isPresent())
@@ -29,12 +29,12 @@ public class BanService {
         return ban.get();
     }
 
-    @CachePut(cacheNames = "banCache")
-    public void save(Ban ban){
-        repository.save(ban);
+    @CachePut(cacheNames = "banCache", key = "#result.uuid")
+    public Ban save(Ban ban){
+        return repository.save(ban);
     }
 
-    @CacheEvict(cacheNames = "banCache")
+    @CacheEvict(cacheNames = "banCache", key = "#ban.uuid")
     public void remove(Ban ban){
         repository.delete(ban);
     }
