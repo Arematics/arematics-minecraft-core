@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.messaging.advanced;
 
+import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.PlaceholderAction;
 import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.chat.controller.PlaceholderController;
@@ -23,9 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
-import java.util.Optional;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -34,15 +34,17 @@ public class MSG {
 
     public final List<Part> PARTS = new ArrayList<>();
 
-    public MSG(Part... parts){
+    public MSG(Part... parts) {
         this(Arrays.asList(parts));
     }
 
-    public MSG(List<Part> parts){
+    public MSG(List<Part> parts) {
         this.PARTS.addAll(parts);
     }
-     /**
+
+    /**
      * Constructs a MSG from message with all its formatting (Color- and Format-Codes)
+     *
      * @param message Message to construct from
      */
     public MSG(String message) {
@@ -50,12 +52,12 @@ public class MSG {
 
         String[] coloredParts = splitAndKeepDelimiter(message, Pattern.compile("(§[0-9]|§[a-f]|§r)"));
 
-        for(String strPart : coloredParts) {
+        for (String strPart : coloredParts) {
             JsonColor jsonColor = new Part(strPart).styleAndColorFromText().BASE_COLOR; // Only one in this part
             List<Format> formats = new ArrayList<>();
 
             String[] subPartsStrs = splitAndKeepDelimiter(strPart, Pattern.compile("(§[0-9]|§[a-f]|§[k-o]|§r)+"));
-            for(String subPartStr : subPartsStrs) {
+            for (String subPartStr : subPartsStrs) {
                 Part part = new Part(subPartStr).styleAndColorFromText();
                 part.BASE_COLOR = jsonColor;
                 HashSet<Format> newFormats = part.MESSAGE_FORMATS;
@@ -70,6 +72,11 @@ public class MSG {
         clearEmptyParts();
     }
 
+    public MSG(ChatTheme theme) {
+        Part part = new Part(theme.getFormat());
+        this.PARTS.add(part);
+    }
+
     /**
      * @param term Term to search for (default: case-sensitive)
      * @return All Parts with the exact 'term', which are now separate in MSG.parts
@@ -78,36 +85,29 @@ public class MSG {
         return separateTerms(term, false);
     }
 
-    /**
-     *
-     */
-    public Part find(String term) {
-        Optional<Part> found = PARTS.stream().filter(part -> part.TEXT.equalsIgnoreCase(term)).findFirst();
-        return found.orElse(null);
-    }
-
 
     /**
-     * @param term Term to search for
+     * @param term       Term to search for
      * @param ignoreCase Whether casing should be ignored
      * @return All Parts with the exact 'term', which are now separate in MSG.parts
      */
     public Part[] separateTerms(String term, boolean ignoreCase) {
-        if(term == null || term.isEmpty())
+        if (term == null || term.isEmpty())
             throw new IllegalArgumentException("Term is null or empty!");
-        if(ignoreCase)
+        if (ignoreCase)
             term = term.toLowerCase();
 
         boolean termFound;
-        searchLoop: do {
+        searchLoop:
+        do {
             termFound = false;
 
-            for(int i = 0; i < this.PARTS.size(); i++) {
+            for (int i = 0; i < this.PARTS.size(); i++) {
                 Part part = PARTS.get(i);
                 String text = part.TEXT;
                 String textCheck = ignoreCase ? text.toLowerCase() : text;
 
-                if(!textCheck.equals(term) && textCheck.contains(term)) {
+                if (!textCheck.equals(term) && textCheck.contains(term)) {
                     int indexStart = textCheck.indexOf(term);
                     int indexEnd = indexStart + term.length();
 
@@ -137,13 +137,13 @@ public class MSG {
         clearEmptyParts();
 
         ArrayList<Part> matchingParts = new ArrayList<>();
-        for(Part part : this.PARTS)
-            if((ignoreCase && part.TEXT.equalsIgnoreCase(term)) || (!ignoreCase && part.TEXT.equals(term)))
+        for (Part part : this.PARTS)
+            if ((ignoreCase && part.TEXT.equalsIgnoreCase(term)) || (!ignoreCase && part.TEXT.equals(term)))
                 matchingParts.add(part);
         return matchingParts.toArray(new Part[]{});
     }
 
-    private void clearEmptyParts(){
+    private void clearEmptyParts() {
         List<Part> empty = this.PARTS.stream()
                 .filter(part -> StringUtils.isBlank(part.TEXT))
                 .collect(Collectors.toList());
@@ -152,13 +152,14 @@ public class MSG {
 
     /**
      * Simply replaces all found 'term's with the 'replacement'
-     * @param term Term that gets replaced (case-sensitive)
+     *
+     * @param term        Term that gets replaced (case-sensitive)
      * @param replacement Replacement
      * @return Amount of parts that contained the term at least once
      */
     public int replaceAll(String term, Object replacement) {
         int replacedPartsCount = 0;
-        for(Part part : this.PARTS) {
+        for (Part part : this.PARTS) {
             if (part.TEXT.contains(term)) {
                 part.setText(part.TEXT.replace(term, replacement.toString()));
                 replacedPartsCount++;
@@ -169,26 +170,28 @@ public class MSG {
 
     /**
      * Simply replaces all found 'term's with the 'replacement'
-     * @param term Term that gets replaced (case-sensitive)
+     *
+     * @param term        Term that gets replaced (case-sensitive)
      * @param replacement Replacement
      * @return Amount of parts that contained the term at least once
      */
     public void replaceAllAt(String term, MSG replacement, boolean ignoreCase) {
-        if(term == null || term.isEmpty())
+        if (term == null || term.isEmpty())
             throw new IllegalArgumentException("Term is null or empty!");
-        if(ignoreCase)
+        if (ignoreCase)
             term = term.toLowerCase();
 
         boolean termFound;
-        searchLoop: do {
+        searchLoop:
+        do {
             termFound = false;
 
-            for(int i = 0; i < this.PARTS.size(); i++) {
+            for (int i = 0; i < this.PARTS.size(); i++) {
                 Part part = PARTS.get(i);
                 String text = part.TEXT;
                 String textCheck = ignoreCase ? text.toLowerCase() : text;
 
-                if(!textCheck.equals(term) && textCheck.contains(term)) {
+                if (!textCheck.equals(term) && textCheck.contains(term)) {
                     int indexStart = textCheck.indexOf(term);
                     int indexEnd = indexStart + term.length();
 
@@ -214,50 +217,59 @@ public class MSG {
 
     /**
      * Splits encoded chat format into seperate parts and applies action & placeholder value on them
+     *
      * @param actions to use
-     * @param player needed for globalplaceholder value, chatter
+     * @param player  needed for globalplaceholder value, chatter
      */
-    public void createThemeParts(Map<String, PlaceholderAction> actions, Player player) {
-        if(PARTS.size() > 1 ) {
+    public void createThemeParts(Map<String, PlaceholderAction> actions, Player player, PlaceholderController placeholderController) {
+        if (PARTS.size() > 1) {
             Bukkit.broadcastMessage("Something wrong here, dont split this again");
             return;
         }
-        Part basePart = PARTS.get(0);
-        String base = basePart.TEXT;
+        String text = PARTS.get(0).TEXT;
         PARTS.clear();
-        String[] partStrings = base.split(",");
-        for (String partString : partStrings) {
-            Part part = new Part(partString);
-            PlaceholderAction placeholderAction = actions.get(partString);
-            applyChatActionsToPart(part, placeholderAction, player);
-            PARTS.add(part);
+        String[] parts = text.split(",");
+        for (int i = 0; i < parts.length; i++) {
+                String s = parts[i];
+            //applyPlaceholderToPart(convertPart(parts[i]), getAction(parts[i], actions), player, placeholderController);
+
+            this.PARTS.add(applyPlaceholderToPart(new Part(s), getAction(s, actions), player, placeholderController));
         }
+    }
+
+    private PlaceholderAction getAction(String coloredPart, Map<String, PlaceholderAction> actions) {
+        return actions.get(ChatColor.stripColor(coloredPart));
     }
 
     /**
      * replaces placeholder with actual value and applies hover/click actions on them
-     * @param part to apply actions and value
+     *
+     * @param part              to apply actions and value
      * @param placeholderAction to use
-     * @param player needed for globalplaceholder value, chatter
+     * @param player            needed for globalplaceholder value, chatter
      */
-    private void applyChatActionsToPart(Part part, PlaceholderAction placeholderAction, Player player) {
+    private Part applyPlaceholderToPart(Part part, PlaceholderAction placeholderAction, Player player, PlaceholderController placeholderController) {
         String value = "";
-        if(placeholderAction instanceof GlobalPlaceholderAction) {
-            value = ChatAPI.getPlaceholder(placeholderAction.getPlaceholderKey()).getValues().get(player).get();
+        if (placeholderAction instanceof GlobalPlaceholderAction) {
+            value = placeholderController.getPlaceholder(placeholderAction.getPlaceholderKey()).getValues().get(player).get();
             part.setText(value);
-        } else if(placeholderAction instanceof ThemePlaceholder) {
+        } else if (placeholderAction instanceof ThemePlaceholder) {
             value = ((ThemePlaceholder) placeholderAction).getValue();
             part.setText(value);
         }
-        if(null == placeholderAction) {
-            return;
+        if (null == placeholderAction) {
+            return part;
         }
-        if(null != placeholderAction.getHoverAction()) {
-            part.setHoverAction(placeholderAction.getHoverAction().getAction(), injectPlaceholders(placeholderAction.getHoverAction().getValue(), placeholderAction.getPlaceholderKey(), value));
+        if (null != placeholderAction.getHoverAction()) {
+            part.setHoverAction(placeholderAction.getHoverAction().getAction(),
+                    injectPlaceholders(placeholderAction.getHoverAction().getValue(), placeholderAction.getPlaceholderKey(), value));
         }
-        if(null != placeholderAction.getClickAction()) {
-            part.setClickAction(placeholderAction.getClickAction().getAction(), injectPlaceholders(placeholderAction.getClickAction().getValue(), placeholderAction.getPlaceholderKey(), value));
+        if (null != placeholderAction.getClickAction()) {
+            part.setClickAction(placeholderAction.getClickAction().getAction(),
+                    injectPlaceholders(placeholderAction.getClickAction().getValue(), placeholderAction.getPlaceholderKey(), value));
         }
+
+        return part;
     }
 
     /**
@@ -283,7 +295,7 @@ public class MSG {
         ArrayList<Integer> positions = new ArrayList<>();
 
         positions.add(0); // Beginning of 'message'
-        while(regexMatcher.find())
+        while (regexMatcher.find())
             positions.add(regexMatcher.start());
         positions.add(message.length()); // End of 'message'
         // ---
@@ -291,9 +303,9 @@ public class MSG {
         // Split 'message' into parts determined by 'positions'
         // Visualization: message: BEGINPOS --<Part>-- 5 --<Part>-- 12 --<Part>-- 16 --<Part>-- ENDPOS
         ArrayList<String> parts = new ArrayList<>();
-        for(int i = 1; i < positions.size(); i++) {
-            int from = positions.get(i-1), to = positions.get(i);
-            if(to - from == 0) // Skip empty parts
+        for (int i = 1; i < positions.size(); i++) {
+            int from = positions.get(i - 1), to = positions.get(i);
+            if (to - from == 0) // Skip empty parts
                 continue;
             parts.add(message.substring(from, to));
         }
@@ -305,35 +317,35 @@ public class MSG {
     /**
      * Copied from EnderSYS/Utils/JSONUtil
      */
-    private static String toPlainText(String json){
+    private static String toPlainText(String json) {
         JsonObject jsonobj = (JsonObject) new JsonParser().parse(json);
 
         StringBuilder text = new StringBuilder("");
 
-        if(jsonobj.has("text"))
+        if (jsonobj.has("text"))
             text.append(jsonobj.get("text").getAsString());
 
-        if(jsonobj.has("extra")){
+        if (jsonobj.has("extra")) {
             JsonArray extra = jsonobj.get("extra").getAsJsonArray();
 
-            for(int i = 0; i < extra.size(); i++){
+            for (int i = 0; i < extra.size(); i++) {
                 JsonObject part = extra.get(i).getAsJsonObject();
-                if(part.has("text"))
+                if (part.has("text"))
                     text.append(part.get("text").getAsString());
             }
         }
         return text.toString();
     }
 
-    public JsonObject toJsonObject(){
+    public JsonObject toJsonObject() {
         JsonObject message = new JsonObject();
         message.addProperty("text", "");
-        if(PARTS.size() == 0)
+        if (PARTS.size() == 0)
             return message;
 
         JsonArray extra = new JsonArray();
         PARTS.forEach(part -> extra.add(part.toJsonObject()));
-        if(extra.size() > 0) // If ignored: com.google.gson.JsonParseException: Unexpected empty array of components
+        if (extra.size() > 0) // If ignored: com.google.gson.JsonParseException: Unexpected empty array of components
             message.add("extra", extra);
 
         return message;
@@ -355,17 +367,17 @@ public class MSG {
 
     @Override
     public boolean equals(Object other) {
-        if(!(other instanceof MSG)) return false;
+        if (!(other instanceof MSG)) return false;
 
         MSG otherMsg = (MSG) other;
         List<Part> thisParts = this.PARTS, otherParts = otherMsg.PARTS;
-        if(thisParts.size() != otherParts.size())
+        if (thisParts.size() != otherParts.size())
             return false;
 
         return thisParts.containsAll(otherParts) && otherParts.containsAll(thisParts);
     }
 
-    public void send(CommandSender... senders){
+    public void send(CommandSender... senders) {
         final String json = toJsonString();
         Arrays.stream(senders).forEach(sender -> {
             if (sender instanceof Player)
@@ -375,17 +387,17 @@ public class MSG {
         });
     }
 
-    public void sendAll(List<User> users, List<User> ignoredBy){
+    public void sendAll(List<User> users, List<User> ignoredBy) {
         final String json = toJsonString();
         users.forEach(user -> {
             Player player = Bukkit.getPlayer(user.getUuid());
-            if(!ignoredBy.contains(user)) {
+            if (!ignoredBy.contains(user)) {
                 ((CraftPlayer) player).getHandle().playerConnection.sendPacket(createPacketPlayOutChat(json));
             }
         });
     }
 
-    private static PacketPlayOutChat createPacketPlayOutChat(String s){
+    private static PacketPlayOutChat createPacketPlayOutChat(String s) {
         return new PacketPlayOutChat(IChatBaseComponent.ChatSerializer.a(s));
     }
 }

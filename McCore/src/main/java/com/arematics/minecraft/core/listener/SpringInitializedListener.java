@@ -29,11 +29,11 @@ public class SpringInitializedListener implements Listener {
                 .collect(Collectors.toList());
         CompoundClassLoader loader = new CompoundClassLoader(classLoaders);
         PermissionCreationHook hook = new PermissionCreationHook();
-        ChatAPI.bootstrap();
         hook.startPathHook("com.arematics.minecraft", loader, boot);
         boot.getContext().getBeansOfType(Listener.class)
                 .forEach((s, listener) -> Bukkit.getPluginManager().registerEvents(listener, boot));
         boot.getContext().getBeansOfType(CoreCommand.class).forEach((s, cmd) -> cmd.register());
+        CoreBoot.getPlugin(CoreBoot.class).getContext().getBean(ChatAPI.class).bootstrap();
         ArematicsExecutor.asyncRepeat(SpringInitializedListener::saveInventories, 0, 2, TimeUnit.MINUTES);
 
     }

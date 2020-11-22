@@ -16,10 +16,12 @@ import java.sql.Timestamp;
 public class UserUpdateListener implements Listener {
 
     private final UserService userService;
+    private final ChatAPI chatAPI;
 
     @Autowired
-    public UserUpdateListener(UserService userService){
+    public UserUpdateListener(UserService userService, ChatAPI chatAPI){
         this.userService = userService;
+        this.chatAPI = chatAPI;
     }
 
     @EventHandler
@@ -31,8 +33,8 @@ public class UserUpdateListener implements Listener {
         user.setLastIp(player.getAddress().getAddress().getHostAddress());
         user.setLastIpChange(current);
         user.setLastJoin(current);
-        ChatAPI.login(player);
-        ChatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().add(user);
+        chatAPI.login(player);
+        chatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().add(user);
         this.userService.update(user);
     }
 }

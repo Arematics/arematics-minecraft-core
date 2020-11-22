@@ -1,8 +1,9 @@
 package com.arematics.minecraft.data.service;
 
-import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.User;
+import com.arematics.minecraft.data.global.repository.ChatThemeRepository;
 import com.arematics.minecraft.data.global.repository.UserRepository;
 import com.arematics.minecraft.data.share.repository.PermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +27,14 @@ public class UserService {
     private final UserRepository repository;
     private final RankService rankService;
     private final PermissionRepository permissionRepository;
+    private final ChatThemeRepository chatThemeRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, RankService rankService, PermissionRepository permissionRepository){
+    public UserService(UserRepository userRepository, RankService rankService, PermissionRepository permissionRepository, ChatThemeRepository chatThemeRepository){
         this.repository = userRepository;
         this.rankService = rankService;
         this.permissionRepository = permissionRepository;
+        this.chatThemeRepository = chatThemeRepository;
     }
 
     @Cacheable(cacheNames = "userCache")
@@ -57,7 +60,7 @@ public class UserService {
     public User createUser(UUID uuid, String name){
         User user = new User(UUID.randomUUID(), uuid, name, new Timestamp(System.currentTimeMillis()), null,
                 null, rankService.getDefaultRank(), null, 0, new HashMap<>(), new HashSet<>(),
-                new HashSet<>(), ChatAPI.getTheme("default"));
+                new HashSet<>(), chatThemeRepository.findById("default").get());
         return repository.save(user);
     }
 

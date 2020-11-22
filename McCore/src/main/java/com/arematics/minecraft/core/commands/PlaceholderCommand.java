@@ -1,21 +1,23 @@
 package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.SubCommand;
-import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.chat.controller.PlaceholderController;
 import com.arematics.minecraft.core.command.CoreCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PlaceholderCommand extends CoreCommand {
 
-    private final PlaceholderController placeholderController = ChatAPI.getPlaceholderController();
+    private final PlaceholderController placeholderController;
 
-    public PlaceholderCommand() {
+    @Autowired
+    public PlaceholderCommand(PlaceholderController placeholderController) {
         super("placeholder");
+        this.placeholderController = placeholderController;
     }
 
     @Override

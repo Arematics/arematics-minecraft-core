@@ -1,21 +1,25 @@
 package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.SubCommand;
-import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.chat.controller.ChatThemeController;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.data.global.model.ChatTheme;
+import lombok.Getter;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@Getter
 public class ThemeCommand extends CoreCommand {
 
-    private final ChatThemeController themeController = ChatAPI.getChatThemeController();
+    private final ChatThemeController chatThemeController;
 
-    public ThemeCommand() {
+    @Autowired
+    public ThemeCommand(ChatThemeController chatThemeController) {
         super("theme", "chattheme");
+        this.chatThemeController = chatThemeController;
     }
 
     @Override
@@ -27,7 +31,7 @@ public class ThemeCommand extends CoreCommand {
 
     @SubCommand("list")
     public boolean list(Player player) {
-        themeController.getThemes().values().forEach(theme -> {
+        chatThemeController.getThemes().values().forEach(theme -> {
             player.sendMessage(theme.getThemeKey());
         });
         return true;
@@ -35,7 +39,7 @@ public class ThemeCommand extends CoreCommand {
 
     @SubCommand("switch {theme}")
     public boolean switchCmd(Player player, String theme) {
-        if (ChatAPI.setTheme(player, theme)) {
+        if (chatThemeController.setTheme(player, theme)) {
             player.sendMessage("theme gewechselt zu " + theme);
         } else {
             player.sendMessage("theme not found");
@@ -45,7 +49,7 @@ public class ThemeCommand extends CoreCommand {
 
     @SubCommand("info {theme}")
     public boolean info(Player player, String theme) {
-        ChatTheme apiTheme = ChatAPI.getTheme(theme);
+        ChatTheme apiTheme = chatThemeController.getTheme(theme);
         player.sendMessage(apiTheme.getThemeKey());
         player.sendMessage(apiTheme.getFormat());
         return true;
@@ -53,7 +57,7 @@ public class ThemeCommand extends CoreCommand {
 
     @SubCommand("inspect {theme}")
     public boolean inspect(Player player, String theme) {
-        ChatTheme apiTheme = ChatAPI.getTheme(theme);
+        ChatTheme apiTheme = chatThemeController.getTheme(theme);
         player.sendMessage(apiTheme.getThemeKey());
         player.sendMessage(apiTheme.getFormat());
         apiTheme.getThemePlaceholders().forEach(themePlaceholder -> {
@@ -66,7 +70,7 @@ public class ThemeCommand extends CoreCommand {
             }
         });
         apiTheme.getGlobalPlaceholderActions().forEach(globalPlaceholderActions -> {
-            player.sendMessage("dynamic key: " + globalPlaceholderActions.getPlaceholderKey() + " value: " + ChatAPI.getPlaceholder(globalPlaceholderActions.getPlaceholderKey()).getValues().get(player).get());
+            // player.sendMessage("dynamic key: " + globalPlaceholderActions.getPlaceholderKey() + " value: " + chatThemeController.getPlaceholder(globalPlaceholderActions.getPlaceholderKey()).getValues().get(player).get());
             if (globalPlaceholderActions.getClickAction() != null) {
                 player.sendMessage("Click : " + globalPlaceholderActions.getClickAction().getValue());
             }

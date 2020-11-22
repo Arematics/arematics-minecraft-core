@@ -13,16 +13,18 @@ import org.springframework.stereotype.Component;
 public class UserQuitListener implements Listener {
 
     private final UserService userService;
+    private final ChatAPI chatAPI;
 
     @Autowired
-    public UserQuitListener(UserService userService) {
+    public UserQuitListener(UserService userService, ChatAPI chatAPI) {
         this.userService = userService;
+        this.chatAPI = chatAPI;
     }
 
     @EventHandler
     public void onUserQuit(PlayerQuitEvent event) {
         User user = userService.getUserByUUID(event.getPlayer().getUniqueId());
-        ChatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().remove(user);
+        chatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().remove(user);
         this.userService.update(user);
     }
 }

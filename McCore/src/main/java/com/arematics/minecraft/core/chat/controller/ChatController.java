@@ -5,9 +5,9 @@ import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.PlaceholderAction;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bukkit.entity.Player;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -16,25 +16,22 @@ import java.util.Map;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Component
 public class ChatController {
 
     private String chatMessage;
-
-    public void registerSupplier(Player player) {
-        ChatAPI.supplyPlaceholders("chatMessage", player, () -> chatMessage);
-    }
+    private ChatAPI chatAPI;
 
     public void chat(Player player, String message) {
         setChatMessage(message);
-        ChatAPI.getThemes().forEach(chatTheme -> {
+        chatAPI.getThemes().forEach(chatTheme -> {
             if (chatTheme.getActiveUsers().size() < 1) {
                 return;
             }
             MSG msg = buildThemeMessage(chatTheme, player);
             msg.sendAll(chatTheme.getActiveUsers(), new ArrayList<>());
         });
+
     }
 
     /**
@@ -60,9 +57,9 @@ public class ChatController {
      * @return themed chatmessage for player
      */
     private MSG buildThemeMessage(ChatTheme theme, Player player) {
-        MSG msg = new MSG(theme.getFormat());
+        MSG msg = new MSG(theme);
         Map<String, PlaceholderAction> actions = getActionsMap(theme);
-        msg.createThemeParts(actions, player);
+        msg.createThemeParts(actions, player, chatAPI.getPlaceholderController());
         return msg;
     }
 }

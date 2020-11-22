@@ -1,35 +1,45 @@
 package com.arematics.minecraft.core.chat.controller;
 
-import com.arematics.minecraft.core.Boots;
-import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholder;
+import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.PlaceholderService;
+import com.arematics.minecraft.data.service.UserService;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bukkit.entity.Player;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 @Setter
 @Getter
-@NoArgsConstructor
 @Component
 public class PlaceholderController {
 
     public static final String PLACEHOLDER_DELIMITER = "%";
     private final Map<String, GlobalPlaceholder> placeholders = new HashMap<>();
     private final List<String> reservedPlaceholderKeys = new ArrayList<>();
+    private final PlaceholderService service;
+    private final UserService userService;
+    private ChatAPI chatAPI;
+
+    @Autowired
+    public PlaceholderController(PlaceholderService service, UserService userService) {
+        this.service = service;
+        this.userService = userService;
+    }
 
     public void initPlaceholders() {
-        ChatAPI.registerPlaceholder(createPlaceholder("rank"));
-        ChatAPI.registerPlaceholder(createPlaceholder("name"));
-        ChatAPI.registerPlaceholder(createPlaceholder("chatMessage"));
-        ChatAPI.registerPlaceholder(createPlaceholder("arematics"));
+        registerPlaceholder(createPlaceholder("rank"));
+        registerPlaceholder(createPlaceholder("name"));
+        registerPlaceholder(createPlaceholder("chatMessage"));
+        registerPlaceholder(createPlaceholder("arematics"));
         getReservedPlaceholderKeys().add("placeholderName");
         getReservedPlaceholderKeys().add("placeholderMatch");
         getReservedPlaceholderKeys().add("value");
@@ -62,7 +72,6 @@ public class PlaceholderController {
      */
     public void registerPlaceholder(GlobalPlaceholder placeholder) {
         validatePlaceholderKey(placeholder.getPlaceholderKey());
-        PlaceholderService service = Boots.getBoot(CoreBoot.class).getContext().getBean(PlaceholderService.class);
         GlobalPlaceholder saved = service.save(placeholder);
         getPlaceholders().put(placeholder.getPlaceholderKey(), saved);
     }
@@ -84,13 +93,24 @@ public class PlaceholderController {
      * @return if database contains placeholders, otherwise load defaults
      */
     public boolean loadGlobalPlaceholders() {
-        PlaceholderService service = Boots.getBoot(CoreBoot.class).getContext().getBean(PlaceholderService.class);
         List<GlobalPlaceholder> placeholders = service.loadGlobals();
         if (null == placeholders || placeholders.size() < 3) {
             return false;
         }
         placeholders.forEach(this::registerPlaceholder);
         return true;
+    }
+
+    public void supply(Player player) {
+        User user = userService.getUserByUUID(player.getUniqueId());
+        supplyPlaceholder("rank", player, () -> user.getDisplayRank() != null ? user.getDisplayRank().getName() : user.getRank().getName());
+        supplyPlaceholder("name", player, player::getDisplayName);
+        supplyPlaceholder("chatMessage", player, chatAPI.getChatController()::getChatMessage);
+        supplyPlaceholder("arematics", player, () -> "§0[§1Arem§9atics§0]§r");
+    }
+
+    public void supplyPlaceholder(String placeholderName, Player player, Supplier<String> supplier) {
+        getPlaceholder(placeholderName).getValues().put(player, supplier);
     }
 
 }
