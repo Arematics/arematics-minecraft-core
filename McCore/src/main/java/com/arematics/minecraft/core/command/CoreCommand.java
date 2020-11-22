@@ -189,7 +189,7 @@ public abstract class CoreCommand extends Command {
                 .distinct()
                 .collect(Collectors.toList());
         results.addAll(Bukkit.getOnlinePlayers().stream()
-                .filter(player -> player.getName().startsWith(arguments[arguments.length - 1]))
+                .filter(player -> player.getName().toLowerCase().startsWith(arguments[arguments.length - 1].toLowerCase()))
                 .map(HumanEntity::getName)
                 .collect(Collectors.toList()));
         return results;
