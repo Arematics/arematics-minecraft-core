@@ -10,6 +10,8 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -105,7 +107,12 @@ public class AnvilGUI {
         @EventHandler
         public void onInventoryClose(InventoryCloseEvent e) {
             if(e.getInventory().equals(inventory)) {
-                clickHandler.onClick((Player) e.getPlayer(), "null");
+                if(e.getInventory().getType() == InventoryType.ANVIL){
+                    AnvilInventory inventory = (AnvilInventory) e.getInventory();
+                    CoreItem item = CoreItem.create(inventory.getItem(AnvilSlot.RESULT.getSlot()));
+                    if(item == null || ( !item.hasItemMeta() || item.getItemMeta().getDisplayName() == null))
+                        clickHandler.onClick((Player) e.getPlayer(), null);
+                }
                 if(open)
                     closeInventory(true);
                 e.getInventory().clear();
