@@ -48,8 +48,8 @@ public class ClanService {
     }
 
     @CachePut(cacheNames = "clanCache")
-    public void update(Clan clan){
-        repository.save(clan);
+    public Clan update(Clan clan){
+        return repository.save(clan);
     }
 
     @CacheEvict(cacheNames = "clanCache")

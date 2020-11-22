@@ -42,11 +42,11 @@ public class BanCommand extends CoreCommand {
         Ban ban;
         try{
             ban = service.getBan(target.getUuid());
-            if(ban.getBannedUntil() == null || ban.getBannedUntil().before(Timestamp.valueOf(LocalDateTime.now()))) {
+            if(ban.getBannedUntil() == null || ban.getBannedUntil().after(Timestamp.valueOf(LocalDateTime.now()))) {
                 player.warn("Player " + target.getLastName() + " is currently banned").handle();
                 return;
             }
-            ban.setBannedTime(null);
+            ban.setBannedUntil(null);
         }catch (RuntimeException re){
             ban = new Ban(target.getUuid(), player.getUUID(), reason, Timestamp.valueOf(LocalDateTime.now()), null);
         }

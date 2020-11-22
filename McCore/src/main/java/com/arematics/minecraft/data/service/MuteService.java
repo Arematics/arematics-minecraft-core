@@ -30,8 +30,8 @@ public class MuteService {
     }
 
     @CachePut(cacheNames = "muteCache")
-    public void save(Mute mute){
-        repository.save(mute);
+    public Mute save(Mute mute){
+        return repository.save(mute);
     }
 
     @CacheEvict(cacheNames = "muteCache")

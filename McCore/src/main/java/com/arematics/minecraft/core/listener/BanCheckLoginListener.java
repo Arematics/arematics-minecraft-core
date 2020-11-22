@@ -8,6 +8,8 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Component
@@ -27,9 +29,14 @@ public class BanCheckLoginListener implements Listener {
             if(ban.getBannedUntil() == null){
                 event.disallow(PlayerLoginEvent.Result.KICK_BANNED, "§cYou have been banned permanent \n§b" + ban.getReason());
             }
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
-            event.disallow(PlayerLoginEvent.Result.KICK_BANNED, "§cYou have been banned until \n§c" +
-                    formatter.format(ban.getBannedUntil().toLocalDateTime()) + "\n§b" + ban.getReason());
-        }catch (RuntimeException ignored){}
+            System.out.println(ban.getBannedUntil());
+            if(ban.getBannedUntil().after(Timestamp.valueOf(LocalDateTime.now()))){
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+                event.disallow(PlayerLoginEvent.Result.KICK_BANNED, "§cYou have been banned until \n§c" +
+                        formatter.format(ban.getBannedUntil().toLocalDateTime()) + "\n§b" + ban.getReason());
+            }
+        }catch (RuntimeException ignored){
+            ignored.printStackTrace();
+        }
     }
 }

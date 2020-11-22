@@ -43,11 +43,11 @@ public class TimebanCommand extends CoreCommand {
         Ban ban;
         try{
             ban = service.getBan(target.getUuid());
-            if(ban.getBannedUntil() == null || ban.getBannedUntil().before(Timestamp.valueOf(LocalDateTime.now()))) {
+            if(ban.getBannedUntil() == null || ban.getBannedUntil().after(Timestamp.valueOf(LocalDateTime.now()))) {
                 player.warn("Player " + target.getLastName() + " is currently banned").handle();
                 return;
             }
-            ban.setBannedTime(null);
+            ban.setBannedUntil(Timestamp.valueOf(TimeUtils.toLocalDateTime(period)));
         }catch (RuntimeException re){
             ban = new Ban(target.getUuid(), player.getUUID(), reason, Timestamp.valueOf(LocalDateTime.now()),
                     Timestamp.valueOf(TimeUtils.toLocalDateTime(period)));
@@ -62,8 +62,10 @@ public class TimebanCommand extends CoreCommand {
         player.info("Player " + target.getLastName() + " has been banned until " +
                 formatter.format(finalBan.getBannedUntil().toLocalDateTime())).handle();
         service.save(ban);
+        System.out.println("Ban saved");
         int days = (int) period.toStandardDuration().getMillis() / 1000 / 60 / 60 / 24;
         target.setKarma(target.getKarma() - (days * 5));
+        System.out.println(service.getBan(target.getUuid()));
         userService.update(target);
     }
 }
