@@ -1,7 +1,6 @@
 package com.arematics.minecraft.core.chat.util;
 
 import lombok.Getter;
-import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
 import java.util.List;
