@@ -8,6 +8,7 @@ import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.scoreboard.functions.BoardSet;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.Inventories;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.GameStats;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @Data
@@ -54,6 +56,8 @@ public class CorePlayer{
     private boolean disableLowerInventory = false;
     private boolean disableUpperInventory = false;
 
+    private boolean inFight = false;
+
     private final GameStatsService service;
     private final UserService userService;
 
@@ -69,6 +73,16 @@ public class CorePlayer{
     private void unload() {
         this.pager.unload();
         this.boardSet.remove();
+    }
+
+    public void setInFight(){
+        this.inFight = true;
+        ArematicsExecutor.asyncDelayed(this::fightEnd, 3, TimeUnit.SECONDS);
+    }
+
+    public void fightEnd(){
+        this.inFight = false;
+        this.info("Could log out now").handle();
     }
 
     public InventoryView getView(){

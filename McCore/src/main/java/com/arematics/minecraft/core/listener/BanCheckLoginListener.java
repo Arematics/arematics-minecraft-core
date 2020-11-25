@@ -35,8 +35,6 @@ public class BanCheckLoginListener implements Listener {
                 event.disallow(PlayerLoginEvent.Result.KICK_BANNED, "§cYou have been banned until \n§c" +
                         formatter.format(ban.getBannedUntil().toLocalDateTime()) + "\n§b" + ban.getReason());
             }
-        }catch (RuntimeException ignored){
-            ignored.printStackTrace();
-        }
+        }catch (RuntimeException ignored){}
     }
 }
