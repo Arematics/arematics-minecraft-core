@@ -88,7 +88,7 @@ public class ChatThemeController {
                         hoverAction(ChatHoverAction.builder().action(HoverAction.SHOW_TEXT).value("name: %placeholderName% match: %placeholderMatch% value: %value%").build()).build()).build();
 
         String defaultFormat = FormatBuilder.create().add("§8§l[").add("§7§l%rank%").add("§8§l]").space().add("§7%name%").add("§8%chatDelim%").space().add("§f%chatMessage%").build();
-        String debugFormat = FormatBuilder.create().add("§c%debug%").space().add("%rank%").space().add("%name%").add("%chatDelim%").space().add("%chatMessage%").build();
+        String debugFormat = FormatBuilder.create().add("§c%debug%").space().add("%rank%").space().add("§r%name%").add("§4%chatDelim%").space().add("%chatMessage%").build();
         String rainbowFormat = FormatBuilder.create().add("§d%rank%").space().add("§5%name%").add("§1%chatDelim%").space().add("§e%chatMessage%").build();
         ChatTheme defaultTheme = createTheme("default", globalActionsDefault, themePlaceholdersDefault, defaultFormat);
         ChatTheme debugTheme = createTheme("debug", globalActionsDebug, themePlaceholdersDebug, debugFormat);

@@ -36,6 +36,7 @@ public class MSG {
 
     public MSG(Part... parts) {
         this(Arrays.asList(parts));
+
     }
 
     public MSG(List<Part> parts) {
@@ -215,6 +216,9 @@ public class MSG {
         } while (termFound);
     }
 
+
+    JsonColor lastColor = null;
+
     /**
      * Splits encoded chat format into seperate parts and applies action & placeholder value on them
      *
@@ -230,10 +234,15 @@ public class MSG {
         PARTS.clear();
         String[] parts = text.split(",");
         for (int i = 0; i < parts.length; i++) {
-                String s = parts[i];
-            //applyPlaceholderToPart(convertPart(parts[i]), getAction(parts[i], actions), player, placeholderController);
-
-            this.PARTS.add(applyPlaceholderToPart(new Part(s), getAction(s, actions), player, placeholderController));
+            String s = parts[i];
+            Part part = new Part(s).styleAndColorFromText();
+            if(this.lastColor == null){
+                part = part.setBaseColor(part.BASE_COLOR);
+            } else {
+                part = part.setBaseColor(this.lastColor);
+            }
+            this.lastColor = part.BASE_COLOR;
+            this.PARTS.add(applyPlaceholderToPart(part.styleAndColorFromText(), getAction(s, actions), player, placeholderController));
         }
     }
 
