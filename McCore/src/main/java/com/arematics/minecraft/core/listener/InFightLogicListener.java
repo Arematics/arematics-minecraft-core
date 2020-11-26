@@ -15,10 +15,12 @@ public class InFightLogicListener implements Listener {
         if(event.getEntity() instanceof Player && event.getDamager() instanceof  Player){
             CorePlayer damagePlayer = CorePlayer.get((Player) event.getEntity());
             CorePlayer damagedPlayer = CorePlayer.get((Player) event.getDamager());
-            damagePlayer.setInFight();
-            damagedPlayer.setInFight();
-            damagePlayer.warn("In fight, dont log out").handle();
-            damagedPlayer.warn("In fight, dont log out").handle();
+            if(!damagePlayer.equals(damagedPlayer)){
+                damagePlayer.setInFight();
+                damagedPlayer.setInFight();
+                damagePlayer.warn("In fight, dont log out").handle();
+                damagedPlayer.warn("In fight, dont log out").handle();
+            }
         }
     }
 }
