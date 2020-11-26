@@ -27,7 +27,9 @@ public class TpaCommand extends CoreCommand {
     @SubCommand("{player}")
     public void sendTpa(@Validator(validators = CombatValidator.class) CorePlayer player, CorePlayer target) {
        getTeleportController().sendTpaRequest(player, target);
-        System.out.println("b");
+       player.info("You have sent a teleport request to the player " + target.getPlayer().getDisplayName()).handle();
+       target.info("You have received a teleport request from " + player.getPlayer().getDisplayName() + ". Use /tpa accept or deny").handle();
+
     }
 
     @SubCommand("accept")
@@ -35,16 +37,15 @@ public class TpaCommand extends CoreCommand {
         // unsere tpa request, null wenn keine vorhanden
         CorePlayer tpaSender = getTeleportController().getRequest(receiver);
         // wenn request vorhanden
-        System.out.println("a");
         if(null != tpaSender) {
-            if(getTeleportController().accept(tpaSender, receiver)) {
-                tpaSender.getPlayer().sendMessage("Du wurdest zu " + receiver.getPlayer().getDisplayName() + " teleportiert");
-                receiver.getPlayer().sendMessage(receiver.getPlayer().getDisplayName() + " wurde zu dir teleportiert");
+            if(getTeleportController().accept(receiver, tpaSender)) {
+                tpaSender.info("You teleported yourself to " + receiver.getPlayer().getDisplayName()).handle();
+                receiver.info(receiver.getPlayer().getDisplayName() + "was teleported to you").handle();
             }else {
-                tpaSender.getPlayer().sendMessage("tpa konnte nicht durchgeführt werden");
+                tpaSender.warn("tpa could not be executed").handle();
             }
         } else {
-            receiver.getPlayer().sendMessage("keine request zum annehmen!");
+            receiver.warn("no request to accept").handle();
         }
     }
 
@@ -53,10 +54,10 @@ public class TpaCommand extends CoreCommand {
         CorePlayer tpaSender = getTeleportController().getRequest(receiver);
         if(null != tpaSender) {
             getTeleportController().deny(receiver);
-            tpaSender.getPlayer().sendMessage(receiver.getPlayer().getDisplayName() + " hat deine Anfrage abgelehnt");
-            receiver.getPlayer().sendMessage("Du hast " + receiver.getPlayer().getDisplayName() + " Anfrage abgelehnt");
+            tpaSender.info(receiver.getPlayer().getDisplayName() + " hat deine Anfrage abgelehnt").handle();
+            receiver.info("Du hast " + receiver.getPlayer().getDisplayName() + " Anfrage abgelehnt").handle();
         } else {
-            receiver.getPlayer().sendMessage("keine request zum ablehnen");
+            receiver.warn("keine request zum ablehnen").handle();
         }
     }
 

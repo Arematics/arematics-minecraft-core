@@ -37,7 +37,6 @@ public class ClanStatsListener implements Listener {
 
     private void patch(CorePlayer player, Consumer<Clan> changeClan, Consumer<ClanMember> change){
         try{
-            System.out.println("A");
             ClanMember member = clanMemberService.getMember(player);
             Clan clan = clanService.findClanById(member.getRank().getClanRankId().getClanId());
             changeClan.accept(clan);

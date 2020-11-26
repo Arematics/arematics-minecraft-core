@@ -29,7 +29,6 @@ public class LocationTypeDescriptor extends AbstractTypeDescriptor<Location> {
         if (value == null)
             return null;
 
-        System.out.println(LocationParser.fromLocation(value));
         if (String.class.isAssignableFrom(type))
             return (X) LocationParser.fromLocation(value);
         throw unknownUnwrap(type);
@@ -41,7 +40,6 @@ public class LocationTypeDescriptor extends AbstractTypeDescriptor<Location> {
         if (value == null)
             return null;
 
-        System.out.println(LocationParser.toLocation((String) value));
         if(value instanceof String)
             return LocationParser.toLocation((String) value);
 

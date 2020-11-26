@@ -44,6 +44,7 @@ public class SpawnCommand extends CoreCommand {
     }
 
     @SubCommand("set")
+    @Perm(permission = "set", description = "set spawn")
     public void setSpawn(CorePlayer player) {
 
         this.warpCommand.setWarpTo(player, "spawn");
