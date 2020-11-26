@@ -43,7 +43,8 @@ public class ClanService {
     }
 
     public Clan createClan(String name, String tag){
-        Clan clan = new Clan(null, name, tag, "§b", 0, 0, 0L, new HashSet<>(), new HashSet<>());
+        Clan clan = new Clan(null, name, tag, "§b", (byte) 10, 0, 0, 0L,
+                new HashSet<>(), new HashSet<>());
         return repository.save(clan);
     }
 

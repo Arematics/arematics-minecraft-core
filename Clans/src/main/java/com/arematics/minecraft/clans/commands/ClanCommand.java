@@ -95,12 +95,11 @@ public class ClanCommand extends CoreCommand {
                              @Validator(validators = NoClanValidator.class)
                                      CorePlayer target) throws CommandProcessException {
         ClanMember member = clanMemberService.getMember(player);
-        if(!ClanPermissions.canInvite(member)){
-            player.warn("Not permitted to perform this command for your clan").handle();
-            return;
-        }
+        if(!ClanPermissions.canInvite(member))
+            throw new CommandProcessException("Not permitted to perform this command for your clan");
         target.getRequestSettings().checkAllowed(userService.getOrCreateUser(player));
         Clan clan = clanService.findClanById(member.getRank().getClanRankId().getClanId());
+        if(clan.getSlots() <= clan.getMembers().size()) throw new CommandProcessException("Your clan is full");
         String clanName = clan.getName();
         target.info("You have been invited to join clan %clan%. %accept% | %deny%")
                 .setInjector(AdvancedMessageInjector.class)
