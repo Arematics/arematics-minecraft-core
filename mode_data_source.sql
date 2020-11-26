@@ -9,6 +9,7 @@ create table if not exists clan
     clan_name varchar(16) not null,
     tag varchar(6) not null,
     colorCode varchar(4) default '§b' not null,
+    slots tinyint not null,
     kills int default 0 not null,
     deaths int default 0 not null,
     coins bigint default 0 not null,
@@ -99,3 +100,14 @@ create table if not exists player_game_stats
     bounty int null
 );
 
+create table online_time
+(
+    uuid varchar(36) not null,
+    time bigint null,
+    afk bigint null
+);
+
+
+
+alter table clan
+    add slots tinyint not null after colorCode;

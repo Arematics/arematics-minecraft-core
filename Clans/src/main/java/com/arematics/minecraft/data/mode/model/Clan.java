@@ -35,6 +35,9 @@ public class Clan implements Serializable {
     @Column(name = "colorCode", nullable = false)
     private String colorCode;
 
+    @Column(name = "slots", nullable = false)
+    private byte slots;
+
     @Column(name = "kills", nullable = false)
     private Integer kills;
 

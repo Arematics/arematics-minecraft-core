@@ -250,3 +250,13 @@ create table if not exists warns_history
             on update cascade on delete cascade
 );
 
+create table online_time
+(
+    uuid varchar(36) not null,
+    time bigint null,
+    afk bigint null,
+    constraint online_time_uuid_fk
+        foreign key (uuid) references user (uuid)
+            on update cascade on delete cascade
+);
+
