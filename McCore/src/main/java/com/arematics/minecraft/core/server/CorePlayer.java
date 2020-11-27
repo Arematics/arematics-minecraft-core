@@ -9,23 +9,29 @@ import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.scoreboard.functions.BoardSet;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.Inventories;
 import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.GameStats;
 import com.arematics.minecraft.data.service.GameStatsService;
 import com.arematics.minecraft.data.service.InventoryService;
+import com.arematics.minecraft.data.service.OnlineTimeService;
 import com.arematics.minecraft.data.service.UserService;
+import com.arematics.minecraft.data.share.model.OnlineTime;
 import lombok.Data;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @Data
@@ -56,9 +62,14 @@ public class CorePlayer{
     private boolean disableLowerInventory = false;
     private boolean disableUpperInventory = false;
 
+    private boolean inFight = false;
+
     private final GameStatsService service;
     private final UserService userService;
     private final ChatThemeController chatThemeController;
+    private final OnlineTimeService onlineTimeService;
+
+    private LocalDateTime lastPatch = null;
 
     public CorePlayer(Player player){
         this.player = player;
@@ -66,6 +77,7 @@ public class CorePlayer{
         this.pager = new Pager(this);
         this.boardSet = new BoardSet(player);
         this.userService = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
+        this.onlineTimeService = Boots.getBoot(CoreBoot.class).getContext().getBean(OnlineTimeService.class);
         this.requestSettings = new PlayerRequestSettings(this);
         this.service = Boots.getBoot(CoreBoot.class).getContext().getBean(GameStatsService.class);
     }
@@ -73,6 +85,35 @@ public class CorePlayer{
     private void unload() {
         this.pager.unload();
         this.boardSet.remove();
+    }
+
+    public void setInFight(){
+        this.inFight = true;
+        ArematicsExecutor.asyncDelayed(this::fightEnd, 3, TimeUnit.SECONDS);
+    }
+
+    public void fightEnd(){
+        this.inFight = false;
+        this.info("Could log out now").handle();
+    }
+
+    public void patchOnlineTime(){
+        if(lastPatch == null) lastPatch = getUser().getLastJoin().toLocalDateTime();
+        Duration online = Duration.between(this.lastPatch, LocalDateTime.now());
+        patchOnlineTime(online, false);
+        patchOnlineTime(online, true);
+        lastPatch = LocalDateTime.now();
+    }
+
+    public void patchOnlineTime(Duration duration, boolean mode){
+        OnlineTime time;
+        try{
+            time = this.onlineTimeService.findByUUID(mode, getUUID());
+        }catch (RuntimeException re){
+            time = new OnlineTime(getUUID(), 0L, 0L);
+        }
+        time.setTime(time.getTime() + duration.toMillis());
+        this.onlineTimeService.put(mode, time);
     }
 
     public InventoryView getView(){

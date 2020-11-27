@@ -60,6 +60,7 @@ public class Parser {
                     if(subParameters[b].getType().isEnum()){
                         if(src[i].equals(parameter) && sender instanceof Player){
                             String result = awaitAnvilResult((Player)sender);
+                            if(result == null) throw new CommandProcessException("Command input was interrupt by player");
                             Messages.create("Parameter " + parameter + " replaced with " + result).to(sender).handle();
                             parameters.add(Enum.valueOf((Class) subParameters[b].getType(), result));
                         }
@@ -68,6 +69,7 @@ public class Parser {
                     CommandParameterParser<?> parser = parsers.get(subParameters[b].getType());
                     if(src[i].equals(parameter) && sender instanceof Player){
                         String result = awaitAnvilResult((Player)sender);
+                        if(result == null) throw new CommandProcessException("Command input was interrupt by player");
                         Messages.create("Parameter " + parameter + " replaced with " + result).to(sender).handle();
                         parameters.add(parser.processParse(result, subParameters[b], parameters));
                     }else {
@@ -82,12 +84,11 @@ public class Parser {
     }
 
     private String awaitAnvilResult(Player player) throws InterruptedException {
-        return ArematicsExecutor.awaitResult((res, latch) -> {
-            new AnvilGUI(Boots.getBoot(CoreBoot.class), player, "Replace this", (p, result) -> {
-                res.set(result);
-                latch.countDown();
-                return null;
-            });
-        });
+        return ArematicsExecutor.awaitResult((res, latch) ->
+                new AnvilGUI(Boots.getBoot(CoreBoot.class), player, "Replace this", (p, result) -> {
+                    res.set(result);
+                    latch.countDown();
+                    return null;
+                }));
     }
 }

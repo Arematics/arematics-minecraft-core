@@ -35,8 +35,8 @@ public class ClanMemberService {
     }
 
     @CachePut(cacheNames = "clanMembers")
-    public void update(ClanMember member){
-        repository.save(member);
+    public ClanMember update(ClanMember member){
+        return repository.save(member);
     }
 
     @CacheEvict(cacheNames = "clanMembers")

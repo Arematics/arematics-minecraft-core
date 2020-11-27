@@ -27,8 +27,8 @@ public class WarnService {
     }
 
     @CachePut(cacheNames = "warnCache")
-    public void save(Warn warn){
-        repository.save(warn);
+    public Warn save(Warn warn){
+        return repository.save(warn);
     }
 
     @CacheEvict(cacheNames = "warnCache")

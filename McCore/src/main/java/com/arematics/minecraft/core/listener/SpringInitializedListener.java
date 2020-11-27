@@ -7,6 +7,7 @@ import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.events.SpringInitializedEvent;
 import com.arematics.minecraft.core.hooks.PermissionCreationHook;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.service.InventoryService;
 import org.bukkit.Bukkit;
@@ -33,6 +34,12 @@ public class SpringInitializedListener implements Listener {
         boot.getContext().getBeansOfType(Listener.class)
                 .forEach((s, listener) -> Bukkit.getPluginManager().registerEvents(listener, boot));
         boot.getContext().getBeansOfType(CoreCommand.class).forEach((s, cmd) -> cmd.register());
+        ArematicsExecutor.asyncRepeat(SpringInitializedListener::saveInventories, 2, 2, TimeUnit.MINUTES);
+        ArematicsExecutor.asyncRepeat(SpringInitializedListener::updateTimings, 5, 5, TimeUnit.MINUTES);
+    }
+
+    private static void updateTimings(){
+        Bukkit.getOnlinePlayers().stream().map(CorePlayer::get).forEach(CorePlayer::patchOnlineTime);
         CoreBoot.getPlugin(CoreBoot.class).getContext().getBean(ChatAPI.class).bootstrap();
         ArematicsExecutor.asyncRepeat(SpringInitializedListener::saveInventories, 0, 2, TimeUnit.MINUTES);
 

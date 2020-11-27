@@ -36,9 +36,9 @@ public class KitService {
         return result.get();
     }
 
-    @CachePut(cacheNames = "kitCache", key = "#kit.name")
-    public void update(Kit kit){
-        repository.save(kit);
+    @CachePut(cacheNames = "kitCache", key = "#result.name")
+    public Kit update(Kit kit){
+        return repository.save(kit);
     }
 
     @CacheEvict(cacheNames = "kitCache", key = "#kit.name")
