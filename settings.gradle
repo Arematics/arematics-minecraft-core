@@ -26,4 +26,5 @@ include 'Skills'
 include 'Watcher'
 include 'Metadata'
 include 'SpringHook'
+include 'Animations'
 

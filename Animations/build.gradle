@@ -1,0 +1,6 @@
+group 'com.arematics.minecraft'
+version '1.0'
+
+dependencies {
+    compileOnly project(':McCore')
+}
