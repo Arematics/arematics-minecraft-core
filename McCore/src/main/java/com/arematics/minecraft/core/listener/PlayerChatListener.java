@@ -3,6 +3,7 @@ package com.arematics.minecraft.core.listener;
 import com.arematics.minecraft.core.chat.controller.ChatController;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,13 @@ public class PlayerChatListener implements Listener {
         this.chatController = chatController;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerChat(AsyncPlayerChatEvent chatEvent) {
-        Player player = chatEvent.getPlayer();
-        chatController.chat(player, chatEvent.getMessage());
-        chatEvent.setCancelled(true);
+        if(!chatEvent.isCancelled()){
+            Player player = chatEvent.getPlayer();
+            chatController.chat(player, chatEvent.getMessage());
+            chatEvent.setCancelled(true);
+        }
     }
 
 }
