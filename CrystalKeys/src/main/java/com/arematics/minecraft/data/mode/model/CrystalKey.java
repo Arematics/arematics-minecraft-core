@@ -18,7 +18,7 @@ import javax.persistence.Table;
 @Table(name = "crystal_key")
 public class CrystalKey {
     @Id
-    @Column(name = "crystal_name", nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
     @Column(name = "colorCode", nullable = false)
     private String colorCode;

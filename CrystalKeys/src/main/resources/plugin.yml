@@ -1,0 +1,7 @@
+name: CrystalKeys
+author: Klysma
+description: CrystalKeys by Arematics
+version: 1.0-Alpha
+depend: [McCore]
+
+main: com.arematics.minecraft.crystals.CrystalBoot
