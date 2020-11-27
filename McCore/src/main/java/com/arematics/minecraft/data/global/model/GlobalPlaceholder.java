@@ -1,5 +1,6 @@
 package com.arematics.minecraft.data.global.model;
 
+import com.arematics.minecraft.core.server.CorePlayer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.entity.Player;

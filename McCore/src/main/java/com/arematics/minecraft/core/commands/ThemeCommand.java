@@ -1,17 +1,25 @@
 package com.arematics.minecraft.core.commands;
 
+import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.chat.controller.ChatThemeController;
 import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.messaging.advanced.MSG;
+import com.arematics.minecraft.core.messaging.advanced.MSGBuilder;
+import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.global.model.ChatTheme;
 import lombok.Getter;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 @Getter
+//@Perm(permission = "chattheme", description = "Change and inspect themes")
 public class ThemeCommand extends CoreCommand {
 
     private final ChatThemeController chatThemeController;
@@ -22,64 +30,26 @@ public class ThemeCommand extends CoreCommand {
         this.chatThemeController = chatThemeController;
     }
 
-    @Override
-    public void onDefaultExecute(CommandSender sender) {
-        sender.sendMessage("/theme list");
-        sender.sendMessage("/theme [theme]");
-    }
-
 
     @SubCommand("list")
-    public boolean list(Player player) {
-        chatThemeController.getThemes().values().forEach(theme -> {
-            player.sendMessage(theme.getThemeKey());
-        });
+    public boolean list(CorePlayer player) {
+        List<Part> parts = new ArrayList<>();
+        chatThemeController.getThemes().values().forEach(theme -> parts.add(new Part(theme.getThemeKey())));
+        MSG msg = MSGBuilder.join(parts, ',');
+        player.info("listing").setInjector(AdvancedMessageInjector.class).replace("list_type", new Part("Theme")).replace("list_value", msg).handle();
         return true;
     }
 
     @SubCommand("switch {theme}")
-    public boolean switchCmd(Player player, String theme) {
-        if (chatThemeController.setTheme(player, theme)) {
-            player.sendMessage("theme gewechselt zu " + theme);
-        } else {
-            player.sendMessage("theme not found");
-        }
+    public boolean switchCmd(CorePlayer player, ChatTheme theme) {
+        player.setTheme(theme);
+        player.info("theme_switched").DEFAULT().replace("theme", theme.getThemeKey()).handle();
         return true;
     }
 
     @SubCommand("info {theme}")
-    public boolean info(Player player, String theme) {
-        ChatTheme apiTheme = chatThemeController.getTheme(theme);
-        player.sendMessage(apiTheme.getThemeKey());
-        player.sendMessage(apiTheme.getFormat());
+    public boolean info(CorePlayer player, ChatTheme theme) {
+        player.info("theme_info").DEFAULT().replace("theme", theme.getThemeKey()).replace("theme_format", theme.getFormat()).handle();
         return true;
     }
-
-    @SubCommand("inspect {theme}")
-    public boolean inspect(Player player, String theme) {
-        ChatTheme apiTheme = chatThemeController.getTheme(theme);
-        player.sendMessage(apiTheme.getThemeKey());
-        player.sendMessage(apiTheme.getFormat());
-        apiTheme.getThemePlaceholders().forEach(themePlaceholder -> {
-            player.sendMessage("themeplaceholderkey: " + themePlaceholder.getPlaceholderKey() + " value: " + themePlaceholder.getValue());
-            if (themePlaceholder.getClickAction() != null) {
-                player.sendMessage("Click : " + themePlaceholder.getClickAction().getValue());
-            }
-            if (themePlaceholder.getHoverAction() != null) {
-                player.sendMessage("Hover : " + themePlaceholder.getHoverAction().getValue());
-            }
-        });
-        apiTheme.getGlobalPlaceholderActions().forEach(globalPlaceholderActions -> {
-            // player.sendMessage("dynamic key: " + globalPlaceholderActions.getPlaceholderKey() + " value: " + chatThemeController.getPlaceholder(globalPlaceholderActions.getPlaceholderKey()).getValues().get(player).get());
-            if (globalPlaceholderActions.getClickAction() != null) {
-                player.sendMessage("Click : " + globalPlaceholderActions.getClickAction().getValue());
-            }
-            if(globalPlaceholderActions.getHoverAction() != null) {
-                player.sendMessage("Hover : " + globalPlaceholderActions.getHoverAction().getValue());
-            }
-        });
-        return true;
-    }
-
-
 }

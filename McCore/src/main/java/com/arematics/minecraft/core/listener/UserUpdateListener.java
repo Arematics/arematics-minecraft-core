@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.chat.ChatAPI;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.UserService;
 import org.bukkit.entity.Player;

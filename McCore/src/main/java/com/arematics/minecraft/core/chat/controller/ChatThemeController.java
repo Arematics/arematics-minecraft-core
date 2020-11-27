@@ -1,12 +1,11 @@
 package com.arematics.minecraft.core.chat.controller;
 
-import com.arematics.minecraft.core.Boots;
-import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.chat.util.FormatBuilder;
 import com.arematics.minecraft.core.chat.util.GlobalActionsBuilder;
 import com.arematics.minecraft.core.chat.util.ThemePlaceholderBuilder;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.global.model.ChatHoverAction;
 import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholderAction;
@@ -29,19 +28,18 @@ import java.util.Set;
 public class ChatThemeController {
 
     private final Map<String, ChatTheme> themes = new HashMap<>();
-    private final ChatThemeService service;
+    private final ChatThemeService chatThemeService;
     private final UserService userService;
     private ChatAPI chatAPI;
 
     @Autowired
-    public ChatThemeController(ChatThemeService service, UserService userService) {
-        this.service = service;
+    public ChatThemeController(ChatThemeService chatThemeService, UserService userService) {
+        this.chatThemeService = chatThemeService;
         this.userService = userService;
     }
 
     public boolean loadThemes() {
-        List<ChatTheme> savedThemes = service.getAll();
-        System.out.println(savedThemes.size());
+        List<ChatTheme> savedThemes = chatThemeService.getAll();
         if (savedThemes.size() < 1) {
             return false;
         }
@@ -111,7 +109,7 @@ public class ChatThemeController {
         chatTheme.setThemePlaceholders(themePlaceholders);
         chatTheme.setFormat(format);
         chatTheme.setGlobalPlaceholderActions(dynamicPlaceholderActions);
-        return service.save(chatTheme);
+        return chatThemeService.save(chatTheme);
     }
 
     public ChatTheme getTheme(String name) {
@@ -129,12 +127,12 @@ public class ChatThemeController {
      * @param player who is affected
      * @param theme  which is used
      */
-    public boolean setTheme(Player player, String theme) {
+    public boolean setTheme(CorePlayer player, String theme) {
         ChatTheme newTheme = getTheme(theme);
         if (null == newTheme) {
             return false;
         }
-        User user = userService.getUserByUUID(player.getUniqueId());
+        User user = userService.getUserByUUID(player.getUUID());
         ChatTheme old = getTheme(user.getActiveTheme().getThemeKey());
         old.getActiveUsers().remove(user);
         user.setActiveTheme(newTheme);

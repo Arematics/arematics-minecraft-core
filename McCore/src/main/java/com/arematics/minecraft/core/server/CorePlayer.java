@@ -2,6 +2,7 @@ package com.arematics.minecraft.core.server;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.chat.controller.ChatThemeController;
 import com.arematics.minecraft.core.currency.Currency;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.MessageInjector;
@@ -9,6 +10,7 @@ import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.scoreboard.functions.BoardSet;
 import com.arematics.minecraft.core.utils.Inventories;
+import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.GameStats;
 import com.arematics.minecraft.data.service.GameStatsService;
@@ -56,9 +58,11 @@ public class CorePlayer{
 
     private final GameStatsService service;
     private final UserService userService;
+    private final ChatThemeController chatThemeController;
 
     public CorePlayer(Player player){
         this.player = player;
+        this.chatThemeController = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeController.class);
         this.pager = new Pager(this);
         this.boardSet = new BoardSet(player);
         this.userService = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
@@ -285,5 +289,18 @@ public class CorePlayer{
         double now = getCurrency(currency);
         if((now - amount) < 0) this.setCurrency(currency, 0);
         else this.setCurrency(currency, now - amount);
+    }
+
+    /**
+     * sets active theme for chatthemeuser and adds to senders chattheme
+     *
+     * @param theme which is activated
+     */
+    public void setTheme(ChatTheme theme) {
+        User user = userService.getUserByUUID(getUUID());
+        ChatTheme old = chatThemeController.getTheme(user.getActiveTheme().getThemeKey());
+        old.getActiveUsers().remove(user);
+        user.setActiveTheme(theme);
+        theme.getActiveUsers().add(user);
     }
 }

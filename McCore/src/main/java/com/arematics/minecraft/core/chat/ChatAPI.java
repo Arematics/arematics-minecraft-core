@@ -3,11 +3,13 @@ package com.arematics.minecraft.core.chat;
 import com.arematics.minecraft.core.chat.controller.ChatController;
 import com.arematics.minecraft.core.chat.controller.ChatThemeController;
 import com.arematics.minecraft.core.chat.controller.PlaceholderController;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholder;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholderAction;
 import com.arematics.minecraft.data.global.model.ThemePlaceholder;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,7 @@ import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 @Component
 @Getter
@@ -41,16 +44,12 @@ public class ChatAPI {
 
     public void bootstrap() {
         if (!getPlaceholderController().loadGlobalPlaceholders()) {
-            System.out.println("SYSTEM HAT PLACEHOLDER INIT");
+            Bukkit.getLogger().log(Level.INFO, "No placeholder found, creating defaults");
             getPlaceholderController().initPlaceholders();
-        } else {
-            System.out.println("SYSTEM HAT PLACEHOLDER LOAD");
         }
         if (!getChatThemeController().loadThemes()) {
-            System.out.println("SYSTEM HAT THEMES INIT");
+            Bukkit.getLogger().log(Level.INFO, "No chat themes found, creating defaults");
             getChatThemeController().createAndSaveDefaults();
-        } else {
-            System.out.println("SYSTEM HAT THEMES LOAD");
         }
     }
 
@@ -69,7 +68,7 @@ public class ChatAPI {
         return getChatThemeController().getThemes().values();
     }
 
-    public boolean setTheme(Player player, String themeKey) {
+    public boolean setTheme(CorePlayer player, String themeKey) {
         return getChatThemeController().setTheme(player, themeKey);
     }
 

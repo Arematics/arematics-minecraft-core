@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.chat.controller;
 
 import com.arematics.minecraft.core.chat.ChatAPI;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholder;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.PlaceholderService;
@@ -25,13 +26,13 @@ public class PlaceholderController {
     public static final String PLACEHOLDER_DELIMITER = "%";
     private final Map<String, GlobalPlaceholder> placeholders = new HashMap<>();
     private final List<String> reservedPlaceholderKeys = new ArrayList<>();
-    private final PlaceholderService service;
+    private final PlaceholderService placeholderService;
     private final UserService userService;
     private ChatAPI chatAPI;
 
     @Autowired
-    public PlaceholderController(PlaceholderService service, UserService userService) {
-        this.service = service;
+    public PlaceholderController(PlaceholderService placeholderService, UserService userService) {
+        this.placeholderService = placeholderService;
         this.userService = userService;
     }
 
@@ -72,7 +73,7 @@ public class PlaceholderController {
      */
     public void registerPlaceholder(GlobalPlaceholder placeholder) {
         validatePlaceholderKey(placeholder.getPlaceholderKey());
-        GlobalPlaceholder saved = service.save(placeholder);
+        GlobalPlaceholder saved = placeholderService.save(placeholder);
         getPlaceholders().put(placeholder.getPlaceholderKey(), saved);
     }
 
@@ -93,7 +94,7 @@ public class PlaceholderController {
      * @return if database contains placeholders, otherwise load defaults
      */
     public boolean loadGlobalPlaceholders() {
-        List<GlobalPlaceholder> placeholders = service.loadGlobals();
+        List<GlobalPlaceholder> placeholders = placeholderService.loadGlobals();
         if (null == placeholders || placeholders.size() < 3) {
             return false;
         }
@@ -104,7 +105,7 @@ public class PlaceholderController {
     public void supply(Player player) {
         User user = userService.getUserByUUID(player.getUniqueId());
         supplyPlaceholder("rank", player, () -> user.getDisplayRank() != null ? user.getDisplayRank().getName() : user.getRank().getName());
-        supplyPlaceholder("name", player, player::getDisplayName);
+        supplyPlaceholder("name", player, player.getPlayer()::getDisplayName);
         supplyPlaceholder("chatMessage", player, chatAPI.getChatController()::getChatMessage);
         supplyPlaceholder("arematics", player, () -> "§0[§1Arem§9atics§0]§r");
     }
