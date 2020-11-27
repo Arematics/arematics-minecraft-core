@@ -22,7 +22,7 @@ public class CrystalKeyParser extends CommandParameterParser<CrystalKey> {
         try{
             return service.findById(value);
         }catch (RuntimeException re){
-            throw new CommandProcessException(re.getMessage());
+            throw new CommandProcessException("No crystal key with name: " + value + " could be found");
         }
     }
 }

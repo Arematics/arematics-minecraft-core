@@ -2,7 +2,5 @@ group 'com.arematics.minecraft.meta'
 version '1.0'
 
 dependencies {
-    compileOnly "de.tr7zw:NBT-API:1.0"
-
     compileOnly project(':McCore')
 }

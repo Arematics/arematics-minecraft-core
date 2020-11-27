@@ -2,8 +2,6 @@ version '0.4.2'
 
 
 dependencies {
-    compileOnly "de.tr7zw:NBT-API:1.0"
-
     compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
 
     compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.6.2'
