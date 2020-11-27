@@ -36,13 +36,11 @@ public class SpringInitializedListener implements Listener {
         boot.getContext().getBeansOfType(CoreCommand.class).forEach((s, cmd) -> cmd.register());
         ArematicsExecutor.asyncRepeat(SpringInitializedListener::saveInventories, 2, 2, TimeUnit.MINUTES);
         ArematicsExecutor.asyncRepeat(SpringInitializedListener::updateTimings, 5, 5, TimeUnit.MINUTES);
+        CoreBoot.getPlugin(CoreBoot.class).getContext().getBean(ChatAPI.class).bootstrap();
     }
 
     private static void updateTimings(){
         Bukkit.getOnlinePlayers().stream().map(CorePlayer::get).forEach(CorePlayer::patchOnlineTime);
-        CoreBoot.getPlugin(CoreBoot.class).getContext().getBean(ChatAPI.class).bootstrap();
-        ArematicsExecutor.asyncRepeat(SpringInitializedListener::saveInventories, 0, 2, TimeUnit.MINUTES);
-
     }
 
     private static void saveInventories(){

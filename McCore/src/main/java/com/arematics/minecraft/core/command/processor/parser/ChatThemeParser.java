@@ -17,9 +17,8 @@ public class ChatThemeParser extends CommandParameterParser<ChatTheme> {
 
     @Override
     public ChatTheme parse(String value) throws CommandProcessException {
-
             ChatTheme theme = chatThemeController.getTheme(value);
-            if(null == theme) {
+            if(theme == null) {
                 throw new CommandProcessException("Theme not found");
             } else {
                 return theme;
