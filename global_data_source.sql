@@ -260,3 +260,86 @@ create table online_time
             on update cascade on delete cascade
 );
 
+create table chat_click_action
+(
+    id     bigint auto_increment
+        primary key,
+    placeholderAction varchar(255) null,
+    value  varchar(255) null
+);
+
+create table chat_hover_action
+(
+    id     bigint auto_increment
+        primary key,
+    placeholderAction varchar(255) null,
+    value  varchar(255) null
+);
+
+create table command_entity
+(
+    uuid varchar(255) not null
+        primary key,
+    cmd  varchar(255) not null
+);
+
+create table global_placeholder
+(
+    placeholder_key varchar(255) not null
+        primary key
+);
+
+create table global_placeholder_actions
+(
+    id              bigint       not null
+        primary key,
+    placeholder_key varchar(255) null,
+    click_action_id bigint       null,
+    hover_action_id bigint       null,
+    constraint FK7v4ifkptknqdibg3gp2thosm7
+        foreign key (hover_action_id) references chat_hover_action (id),
+    constraint FKt7k32h82dgn2vvlccpm4ngac5
+        foreign key (click_action_id) references chat_click_action (id)
+);
+
+create table theme
+(
+    theme_key varchar(255) not null
+        primary key,
+    format    varchar(255) null
+);
+
+create table theme_global_placeholder_actions
+(
+    chat_theme_theme_key          varchar(255) not null,
+    global_placeholder_actions_id bigint       not null,
+    constraint FK7kkji6rpsgecxrfl7fmfpn2bq
+        foreign key (global_placeholder_actions_id) references global_placeholder_actions (id),
+    constraint FKjs4he1hg3q4k5s3ls91nr21ag
+        foreign key (chat_theme_theme_key) references theme (theme_key)
+);
+
+create table theme_placeholder
+(
+    id              bigint auto_increment
+        primary key,
+    placeholder_key varchar(255) null,
+    value           varchar(255) null,
+    click_action_id bigint       null,
+    hover_action_id bigint       null,
+    constraint FK736dtr2gyg6dct4qnhw6e8b7i
+        foreign key (click_action_id) references chat_click_action (id),
+    constraint FKfxh3ieib5oc9885i40mtno3gx
+        foreign key (hover_action_id) references chat_hover_action (id)
+);
+
+create table theme_mapping
+(
+    chat_theme_theme_key  varchar(255) not null,
+    theme_placeholders_id bigint       not null,
+    primary key (chat_theme_theme_key, theme_placeholders_id),
+    constraint FK63gp6xbegaeg3c97lgfhusmep
+        foreign key (theme_placeholders_id) references theme_placeholder (id),
+    constraint FK643mqse5m14biwfg4uhd6qanw
+        foreign key (chat_theme_theme_key) references theme (theme_key)
+);
