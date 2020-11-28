@@ -57,12 +57,12 @@ public class User implements Serializable {
     @MapKeyColumn(name = "name")
     private Map<String, Configuration> configurations;
     @NotAudited
+    @WhereJoinTable(clause = "mode = '' AND until IS NULL OR until > NOW()")
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_permission", joinColumns = {@JoinColumn(name = "uuid")},
             inverseJoinColumns = { @JoinColumn(name = "permission")})
     private Set<Permission> userPermissions;
     @NotAudited
-    @WhereJoinTable(clause = "mode = '' AND until IS NULL OR until > NOW()")
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_friends", joinColumns = {@JoinColumn(name = "uuid")},
             inverseJoinColumns = { @JoinColumn(name = "target_uuid")})
