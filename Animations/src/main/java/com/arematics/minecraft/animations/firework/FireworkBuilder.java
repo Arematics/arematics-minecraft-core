@@ -1,14 +1,16 @@
 package com.arematics.minecraft.animations.firework;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.security.SecureRandom;
 import java.util.List;
 
 public class FireworkBuilder {
+
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     public static FireworkBuilder create(){
         return new FireworkBuilder();
@@ -47,8 +49,7 @@ public class FireworkBuilder {
         return this;
     }
 
-    public void spawn(Player player){
-        PacketContainer container = new PacketContainer(PacketType.Play.Server.SPAWN_ENTITY);
+    public void spawn(Player player, Location loc){
     }
 
 }
