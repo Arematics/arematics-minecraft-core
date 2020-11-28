@@ -3,6 +3,7 @@ package com.arematics.minecraft.core.utils;
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -34,8 +35,8 @@ public class ArematicsExecutor {
         }.runTaskLater(Boots.getBoot(CoreBoot.class), 2);
     }
 
-    public static void asyncDelayed(Runnable runnable, long time, TimeUnit unit){
-        new BukkitRunnable(){
+    public static BukkitTask asyncDelayed(Runnable runnable, long time, TimeUnit unit){
+        return new BukkitRunnable(){
             @Override
             public void run() {
                 runnable.run();

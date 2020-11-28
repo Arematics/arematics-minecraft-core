@@ -19,11 +19,15 @@ import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.OnlineTimeService;
 import com.arematics.minecraft.data.service.UserService;
 import com.arematics.minecraft.data.share.model.OnlineTime;
+import com.sk89q.worldguard.bukkit.RegionQuery;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 import lombok.Data;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -63,6 +67,7 @@ public class CorePlayer{
     private boolean disableUpperInventory = false;
 
     private boolean inFight = false;
+    private BukkitTask inFightTask;
 
     private final GameStatsService service;
     private final UserService userService;
@@ -89,12 +94,13 @@ public class CorePlayer{
 
     public void setInFight(){
         this.inFight = true;
-        ArematicsExecutor.asyncDelayed(this::fightEnd, 3, TimeUnit.SECONDS);
+        if(inFightTask != null) inFightTask.cancel();
+        this.inFightTask = ArematicsExecutor.asyncDelayed(this::fightEnd, 3, TimeUnit.SECONDS);
     }
 
     public void fightEnd(){
+        if(inFight) this.info("Could log out now").handle();
         this.inFight = false;
-        this.info("Could log out now").handle();
     }
 
     public void patchOnlineTime(){
@@ -114,6 +120,10 @@ public class CorePlayer{
         }
         time.setTime(time.getTime() + duration.toMillis());
         this.onlineTimeService.put(mode, time);
+    }
+
+    public boolean isFlagEnabled(RegionQuery query, StateFlag flag){
+        return query.testState(this.getLocation(), WorldGuardPlugin.inst().wrapPlayer(this.getPlayer()), flag);
     }
 
     public InventoryView getView(){
