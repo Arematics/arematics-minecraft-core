@@ -4,7 +4,9 @@ import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.crystals.commands.parser.CrystalKeyParser;
+import com.arematics.minecraft.crystals.logic.CrystalMetaParser;
 import com.arematics.minecraft.data.mode.model.CrystalKey;
 import com.arematics.minecraft.data.service.InventoryService;
 import org.bukkit.entity.ArmorStand;
@@ -18,20 +20,28 @@ import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.security.SecureRandom;
 import java.util.*;
 
 @Component
 public class CrystalArmorStandClickListener implements Listener {
 
+    private static final Random RANDOM = new Random(Short.MAX_VALUE);
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     private static final List<CorePlayer> open = new ArrayList<>();
 
     private final CrystalKeyParser parser;
     private final InventoryService service;
+    private final CrystalMetaParser crystalMetaParser;
 
     @Autowired
-    public CrystalArmorStandClickListener(CrystalKeyParser crystalKeyParser, InventoryService inventoryService){
+    public CrystalArmorStandClickListener(CrystalKeyParser crystalKeyParser,
+                                          InventoryService inventoryService,
+                                          CrystalMetaParser crystalMetaParser){
         this.parser = crystalKeyParser;
         this.service = inventoryService;
+        this.crystalMetaParser = crystalMetaParser;
     }
 
     @EventHandler
@@ -45,7 +55,7 @@ public class CrystalArmorStandClickListener implements Listener {
             CrystalKeyParser parser = Boots.getBoot(CoreBoot.class).getContext().getBean(CrystalKeyParser.class);
 
             Optional<CrystalKey> key = parser.readFromArmorStand(stand);
-            key.ifPresent(value -> openCrystal(player, value));
+            key.ifPresent(value -> ArematicsExecutor.runAsync(() -> openCrystal(player, value)));
         }
     }
 
@@ -74,8 +84,10 @@ public class CrystalArmorStandClickListener implements Listener {
 
     private void openCrystal(CorePlayer player, CrystalKey key){
         if(checkKeySame(key, player)){
+            open.add(player);
             player.removeAmountFromHand(1);
-
+            this.crystalMetaParser.parse(player, calculate(key));
+            open.remove(player);
         }else
             player.warn("Not the same keys provided").handle();
     }
@@ -93,6 +105,7 @@ public class CrystalArmorStandClickListener implements Listener {
                 double value = getChance(item);
 
                 int put = (int)(value*100);
+                itemStacks.ensureCapacity(put);
 
                 while(put != 0){
                     itemStacks.add(item);
@@ -101,10 +114,8 @@ public class CrystalArmorStandClickListener implements Listener {
             }catch (NumberFormatException ignored){}
         }
 
-        final Random ran = new Random(new Random(System.currentTimeMillis()).nextLong());
-        Collections.shuffle(itemStacks, ran);
-        int rnd = new Random().nextInt(itemStacks.size());
-        return itemStacks.get(rnd);
+        Collections.shuffle(itemStacks, CrystalArmorStandClickListener.RANDOM);
+        return itemStacks.get(CrystalArmorStandClickListener.SECURE_RANDOM.nextInt(itemStacks.size()));
     }
 
     private static double getChance(CoreItem item) throws NumberFormatException{

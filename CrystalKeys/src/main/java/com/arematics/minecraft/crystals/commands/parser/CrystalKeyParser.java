@@ -26,19 +26,28 @@ public class CrystalKeyParser extends CommandParameterParser<CrystalKey> {
         try{
             return service.findById(value);
         }catch (RuntimeException re){
+            re.printStackTrace();
             throw new CommandProcessException("No crystal key with name: " + value + " could be found");
         }
     }
 
     public Optional<CrystalKey> readFromArmorStand(ArmorStand armorStand){
-        return service.findAllNames().stream()
-                .filter(crystal -> armorStand.getCustomName().contains(crystal))
-                .findFirst()
-                .map(this::parse)
-                .filter(key -> armorStand.getCustomName().equals(key.getTotalName()));
+        try{
+            return service.findAllNames().stream()
+                    .filter(crystal -> armorStand.getCustomName().contains(crystal))
+                    .findFirst()
+                    .map(this::parse)
+                    .filter(key -> armorStand.getCustomName().contains(key.getTotalName()));
+        }catch (Exception e){
+            return Optional.empty();
+        }
     }
 
     public Optional<CrystalKey> readFromItem(CoreItem coreItem){
-        return Optional.of(parse(coreItem.getMeta().getString("crystal")));
+        try{
+            return Optional.of(parse(coreItem.getMeta().getString("crystal")));
+        }catch (Exception e){
+            return Optional.empty();
+        }
     }
 }

@@ -112,7 +112,7 @@ public class CorePlayer{
         if(getItemInHand() != null)
             if(!player.getGameMode().equals(GameMode.CREATIVE)){
                 int am = player.getItemInHand().getAmount();
-                if(am >= player.getItemInHand().getAmount())
+                if(amount >= am)
                     player.setItemInHand(new ItemStack(Material.AIR));
                 else
                     player.getItemInHand().setAmount(am - amount);
