@@ -1,5 +1,6 @@
 package com.arematics.minecraft.crystals.commands;
 
+import com.arematics.minecraft.animations.firework.FireworkBuilder;
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
@@ -84,6 +85,11 @@ public class CrystalKeyCommand extends CoreCommand {
         key.setColor(Color.fromBGR(r, g, b));
         player.info("Color has been changed").handle();
         service.update(key);
+    }
+
+    @SubCommand("checkColor {crystal}")
+    public void checkCrystalColor(CorePlayer player, CrystalKey key) {
+        FireworkBuilder.create().spawn(player.getPlayer(), player.getLocation());
     }
 
     @SubCommand("info {crystal}")
