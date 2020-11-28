@@ -1,6 +1,8 @@
 package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.chat.ChatAPI;
+import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.tablist.Tablist;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.UserService;
 import org.bukkit.event.EventHandler;
@@ -14,16 +16,19 @@ public class UserQuitListener implements Listener {
 
     private final UserService userService;
     private final ChatAPI chatAPI;
+    private final Tablist tablist;
 
     @Autowired
-    public UserQuitListener(UserService userService, ChatAPI chatAPI) {
+    public UserQuitListener(UserService userService, ChatAPI chatAPI, Tablist tablist) {
         this.userService = userService;
         this.chatAPI = chatAPI;
+        this.tablist = tablist;
     }
 
     @EventHandler
     public void onUserQuit(PlayerQuitEvent event) {
         User user = userService.getUserByUUID(event.getPlayer().getUniqueId());
+        this.tablist.remove(CorePlayer.get(event.getPlayer()));
         chatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().remove(user);
         this.userService.update(user);
     }

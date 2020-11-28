@@ -2,6 +2,7 @@ package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.tablist.Tablist;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.UserService;
 import org.bukkit.entity.Player;
@@ -18,17 +19,20 @@ public class UserUpdateListener implements Listener {
 
     private final UserService userService;
     private final ChatAPI chatAPI;
+    private final Tablist tablist;
 
     @Autowired
-    public UserUpdateListener(UserService userService, ChatAPI chatAPI){
+    public UserUpdateListener(UserService userService, ChatAPI chatAPI, Tablist tablist){
         this.userService = userService;
         this.chatAPI = chatAPI;
+        this.tablist = tablist;
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent joinEvent){
         Player player = joinEvent.getPlayer();
         Timestamp current = new Timestamp(System.currentTimeMillis());
+        this.tablist.refresh(CorePlayer.get(player));
         User user = this.userService.getOrCreateUser(player.getUniqueId(), player.getName());
         user.setLastName(player.getName());
         user.setLastIp(player.getAddress().getAddress().getHostAddress());

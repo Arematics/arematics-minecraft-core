@@ -8,6 +8,7 @@ import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.events.SpringInitializedEvent;
 import com.arematics.minecraft.core.hooks.PermissionCreationHook;
 import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.tablist.Tablist;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.service.InventoryService;
 import org.bukkit.Bukkit;
@@ -36,7 +37,10 @@ public class SpringInitializedListener implements Listener {
         boot.getContext().getBeansOfType(CoreCommand.class).forEach((s, cmd) -> cmd.register());
         ArematicsExecutor.asyncRepeat(SpringInitializedListener::saveInventories, 2, 2, TimeUnit.MINUTES);
         ArematicsExecutor.asyncRepeat(SpringInitializedListener::updateTimings, 5, 5, TimeUnit.MINUTES);
-        CoreBoot.getPlugin(CoreBoot.class).getContext().getBean(ChatAPI.class).bootstrap();
+        Tablist tablist = boot.getContext().getBean(Tablist.class);
+        ArematicsExecutor.asyncRepeat(tablist::refreshTeams, 5, 5, TimeUnit.MINUTES);
+        boot.getContext().getBean(ChatAPI.class).bootstrap();
+        tablist.flushOnlines();
     }
 
     private static void updateTimings(){
