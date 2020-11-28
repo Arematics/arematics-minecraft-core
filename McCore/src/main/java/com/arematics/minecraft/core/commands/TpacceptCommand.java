@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.commands;
 
+import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.CorePlayer;
 import lombok.Getter;
@@ -20,10 +21,9 @@ public class TpacceptCommand extends CoreCommand {
         this.tpaCommand = tpaCommand;
     }
 
-    @Override
-    protected boolean onDefaultCLI(CommandSender sender) {
-        CorePlayer receiver = CorePlayer.get((Player) sender);
-        getTpaCommand().acceptTpa(receiver);
-        return true;
+
+    @SubCommand("{player}")
+    public void onAccept(CorePlayer sender, CorePlayer player) {
+        getTpaCommand().acceptTpa(player, sender);
     }
 }

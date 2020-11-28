@@ -26,39 +26,39 @@ public class TpaCommand extends CoreCommand {
 
     @SubCommand("{player}")
     public void sendTpa(@Validator(validators = CombatValidator.class) CorePlayer player, CorePlayer target) {
-       getTeleportController().sendTpaRequest(player, target);
-       player.info("You have sent a teleport request to the player " + target.getPlayer().getDisplayName()).handle();
-       target.info("You have received a teleport request from " + player.getPlayer().getDisplayName() + ". Use /tpa accept or deny").handle();
+        if(player.equals(target)) {
+            player.warn("You must not send yourself a request").handle();
+            return;
+        }
+           getTeleportController().sendTpaRequest(player, target);
+           player.info("You have sent a teleport request to the player " + target.getPlayer().getDisplayName()).handle();
+           target.info("You have received a teleport request from " + player.getPlayer().getDisplayName() + ". Use /tpa accept or deny").handle();
 
     }
 
-    @SubCommand("accept")
-    public void acceptTpa(@Validator(validators = CombatValidator.class) CorePlayer receiver) {
-        // unsere tpa request, null wenn keine vorhanden
-        CorePlayer tpaSender = getTeleportController().getRequest(receiver);
-        // wenn request vorhanden
-        if(null != tpaSender) {
-            if(getTeleportController().accept(receiver, tpaSender)) {
-                tpaSender.info("You teleported yourself to " + receiver.getPlayer().getDisplayName()).handle();
-                receiver.info(receiver.getPlayer().getDisplayName() + "was teleported to you").handle();
-            }else {
-                tpaSender.warn("tpa could not be executed").handle();
-            }
+    @SubCommand("accept {tpaSender}")
+    public void acceptTpa(@Validator(validators = CombatValidator.class) CorePlayer tpaSender, CorePlayer receiver) {
+
+        if(getTeleportController().accept(tpaSender, receiver)) {
+            tpaSender.info("You teleported yourself to " + receiver.getPlayer().getDisplayName()).handle();
+            receiver.info(receiver.getPlayer().getDisplayName() + "was teleported to you").handle();
         } else {
             receiver.warn("no request to accept").handle();
         }
+
     }
 
-    @SubCommand("deny")
-    public void denyTpa(@Validator(validators = CombatValidator.class) CorePlayer receiver) {
-        CorePlayer tpaSender = getTeleportController().getRequest(receiver);
-        if(null != tpaSender) {
-            getTeleportController().deny(receiver);
+    @SubCommand("deny {tpaSender}")
+    public void denyTpa(@Validator(validators = CombatValidator.class) CorePlayer tpaSender, CorePlayer receiver) {
+
+
+        if(getTeleportController().deny(tpaSender, receiver)) {
             tpaSender.info(receiver.getPlayer().getDisplayName() + " hat deine Anfrage abgelehnt").handle();
             receiver.info("Du hast " + receiver.getPlayer().getDisplayName() + " Anfrage abgelehnt").handle();
         } else {
             receiver.warn("keine request zum ablehnen").handle();
         }
+
     }
 
 }

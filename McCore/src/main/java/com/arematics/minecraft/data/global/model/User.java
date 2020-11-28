@@ -49,7 +49,7 @@ public class User implements Serializable {
     @OneToOne
     @JoinColumn(name = "display_rank", referencedColumnName = "id")
     private Rank displayRank;
-    @Column(name = "user_karma", nullable = true)
+    @Column(name = "user_karma", nullable = false)
     private int karma;
     @NotAudited
     @ElementCollection(fetch = FetchType.EAGER)
@@ -62,6 +62,7 @@ public class User implements Serializable {
             inverseJoinColumns = { @JoinColumn(name = "permission")})
     private Set<Permission> userPermissions;
     @NotAudited
+    @WhereJoinTable(clause = "mode = '' AND until IS NULL OR until > NOW()")
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_friends", joinColumns = {@JoinColumn(name = "uuid")},
             inverseJoinColumns = { @JoinColumn(name = "target_uuid")})

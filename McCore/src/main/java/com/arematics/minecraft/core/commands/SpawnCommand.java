@@ -31,7 +31,6 @@ public class SpawnCommand extends CoreCommand {
     public void onDefaultExecute(CommandSender sender) {
         if (!(sender instanceof Player))
             throw new CommandProcessException("Only Player can perform this command");
-
         CorePlayer player = CorePlayer.get((Player) sender);
 
         try {
