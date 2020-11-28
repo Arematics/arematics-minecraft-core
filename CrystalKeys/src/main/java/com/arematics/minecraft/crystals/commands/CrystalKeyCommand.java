@@ -11,7 +11,7 @@ import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.crystals.logic.CrystalKeyItem;
 import com.arematics.minecraft.data.mode.model.CrystalKey;
 import com.arematics.minecraft.data.service.CrystalKeyService;
-import org.bukkit.Color;
+import com.arematics.minecraft.data.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,11 +24,13 @@ import java.util.stream.Collectors;
 public class CrystalKeyCommand extends CoreCommand {
 
     private final CrystalKeyService service;
+    private final InventoryService inventoryService;
 
     @Autowired
-    public CrystalKeyCommand(CrystalKeyService crystalKeyService) {
+    public CrystalKeyCommand(CrystalKeyService crystalKeyService, InventoryService inventoryService) {
         super("crystal-key", "ckey", "ck");
         this.service = crystalKeyService;
+        this.inventoryService = inventoryService;
     }
     
     @SubCommand("{crystal}")
@@ -55,14 +57,14 @@ public class CrystalKeyCommand extends CoreCommand {
                 .setClickAction(ClickAction.SUGGEST_COMMAND, "/ck info " + keyName);
     }
 
-    @SubCommand("create {name} {colorCode} {r} {g} {b}")
+    @SubCommand("create {name} {colorCode}")
     @Perm(permission = "modify", description = "permission to modify a crystal key and see infos")
-    public void createCrystalKey(CorePlayer player, String name, String colorCode, Byte r, Byte g, Byte b) {
+    public void createCrystalKey(CorePlayer player, String name, String colorCode) {
         try{
             service.findById(name);
             player.warn("Crystal with name: " + name + " already exists").handle();
         }catch (RuntimeException re){
-            CrystalKey crystalKey = new CrystalKey(name, colorCode.replaceAll("&", "§"), Color.fromBGR(r, g, b));
+            CrystalKey crystalKey = new CrystalKey(name, colorCode.replaceAll("&", "§"));
             service.update(crystalKey);
             player.info("Crystal with name: " + name + " has been created").handle();
         }
@@ -73,16 +75,17 @@ public class CrystalKeyCommand extends CoreCommand {
     public void deleteCrystalKey(CorePlayer player, CrystalKey key) {
         try{
             service.delete(key);
+            inventoryService.delete("crystal.inventory." + key.getName());
             player.info("Crystal Key: " + key.getName() + " has been deleted").handle();
         }catch (Exception e){
             player.failure("Crystal Key: " + key.getName() + " could not be deleted").handle();
         }
     }
 
-    @SubCommand("setRGB {crystal} {r} {g} {b}")
+    @SubCommand("setColorCode {crystal} {colorCode}")
     @Perm(permission = "modify", description = "permission to modify a crystal key and see infos")
-    public void changeRGB(CorePlayer player, CrystalKey key, Byte r, Byte g, Byte b) {
-        key.setColor(Color.fromBGR(r, g, b));
+    public void changeRGB(CorePlayer player, CrystalKey key, String colorCode) {
+        key.setColorCode(colorCode);
         player.info("Color has been changed").handle();
         service.update(key);
     }
@@ -101,10 +104,7 @@ public class CrystalKeyCommand extends CoreCommand {
         String msg = "§a\n\n§7Crystal Key" + " » " + "§c" + key.getName() + "\n" +
                 "%information%";
         List<Part> parts = new ArrayList<>();
-        parts.add(new Part("     §7" + "RGB: " + " §c" +
-                key.getColor().getRed() + "R " + key.getColor().getGreen() + "G " + key.getColor().getBlue() + "B" + "\n")
-                .setHoverAction(HoverAction.SHOW_TEXT, "§7Change rgb color")
-                .setClickAction(ClickAction.SUGGEST_COMMAND, "/ck setRGB " + key.getName() + " {r} {g} {b}"));
+        parts.add(new Part("     §7" + "Total Text: " + key.getTotalName() + "\n"));
         player.info(msg)
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("information", new MSG(parts))

@@ -20,10 +20,13 @@ import com.arematics.minecraft.data.service.OnlineTimeService;
 import com.arematics.minecraft.data.service.UserService;
 import com.arematics.minecraft.data.share.model.OnlineTime;
 import lombok.Data;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -103,6 +106,17 @@ public class CorePlayer{
         patchOnlineTime(online, false);
         patchOnlineTime(online, true);
         lastPatch = LocalDateTime.now();
+    }
+
+    public void removeAmountFromHand(int amount){
+        if(getItemInHand() != null)
+            if(!player.getGameMode().equals(GameMode.CREATIVE)){
+                int am = player.getItemInHand().getAmount();
+                if(am >= player.getItemInHand().getAmount())
+                    player.setItemInHand(new ItemStack(Material.AIR));
+                else
+                    player.getItemInHand().setAmount(am - amount);
+            }
     }
 
     public void patchOnlineTime(Duration duration, boolean mode){
