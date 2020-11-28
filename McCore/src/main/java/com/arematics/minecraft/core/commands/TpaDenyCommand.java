@@ -22,6 +22,6 @@ public class TpaDenyCommand extends CoreCommand {
 
     @SubCommand("{player}")
     public void onDeny(CorePlayer sender, CorePlayer player) {
-        getTpaCommand().denyTpa(player, sender);
+        getTpaCommand().denyTpa(sender, player);
     }
 }

@@ -24,6 +24,6 @@ public class TpacceptCommand extends CoreCommand {
 
     @SubCommand("{player}")
     public void onAccept(CorePlayer sender, CorePlayer player) {
-        getTpaCommand().acceptTpa(player, sender);
+        getTpaCommand().acceptTpa(sender, player);
     }
 }
