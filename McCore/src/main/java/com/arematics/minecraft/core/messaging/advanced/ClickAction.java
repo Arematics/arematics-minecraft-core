@@ -6,7 +6,7 @@ import lombok.NonNull;
 import java.util.Arrays;
 import java.util.Optional;
 
-public enum  ClickAction {
+public enum ClickAction {
 
     OPEN_URL("open_url"),
     SUGGEST_COMMAND("suggest_command"),

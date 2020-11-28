@@ -4,7 +4,7 @@ public enum CommonData {
 
     COMMAND("command"),
     COMMAND_SENDER("sender"),
-    COMMAND_ARGUEMNTS("arguments");
+    COMMAND_ARGUMENTS("arguments");
 
     private final String key;
 

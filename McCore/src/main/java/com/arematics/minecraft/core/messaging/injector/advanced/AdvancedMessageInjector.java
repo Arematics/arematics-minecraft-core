@@ -11,6 +11,7 @@ import java.util.List;
 public class AdvancedMessageInjector extends Injector<MSG> implements AdvancedMessageReplace {
 
     private final AdvancedMessageInjectorImpl injector;
+
     public AdvancedMessageInjector(List<CommandSender> senderList, MessageHighlight highlight, String rawMessage) {
         this.injector = new AdvancedMessageInjectorImpl(senderList, highlight, rawMessage);
     }

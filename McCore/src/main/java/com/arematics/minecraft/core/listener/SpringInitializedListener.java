@@ -3,6 +3,7 @@ package com.arematics.minecraft.core.listener;
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CompoundClassLoader;
 import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.events.SpringInitializedEvent;
 import com.arematics.minecraft.core.hooks.PermissionCreationHook;
@@ -35,6 +36,7 @@ public class SpringInitializedListener implements Listener {
         boot.getContext().getBeansOfType(CoreCommand.class).forEach((s, cmd) -> cmd.register());
         ArematicsExecutor.asyncRepeat(SpringInitializedListener::saveInventories, 2, 2, TimeUnit.MINUTES);
         ArematicsExecutor.asyncRepeat(SpringInitializedListener::updateTimings, 5, 5, TimeUnit.MINUTES);
+        CoreBoot.getPlugin(CoreBoot.class).getContext().getBean(ChatAPI.class).bootstrap();
     }
 
     private static void updateTimings(){

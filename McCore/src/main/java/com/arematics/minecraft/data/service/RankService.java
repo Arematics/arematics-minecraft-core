@@ -3,6 +3,7 @@ package com.arematics.minecraft.data.service;
 import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.repository.RankRepository;
 import com.arematics.minecraft.data.share.repository.PermissionRepository;
+import org.bukkit.Bukkit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachePut;

@@ -217,6 +217,8 @@ public class Part implements Cloneable {
                 && StringUtils.equals(this.CLICK_VALUE, other.CLICK_VALUE);
     }
 
+
+
     public Part styleAndColorFromText() {
         JsonColor color = null;
         List<Format> formats = new ArrayList<>();

@@ -19,7 +19,7 @@ public class GlobalMuteListener implements Listener {
         this.globalMuteCommand = globalMuteCommand;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onGlobalMute(AsyncPlayerChatEvent e) {
         if (globalMuteCommand.getGlobalMuteStatus()) {
             if (!CorePlayer.get(e.getPlayer()).getUser().getRank().isInTeam())

@@ -12,6 +12,8 @@ public class PlayerDisconnectBoardListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event){
+        CorePlayer player = CorePlayer.get(event.getPlayer());
+        player.getBoardSet().remove();
         CorePlayer.invalidate(event.getPlayer());
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
+
 public interface PermissionRepository extends JpaRepository<Permission, String>, JpaSpecificationExecutor<Permission> {
     @Query(value = "SELECT * from soulpvp.permission p " +
             "INNER JOIN soulpvp.ranks_permission ON p.permission = ranks_permission.permission " +
