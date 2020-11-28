@@ -2,6 +2,7 @@ package com.arematics.minecraft.core.server.controller;
 
 import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
+@EqualsAndHashCode
 public class PlayerTeleportController {
 
     // 1. who accepts, 2. who sends
