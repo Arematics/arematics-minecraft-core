@@ -58,8 +58,8 @@ public class CrystalArmorStandClickListener implements Listener {
 
             try{
                 CrystalKey key = parser.readFromArmorStand(stand);
-                Inventory inv = service.getOrCreate("crystal.inventory." + key.getName(), "§6Crystal " +
-                                key.getName(),
+                Inventory inv = service.getOrCreate("crystal.inventory." + key.getName(), "§7Crystal " +
+                                key.getTotalName(),
                         (byte)27);
                 if(player.isIgnoreMeta()) player.openLowerEnabledInventory(inv);
                 else player.openTotalBlockedInventory(inv);
