@@ -2,6 +2,7 @@ package com.arematics.minecraft.core.language;
 
 import com.arematics.minecraft.core.configurations.Config;
 import com.arematics.minecraft.core.messaging.MessageHighlight;
+import com.arematics.minecraft.core.server.CorePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -20,8 +21,7 @@ public class LanguageAPI {
 
     public static LanguageUser getUser(Player p){
         if(!users.containsKey(p)) {
-            LanguageUser user = new LanguageUser(p);
-            user.setLanguage(langs.get("ENGLISH"));
+            LanguageUser user = new LanguageUser(CorePlayer.get(p));
             users.put(p, user);
         }
 
