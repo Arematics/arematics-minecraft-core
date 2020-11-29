@@ -11,8 +11,8 @@ public class PlayerDeathListener implements Listener {
     @EventHandler
     public void onKill(AsyncPlayerDeathEvent event){
         event.getPlayer().addDeath();
-        event.getPlayer().setInFight(false);
+        event.getPlayer().fightEnd();
         event.getKiller().addKill();
-        event.getKiller().setInFight(false);
+        event.getKiller().fightEnd();
     }
 }
