@@ -59,6 +59,10 @@ public class SpringInitializedListener implements Listener {
     }
 
     private void callTwoMinuteAsyncTasks(){
+        this.saveInventories();
+    }
+
+    private void callFiveMinuteAsyncTasks(Tablist tablist){
         try{
             BroadcastService service = Boots.getBoot(CoreBoot.class).getContext().getBean(BroadcastService.class);
             BroadcastMessage message = service.fetchRandom();
@@ -69,10 +73,6 @@ public class SpringInitializedListener implements Listener {
                     .disableServerPrefix()
                     .handle();
         }catch (RuntimeException ignored){}
-        this.saveInventories();
-    }
-
-    private void callFiveMinuteAsyncTasks(Tablist tablist){
         tablist.refreshTeams();
         Bukkit.getOnlinePlayers().stream().map(CorePlayer::get).forEach(CorePlayer::patchOnlineTime);
     }
