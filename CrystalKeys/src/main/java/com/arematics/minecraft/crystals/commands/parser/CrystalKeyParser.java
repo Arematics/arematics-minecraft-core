@@ -2,6 +2,7 @@ package com.arematics.minecraft.crystals.commands.parser;
 
 import com.arematics.minecraft.core.command.processor.parser.CommandParameterParser;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
+import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.data.mode.model.CrystalKey;
 import com.arematics.minecraft.data.service.CrystalKeyService;
 import org.bukkit.entity.ArmorStand;
@@ -25,17 +26,28 @@ public class CrystalKeyParser extends CommandParameterParser<CrystalKey> {
         try{
             return service.findById(value);
         }catch (RuntimeException re){
+            re.printStackTrace();
             throw new CommandProcessException("No crystal key with name: " + value + " could be found");
         }
     }
 
-    public CrystalKey readFromArmorStand(ArmorStand armorStand) throws RuntimeException{
-        Optional<String> name = service.findAllNames().stream()
-                .filter(crystal -> armorStand.getCustomName().contains(crystal))
-                .findFirst();
-        if(!name.isPresent()) throw new RuntimeException("No crystal found");
-        CrystalKey key = parse(name.get());
-        if(!armorStand.getCustomName().contains(key.getTotalName())) throw new RuntimeException("No crystal found");
-        return key;
+    public Optional<CrystalKey> readFromArmorStand(ArmorStand armorStand){
+        try{
+            return service.findAllNames().stream()
+                    .filter(crystal -> armorStand.getCustomName().contains(crystal))
+                    .findFirst()
+                    .map(this::parse)
+                    .filter(key -> armorStand.getCustomName().contains(key.getTotalName()));
+        }catch (Exception e){
+            return Optional.empty();
+        }
+    }
+
+    public Optional<CrystalKey> readFromItem(CoreItem coreItem){
+        try{
+            return Optional.of(parse(coreItem.getMeta().getString("crystal")));
+        }catch (Exception e){
+            return Optional.empty();
+        }
     }
 }

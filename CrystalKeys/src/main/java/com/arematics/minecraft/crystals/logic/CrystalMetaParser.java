@@ -25,6 +25,6 @@ public class CrystalMetaParser {
         if(!key.isPresent())
             player.failure("Type of Crystal Key is not registered yet").handle();
         else
-            this.types.get(key.get()).execute(player);
+            this.types.get(key.get()).execute(player, coreItem);
     }
 }
