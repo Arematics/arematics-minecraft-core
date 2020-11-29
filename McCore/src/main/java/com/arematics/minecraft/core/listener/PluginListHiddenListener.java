@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 @Component
 public class PluginListHiddenListener implements Listener {
@@ -17,12 +18,9 @@ public class PluginListHiddenListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onCommandSend(PlayerCommandPreprocessEvent e) {
 
-
-
         if(Permissions.hasPermission(CorePlayer.get(e.getPlayer()).getUser(), "chat.bypass")) {return;}
 
-
-        ArrayList<String> list = new ArrayList<String>();
+        HashSet<String> list = new HashSet<>();
 
         list.add("/?");
         list.add("/bukkit:?");
