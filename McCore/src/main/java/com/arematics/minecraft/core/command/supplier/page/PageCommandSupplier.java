@@ -18,7 +18,7 @@ public class PageCommandSupplier implements PageCommandCLI, PageCommandUI, PageC
     }
 
     private BiFunction<CorePlayer, Page, Boolean> onCli;
-    private BiFunction<CorePlayer, Page, Boolean> onUI = null;
+    private BiFunction<CorePlayer, Page, Boolean> onGUI = null;
 
     private final Page current;
     private final UserService userService;
@@ -35,15 +35,15 @@ public class PageCommandSupplier implements PageCommandCLI, PageCommandUI, PageC
     }
 
     @Override
-    public PageCommandAccept setUI(BiFunction<CorePlayer, Page, Boolean> onUI) {
-        this.onUI = onUI;
+    public PageCommandAccept setGUI(BiFunction<CorePlayer, Page, Boolean> onUI) {
+        this.onGUI = onUI;
         return this;
     }
 
     @Override
     public boolean accept(CorePlayer player) {
         if(isUIAccepted(player))
-            return onUI.apply(player, current);
+            return onGUI.apply(player, current);
         return onCli.apply(player, current);
     }
 
@@ -54,6 +54,6 @@ public class PageCommandSupplier implements PageCommandCLI, PageCommandUI, PageC
     private boolean hasUserUIEnabled(Player player){
         User user = this.userService.getOrCreateUser(player.getUniqueId(), player.getName());
         return user.getConfigurations().getOrDefault("command-mode", new Configuration(""))
-                .getValue().equals("ui");
+                .getValue().equals("gui");
     }
 }

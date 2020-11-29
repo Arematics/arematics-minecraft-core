@@ -6,5 +6,5 @@ import com.arematics.minecraft.core.server.CorePlayer;
 import java.util.function.BiFunction;
 
 public interface PageCommandUI {
-    PageCommandAccept setUI(BiFunction<CorePlayer, Page, Boolean> onUI);
+    PageCommandAccept setGUI(BiFunction<CorePlayer, Page, Boolean> onUI);
 }

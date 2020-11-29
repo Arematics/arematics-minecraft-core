@@ -21,6 +21,7 @@ public class AnvilGUI {
     private final Bootstrap bootstrap;
     private final Player holder;
     private final CoreItem insert;
+    private final String insertString;
     private final ClickHandler clickHandler;
     private final NmsHelper nms;
     private final int containerId;
@@ -40,6 +41,7 @@ public class AnvilGUI {
         paperMeta.setDisplayName(insert);
         paper.setItemMeta(paperMeta);
         this.insert = paper;
+        this.insertString = insert;
 
         this.nms = NmsHelper.INSTANCE;
 
@@ -92,7 +94,9 @@ public class AnvilGUI {
                 if(e.getRawSlot() == AnvilSlot.RESULT.getSlot()) {
                     final CoreItem clicked = CoreItem.create(inventory.getItem(e.getRawSlot()));
                     if(clicked == null || clicked.getType() == Material.AIR) return;
-                    final String ret = clickHandler.onClick(clicker, clicked.hasItemMeta() ? clicked.getItemMeta().getDisplayName() : clicked.getType().toString());
+                    final String ret = clickHandler.onClick(clicker, clicked.hasItemMeta() ?
+                            clicked.getItemMeta().getDisplayName().replace(insertString, "") :
+                            clicked.getType().toString());
                     if(ret != null) {
                         final ItemMeta meta = clicked.getItemMeta();
                         meta.setDisplayName(ret);

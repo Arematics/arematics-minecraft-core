@@ -149,7 +149,7 @@ public class CorePlayer{
     }
 
     public void openTotalBlockedInventory(Inventory inventory){
-        Inventories.openLowerDisabledInventory(inventory, this);
+        Inventories.openTotalBlockedInventory(inventory, this);
     }
 
     public void openLowerEnabledInventory(Inventory inventory){

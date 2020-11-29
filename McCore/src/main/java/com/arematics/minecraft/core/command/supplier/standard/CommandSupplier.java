@@ -18,7 +18,7 @@ public class CommandSupplier implements CommandCLI, CommandUI, CommandAccept{
     }
 
     private Function<CommandSender, Boolean> onCli;
-    private Function<CorePlayer, Boolean> onUI = null;
+    private Function<CorePlayer, Boolean> onGUI = null;
 
     private final UserService userService;
 
@@ -33,26 +33,26 @@ public class CommandSupplier implements CommandCLI, CommandUI, CommandAccept{
     }
 
     @Override
-    public CommandAccept setUI(Function<CorePlayer, Boolean> onUI) {
-        this.onUI = onUI;
+    public CommandAccept setGUI(Function<CorePlayer, Boolean> onUI) {
+        this.onGUI = onUI;
         return this;
     }
 
     @Override
     public boolean accept(CommandSender sender) {
-        if(isUIAccepted(sender))
-            return onUI.apply(CorePlayer.get((Player)sender));
+        if(isGUIAccepted(sender))
+            return onGUI.apply(CorePlayer.get((Player)sender));
         return onCli.apply(sender);
     }
 
-    private boolean isUIAccepted(CommandSender sender){
+    private boolean isGUIAccepted(CommandSender sender){
         if(!(sender instanceof Player)) return false;
-        return hasUserUIEnabled((Player) sender);
+        return hasUserGUIEnabled((Player) sender);
     }
 
-    private boolean hasUserUIEnabled(Player player){
+    private boolean hasUserGUIEnabled(Player player){
         User user = this.userService.getOrCreateUser(player.getUniqueId(), player.getName());
         return user.getConfigurations().getOrDefault("command-mode", new Configuration(""))
-                .getValue().equals("ui");
+                .getValue().equals("gui");
     }
 }

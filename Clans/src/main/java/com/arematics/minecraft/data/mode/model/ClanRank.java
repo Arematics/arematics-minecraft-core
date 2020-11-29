@@ -20,7 +20,7 @@ public class ClanRank implements Serializable {
     @EmbeddedId
     private ClanRankId clanRankId;
 
-    @Column(name = "colorCode", nullable = false)
+    @Column(name = "color_code", nullable = false)
     private String colorCode;
 
     @Column(name = "rank_level")

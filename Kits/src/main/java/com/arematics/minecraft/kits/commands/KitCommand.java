@@ -57,7 +57,7 @@ public class KitCommand extends CoreCommand {
         }
         CorePlayer player = CorePlayer.get((Player)sender);
         Pageable pageable = player.getPager().fetchOrCreate(KitCommand.PAGER_KEY, (p) -> service.findKitNames());
-        PageCommandSupplier.create(pageable.current()).setCLI(this::onCLI).setUI(this::onUI).accept(player);
+        PageCommandSupplier.create(pageable.current()).setCLI(this::onCLI).setGUI(this::onUI).accept(player);
     }
 
     private boolean onCLI(CorePlayer player, Page page){

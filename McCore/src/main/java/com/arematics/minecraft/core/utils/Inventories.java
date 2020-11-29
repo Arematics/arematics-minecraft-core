@@ -26,8 +26,6 @@ public class Inventories {
     }
 
     public static void openInventory(Inventory inventory, CorePlayer player){
-        ArematicsExecutor.syncRun(() -> {
-            player.getPlayer().openInventory(inventory);
-        });
+        ArematicsExecutor.syncRun(() -> player.getPlayer().openInventory(inventory));
     }
 }

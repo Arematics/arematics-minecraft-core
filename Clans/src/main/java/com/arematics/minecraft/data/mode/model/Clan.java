@@ -32,7 +32,7 @@ public class Clan implements Serializable {
     @Column(name = "tag", nullable = false)
     private String tag;
 
-    @Column(name = "colorCode", nullable = false)
+    @Column(name = "color_code", nullable = false)
     private String colorCode;
 
     @Column(name = "slots", nullable = false)

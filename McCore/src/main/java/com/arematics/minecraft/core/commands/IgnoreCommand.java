@@ -67,7 +67,7 @@ public class IgnoreCommand extends CoreCommand {
     @SubCommand("list")
     public void listIgnored(CorePlayer player) {
         Pageable pageable = player.getPager().fetchOrCreate(IgnoreCommand.PAGER_KEY, this::getIgnoredNames);
-        PageCommandSupplier.create(pageable.current()).setCLI(this::onCLI).setUI(this::onUI).accept(player);
+        PageCommandSupplier.create(pageable.current()).setCLI(this::onCLI).setGUI(this::onUI).accept(player);
     }
 
     private List<String> getIgnoredNames(CorePlayer player){

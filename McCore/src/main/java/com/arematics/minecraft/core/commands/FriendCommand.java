@@ -55,7 +55,7 @@ public class FriendCommand extends CoreCommand {
         }
         CorePlayer player = CorePlayer.get((Player)sender);
         Pageable pageable = player.getPager().fetchOrCreate(FriendCommand.PAGER_KEY, this::getFriends);
-        PageCommandSupplier.create(pageable.current()).setCLI(this::onCLI).setUI(this::onUI).accept(player);
+        PageCommandSupplier.create(pageable.current()).setCLI(this::onCLI).setGUI(this::onUI).accept(player);
     }
 
     @SubCommand("add {name}")

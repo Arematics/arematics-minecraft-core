@@ -106,7 +106,7 @@ public abstract class CoreCommand extends Command {
     }
 
     public void onDefaultExecute(CommandSender sender){
-        CommandSupplier.create().setCLI(this::onDefaultCLI).setUI(this::onDefaultUI).accept(sender);
+        CommandSupplier.create().setCLI(this::onDefaultCLI).setGUI(this::onDefaultGUI).accept(sender);
     }
 
     protected boolean onDefaultCLI(CommandSender sender){
@@ -122,7 +122,7 @@ public abstract class CoreCommand extends Command {
         return true;
     }
 
-    protected boolean onDefaultUI(CorePlayer player){
+    protected boolean onDefaultGUI(CorePlayer player){
         InventoryService service = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
         Inventory inv = service.getOrCreate("command.default.menu." + this.getName(),
                 "§8Command: §c" + this.getName(), this.uiSlots);

@@ -25,7 +25,7 @@ public class SettingsCommand extends CoreCommand {
     }
 
     @Override
-    protected boolean onDefaultUI(CorePlayer player) {
+    protected boolean onDefaultGUI(CorePlayer player) {
         Inventory inv = service.getOrCreate("player.settings", "§6Settings", (byte) 45);
         player.openInventory(inv);
         return true;
