@@ -11,8 +11,16 @@ public class PlayerDeathListener implements Listener {
     @EventHandler
     public void onKill(AsyncPlayerDeathEvent event){
         event.getPlayer().addDeath();
+        event.getPlayer().failure("You have been killed by %player%")
+                .DEFAULT()
+                .replace("player", event.getKiller().getPlayer().getName())
+                .handle();
         event.getPlayer().fightEnd();
         event.getKiller().addKill();
+        event.getKiller().info("You have killed player %player%")
+                .DEFAULT()
+                .replace("player", event.getPlayer().getPlayer().getName())
+                .handle();
         event.getKiller().fightEnd();
     }
 }

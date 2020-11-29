@@ -105,6 +105,7 @@ public class CrystalKeyCommand extends CoreCommand {
                 "%information%";
         List<Part> parts = new ArrayList<>();
         parts.add(new Part("     §7" + "Total Text: " + key.getTotalName() + "\n"));
+        parts.add(new Part("     §7" + "Inventory Key: " + "crystal.inventory." + key.getName() + "\n"));
         player.info(msg)
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("information", new MSG(parts))

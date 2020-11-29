@@ -1,8 +1,8 @@
 package com.arematics.minecraft.core.chat.controller;
 
 import com.arematics.minecraft.core.chat.ChatAPI;
-import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholder;
+import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.PlaceholderService;
 import com.arematics.minecraft.data.service.UserService;
@@ -40,7 +40,6 @@ public class PlaceholderController {
         registerPlaceholder(createPlaceholder("rank"));
         registerPlaceholder(createPlaceholder("name"));
         registerPlaceholder(createPlaceholder("chatMessage"));
-        registerPlaceholder(createPlaceholder("arematics"));
         getReservedPlaceholderKeys().add("placeholderName");
         getReservedPlaceholderKeys().add("placeholderMatch");
         getReservedPlaceholderKeys().add("value");
@@ -104,10 +103,14 @@ public class PlaceholderController {
 
     public void supply(Player player) {
         User user = userService.getUserByUUID(player.getUniqueId());
-        supplyPlaceholder("rank", player, () -> user.getDisplayRank() != null ? user.getDisplayRank().getName() : user.getRank().getName());
-        supplyPlaceholder("name", player, player.getPlayer()::getDisplayName);
+        Rank rank = getRank(user);
+        supplyPlaceholder("rank", player, () ->  rank.getColorCode() + rank.getName());
+        supplyPlaceholder("name", player, player.getPlayer()::getName);
         supplyPlaceholder("chatMessage", player, chatAPI.getChatController()::getChatMessage);
-        supplyPlaceholder("arematics", player, () -> "§0[§1Arem§9atics§0]§r");
+    }
+
+    private Rank getRank(User user){
+        return user.getDisplayRank() != null ? user.getDisplayRank(): user.getRank();
     }
 
     public void supplyPlaceholder(String placeholderName, Player player, Supplier<String> supplier) {

@@ -17,7 +17,7 @@ public class LanguageUser {
         this.player = player;
         Configuration configuration = this.player.getUser().getConfigurations().get("language");
         if(configuration != null) this.language = LanguageAPI.getLanguage(configuration.getValue());
-        setLanguage(LanguageAPI.getLanguage("ENGLISH"));
+        else setLanguage(LanguageAPI.getLanguage("ENGLISH"));
     }
 
     public Player getPlayer() {

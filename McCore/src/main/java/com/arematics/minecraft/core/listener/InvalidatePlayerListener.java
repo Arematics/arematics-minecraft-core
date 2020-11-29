@@ -2,17 +2,16 @@ package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.server.CorePlayer;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.springframework.stereotype.Component;
 
-@SuppressWarnings("unused")
 @Component
-public class PlayerDisconnectBoardListener implements Listener {
+public class InvalidatePlayerListener implements Listener {
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event){
-        CorePlayer player = CorePlayer.get(event.getPlayer());
-        player.getBoardSet().remove();
+        CorePlayer.invalidate(event.getPlayer());
     }
 }

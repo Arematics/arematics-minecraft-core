@@ -164,19 +164,21 @@ public class ClanCommand extends CoreCommand {
             player.warn("Not permitted to perform this command for your clan").handle();
             return;
         }
-        ClanMember targetMember = clanMemberService.getMember(target.getUuid());
-        if(targetMember == null)
+        try{
+            ClanMember targetMember = clanMemberService.getMember(target.getUuid());
+            Clan clan = clanService.findClanById(member.getRank().getClanRankId().getClanId());
+            if(!targetMember.getRank().getClanRankId().getClanId().equals(clan.getId()))
+                throw new CommandProcessException("Not same clan");
+            if(!ClanPermissions.rankLevelCorrect(member, targetMember))
+                throw new CommandProcessException("Not allowed to kick this player");
+            clan.getAllOnline().forEach(clanPlayer ->
+                    Messages.create("Player " + target.getLastName() + " got kicked").to(clanPlayer).handle());
+            clan.getMembers().remove(targetMember);
+            clanService.update(clan);
+            clanMemberService.delete(targetMember);
+        }catch (RuntimeException re){
             throw new CommandProcessException("Player " + target.getLastName() + " is not in a clan");
-        Clan clan = clanService.findClanById(member.getRank().getClanRankId().getClanId());
-        if(!targetMember.getRank().getClanRankId().getClanId().equals(clan.getId()))
-            throw new CommandProcessException("Not same clan");
-        if(!ClanPermissions.rankLevelCorrect(member, targetMember))
-            throw new CommandProcessException("Not allowed to kick this player");
-        clan.getAllOnline().forEach(clanPlayer ->
-                Messages.create("Player " + target.getLastName() + " got kicked").to(clanPlayer).handle());
-        clan.getMembers().remove(targetMember);
-        clanService.update(clan);
-        clanMemberService.delete(targetMember);
+        }
     }
 
     @SubCommand("leave")

@@ -44,8 +44,6 @@ public class ClanStatsListener implements Listener {
             change.accept(member);
             clanMemberService.update(member);
             clanService.update(clan);
-        }catch (RuntimeException ignored){
-            ignored.printStackTrace();
-        }
+        }catch (RuntimeException ignored){ }
     }
 }

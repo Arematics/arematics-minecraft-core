@@ -44,6 +44,15 @@ public class ArematicsExecutor {
         }.runTaskLaterAsynchronously(Boots.getBoot(CoreBoot.class), TimeUtils.toTicks(time, unit));
     }
 
+    public static BukkitTask syncDelayed(Runnable runnable, long time, TimeUnit unit){
+        return new BukkitRunnable(){
+            @Override
+            public void run() {
+                runnable.run();
+            }
+        }.runTaskLater(Boots.getBoot(CoreBoot.class), TimeUtils.toTicks(time, unit));
+    }
+
     public static void syncRepeat(Runnable runnable, long delay, long period, TimeUnit unit){
         delay = TimeUtils.toTicks(delay, unit);
         period = TimeUtils.toTicks(period, unit);
