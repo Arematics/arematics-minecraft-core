@@ -19,18 +19,18 @@ public class XpCommand extends CoreCommand {
     public void onDefaultExecute(CommandSender sender) {
         CorePlayer player = CorePlayer.get((Player) sender);
 
-        player.info("You have " + player.getPlayer().getTotalExperience() + " total experience!").handle();
+        player.info("Command comming soon").handle();
     }
 
-    @SubCommand("{target} {amount}")
+    /*@SubCommand("{target} {amount}")
     public void sendXp(CorePlayer player, CorePlayer target, Integer amount) {
         sendExperience(player, target, amount);
     }
 
     private static void sendExperience(CorePlayer player, CorePlayer target, int amount) {
-        if(player.getPlayer().getTotalExperience() >= amount) {
-            player.getPlayer().setExp(player.getPlayer().getTotalExperience() - amount);
-        }
-    }
+
+
+    }*/
+
 
 }
