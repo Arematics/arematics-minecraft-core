@@ -51,8 +51,7 @@ public class UserService {
         Optional<User> user = repository.findByLastName(name);
         if(!user.isPresent()) throw new RuntimeException("User with lastName: " + name + " could not be found");
         User entity = user.get();
-        entity.getUserPermissions().addAll(permissionRepository
-                .findAllByUserUUIDAndMode(entity.getUuid().toString(), modeName));
+        entity.getUserPermissions().addAll(permissionRepository.findAllByUserUUIDAndMode(entity.getUuid().toString(), modeName));
         return entity;
     }
 

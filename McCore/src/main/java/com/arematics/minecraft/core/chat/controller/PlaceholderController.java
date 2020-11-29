@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.chat.controller;
 
 import com.arematics.minecraft.core.chat.ChatAPI;
+import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholder;
 import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.model.User;
@@ -8,6 +9,7 @@ import com.arematics.minecraft.data.service.PlaceholderService;
 import com.arematics.minecraft.data.service.UserService;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -104,9 +106,14 @@ public class PlaceholderController {
     public void supply(Player player) {
         User user = userService.getUserByUUID(player.getUniqueId());
         Rank rank = getRank(user);
+        boolean canColor = Permissions.hasPermission(user, "chatcolor");
         supplyPlaceholder("rank", player, () ->  rank.getColorCode() + rank.getName());
         supplyPlaceholder("name", player, player.getPlayer()::getName);
-        supplyPlaceholder("chatMessage", player, chatAPI.getChatController()::getChatMessage);
+        if(canColor) {
+            supplyPlaceholder("chatMessage", player, () -> ChatColor.translateAlternateColorCodes('&', chatAPI.getChatController().getChatMessage()));
+        } else {
+            supplyPlaceholder("chatMessage", player, chatAPI.getChatController()::getChatMessage);
+        }
     }
 
     private Rank getRank(User user){
