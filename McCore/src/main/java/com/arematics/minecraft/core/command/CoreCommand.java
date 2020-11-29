@@ -85,7 +85,6 @@ public abstract class CoreCommand extends Command {
                 "%subcmds%";
         this.registerStandards(processors);
         this.uiSlots = calculateSlots();
-        System.out.println(this.uiSlots);
     }
 
     private void registerStandards(AnnotationProcessor<?>[] processors){

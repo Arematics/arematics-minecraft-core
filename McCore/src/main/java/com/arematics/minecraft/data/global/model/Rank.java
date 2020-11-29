@@ -39,7 +39,6 @@ public class Rank implements Serializable {
     @Column(name = "last_change", nullable = false)
     private Timestamp lastChange;
     @NotAudited
-    @WhereJoinTable(clause = "mode = '' AND until IS NULL OR until > NOW()")
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "ranks_permission", joinColumns = {@JoinColumn(name = "id")},
             inverseJoinColumns = { @JoinColumn(name = "permission")})
