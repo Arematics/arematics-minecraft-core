@@ -18,6 +18,7 @@ public class JoinAndQuitMessageListener implements Listener {
         CorePlayer player = CorePlayer.get(event.getPlayer());
         Config config = Boots.getBoot(CoreBoot.class).getPluginConfig();
         if(!event.getPlayer().hasPlayedBefore()){
+            event.setJoinMessage("");
             String value = config.findByKey("first_join_message");
             if(Boolean.parseBoolean(value))
                 player.info("first_join_message").handle();

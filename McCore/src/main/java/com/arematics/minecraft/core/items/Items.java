@@ -1,10 +1,13 @@
 package com.arematics.minecraft.core.items;
 
+import com.arematics.minecraft.core.server.CorePlayer;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.util.Vector;
 
 import java.util.List;
 
@@ -50,5 +53,29 @@ public class Items {
 
     public static CoreItem getSkullWithLore(String path, List<String> lore){
         return CoreItem.create(Skull.getCustomSkull(path, lore));
+    }
+
+    public static void giveItem(CorePlayer player, ItemStack... item){
+        int toMuch = 0;
+        for(ItemStack ite : item){
+
+            int slotFree = 0;
+
+            for(int i = 0; i < player.getPlayer().getInventory().getSize(); i++){
+                ItemStack it = player.getPlayer().getInventory().getItem(i);
+                if(it == null || ite.getType() == Material.AIR)
+                    slotFree++;
+            }
+
+            if(slotFree == 0){
+                Item drop = player.getPlayer().getWorld().dropItem(player.getPlayer().getLocation(), ite);
+                drop.setVelocity(new Vector(0, 0, 0));
+                toMuch += drop.getItemStack().getAmount();
+            }else
+                player.getPlayer().getInventory().addItem(ite);
+
+        }
+
+        if(toMuch > 0) player.warn("Inventory is full. Items have been dropped").handle();
     }
 }

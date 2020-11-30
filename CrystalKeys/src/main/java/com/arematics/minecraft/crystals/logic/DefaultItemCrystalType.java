@@ -1,6 +1,7 @@
 package com.arematics.minecraft.crystals.logic;
 
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.items.Items;
 import com.arematics.minecraft.core.server.CorePlayer;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,7 @@ public class DefaultItemCrystalType extends CrystalType {
             CoreItem clone = CoreItem.create(item.clone());
             clone.getMeta().clearCustomNBT();
             clone.clearLore().clearName();
-            player.getPlayer().getInventory().addItem(clone);
+            Items.giveItem(player, clone);
             player.info("You received items from your crystal key").handle();
         }catch (RuntimeException re){
             player.failure("This key could not be found, please report to team").handle();

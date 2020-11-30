@@ -18,7 +18,7 @@ public class Messenger {
         if(player == target) {
             return;
         }
-        lastMessenger.put(target, player);
+        lastMessenger.put(player, target);
         message(player, target, message);
     }
 

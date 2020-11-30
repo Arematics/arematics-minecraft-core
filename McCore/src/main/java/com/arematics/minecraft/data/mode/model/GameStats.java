@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -22,5 +23,6 @@ public class GameStats {
     private int kills;
     private int deaths;
     private Integer bounty;
+    @Column(name = "coins", nullable = false)
     private Long coins;
 }

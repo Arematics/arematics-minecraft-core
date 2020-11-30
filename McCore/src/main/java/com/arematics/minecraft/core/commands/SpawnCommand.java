@@ -1,7 +1,6 @@
 package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.Perm;
-import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.server.CorePlayer;
@@ -39,14 +38,6 @@ public class SpawnCommand extends CoreCommand {
         } catch (Exception e) {
             player.warn("Warp was not set yet").handle();
         }
-
-    }
-
-    @SubCommand("set")
-    @Perm(permission = "set", description = "set spawn")
-    public void setSpawn(CorePlayer player) {
-
-        this.warpCommand.setWarpTo(player, "spawn");
 
     }
 }

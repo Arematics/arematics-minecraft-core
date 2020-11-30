@@ -3,15 +3,11 @@ package com.arematics.minecraft.core.commands;
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.mode.model.Warp;
 import com.arematics.minecraft.data.service.WarpService;
-import com.arematics.minecraft.data.share.model.Permission;
 import lombok.Getter;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +22,7 @@ public class WarpCommand extends CoreCommand {
     public WarpCommand(WarpService warpService) { super("warp"); this.warpService = warpService; }
 
     @SubCommand("{warp}")
+    @Perm(permission = "to", description = "set Warp")
     public void warpTo(CorePlayer player, Warp warp) {
         ArematicsExecutor.syncRun(() -> player.getPlayer().teleport(warp.getLocation()));
         player.info("You were teleported to warp " + warp.getName()).handle();

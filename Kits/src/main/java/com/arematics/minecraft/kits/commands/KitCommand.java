@@ -102,16 +102,13 @@ public class KitCommand extends CoreCommand {
 
     @SubCommand("{kit}")
     public boolean giveKit(CorePlayer player, Kit kit) {
-        giveToPlayer(kit, player.getPlayer(), Permissions.hasPermission(player.getUser(), "kit.force"));
+        giveToPlayer(kit, player, Permissions.hasPermission(player.getUser(), "kit.force"));
         return true;
     }
 
-    private void giveToPlayer(Kit kit, Player player, boolean force){
-        if(!force && !service.isPermitted(player, kit)){
-            Messages.create("cmd_noperms")
-                    .WARNING()
-                    .to(player)
-                    .handle();
+    private void giveToPlayer(Kit kit, CorePlayer player, boolean force){
+        if(!force && !service.isPermitted(player.getPlayer(), kit)){
+            player.warn("cmd_noperms").handle();
             return;
         }
         Inventory inv = inventoryService.getOrCreate("kit.inventory." + kit.getName(), "§6Kit " + kit.getName(),
@@ -119,6 +116,6 @@ public class KitCommand extends CoreCommand {
         ItemStack[] items = Arrays.stream(inv.getContents())
                 .filter(item -> item != null && item.getType() != Material.AIR)
                 .toArray(ItemStack[]::new);
-        player.getInventory().addItem(items);
+        Items.giveItem(player, items);
     }
 }

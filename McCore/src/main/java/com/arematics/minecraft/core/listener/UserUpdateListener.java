@@ -62,9 +62,9 @@ public class UserUpdateListener implements Listener {
     private void sendScoreboard(Player player){
         CorePlayer cp = CorePlayer.get(player);
         final BoardHandler handler = cp.getBoard().getOrAddBoard("main", "§bSoulPvP");
-        handler.addEntryData("Kills", "§cKills: ", "§7" + cp.getStats().getKills())
-                .addEntryData("Deaths", "§cDeaths: ", "§7" + cp.getStats().getDeaths())
-                .addEntryData("Coins", "§cCoins: ", "§7" + cp.getStats().getCoins())
+        handler.addEntryData("Kills", "§c", "§7" + cp.getStats().getKills())
+                .addEntryData("Deaths", "§c", "§7" + cp.getStats().getDeaths())
+                .addEntryData("Coins", "§c", "§7" + cp.getStats().getCoins())
                 .show();
     }
 
@@ -88,7 +88,7 @@ public class UserUpdateListener implements Listener {
         header.setBold(true);
         TextComponent footer = new TextComponent("OPEN BETA");
         footer.setColor(ChatColor.DARK_GRAY);
-        header.setBold(true);
+        footer.setBold(true);
         player.setPlayerListHeaderFooter(header, footer);
     }
 }
