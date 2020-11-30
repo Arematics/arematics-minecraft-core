@@ -2,13 +2,16 @@ package com.arematics.minecraft.crystals.listener;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.crystals.commands.parser.CrystalKeyParser;
+import com.arematics.minecraft.crystals.logic.CrystalKeyItem;
 import com.arematics.minecraft.crystals.logic.CrystalMetaParser;
 import com.arematics.minecraft.data.mode.model.CrystalKey;
 import com.arematics.minecraft.data.service.InventoryService;
+import org.bukkit.GameMode;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -86,7 +89,13 @@ public class CrystalArmorStandClickListener implements Listener {
         if(checkKeySame(key, player)){
             open.add(player);
             player.removeAmountFromHand(1);
-            this.crystalMetaParser.parse(player, calculate(key));
+            try{
+                this.crystalMetaParser.parse(player, calculate(key));
+            }catch (CommandProcessException e){
+                player.warn(e.getMessage()).handle();
+                if(player.getPlayer().getGameMode() != GameMode.CREATIVE)
+                    player.getPlayer().getInventory().addItem(CrystalKeyItem.fromKey(key));
+            }
             open.remove(player);
         }else
             player.warn("Not the same keys provided").handle();

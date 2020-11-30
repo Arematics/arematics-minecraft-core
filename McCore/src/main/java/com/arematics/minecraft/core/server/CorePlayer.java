@@ -225,18 +225,45 @@ public class CorePlayer{
 
     public void setKills(int kills){
         onStats(stats -> stats.setKills(kills));
+        getBoard().getOrAddBoard("main", "§bSoulPvP")
+                .setEntrySuffix("Kills", "§7" + this.getStats().getKills())
+                .refresh();
     }
 
     public void addKill(){
         onStats(stats -> stats.setKills(stats.getKills() + 1));
+        getBoard().getOrAddBoard("main", "§bSoulPvP")
+                .setEntrySuffix("Kills", "§7" + this.getStats().getKills())
+                .refresh();
     }
 
     public void setDeaths(int deaths){
         onStats(stats -> stats.setDeaths(deaths));
+        onStats(stats -> stats.setDeaths(stats.getDeaths() + 1));
+        getBoard().getOrAddBoard("main", "§bSoulPvP")
+                .setEntrySuffix("Deaths", "§7" + this.getStats().getDeaths())
+                .refresh();
     }
 
     public void addDeath(){
         onStats(stats -> stats.setDeaths(stats.getDeaths() + 1));
+        getBoard().getOrAddBoard("main", "§bSoulPvP")
+                .setEntrySuffix("Deaths", "§7" + this.getStats().getDeaths())
+                .refresh();
+    }
+
+    public void setMoney(long money){
+        onStats(stats -> stats.setCoins(money));
+        getBoard().getOrAddBoard("main", "§bSoulPvP")
+                .setEntrySuffix("Coins", "§7" + this.getStats().getCoins())
+                .refresh();
+    }
+
+    public void addMoney(long amount){
+        onStats(stats -> stats.setCoins(stats.getCoins() + amount));
+        getBoard().getOrAddBoard("main", "§bSoulPvP")
+                .setEntrySuffix("Coins", "§7" + this.getStats().getCoins())
+                .refresh();
     }
 
     public void setBounty(int bounty){

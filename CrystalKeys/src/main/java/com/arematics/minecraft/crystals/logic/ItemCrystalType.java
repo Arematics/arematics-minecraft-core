@@ -19,13 +19,13 @@ public class ItemCrystalType extends CrystalType {
 
     @Override
     public String propertyValue() {
-        return "Crystal";
+        return "CrystalItem";
     }
 
     @Override
     public void execute(CorePlayer player, CoreItem item) {
         try{
-            CrystalKey key = service.findById(item.getMeta().getString("Crystal"));
+            CrystalKey key = service.findById(item.getMeta().getString(propertyValue()));
             player.getPlayer().getInventory().addItem(CrystalKeyItem.fromKey(key));
             player.info("You received a §7Magic Crystal§8(" + key.getTotalName() + "§8)").handle();
         }catch (RuntimeException re){

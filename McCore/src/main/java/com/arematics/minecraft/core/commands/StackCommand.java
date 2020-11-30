@@ -3,16 +3,24 @@ package com.arematics.minecraft.core.commands;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.sk89q.worldedit.blocks.ItemType;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
+import org.springframework.stereotype.Component;
 
+@Component
 public class StackCommand extends CoreCommand {
 
     public StackCommand(){
         super("stack");
+    }
+
+    @Override
+    public void onDefaultExecute(CommandSender sender) {
+        stackItems(((Player)sender).getInventory(), true);
     }
 
     @SubCommand("items")

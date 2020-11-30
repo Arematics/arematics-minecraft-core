@@ -22,4 +22,5 @@ public class GameStats {
     private int kills;
     private int deaths;
     private Integer bounty;
+    private Long coins;
 }

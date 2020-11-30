@@ -186,6 +186,13 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return this;
     }
 
+    public CoreItem clearName(){
+        ItemMeta meta = this.getItemMeta();
+        meta.setDisplayName(null);
+        this.setItemMeta(meta);
+        return this;
+    }
+
     public CoreItem setGlow(){
         this.addUnsafeEnchantment(Enchantment.LUCK, 3);
         ItemMeta meta = this.getItemMeta();

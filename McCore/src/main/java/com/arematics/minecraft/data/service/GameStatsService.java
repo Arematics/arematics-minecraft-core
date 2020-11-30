@@ -34,7 +34,7 @@ public class GameStatsService {
         try {
             return findGameStats(uuid);
         } catch (Exception exception) {
-            return save(new GameStats(uuid, 0, 0, null));
+            return save(new GameStats(uuid, 0, 0, null, null));
         }
     }
 

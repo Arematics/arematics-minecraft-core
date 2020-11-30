@@ -12,6 +12,7 @@ import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.pages.Page;
 import com.arematics.minecraft.core.pages.Pageable;
+import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.service.InventoryService;
@@ -100,8 +101,8 @@ public class KitCommand extends CoreCommand {
     }
 
     @SubCommand("{kit}")
-    public boolean giveKit(Player player, Kit kit) {
-        giveToPlayer(kit, player, true);
+    public boolean giveKit(CorePlayer player, Kit kit) {
+        giveToPlayer(kit, player.getPlayer(), Permissions.hasPermission(player.getUser(), "kit.force"));
         return true;
     }
 

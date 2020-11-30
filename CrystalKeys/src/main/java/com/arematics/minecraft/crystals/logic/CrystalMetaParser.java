@@ -1,5 +1,6 @@
 package com.arematics.minecraft.crystals.logic;
 
+import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.CorePlayer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class CrystalMetaParser {
     public void parse(CorePlayer player, CoreItem coreItem) throws RuntimeException{
         Optional<String> key = this.types.keySet().stream().filter(val -> coreItem.getMeta().hasKey(val)).findFirst();
         if(!key.isPresent())
-            player.failure("Type of Crystal Key is not registered yet").handle();
+            throw new CommandProcessException("No valid Data Type found. Give back crystal key");
         else
             this.types.get(key.get()).execute(player, coreItem);
     }
