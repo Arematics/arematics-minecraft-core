@@ -8,21 +8,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-//@Perm(permission = "msg", description = "send a message")
-public class MessageCommand extends CoreCommand {
+//@Perm(permission = "reply", description = "reply to a message")
+public class ReplyCommand extends CoreCommand {
 
     private final Messenger messenger;
 
     @Autowired
-    public MessageCommand(Messenger messenger) {
-        super("msg", "tell", "whisper", "w", "message");
+    public ReplyCommand(Messenger messenger) {
+        super("reply", "r");
         this.messenger = messenger;
         registerLongArgument("args");
     }
 
-    @SubCommand("{player} {message}")
-    public void message(CorePlayer player, CorePlayer target, String message) {
-       messenger.sendMsg(player, target, message);
+    @SubCommand("{message}")
+    public void reply(CorePlayer player, String message) {
+        messenger.reply(player, message);
     }
 
 
