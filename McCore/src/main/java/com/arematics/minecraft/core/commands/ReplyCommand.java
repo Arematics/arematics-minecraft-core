@@ -17,7 +17,6 @@ public class ReplyCommand extends CoreCommand {
     public ReplyCommand(Messenger messenger) {
         super("reply", "r");
         this.messenger = messenger;
-        registerLongArgument("args");
     }
 
     @SubCommand("{message}")

@@ -17,7 +17,6 @@ public class MessageCommand extends CoreCommand {
     public MessageCommand(Messenger messenger) {
         super("msg", "tell", "whisper", "w", "message");
         this.messenger = messenger;
-        registerLongArgument("args");
     }
 
     @SubCommand("{player} {message}")
