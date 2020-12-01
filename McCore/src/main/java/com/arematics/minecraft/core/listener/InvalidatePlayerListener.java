@@ -13,5 +13,6 @@ public class InvalidatePlayerListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event){
         CorePlayer.invalidate(event.getPlayer());
+        System.out.println("Callya Later");
     }
 }

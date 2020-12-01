@@ -131,6 +131,12 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return this;
     }
 
+    public CoreItem removeString(String key){
+        this.getMeta().removeKey(key);
+        this.applyNBT();
+        return this;
+    }
+
     public void applyNBT(){
         this.getMeta().applyNBT(this);
     }
@@ -205,8 +211,6 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
     public boolean isArmor(){
         return this.getMeta() != null;
     }
-
-    public
 
     public void updateTo(Player player){
         player.setItemInHand(this);

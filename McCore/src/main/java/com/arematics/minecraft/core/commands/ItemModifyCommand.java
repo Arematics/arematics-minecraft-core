@@ -77,4 +77,11 @@ public class ItemModifyCommand extends CoreCommand {
         CoreItem.executeOnHandItem(player, item -> item.setString(key, value).updateTo(player));
         return true;
     }
+
+    @SubCommand("delMeta {key}")
+    @Perm(permission = "meta_interaction", description = "Modify Item Meta")
+    public boolean delMeta(Player player, String key) {
+        CoreItem.executeOnHandItem(player, item -> item.removeString(key).updateTo(player));
+        return true;
+    }
 }
