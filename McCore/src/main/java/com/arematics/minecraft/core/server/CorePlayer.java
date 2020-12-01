@@ -29,11 +29,13 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.inventory.ItemStack;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -134,6 +136,38 @@ public class CorePlayer{
         }
         time.setTime(time.getTime() + duration.toMillis());
         this.onlineTimeService.put(mode, time);
+    }
+
+    public boolean hasEffect(PotionEffectType type) {
+        return this.getPlayer().getActivePotionEffects().stream()
+                .filter(effect -> effect.getType() == type)
+                .count() >= 1;
+    }
+
+    public void equip(CoreItem... items){
+        CoreItem[] drop = noUse(items);
+        if(drop.length > 0){
+            this.warn("" + drop.length + " items have been dropped").handle();
+            Arrays.stream(drop).forEach(this::dropItem);
+        }
+    }
+
+    public void dropItem(CoreItem drop){
+        this.getLocation().getWorld().dropItemNaturally(this.getLocation(), drop);
+    }
+
+    private CoreItem[] noUse(CoreItem... item){
+        return Arrays.stream(item)
+                .filter(this::equipArmor)
+                .toArray(CoreItem[]::new);
+    }
+
+    private boolean equipArmor(CoreItem item) {
+        if(hasEffect(PotionEffectType.INVISIBILITY)) return true;
+        if(item.isArmor()){
+
+        }
+        return true;
     }
 
     public boolean isFlagEnabled(RegionQuery query, StateFlag flag){

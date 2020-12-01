@@ -202,6 +202,12 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return this;
     }
 
+    public boolean isArmor(){
+        return this.getMeta() != null;
+    }
+
+    public
+
     public void updateTo(Player player){
         player.setItemInHand(this);
     }

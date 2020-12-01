@@ -16,6 +16,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
@@ -67,13 +68,14 @@ public class CrystalArmorStandClickListener implements Listener {
         return itemKey.filter(armorKey::equals).isPresent();
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onHit(EntityDamageByEntityEvent event){
         if(event.getDamager() instanceof Player && event.getEntity() instanceof ArmorStand){
             CorePlayer player = CorePlayer.get((Player) event.getDamager());
             ArmorStand stand = (ArmorStand)event.getEntity();
             Optional<CrystalKey> key = parser.readFromArmorStand(stand);
             key.ifPresent(value -> openInventory(player, value));
+            event.setCancelled(true);
         }
     }
 
