@@ -19,7 +19,6 @@ public class ItemStackFix implements Listener {
         if (event.getItem().getItemStack().getAmount() > event.getItem().getItemStack().getMaxStackSize()) {
             event.setCancelled(true);
             ItemStack stack = event.getItem().getItemStack();
-
             event.getItem().remove();
             event.getPlayer().getInventory().addItem(stack);
         }
