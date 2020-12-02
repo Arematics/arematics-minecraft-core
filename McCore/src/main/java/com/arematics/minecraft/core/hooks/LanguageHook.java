@@ -3,43 +3,37 @@ package com.arematics.minecraft.core.hooks;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.reflections.Reflections;
+import org.reflections.scanners.ResourcesScanner;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.io.InputStream;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
-public class LanguageHook implements Hook<File>{
+public class LanguageHook implements Hook<String>{
 
-    private File file;
+    private ClassLoader loader;
 
     @Override
     public void startHook(ClassLoader loader, JavaPlugin plugin) {
-        file = new File("plugins/" + plugin.getName() + "/language");
-        Set<File> processed = startPreProcessor(loader, plugin);
+        this.loader = loader;
+        Set<String> processed = startPreProcessor(loader, plugin);
         processed.forEach(file -> processAction(file, plugin));
     }
 
     @Override
-    public Set<File> startPreProcessor(ClassLoader loader, JavaPlugin plugin) {
-        File[] files = file.listFiles();
-        if(files != null)
-            return Arrays.stream(files).filter(f -> f.getName().endsWith(".properties")).collect(Collectors.toSet());
-        else
-            return new HashSet<>();
+    public Set<String> startPreProcessor(ClassLoader loader, JavaPlugin plugin) {
+        Reflections reflections = new Reflections("language", new ResourcesScanner());
+        return reflections.getResources(Pattern.compile(".*"));
     }
 
     @Override
-    public void processAction(File file, JavaPlugin plugin) {
-        try(BufferedReader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)){
-            LanguageAPI.registerFile(reader);
+    public void processAction(String file, JavaPlugin plugin) {
+        try(InputStream stream = this.loader.getResourceAsStream(file)){
+            LanguageAPI.registerFile(stream);
         }catch (Exception e){
             e.printStackTrace();
-            Bukkit.getLogger().severe("Could not add File " + file.getName() + ": " + e.getMessage());
+            Bukkit.getLogger().severe("Could not add Language File " + file + ": " + e.getMessage());
         }
     }
 }

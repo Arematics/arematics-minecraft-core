@@ -7,8 +7,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -65,11 +65,11 @@ public class LanguageAPI {
         return lang;
     }
 
-    public static boolean registerFile(BufferedReader reader){
+    public static boolean registerFile(InputStream stream){
         Properties properties = new Properties();
 
         try{
-            properties.load(reader);
+            properties.load(stream);
             String langName = properties.getProperty("language_name").replaceAll("\"", "");
             properties.forEach((k, s) -> addVals(langName, k.toString(), s.toString().replaceAll("\"", "")));
         }catch (IOException ioe){
