@@ -4,7 +4,7 @@ import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CompoundClassLoader;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.annotations.Perm;
-import com.arematics.minecraft.data.share.model.Permission;
+import com.arematics.minecraft.data.global.model.Permission;
 import com.arematics.minecraft.data.service.PermissionService;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.plugin.java.JavaPlugin;

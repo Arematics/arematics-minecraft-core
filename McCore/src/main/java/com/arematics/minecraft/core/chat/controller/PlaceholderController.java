@@ -106,7 +106,7 @@ public class PlaceholderController {
     public void supply(Player player) {
         User user = userService.getUserByUUID(player.getUniqueId());
         Rank rank = getRank(user);
-        boolean canColor = Permissions.hasPermission(user, "chatcolor");
+        boolean canColor = Permissions.hasPermission(user.getUuid(), "chatcolor");
         supplyPlaceholder("rank", player, () ->  rank.getColorCode() + rank.getName());
         supplyPlaceholder("name", player, player.getPlayer()::getName);
         if(canColor) {

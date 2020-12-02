@@ -1,11 +1,9 @@
 package com.arematics.minecraft.data.service;
 
 import com.arematics.minecraft.core.server.CorePlayer;
-import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.global.repository.ChatThemeRepository;
 import com.arematics.minecraft.data.global.repository.UserRepository;
-import com.arematics.minecraft.data.share.repository.PermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachePut;
@@ -26,14 +24,17 @@ public class UserService {
 
     private final UserRepository repository;
     private final RankService rankService;
-    private final PermissionRepository permissionRepository;
+    private final UserPermissionService userPermissionService;
     private final ChatThemeRepository chatThemeRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, RankService rankService, PermissionRepository permissionRepository, ChatThemeRepository chatThemeRepository){
+    public UserService(UserRepository userRepository,
+                       RankService rankService,
+                       UserPermissionService userPermissionService,
+                       ChatThemeRepository chatThemeRepository){
         this.repository = userRepository;
         this.rankService = rankService;
-        this.permissionRepository = permissionRepository;
+        this.userPermissionService = userPermissionService;
         this.chatThemeRepository = chatThemeRepository;
     }
 
@@ -41,25 +42,20 @@ public class UserService {
     public User getUserByUUID(UUID uuid){
         Optional<User> user = repository.findById(uuid);
         if(!user.isPresent()) throw new RuntimeException("User with uuid: " + uuid + " could not be found");
-        User entity = user.get();
-        entity.getUserPermissions().addAll(permissionRepository
-                .findAllByUserUUIDAndMode(entity.getUuid().toString(), modeName));
-        return entity;
+        return user.get();
     }
 
     public User findByName(String name){
         Optional<User> user = repository.findByLastName(name);
         if(!user.isPresent()) throw new RuntimeException("User with lastName: " + name + " could not be found");
-        User entity = user.get();
-        entity.getUserPermissions().addAll(permissionRepository.findAllByUserUUIDAndMode(entity.getUuid().toString(), modeName));
-        return entity;
+        return user.get();
     }
 
     @CachePut(cacheNames = "userCache")
     public User createUser(UUID uuid, String name){
         User user = new User(UUID.randomUUID(), uuid, name, new Timestamp(System.currentTimeMillis()), null,
                 null, rankService.getDefaultRank(), null, 0, new HashMap<>(), new HashSet<>(),
-                new HashSet<>(), chatThemeRepository.findById("default").get());
+                chatThemeRepository.findById("default").get());
         return repository.save(user);
     }
 
@@ -74,6 +70,12 @@ public class UserService {
         }catch (RuntimeException exception){
             return createUser(uuid, name);
         }
+    }
+
+    public boolean hasPermission(UUID uuid, String permission){
+        User user = getUserByUUID(uuid);
+        return rankService.hasPermission(user.getRank(), permission) ||
+                userPermissionService.hasPermission(uuid, permission);
     }
 
     public User getOrCreateUser(CorePlayer player){

@@ -102,7 +102,7 @@ public class KitCommand extends CoreCommand {
 
     @SubCommand("{kit}")
     public boolean giveKit(CorePlayer player, Kit kit) {
-        giveToPlayer(kit, player, Permissions.hasPermission(player.getUser(), "kit.force"));
+        giveToPlayer(kit, player, Permissions.hasPermission(player.getUUID(), "kit.force"));
         return true;
     }
 

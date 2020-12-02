@@ -1,17 +1,13 @@
 package com.arematics.minecraft.data.global.model;
 
-import com.arematics.minecraft.data.share.model.Permission;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.WhereJoinTable;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Set;
 
 @Entity
 @Audited
@@ -38,9 +34,4 @@ public class Rank implements Serializable {
     private String sortChar;
     @Column(name = "last_change", nullable = false)
     private Timestamp lastChange;
-    @NotAudited
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "ranks_permission", joinColumns = {@JoinColumn(name = "id")},
-            inverseJoinColumns = { @JoinColumn(name = "permission")})
-    private Set<Permission> permissions;
 }

@@ -3,7 +3,7 @@ package com.arematics.minecraft.core.command.processor.parser;
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.data.service.PermissionService;
-import com.arematics.minecraft.data.share.model.Permission;
+import com.arematics.minecraft.data.global.model.Permission;
 import org.springframework.stereotype.Component;
 
 @Component

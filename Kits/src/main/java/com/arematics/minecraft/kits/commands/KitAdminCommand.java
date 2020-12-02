@@ -15,7 +15,6 @@ import com.arematics.minecraft.core.utils.TimeUtils;
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.KitService;
-import com.arematics.minecraft.data.share.model.Permission;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -56,7 +55,7 @@ public class KitAdminCommand extends CoreCommand {
                 "%information%";
         List<Part> parts = new ArrayList<>();
         parts.add(new Part("     §7" + "Permission: " + " §c" +
-                (kit.getPermission() == null ? "Keine" : kit.getPermission().getPermission()) + "\n")
+                (kit.getPermission() == null ? "Keine" : kit.getPermission()) + "\n")
                 .setHoverAction(HoverAction.SHOW_TEXT, "§7Change Kit Permission")
                 .setClickAction(ClickAction.SUGGEST_COMMAND, "/kitadm setPerm " + kit.getName() + " {permission}"));
         parts.add(new Part("     §7" + "Cooldown: " + " §c" +
@@ -76,12 +75,12 @@ public class KitAdminCommand extends CoreCommand {
     }
 
     @SubCommand("create {name} {permission} {cooldown}")
-    public boolean createKit(Player player, String name, Permission permission, Period cooldown) {
+    public boolean createKit(Player player, String name, String permission, Period cooldown) {
         return createKit(player, name, permission, cooldown, Period.millis(1));
     }
 
     @SubCommand("create {name} {permission} {cooldown} {minPlayTime}")
-    public boolean createKit(Player player, String name, Permission permission,
+    public boolean createKit(Player player, String name, String permission,
                              Period cooldown, Period minPlayTime) {
         try{
             service.findKit(name);
@@ -140,14 +139,14 @@ public class KitAdminCommand extends CoreCommand {
     }
 
     @SubCommand("setPerm {kit} {permission}")
-    public boolean setKitPermission(CommandSender sender, Kit kit, Permission permission) {
+    public boolean setKitPermission(CommandSender sender, Kit kit, String permission) {
         kit.setPermission(permission);
         service.update(kit);
         Messages.create(KIT_TYPE_CHANGED)
                 .to(sender)
                 .DEFAULT()
                 .replace("type", "Permission")
-                .replace("value", permission.getPermission())
+                .replace("value", permission)
                 .handle();
         return true;
     }

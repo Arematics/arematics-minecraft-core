@@ -85,9 +85,6 @@ create table if not exists ranks_permission
         unique (permission),
     constraint ranks_permission_id_fk
         foreign key (id) references ranks (id)
-            on update cascade on delete cascade,
-    constraint ranks_permission_permission_permission_fk
-        foreign key (permission) references permission (permission)
             on update cascade on delete cascade
 );
 
@@ -198,9 +195,6 @@ create table if not exists user_permission
     primary key (uuid, permission),
     constraint UK_c0210mhu8ug1x46rokkiorusj
         unique (permission),
-    constraint user_permission_permission_permission_fk
-        foreign key (permission) references permission (permission)
-            on update cascade on delete cascade,
     constraint user_permission_user_uuid_fk
         foreign key (uuid) references user (uuid)
             on update cascade on delete cascade

@@ -1,7 +1,7 @@
 package com.arematics.minecraft.data.service;
 
-import com.arematics.minecraft.data.share.model.Permission;
-import com.arematics.minecraft.data.share.repository.PermissionRepository;
+import com.arematics.minecraft.data.global.model.Permission;
+import com.arematics.minecraft.data.global.repository.PermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

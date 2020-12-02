@@ -3,7 +3,6 @@ package com.arematics.minecraft.data.mode.model;
 
 
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.data.share.model.Permission;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,8 +28,8 @@ public class Kit implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToOne
-    private Permission permission;
+    @Column(name = "permission", nullable = false)
+    private String permission;
 
     @Column(name = "cooldown", nullable = false)
     private Long cooldown;

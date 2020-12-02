@@ -1,6 +1,6 @@
-package com.arematics.minecraft.data.share.repository;
+package com.arematics.minecraft.data.global.repository;
 
-import com.arematics.minecraft.data.share.model.Permission;
+import com.arematics.minecraft.data.global.model.Permission;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;

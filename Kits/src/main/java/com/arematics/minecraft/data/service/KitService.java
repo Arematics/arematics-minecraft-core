@@ -1,6 +1,5 @@
 package com.arematics.minecraft.data.service;
 
-import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.mode.repository.KitRepository;
 import com.arematics.minecraft.data.share.model.CooldownKey;
@@ -47,8 +46,7 @@ public class KitService {
     }
 
     public boolean isPermitted(Player player, Kit kit){
-        User user = userService.getOrCreateUser(player.getUniqueId(), player.getName());
-        return kit.getPermission() == null || user.getUserPermissions().contains(kit.getPermission());
+        return kit.getPermission() == null || userService.hasPermission(player.getUniqueId(), kit.getPermission());
     }
 
     public boolean hasCooldownOnKit(UUID uuid, Kit kit){

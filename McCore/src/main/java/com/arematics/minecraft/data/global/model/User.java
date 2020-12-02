@@ -1,9 +1,7 @@
 package com.arematics.minecraft.data.global.model;
 
-import com.arematics.minecraft.data.share.model.Permission;
 import lombok.*;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.WhereJoinTable;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -56,12 +54,6 @@ public class User implements Serializable {
     @CollectionTable(name = "user_configurations", joinColumns = @JoinColumn(name = "uuid"))
     @MapKeyColumn(name = "name")
     private Map<String, Configuration> configurations;
-    @NotAudited
-    @WhereJoinTable(clause = "mode = '' AND until IS NULL OR until > NOW()")
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_permission", joinColumns = {@JoinColumn(name = "uuid")},
-            inverseJoinColumns = { @JoinColumn(name = "permission")})
-    private Set<Permission> userPermissions;
     @NotAudited
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_friends", joinColumns = {@JoinColumn(name = "uuid")},
