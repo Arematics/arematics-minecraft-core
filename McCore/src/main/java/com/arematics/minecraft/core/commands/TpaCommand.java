@@ -29,7 +29,7 @@ public class TpaCommand extends CoreCommand {
     public void sendTpa(@Validator(validators = CombatValidator.class) CorePlayer player,
                         @Validator(validators = {RequestValidator.class}) CorePlayer target) {
         if(player.equals(target)) {
-            player.warn("You must not send yourself a request").handle();
+            player.warn("Self requests not allowed").handle();
             return;
         }
            getTeleportController().sendTpaRequest(player, target);

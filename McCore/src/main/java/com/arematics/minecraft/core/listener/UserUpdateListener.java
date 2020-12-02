@@ -40,17 +40,6 @@ public class UserUpdateListener implements Listener {
         Player player = joinEvent.getPlayer();
         dispatchPlayerData(player);
         sendScoreboard(player);
-        Timestamp current = new Timestamp(System.currentTimeMillis());
-        this.tablist.refresh(CorePlayer.get(player));
-        User user = this.userService.getOrCreateUser(player.getUniqueId(), player.getName());
-        user.setLastName(player.getName());
-        user.setLastIp(Md5Crypt.md5Crypt(player.getAddress().getAddress().getHostAddress().getBytes()));
-        user.setLastIpChange(current);
-        user.setLastJoin(current);
-        chatAPI.login(player);
-        chatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().add(user);
-        this.userService.update(user);
-
         Messages.create("broadcast_beta_disclaimer")
                 .to(player)
                 .DEFAULT()
@@ -62,15 +51,28 @@ public class UserUpdateListener implements Listener {
     private void sendScoreboard(Player player){
         CorePlayer cp = CorePlayer.get(player);
         final BoardHandler handler = cp.getBoard().getOrAddBoard("main", "§bSoulPvP");
-        handler.addEntryData("Kills", "§c", "§7" + cp.getStats().getKills())
+        handler.addEntryData("Coins", "§c", "§7" + cp.getStats().getCoins())
                 .addEntryData("Deaths", "§c", "§7" + cp.getStats().getDeaths())
-                .addEntryData("Coins", "§c", "§7" + cp.getStats().getCoins())
+                .addEntryData("Kills", "§c", "§7" + cp.getStats().getKills())
                 .show();
     }
 
     private void dispatchPlayerData(Player player){
         ArematicsExecutor.asyncDelayed(() -> sendInfo(player), 5, TimeUnit.SECONDS);
         sendTab(player);
+        ArematicsExecutor.runAsync(() -> patchUser(player));
+    }
+
+    private void patchUser(Player player){
+        Timestamp current = new Timestamp(System.currentTimeMillis());
+        User user = this.userService.getOrCreateUser(player.getUniqueId(), player.getName());
+        chatAPI.login(player);
+        chatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().add(user);
+        user.setLastName(player.getName());
+        user.setLastIp(Md5Crypt.md5Crypt(player.getAddress().getAddress().getHostAddress().getBytes()));
+        user.setLastIpChange(current);
+        user.setLastJoin(current);
+        this.userService.update(user);
     }
 
     private void sendInfo(Player player){
@@ -83,6 +85,7 @@ public class UserUpdateListener implements Listener {
     }
 
     private void sendTab(Player player){
+        this.tablist.refresh(CorePlayer.get(player));
         TextComponent header = new TextComponent("Arematics presents SoulPvP");
         header.setColor(ChatColor.AQUA);
         header.setBold(true);

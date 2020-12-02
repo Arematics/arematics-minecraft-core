@@ -29,7 +29,7 @@ public class PlayerRequestSettings {
 
     public int getRequestTimeout(){
         return Integer.parseInt(player.getUser().getConfigurations()
-                .getOrDefault("requestTimeout", new Configuration("60")).getValue());
+                .getOrDefault("requestTimeout", new Configuration("5")).getValue());
     }
 
     public void setRequestFilter(RequestFilter filter){

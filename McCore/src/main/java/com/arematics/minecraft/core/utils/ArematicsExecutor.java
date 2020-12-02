@@ -5,7 +5,6 @@ import com.arematics.minecraft.core.CoreBoot;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -15,7 +14,12 @@ import java.util.function.Consumer;
 public class ArematicsExecutor {
 
     public static void runAsync(Runnable runnable){
-        CompletableFuture.runAsync(runnable);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                runnable.run();
+            }
+        }.runTaskLaterAsynchronously(Boots.getBoot(CoreBoot.class), 1);
     }
 
     public static String awaitResult(BiConsumer<AtomicReference<String>, CountDownLatch> consumer) throws InterruptedException {
@@ -26,8 +30,8 @@ public class ArematicsExecutor {
         return res.get();
     }
 
-    public static synchronized void syncRun(Runnable runnable){
-        new BukkitRunnable(){
+    public static synchronized BukkitTask syncRun(Runnable runnable){
+        return new BukkitRunnable(){
             @Override
             public void run() {
                 runnable.run();
@@ -89,16 +93,16 @@ public class ArematicsExecutor {
         }.runTaskTimerAsynchronously(Boots.getBoot(CoreBoot.class), delay, period);
     }
 
-    public static void asyncRepeat(Consumer<Integer> run, long delay, long period, TimeUnit unit, int times){
+    public static BukkitTask asyncRepeat(Consumer<Integer> run, long delay, long period, TimeUnit unit, int times){
         delay = TimeUtils.toTicks(delay, unit);
         period = TimeUtils.toTicks(period, unit);
-        new BukkitRunnable(){
+        return new BukkitRunnable(){
             int amount = times;
             @Override
             public void run() {
                 run.accept(amount);
                 amount--;
-                if(amount < times) this.cancel();
+                if(amount < 0) this.cancel();
             }
         }.runTaskTimerAsynchronously(Boots.getBoot(CoreBoot.class), delay, period);
     }

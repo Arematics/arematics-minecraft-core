@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.items;
 
 import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
@@ -10,6 +11,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.util.Vector;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Items {
 
@@ -56,7 +58,7 @@ public class Items {
     }
 
     public static void giveItem(CorePlayer player, ItemStack... item){
-        int toMuch = 0;
+        AtomicInteger integer = new AtomicInteger();
         for(ItemStack ite : item){
 
             int slotFree = 0;
@@ -68,14 +70,15 @@ public class Items {
             }
 
             if(slotFree == 0){
-                Item drop = player.getPlayer().getWorld().dropItem(player.getPlayer().getLocation(), ite);
-                drop.setVelocity(new Vector(0, 0, 0));
-                toMuch += drop.getItemStack().getAmount();
-            }else
-                player.getPlayer().getInventory().addItem(ite);
+                ArematicsExecutor.syncRun(() -> {
+                    Item drop = player.getPlayer().getWorld().dropItem(player.getPlayer().getLocation(), ite);
+                    drop.setVelocity(new Vector(0, 0, 0));
+                    integer.addAndGet(1);
+                });
+            }else ArematicsExecutor.syncRun(() -> player.getPlayer().getInventory().addItem(ite));
 
         }
 
-        if(toMuch > 0) player.warn("Inventory is full. Items have been dropped").handle();
+        if(integer.get() > 0) player.warn("Inventory is full. Items have been dropped").handle();
     }
 }

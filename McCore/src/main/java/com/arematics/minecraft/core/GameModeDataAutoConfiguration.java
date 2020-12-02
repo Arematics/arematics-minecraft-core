@@ -54,6 +54,8 @@ public class GameModeDataAutoConfiguration {
                 env.getProperty("hibernate.hbm2ddl.auto"));
         properties.put("hibernate.dialect",
                 env.getProperty("hibernate.dialect"));
+        properties.put("hibernate.logging",
+                env.getProperty("warn"));
         properties.put("hibernate.physical_naming_strategy", SpringPhysicalNamingStrategy.class.getName());
         properties.put("hibernate.implicit_naming_strategy", SpringImplicitNamingStrategy.class.getName());
         em.setJpaPropertyMap(properties);

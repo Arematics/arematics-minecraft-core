@@ -56,7 +56,7 @@ public class BasicInjector extends StringInjector {
             String preparedMessage = prepareMessage(sender);
             String msg = injectValues(preparedMessage);
             sender.sendMessage(msg);
-            if(sender instanceof Player)
+            if(!this.HIGHLIGHT.getColorCode().equals("§a") && sender instanceof Player)
                 ((Player)sender).playSound(((Player)sender).getLocation(), this.HIGHLIGHT.getSound(), 1, 1);
         });
     }

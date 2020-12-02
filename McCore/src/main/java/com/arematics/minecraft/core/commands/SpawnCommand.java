@@ -34,7 +34,7 @@ public class SpawnCommand extends CoreCommand {
 
         try {
             Warp warp = warpService.getWarp("spawn");
-            this.warpCommand.warpTo(player, warp);
+            this.warpCommand.teleport(player, warp, false);
         } catch (Exception e) {
             player.warn("Warp was not set yet").handle();
         }

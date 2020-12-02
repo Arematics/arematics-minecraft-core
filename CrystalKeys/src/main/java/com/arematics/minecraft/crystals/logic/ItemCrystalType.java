@@ -24,7 +24,7 @@ public class ItemCrystalType extends CrystalType {
     }
 
     @Override
-    public void execute(CorePlayer player, CoreItem item) {
+    public void execute(CorePlayer player, CoreItem item, CrystalKey crystalKey) {
         try{
             CrystalKey key = service.findById(item.getMeta().getString(propertyValue()));
             Items.giveItem(player, CrystalKeyItem.fromKey(key));

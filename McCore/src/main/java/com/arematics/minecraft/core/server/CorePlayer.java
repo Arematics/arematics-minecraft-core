@@ -29,9 +29,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.inventory.ItemStack;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -39,7 +39,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -73,6 +72,7 @@ public class CorePlayer{
 
     private boolean inFight = false;
     private BukkitTask inFightTask;
+    private BukkitTask inTeleport;
 
     private final GameStatsService service;
     private final UserService userService;
@@ -117,6 +117,10 @@ public class CorePlayer{
     }
 
     public void removeAmountFromHand(int amount){
+        ArematicsExecutor.syncRun(() -> syncRemoveFromHand(amount));
+    }
+
+    private void syncRemoveFromHand(int amount){
         if(getItemInHand() != null)
             if(!player.getGameMode().equals(GameMode.CREATIVE)){
                 int am = player.getItemInHand().getAmount();
@@ -145,6 +149,10 @@ public class CorePlayer{
     }
 
     public void equip(CoreItem... items){
+        ArematicsExecutor.runAsync(() -> this.equipItems(items));
+    }
+
+    private void equipItems(CoreItem... items){
         CoreItem[] drop = noUse(items);
         if(drop.length > 0){
             this.warn("" + drop.length + " items have been dropped").handle();
@@ -153,7 +161,7 @@ public class CorePlayer{
     }
 
     public void dropItem(CoreItem drop){
-        this.getLocation().getWorld().dropItemNaturally(this.getLocation(), drop);
+        ArematicsExecutor.syncRun(() -> this.getLocation().getWorld().dropItemNaturally(this.getLocation(), drop));
     }
 
     private CoreItem[] noUse(CoreItem... item){
@@ -168,6 +176,41 @@ public class CorePlayer{
 
         }
         return true;
+    }
+
+    public void stopTeleport(){
+        if(inTeleport != null){
+            inTeleport.cancel();
+            warn("Your teleport has been cancelled").handle();
+            inTeleport = null;
+        }
+    }
+
+    public void instantTeleport(Location location){
+        ArematicsExecutor.syncRun(() -> this.getPlayer().teleport(location));
+    }
+
+    public void teleport(Location location){
+        if(inTeleport != null){
+            inTeleport.cancel();
+            warn("Old teleport request cancelled").handle();
+        }
+        inTeleport = ArematicsExecutor.asyncRepeat((count) -> teleport(count, location),
+                0, 1, TimeUnit.SECONDS, getUser().getRank().isInTeam() ? 0 : 3);
+    }
+
+    private void teleport(int count, Location location){
+        if (count == 0) {
+            ArematicsExecutor.syncRun(() -> this.getPlayer().teleport(location));
+            inTeleport = null;
+        } else {
+            this.info("%prefix%Teleport in %seconds%§7...")
+                    .DEFAULT()
+                    .replace("prefix", "   §cTP » §7")
+                    .replace("seconds", "§c" + count)
+                    .disableServerPrefix()
+                    .handle();
+        }
     }
 
     public boolean isFlagEnabled(RegionQuery query, StateFlag flag){
@@ -322,99 +365,6 @@ public class CorePlayer{
 
     public Location getLocation() {
         return this.player.getLocation();
-    }
-
-    /**
-     * Call setCurrency Async with CompletableFuture
-     * @param currency Currency Type
-     * @param amount New Currency Value
-     */
-    public void setCurrency(Currency currency, double amount){
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> setSyncCurrency(currency, amount));
-        try{
-            future.get();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Call getCurrency Async with CompletableFuture
-     * @param currency Currency Type
-     */
-    public double getCurrency(Currency currency){
-        CompletableFuture<Double> completableFuture = CompletableFuture.supplyAsync(() -> getSyncCurrency(currency));
-        try{
-            return completableFuture.get();
-        }catch (Exception e){
-            return 0.0;
-        }
-    }
-
-    /**
-     * Call addCurrency Async with CompletableFuture
-     * @param currency Currency Type
-     * @param amount Added Currency Value
-     */
-    public void addCurrency(Currency currency, double amount){
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> addSyncCurrency(currency, amount));
-        try{
-            future.get();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Call removeCurrency Async with CompletableFuture
-     * @param currency Currency Type
-     * @param amount Remove Currency Value
-     */
-    public void removeCurrency(Currency currency, double amount){
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> removeSyncCurrency(currency, amount));
-        try{
-            future.get();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * This method sets the value for a specific currency and returns the old value
-     * @param currency Currency Type
-     * @param amount New Value of Currency
-     */
-    private void setSyncCurrency(Currency currency, double amount){
-        this.getCurrencies().put(currency, amount);
-    }
-
-    /**
-     * Returns the Value of an specific Currency
-     * @param currency Currency Type
-     * @return Currency Value
-     */
-    private double getSyncCurrency(Currency currency){
-        return this.getCurrencies().getOrDefault(currency, 0.0);
-    }
-
-    /**
-     * Adds currency amount to current currency value
-     * @param currency Currency Type
-     * @param amount Added amount of Currency
-     */
-    private void addSyncCurrency(Currency currency, double amount){
-        this.setCurrency(currency, getCurrency(currency) + amount);
-    }
-
-    /**
-     * Removes currency amount from current currency value
-     * @param currency Currency Type
-     * @param amount Removed amount of Currency, sets currency to 0 if it would get negative.
-     */
-    private void removeSyncCurrency(Currency currency, double amount){
-        double now = getCurrency(currency);
-        if((now - amount) < 0) this.setCurrency(currency, 0);
-        else this.setCurrency(currency, now - amount);
     }
 
     /**

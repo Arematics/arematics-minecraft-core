@@ -4,9 +4,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
-import com.sk89q.worldedit.internal.expression.runtime.For;
+import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
@@ -186,6 +188,18 @@ public class Part implements Cloneable {
 
     public String toJsonString() {
         return toJsonObject().toString();
+    }
+
+
+
+    public Part setHoverActionShowItem(ItemStack item){
+        net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+        NBTTagCompound nbt = new NBTTagCompound();
+        nmsItem.save(nbt);
+
+        HOVER_ACTION = HoverAction.SHOW_ITEM;
+        HOVER_VALUE = nbt.toString();
+        return this;
     }
 
     @Override

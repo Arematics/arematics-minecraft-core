@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class NoPvPRegionCancelListener implements Listener {
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onHit(EntityDamageByEntityEvent event){
         RegionManager manager = WorldGuardPlugin.inst().getRegionManager(event.getEntity().getWorld());
         ApplicableRegionSet regions = manager.getApplicableRegions(event.getEntity().getLocation());

@@ -1,13 +1,9 @@
 package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.Perm;
-import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.messaging.advanced.HoverAction;
-import com.arematics.minecraft.core.messaging.advanced.MSG;
-import com.arematics.minecraft.core.messaging.advanced.MSGBuilder;
+import com.arematics.minecraft.core.items.Items;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.CorePlayer;
@@ -42,11 +38,12 @@ public class GiveAllCommand extends CoreCommand {
                     ? givenItem.getData().getItemType().name()
                     : givenItem.getItemMeta().getDisplayName());
 
-            Part part = new Part(itemName).setHoverAction(HoverAction.SHOW_ITEM, givenItem.getMeta().toString());
+            Part part = new Part(itemName).setHoverActionShowItem(givenItem);
 
             if(!player.getPlayer().equals(target)) {
-                target.getInventory().addItem(givenItem);
-                ((CorePlayer) target).info("You have received the item %itemName% " + givenItem.getAmount() + " times")
+                CorePlayer targetPlayer = CorePlayer.get(target);
+                Items.giveItem(targetPlayer, givenItem);
+                targetPlayer.info("You have received the item %itemName% " + givenItem.getAmount() + " times")
                         .setInjector(AdvancedMessageInjector.class)
                         .replace("itemName", part)
                         .handle();

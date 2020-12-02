@@ -33,6 +33,15 @@ public class InventoryService {
     }
 
     public Inventory getOrCreate(String key, String title, byte slots){
+        try{
+            return getPipeOrCreate(key, title, slots);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Inventory getPipeOrCreate(String key, String title, byte slots){
         if(inventories.containsKey(key))
             return patchSlotsOrTitle(key, title, slots);
         Optional<InventoryData> data = repository.findByDataKey(key);

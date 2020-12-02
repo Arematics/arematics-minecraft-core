@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -10,9 +11,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class InvalidatePlayerListener implements Listener {
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onQuit(PlayerQuitEvent event){
-        CorePlayer.invalidate(event.getPlayer());
-        System.out.println("Callya Later");
+        ArematicsExecutor.runAsync(() -> CorePlayer.invalidate(event.getPlayer()));
     }
 }

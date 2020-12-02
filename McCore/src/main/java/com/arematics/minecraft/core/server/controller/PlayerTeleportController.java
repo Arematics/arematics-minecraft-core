@@ -1,14 +1,13 @@
 package com.arematics.minecraft.core.server.controller;
 
 import com.arematics.minecraft.core.server.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 @EqualsAndHashCode
@@ -18,7 +17,7 @@ public class PlayerTeleportController {
     private final Set<PlayerTeleport> teleports = new HashSet<>();
 
     public void sendTpaRequest(CorePlayer sender, CorePlayer receiver) {
-        if(!teleports.contains(new PlayerTeleport(sender,receiver))) {
+        if(!teleports.contains(new PlayerTeleport(sender, receiver))) {
             teleports.add(new PlayerTeleport(sender, receiver));
         } else {
             sender.warn("You have already sent the player a teleport request");
@@ -29,6 +28,7 @@ public class PlayerTeleportController {
         for(PlayerTeleport current : teleports) {
             if(current.sender.equals(sender) && current.receiver.equals(receiver)) {
                 current.teleportPlayer();
+                receiver.getRequestSettings().addTimeout(sender.getPlayer().getName());
                 teleports.remove(current);
                 return true;
             }
@@ -40,6 +40,7 @@ public class PlayerTeleportController {
         for(PlayerTeleport current : teleports) {
             if(current.sender.equals(sender) && current.receiver.equals(receiver)) {
                 teleports.remove(current);
+                receiver.getRequestSettings().addTimeout(sender.getPlayer().getName());
                 return true;
             }
         }
@@ -48,13 +49,14 @@ public class PlayerTeleportController {
 
 
     @Getter
+    @EqualsAndHashCode
     @RequiredArgsConstructor
-    private class PlayerTeleport {
+    private static class PlayerTeleport {
         private final CorePlayer sender;
         private final CorePlayer receiver;
 
         public void teleportPlayer() {
-            ArematicsExecutor.syncRun(() -> sender.getPlayer().teleport(receiver.getPlayer()));
+            sender.teleport(receiver.getLocation());
         }
 
     }

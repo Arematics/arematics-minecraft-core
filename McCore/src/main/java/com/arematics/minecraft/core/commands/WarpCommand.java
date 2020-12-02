@@ -4,7 +4,6 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.mode.model.Warp;
 import com.arematics.minecraft.data.service.WarpService;
 import lombok.Getter;
@@ -24,8 +23,13 @@ public class WarpCommand extends CoreCommand {
     @SubCommand("{warp}")
     @Perm(permission = "to", description = "set Warp")
     public void warpTo(CorePlayer player, Warp warp) {
-        ArematicsExecutor.syncRun(() -> player.getPlayer().teleport(warp.getLocation()));
+        teleport(player, warp, false);
         player.info("You were teleported to warp " + warp.getName()).handle();
+    }
+
+    public void teleport(CorePlayer player, Warp warp, boolean instant){
+        if(!instant) player.teleport(warp.getLocation());
+        else player.instantTeleport(warp.getLocation());
     }
 
     @SubCommand("set {warp}")

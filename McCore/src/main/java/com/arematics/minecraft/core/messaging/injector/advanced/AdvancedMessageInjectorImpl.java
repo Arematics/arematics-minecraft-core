@@ -49,7 +49,7 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
             String preparedMessage = prepareMessage(sender);
             MSG msg = injectValues(preparedMessage);
             msg.send(sender);
-            if(sender instanceof Player)
+            if(!this.HIGHLIGHT.getColorCode().equals("§a") && sender instanceof Player)
                 ((Player)sender).playSound(((Player)sender).getLocation(), this.HIGHLIGHT.getSound(), 1, 1);
         });
     }

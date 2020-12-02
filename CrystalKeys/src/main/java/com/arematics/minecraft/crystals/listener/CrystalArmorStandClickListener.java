@@ -48,7 +48,7 @@ public class CrystalArmorStandClickListener implements Listener {
         this.crystalMetaParser = crystalMetaParser;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onClick(PlayerInteractAtEntityEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
         Entity entity = event.getRightClicked();
@@ -60,6 +60,7 @@ public class CrystalArmorStandClickListener implements Listener {
 
             Optional<CrystalKey> key = parser.readFromArmorStand(stand);
             key.ifPresent(value -> ArematicsExecutor.runAsync(() -> openCrystal(player, value)));
+            event.setCancelled(true);
         }
     }
 
@@ -68,7 +69,7 @@ public class CrystalArmorStandClickListener implements Listener {
         return itemKey.filter(armorKey::equals).isPresent();
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onHit(EntityDamageByEntityEvent event){
         if(event.getDamager() instanceof Player && event.getEntity() instanceof ArmorStand){
             CorePlayer player = CorePlayer.get((Player) event.getDamager());
@@ -88,11 +89,15 @@ public class CrystalArmorStandClickListener implements Listener {
     }
 
     private void openCrystal(CorePlayer player, CrystalKey key){
+        if(Arrays.stream(player.getPlayer().getInventory().getContents()).filter(Objects::nonNull).count() >= 36){
+            player.warn("Your inventory is full, please free some slots").handle();
+            return;
+        }
         if(checkKeySame(key, player)){
             open.add(player);
             player.removeAmountFromHand(1);
             try{
-                this.crystalMetaParser.parse(player, calculate(key));
+                this.crystalMetaParser.parse(player, calculate(key), key);
             }catch (CommandProcessException e){
                 player.warn(e.getMessage()).handle();
                 if(player.getPlayer().getGameMode() != GameMode.CREATIVE)
@@ -108,21 +113,21 @@ public class CrystalArmorStandClickListener implements Listener {
                 key.getName(), "§7Crystal " +
                 key.getTotalName(), (byte)27).getContents());
         final ArrayList<CoreItem> itemStacks = new ArrayList<>();
+        if(contents.length == 0) throw new CommandProcessException("No item found");
 
-        for(int i = 0; i < contents.length; i++){
-            CoreItem item = contents[i];
-            if(item == null) continue;
-            try{
+        for (CoreItem item : contents) {
+            if (item == null) continue;
+            try {
                 double value = getChance(item);
 
-                int put = (int)(value*100);
+                int put = (int) (value * 100);
                 itemStacks.ensureCapacity(put);
 
-                while(put != 0){
+                while (put != 0) {
                     itemStacks.add(item);
                     put--;
                 }
-            }catch (NumberFormatException ignored){}
+            } catch (NumberFormatException ignored) {}
         }
 
         Collections.shuffle(itemStacks, CrystalArmorStandClickListener.RANDOM);

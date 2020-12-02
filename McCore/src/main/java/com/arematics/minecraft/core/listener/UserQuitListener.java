@@ -37,6 +37,5 @@ public class UserQuitListener implements Listener {
         this.tablist.remove(player);
         chatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().remove(user);
         this.userService.update(user);
-        System.out.println("Callya");
     }
 }
