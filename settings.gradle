@@ -27,4 +27,5 @@ include 'Watcher'
 include 'Metadata'
 include 'SpringHook'
 include 'Animations'
+include 'Guns'
 
