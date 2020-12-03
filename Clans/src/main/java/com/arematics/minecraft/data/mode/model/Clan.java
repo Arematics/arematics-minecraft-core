@@ -1,5 +1,6 @@
 package com.arematics.minecraft.data.mode.model;
 
+import com.arematics.minecraft.core.messaging.Messages;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -59,5 +60,18 @@ public class Clan implements Serializable {
         return this.getMembers().stream()
                 .map(member -> Bukkit.getPlayer(member.getUuid()))
                 .filter(Objects::nonNull);
+    }
+
+    public void infoToAll(String msg){
+        Messages.create(msg)
+                .to(getAllOnline().toArray(Player[]::new))
+                .handle();
+    }
+
+    public void warnToAll(String msg){
+        Messages.create(msg)
+                .WARNING()
+                .to(getAllOnline().toArray(Player[]::new))
+                .handle();
     }
 }

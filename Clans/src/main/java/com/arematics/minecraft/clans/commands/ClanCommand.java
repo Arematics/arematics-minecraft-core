@@ -8,15 +8,18 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.annotations.Validator;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
+import com.arematics.minecraft.core.command.processor.validator.RequestValidator;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.messaging.advanced.JsonColor;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.User;
-import com.arematics.minecraft.data.mode.model.*;
+import com.arematics.minecraft.data.mode.model.Clan;
+import com.arematics.minecraft.data.mode.model.ClanMember;
+import com.arematics.minecraft.data.mode.model.ClanRank;
+import com.arematics.minecraft.data.mode.model.ClanRankId;
 import com.arematics.minecraft.data.service.ClanMemberService;
 import com.arematics.minecraft.data.service.ClanRankService;
 import com.arematics.minecraft.data.service.ClanService;
@@ -52,47 +55,45 @@ public class ClanCommand extends CoreCommand {
     @SubCommand("create {name} {tag}")
     public boolean createClan(@Validator(validators = NoClanValidator.class) CorePlayer player, String name, String tag)
             throws CommandProcessException {
-        final String clanExists = "Clan with %typ% %value% already exists";
         try{
             clanService.findClanByName(name);
-            player.warn(clanExists)
-                    .DEFAULT()
-                    .replace("typ", "name")
-                    .replace("value", name)
-                    .handle();
+            printClanExists("name", name, player);
         }catch (RuntimeException re){
             try{
                 clanService.findClanByTag(tag);
-                player.warn(clanExists)
-                        .DEFAULT()
-                        .replace("typ", "tag")
-                        .replace("value", tag)
-                        .handle();
+                printClanExists("tag", tag, player);
             }catch (RuntimeException re2){
                 createNewClan(player, name, tag);
             }
         }
         return true;
     }
+
+    private void printClanExists(String typ, String value, CorePlayer player){
+        final String clanExists = "Clan with %typ% %value% already exists";
+        player.warn(clanExists)
+                .DEFAULT()
+                .replace("typ", typ)
+                .replace("value", value)
+                .handle();
+    }
     
     @SubCommand("delete")
     public void deleteClan(@Validator(validators = InClanValidator.class) CorePlayer player)
             throws CommandProcessException {
         ClanMember member = clanMemberService.getMember(player);
-        if(!ClanPermissions.isAdmin(member)){
-            player.warn("Not permitted to perform this command for your clan").handle();
-            return;
-        }
-        Clan clan = clanService.findClanById(member.getRank().getClanRankId().getClanId());
-        clan.getAllOnline().forEach(clanPlayer -> Messages.create("Your clan has been deleted by an admin")
-                .WARNING().to(clanPlayer).handle());
-        clanService.delete(clan);
+        if(ClanPermissions.isAdmin(member)){
+            Clan clan = clanService.findClanById(member.getRank().getClanRankId().getClanId());
+            clan.warnToAll("Your clan has been deleted by an admin");
+            clanService.delete(clan);
+        }else player.warn("Not permitted to perform this command for your clan").handle();
+
     }
 
     @SubCommand("invite {name}")
     public void invitePlayer(@Validator(validators = InClanValidator.class)
                                          CorePlayer player,
-                             @Validator(validators = NoClanValidator.class)
+                             @Validator(validators = {NoClanValidator.class, RequestValidator.class})
                                      CorePlayer target) throws CommandProcessException {
         ClanMember member = clanMemberService.getMember(player);
         if(!ClanPermissions.canInvite(member))
@@ -101,13 +102,12 @@ public class ClanCommand extends CoreCommand {
         Clan clan = clanService.findClanById(member.getRank().getClanRankId().getClanId());
         if(clan.getSlots() <= clan.getMembers().size()) throw new CommandProcessException("Your clan is full");
         String clanName = clan.getName();
+        String message = "clan request";
         target.info("You have been invited to join clan %clan%. %accept% | %deny%")
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("clan", new MSG(clanName))
-                .replace("accept", PartBuilder.createHoverAndRun("ACCEPT", "§aAccept clan request",
-                        "/clan accept " + clanName).setBaseColor(JsonColor.GREEN))
-                .replace("deny", PartBuilder.createHoverAndRun("DENY", "§cDeny clan request",
-                        "/clan deny " + clanName).setBaseColor(JsonColor.RED))
+                .replace("accept", PartBuilder.createAcceptMessage(message, "c accept " + clanName))
+                .replace("deny", PartBuilder.createDenyMessage(message, "c deny " + clanName))
                 .handle();
         player.info("Clan request send to " + target.getPlayer().getName()).handle();
         target.getRequestSettings().addTimeout(player.getPlayer().getName());
@@ -171,11 +171,10 @@ public class ClanCommand extends CoreCommand {
                 throw new CommandProcessException("Not same clan");
             if(!ClanPermissions.rankLevelCorrect(member, targetMember))
                 throw new CommandProcessException("Not allowed to kick this player");
-            clan.getAllOnline().forEach(clanPlayer ->
-                    Messages.create("Player " + target.getLastName() + " got kicked").to(clanPlayer).handle());
             clan.getMembers().remove(targetMember);
             clanService.update(clan);
             clanMemberService.delete(targetMember);
+            clan.infoToAll("Player " + target.getLastName() + " got kicked");
         }catch (RuntimeException re){
             throw new CommandProcessException("Player " + target.getLastName() + " is not in a clan");
         }
