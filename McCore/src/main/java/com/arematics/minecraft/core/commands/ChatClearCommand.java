@@ -18,7 +18,7 @@ public class ChatClearCommand extends CoreCommand  {
     @Override
     public void onDefaultExecute(CommandSender sender) {
 
-        for(int i = 0; i < 90; i++) Bukkit.broadcastMessage(" ");
+        for(int i = 0; i < 120; i++) Bukkit.broadcastMessage(" ");
 
         Bukkit.getOnlinePlayers().stream()
                 .map(CorePlayer::get)

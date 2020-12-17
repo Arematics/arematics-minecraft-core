@@ -1,8 +1,5 @@
 package com.arematics.minecraft.core.messaging.advanced;
 
-import com.arematics.minecraft.data.global.model.ChatClickAction;
-import com.arematics.minecraft.data.global.model.ChatHoverAction;
-
 public class PartBuilder {
 
     public static Part createHoverAndSuggest(String text, String hover, String suggestCommand) {
@@ -15,6 +12,16 @@ public class PartBuilder {
         return new Part(text)
                 .setHoverAction(HoverAction.SHOW_TEXT, hover)
                 .setClickAction(ClickAction.RUN_COMMAND, runCommand);
+    }
+
+    public static Part createAcceptMessage(String acceptMessage, String cmd){
+        return PartBuilder.createHoverAndRun("ACCEPT", "§aAccept " + acceptMessage,
+                "/" + cmd).setBaseColor(JsonColor.GREEN);
+    }
+
+    public static Part createDenyMessage(String denyMessage, String cmd){
+        return PartBuilder.createHoverAndRun("DENY", "§cDeny " + denyMessage,
+                "/" + cmd).setBaseColor(JsonColor.RED);
     }
 
 }
