@@ -1,8 +1,10 @@
 package com.arematics.minecraft.data.mode.model;
 
+import com.arematics.minecraft.core.server.CorePlayer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -33,4 +35,11 @@ public class ClanMember implements Serializable {
     @Column(name = "clan_deaths", nullable = false)
     private Integer clanDeaths;
 
+    public CorePlayer online(){
+        return CorePlayer.get(Bukkit.getPlayer(uuid));
+    }
+
+    public long getClanId(){
+        return this.rank.getClanRankId().getClanId();
+    }
 }

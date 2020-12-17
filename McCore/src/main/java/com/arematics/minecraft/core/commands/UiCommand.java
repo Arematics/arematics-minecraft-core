@@ -15,7 +15,6 @@ import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.UserService;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -60,9 +59,10 @@ public class UiCommand extends CoreCommand {
     }
 
     @SubCommand("{mode}")
-    public boolean setPreferredMode(Player player, String mode) {
-        if(Arrays.stream(new String[]{"cli", "gui"}).noneMatch(m -> m.equalsIgnoreCase(mode))) onDefaultExecute(player);
-        User user = service.getUserByUUID(player.getUniqueId());
+    public boolean setPreferredMode(CorePlayer player, String mode) {
+        if(Arrays.stream(new String[]{"cli", "gui"}).noneMatch(m -> m.equalsIgnoreCase(mode)))
+            onDefaultExecute(player.getPlayer());
+        User user = service.getUserByUUID(player.getUUID());
         user.getConfigurations().put("command-mode", new Configuration(mode));
         service.update(user);
         return true;

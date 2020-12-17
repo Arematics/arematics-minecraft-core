@@ -15,8 +15,6 @@ import com.arematics.minecraft.data.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -101,14 +99,11 @@ public class CrystalKeyCommand extends CoreCommand {
     }
 
     private void prettyPrintCrystalInfo(CorePlayer player, CrystalKey key){
-        String msg = "§a\n\n§7Crystal Key" + " » " + "§c" + key.getName() + "\n" +
-                "%information%";
-        List<Part> parts = new ArrayList<>();
-        parts.add(new Part("     §7" + "Total Text: " + key.getTotalName() + "\n"));
-        parts.add(new Part("     §7" + "Inventory Key: " + "crystal.inventory." + key.getName() + "\n"));
-        player.info(msg)
-                .setInjector(AdvancedMessageInjector.class)
-                .replace("information", new MSG(parts))
+        String builder = "    §7" + "Total Text: " + key.getTotalName() + "\n" +
+                "    §7" + "Inventory Key: §c" + "crystal.inventory." + key.getName() + "\n";
+        player.info(key.getPrettyPrint())
+                .DEFAULT()
+                .replace("value", builder)
                 .disableServerPrefix()
                 .handle();
     }

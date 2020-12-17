@@ -4,7 +4,6 @@ import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.inventories.anvil.AnvilGUI;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -38,17 +37,12 @@ public class Parser {
     public Object[] fillParameters(CommandSender sender, String[] annotation, Parameter[] subParameters, String[] src)
             throws CommandProcessException, InterruptedException {
         List<Object> parameters = new ArrayList<>();
-        if (CommandSender.class.equals(subParameters[0].getType())) {
-            parameters.add(sender);
-        } else if (CorePlayer.class.equals(subParameters[0].getType())) {
-            CorePlayerParser parser = new CorePlayerParser();
-            parameters.add(parser.processParse(sender.getName(), subParameters[0], parameters));
-        }else if (Player.class.equals(subParameters[0].getType())) {
-            if (sender instanceof Player) {
-                parameters.add(sender);
-            } else {
-                throw new CommandProcessException("Only Players allowed to perform this command");
-            }
+        {
+            CommandParameterParser<?> parser = parsers.get(subParameters[0].getType());
+            if(!(parser instanceof CommandSenderParser))
+                throw new CommandProcessException("No correct sender parser could be found");
+            CommandSenderParser<?> senderParser = (CommandSenderParser<?>) parser;
+            parameters.add(senderParser.processParse(sender, subParameters[0], parameters));
         }
         int b = 1;
         for(int i = 0; i < annotation.length; i++){

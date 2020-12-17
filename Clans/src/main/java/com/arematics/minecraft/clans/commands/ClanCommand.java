@@ -8,6 +8,7 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.annotations.Validator;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
+import com.arematics.minecraft.core.command.processor.validator.BalanceValidator;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.JsonColor;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
@@ -86,6 +87,7 @@ public class ClanCommand extends CoreCommand {
         Clan clan = clanService.findClanById(member.getRank().getClanRankId().getClanId());
         clan.getAllOnline().forEach(clanPlayer -> Messages.create("Your clan has been deleted by an admin")
                 .WARNING().to(clanPlayer).handle());
+        player.addMoney(clan.getCoins());
         clanService.delete(clan);
     }
 
@@ -158,10 +160,9 @@ public class ClanCommand extends CoreCommand {
     }
 
     @SubCommand("remove {user}")
-    public void removeClanMember(@Validator(validators = InClanValidator.class) CorePlayer player, User target) {
-        ClanMember member = clanMemberService.getMember(player);
+    public void removeClanMember(ClanMember member, User target) {
         if(!ClanPermissions.canKick(member)){
-            player.warn("Not permitted to perform this command for your clan").handle();
+            member.online().warn("Not permitted to perform this command for your clan").handle();
             return;
         }
         try{
@@ -182,37 +183,85 @@ public class ClanCommand extends CoreCommand {
     }
 
     @SubCommand("leave")
-    public void leaveClan(@Validator(validators = InClanValidator.class) CorePlayer player) {
-        ClanMember member = clanMemberService.getMember(player);
+    public void leaveClan(ClanMember member) {
         if(ClanPermissions.isAdmin(member))
             throw new CommandProcessException("As admin you can not leave, you need to use /clan delete.");
         else{
             Clan clan = clanService.findClanById(member.getRank().getClanRankId().getClanId());
             clan.getAllOnline().forEach(clanPlayer ->
-                    Messages.create("Player " + player.getPlayer().getName() + " has left the clan").to(clanPlayer).handle());
+                    Messages.create("Player " + member.online().getPlayer().getName() + " has left the clan").to(clanPlayer).handle());
             clan.getMembers().remove(member);
             clanService.update(clan);
             clanMemberService.delete(member);
-            player.info("You have left the clan").handle();
+            member.online().info("You have left the clan").handle();
         }
     }
 
-    @SubCommand("rang {user}")
-    public void setClanRang(@Validator(validators = InClanValidator.class) CorePlayer player, User target) {
+    @SubCommand("rang {user} {rank}")
+    public void setClanRang(ClanMember member, ClanMember target, String rawRank) {
+        if(!ClanPermissions.isAdmin(member))
+            throw new CommandProcessException("This command could only be performed by an administrator");
+        Clan clan = clanService.findClanById(member.getClanId());
+        ClanRank result = clan.getRanks().stream().filter(rank -> {
+            try{
+                return rank.getRankLevel() == Integer.parseInt(rawRank);
+            }catch (NumberFormatException nfe){
+                return rank.getClanRankId().getName().equals(rawRank);
+            }
+        }).findFirst().orElseThrow(() -> new CommandProcessException("Rank could not be found"));
+        if(member.getRank().getRankLevel() == 0){
+            member.setRank(target.getRank());
+        }
+        target.setRank(result);
+        clanMemberService.update(member);
+        clanMemberService.update(target);
+        member.online().info("Changed rank of %player% to %rank%")
+                .DEFAULT()
+                .replace("player", userService.getUserByUUID(target.getUuid()).getLastName())
+                .replace("rank", result.getClanRankId().getName())
+                .handle();
     }
 
     @SubCommand("stats {clan}")
     public void getClanStats(CorePlayer player, Clan clan) {
+        String info = clan.readInformation();
+        player.info(clan.getPrettyPrint())
+                .DEFAULT()
+                .replace("value", info)
+                .disableServerPrefix()
+                .handle();
+    }
+
+    @SubCommand("stats")
+    public void getSelfClanStats(ClanMember member){
+        getClanStats(member.online(), clanService.findClanById(member.getClanId()));
     }
 
     @SubCommand("money add {amount}")
-    public void addClanMoney(@Validator(validators = InClanValidator.class) CorePlayer player, Double amount) {
-        player.warn("Not implemented yet").handle();
+    public void addClanMoney(@Validator(validators = InClanValidator.class) CorePlayer player,
+                             @Validator(validators = BalanceValidator.class) Long amount) {
+        player.removeMoney(amount);
+        Clan clan = clanService.findClanById(clanMemberService.getMember(player).getClanId());
+        clan.setCoins(clan.getCoins() + amount);
+        clanService.update(clan);
+        player.info("You have send %amount% coins to your clan")
+                .DEFAULT()
+                .replace("amount", String.valueOf(amount))
+                .handle();
     }
 
     @SubCommand("money rem {amount}")
-    public void removeClanMoney(@Validator(validators = InClanValidator.class) CorePlayer player, Double amount) {
-        player.warn("Not implemented yet").handle();
+    public void removeClanMoney(ClanMember member, Long amount) {
+        if(!ClanPermissions.isAdmin(member)) throw new CommandProcessException("Not allowed to perform this");
+        Clan clan = clanService.findClanById(member.getClanId());
+        if(clan.getCoins() < amount) throw new CommandProcessException("Clan has not enough coins");
+        clan.setCoins(clan.getCoins() - amount);
+        clanService.update(clan);
+        member.online().addMoney(amount);
+        member.online().info("You have removed %amount% coins from your clan")
+                .DEFAULT()
+                .replace("amount", String.valueOf(amount))
+                .handle();
     }
 
     @SubCommand("shop")
@@ -220,15 +269,19 @@ public class ClanCommand extends CoreCommand {
         player.warn("Not implemented yet").handle();
     }
 
-    private void createNewClan(CorePlayer player, String name, String tag){
-        Clan clan = clanService.createClan(name, tag);
-        List<ClanRank> ranks = generateDefaultClanRanks(clan);
-        clan.setRanks(new HashSet<>(ranks));
-        ClanMember member = new ClanMember(player.getUUID(), ranks.get(0), 0, 0);
-        clanMemberService.update(member);
-        clan.getMembers().add(member);
-        clanService.update(clan);
-        player.info("Clan created successfully").handle();
+    private void createNewClan(CorePlayer player, String name, String tag) {
+        try{
+            Clan clan = clanService.createClan(name, tag);
+            List<ClanRank> ranks = generateDefaultClanRanks(clan);
+            clan.setRanks(new HashSet<>(ranks));
+            ClanMember member = new ClanMember(player.getUUID(), ranks.get(0), 0, 0);
+            clanMemberService.update(member);
+            clan.getMembers().add(member);
+            clanService.update(clan);
+            player.info("Clan created successfully").handle();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private List<ClanRank> generateDefaultClanRanks(Clan clan){

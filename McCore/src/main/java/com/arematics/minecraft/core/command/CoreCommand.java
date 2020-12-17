@@ -22,6 +22,7 @@ import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment
 import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.ClassUtils;
+import com.arematics.minecraft.core.utils.CommandUtils;
 import com.arematics.minecraft.core.utils.Methods;
 import com.arematics.minecraft.data.service.InventoryService;
 import lombok.Getter;
@@ -81,8 +82,7 @@ public abstract class CoreCommand extends Command {
                 .collect(Collectors.toList());
         this.subCommands = Methods
                 .fetchAllAnnotationValueSave(this, SubCommand.class, SubCommand::value);
-        this.commandInformationString = "§a\n\n§7Command" + " » " + "§c/" + this.getName() + "\n" +
-                "%subcmds%";
+        this.commandInformationString = CommandUtils.prettyReplace("Command", "/" + this.getName());
         this.registerStandards(processors);
         this.uiSlots = calculateSlots();
     }
@@ -115,7 +115,7 @@ public abstract class CoreCommand extends Command {
         Messages.create(this.commandInformationString)
                 .to(sender)
                 .setInjector(AdvancedMessageInjector.class)
-                .replace("subcmds", new MSG(commandInformationValues))
+                .replace("value", new MSG(commandInformationValues))
                 .disableServerPrefix()
                 .handle();
         return true;

@@ -1,5 +1,7 @@
 package com.arematics.minecraft.data.mode.model;
 
+import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
+import com.arematics.minecraft.core.utils.CommandUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -54,6 +56,24 @@ public class Clan implements Serializable {
     @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, targetEntity = ClanMember.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "clan_id", updatable = false, insertable = false)
     private Set<ClanMember> members;
+
+    public String getPrettyPrint(){
+        return CommandUtils.prettyReplace("Clan", getName());
+    }
+
+    public String readInformation() throws CommandProcessException{
+        ClanMember owner = members.stream().filter(member -> member.getRank().getRankLevel().equals(0))
+                .findFirst()
+                .orElseThrow(() -> new CommandProcessException("Clan Owner could not be found"));
+        return "    §7Name: §c" + getName() + "\n" +
+                "   §7Tag: §c" + getTag() + "\n" +
+                "   §7Owner: §c" + Bukkit.getOfflinePlayer(owner.getUuid()).getName() + "\n" +
+                "   §7Kills: §c" + getKills() + "\n" +
+                "   §7Deaths: §c" + getDeaths() + "\n" +
+                "   §7Coins: §c" + getCoins() + "\n" +
+                "   §7Members: §c" + members.size() + " Member";
+
+    }
 
     public Stream<Player> getAllOnline(){
         return this.getMembers().stream()

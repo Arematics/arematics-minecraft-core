@@ -343,6 +343,14 @@ public class CorePlayer{
                 .refresh();
     }
 
+    public void removeMoney(long amount) throws RuntimeException{
+        if(getStats().getCoins() < amount) throw new RuntimeException("Not enough coins");
+        onStats(stats -> stats.setCoins(stats.getCoins() - amount));
+        getBoard().getOrAddBoard("main", "§bSoulPvP")
+                .setEntrySuffix("Coins", "§7" + this.getStats().getCoins())
+                .refresh();
+    }
+
     public void setBounty(int bounty){
         onStats(stats -> stats.setBounty(bounty));
     }
