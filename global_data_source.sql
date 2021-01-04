@@ -108,6 +108,7 @@ create table if not exists user
     `rank` bigint default 1 not null,
     display_rank bigint null,
     karma int not null,
+
     constraint user_arematics_connection_uindex
         unique (arematics_connection),
     constraint user_uuid_uindex
@@ -308,7 +309,7 @@ create table theme_global_placeholder_actions
     chat_theme_theme_key          varchar(255) not null,
     global_placeholder_actions_id bigint       not null,
     constraint FK7kkji6rpsgecxrfl7fmfpn2bq
-        foreign key (global_placeholder_actions_id) references global_placeholder_actions (id),
+        foreign key (global_placeholder_actions_id) references global_placeholder_action (id),
     constraint FKjs4he1hg3q4k5s3ls91nr21ag
         foreign key (chat_theme_theme_key) references theme (theme_key)
 );

@@ -21,7 +21,6 @@ public class AfkCloseListener implements Listener {
         Location t = event.getTo();
         if(f.getBlockX() != t.getBlockX() || f.getBlockY() != t.getBlockY() || f.getBlockZ() != t.getBlockZ()){
             if(!t.getBlock().isLiquid() || t.clone().add(0, -1, 0).getBlock().isLiquid()){
-                System.out.println("Closing AFK Time");
                 CorePlayer player = CorePlayer.get(event.getPlayer());
                 player.callAntiAFK();
             }
