@@ -79,10 +79,16 @@ public class CorePlayer{
     private final ChatThemeController chatThemeController;
     private final OnlineTimeService onlineTimeService;
 
+    private final LocalDateTime joined;
     private LocalDateTime lastPatch = null;
+    private LocalDateTime lastAntiAFKEvent;
+
+    private Duration lastAfk = null;
 
     public CorePlayer(Player player){
         this.player = player;
+        this.joined = LocalDateTime.now();
+        this.lastAntiAFKEvent = this.joined;
         this.chatThemeController = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeController.class);
         this.pager = new Pager(this);
         this.boardSet = new BoardSet(player);
@@ -93,6 +99,7 @@ public class CorePlayer{
     }
 
     private void unload() {
+        this.patchOnlineTime();
         this.pager.unload();
         this.boardSet.remove();
     }
@@ -108,12 +115,29 @@ public class CorePlayer{
         this.inFight = false;
     }
 
+    public void callAntiAFK(){
+        this.lastAntiAFKEvent = LocalDateTime.now();
+    }
+
+    private void closeAFK(){
+        this.lastAfk = Duration.between(this.lastAntiAFKEvent.plusMinutes(1), LocalDateTime.now());
+        if(lastAfk.isNegative()) return;
+        patchOnlineTime(false, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
+        patchOnlineTime(true, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
+    }
+
     public void patchOnlineTime(){
+        this.closeAFK();
         if(lastPatch == null) lastPatch = getUser().getLastJoin().toLocalDateTime();
         Duration online = Duration.between(this.lastPatch, LocalDateTime.now());
-        patchOnlineTime(online, false);
-        patchOnlineTime(online, true);
+        patchOnlineTime(false, (time) -> updateOnlineTime(time, online));
+        patchOnlineTime(true, (time) -> updateOnlineTime(time, online));
         lastPatch = LocalDateTime.now();
+    }
+
+    private void updateOnlineTime(OnlineTime time, Duration online){
+        long totalTime = time.getTime() + online.toMillis();
+        time.setTime(totalTime - (this.lastAfk.isNegative() ? 0 : this.lastAfk.toMillis()));
     }
 
     public void removeAmountFromHand(int amount){
@@ -131,14 +155,14 @@ public class CorePlayer{
             }
     }
 
-    public void patchOnlineTime(Duration duration, boolean mode){
+    public void patchOnlineTime(boolean mode, Consumer<OnlineTime> update){
         OnlineTime time;
         try{
             time = this.onlineTimeService.findByUUID(mode, getUUID());
         }catch (RuntimeException re){
             time = new OnlineTime(getUUID(), 0L, 0L);
         }
-        time.setTime(time.getTime() + duration.toMillis());
+        update.accept(time);
         this.onlineTimeService.put(mode, time);
     }
 
