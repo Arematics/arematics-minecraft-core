@@ -121,6 +121,7 @@ public class CorePlayer{
 
     private void closeAFK(){
         this.lastAfk = Duration.between(this.lastAntiAFKEvent.plusMinutes(1), LocalDateTime.now());
+        this.lastAntiAFKEvent = LocalDateTime.now();
         if(lastAfk.isNegative()) return;
         patchOnlineTime(false, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
         patchOnlineTime(true, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
