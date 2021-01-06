@@ -23,7 +23,7 @@ public class PermissionData implements PermConsumer {
     }
 
     public void orElse(Consumer<CommandSender> orElse){
-        if(StringUtils.isBlank(permission) || !Permissions.isNotAllowed(sender, permission))
+        if(StringUtils.isBlank(permission) || Permissions.hasPermission(sender, permission))
             permitted.accept(sender);
         else orElse.accept(sender);
     }

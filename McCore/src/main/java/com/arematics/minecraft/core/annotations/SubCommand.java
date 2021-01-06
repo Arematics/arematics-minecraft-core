@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Used on {@link PluginCommand} annotated class methods checking the value and performing an Sub Command if
+ * Used on CoreCommand extending class methods checking the value and performing an Sub Command if
  * valid input has been performed
  */
 @Retention(RetentionPolicy.RUNTIME)

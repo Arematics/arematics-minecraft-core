@@ -15,6 +15,12 @@ public class Permissions {
 
     public static boolean isNotAllowed(CommandSender sender, String permission){
         if(sender instanceof Player)
+            return !hasPermission(((Player)sender).getUniqueId(), permission);
+        return true;
+    }
+
+    public static boolean hasPermission(CommandSender sender, String permission){
+        if(sender instanceof Player)
             return hasPermission(((Player)sender).getUniqueId(), permission);
         return true;
     }

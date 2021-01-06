@@ -20,10 +20,12 @@ public class PermissionAnnotationProcessor extends AnnotationProcessor<Perm> {
     @Override
     public boolean supply(Method method) throws Exception {
         super.supply(method);
+        System.out.println("CALLED");
         if(StringUtils.isBlank(classLevelPermission))
             return true;
         String result = this.classLevelPermission + "." + getSerializedPermission(method);
-        if(Permissions.isNotAllowed(this.sender, result)){
+        System.out.println(result);
+        if(!Permissions.hasPermission(this.sender, result)){
             Messages.create("cmd_noperms")
                     .WARNING()
                     .to(sender)

@@ -46,6 +46,8 @@ import java.util.function.Consumer;
 public class CorePlayer{
     private static Map<UUID, CorePlayer> players = new HashMap<>();
 
+    private static InventoryService inventoryService;
+
     public static CorePlayer get(Player player){
         if(!players.containsKey(player.getUniqueId()))
             players.put(player.getUniqueId(), new CorePlayer(player));
@@ -90,6 +92,9 @@ public class CorePlayer{
         this.onlineTimeService = Boots.getBoot(CoreBoot.class).getContext().getBean(OnlineTimeService.class);
         this.requestSettings = new PlayerRequestSettings(this);
         this.service = Boots.getBoot(CoreBoot.class).getContext().getBean(GameStatsService.class);
+        if(CorePlayer.inventoryService == null){
+            CorePlayer.inventoryService = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
+        }
     }
 
     private void unload() {
@@ -221,14 +226,25 @@ public class CorePlayer{
         return player.getOpenInventory();
     }
 
+    /**
+     * Open inventory for player. Own inventory is disabled. Opened inventory is enabled
+     * @param inventory Inventory to open
+     */
     public void openInventory(Inventory inventory){
         Inventories.openLowerDisabledInventory(inventory, this);
     }
 
+    /**
+     * Open inventory for player. Both inventories are blocked
+     * @param inventory Inventory to open
+     */
     public void openTotalBlockedInventory(Inventory inventory){
         Inventories.openTotalBlockedInventory(inventory, this);
     }
-
+    /**
+     * Open inventory for player. Both inventories are enabled
+     * @param inventory Inventory to open
+     */
     public void openLowerEnabledInventory(Inventory inventory){
         Inventories.openInventory(inventory, this);
     }
@@ -363,12 +379,12 @@ public class CorePlayer{
         return CoreItem.create(player.getItemInHand());
     }
 
-    public Inventory getInventory(InventoryService service, String key) throws RuntimeException{
-        return service.getInventory(player.getUniqueId() + "." + key);
+    public Inventory getInventory(String key) throws RuntimeException{
+        return CorePlayer.inventoryService.getInventory(player.getUniqueId() + "." + key);
     }
 
-    public Inventory getOrCreateInventory(InventoryService service, String key, String title, byte slots){
-        return service.getOrCreate(player.getUniqueId() + "." + key, title, slots);
+    public Inventory getOrCreateInventory(String key, String title, byte slots){
+        return CorePlayer.inventoryService.getOrCreate(player.getUniqueId() + "." + key, title, slots);
     }
 
     public Location getLocation() {
