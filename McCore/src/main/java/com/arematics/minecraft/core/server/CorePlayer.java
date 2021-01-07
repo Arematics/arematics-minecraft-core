@@ -8,6 +8,7 @@ import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.pages.Pager;
+import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.scoreboard.functions.BoardSet;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.Inventories;
@@ -176,11 +177,7 @@ public class CorePlayer{
     }
 
     private boolean equipArmor(CoreItem item) {
-        if(hasEffect(PotionEffectType.INVISIBILITY)) return true;
-        if(item.isArmor()){
-
-        }
-        return true;
+        return hasEffect(PotionEffectType.INVISIBILITY);
     }
 
     public void stopTeleport(){
@@ -402,5 +399,9 @@ public class CorePlayer{
         old.getActiveUsers().remove(user);
         user.setActiveTheme(theme);
         theme.getActiveUsers().add(user);
+    }
+
+    public boolean hasPermission(String permission){
+        return Permissions.hasPermission(getUUID(), permission);
     }
 }

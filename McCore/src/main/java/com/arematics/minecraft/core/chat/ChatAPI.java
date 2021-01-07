@@ -54,7 +54,7 @@ public class ChatAPI {
     }
 
 
-    public void login(Player player) {
+    public void login(CorePlayer player) {
         supply(player);
     }
 
@@ -89,11 +89,11 @@ public class ChatAPI {
         return getPlaceholderController().getPlaceholder(placeholder);
     }
 
-    public void supply(Player player) {
+    public void supply(CorePlayer player) {
        getPlaceholderController().supply(player);
     }
 
-    public void supplyPlaceholders(String placeholderName, Player player, Supplier<String> supplier) {
+    public void supplyPlaceholders(String placeholderName, CorePlayer player, Supplier<String> supplier) {
         getPlaceholderController().supplyPlaceholder(placeholderName, player, supplier);
     }
 

@@ -3,14 +3,9 @@ package com.arematics.minecraft.data.global.model;
 import com.arematics.minecraft.core.server.CorePlayer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bukkit.entity.Player;
 import org.hibernate.annotations.Formula;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -28,9 +23,9 @@ public class GlobalPlaceholder {
     private String placeholderMatch;
 
     @Transient
-    private Map<Player, Supplier<String>> values = new HashMap<>();
+    private Map<CorePlayer, Supplier<String>> values = new HashMap<>();
 
-    public String getValue(Player player) {
+    public String getValue(CorePlayer player) {
         return getValues().get(player).get();
     }
 

@@ -4,7 +4,6 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
-import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.InventoryService;
@@ -39,7 +38,7 @@ public class EnderChestCommand extends CoreCommand {
     public void openOtherPlayerInventory(CorePlayer player, User target) {
         Inventory ec = service.getOrCreate(target.getUuid().toString() + ".enderchest", "§c"
                 + target.getLastName() + "'s Enderchest", (byte)36);
-        boolean edit = Permissions.hasPermission(player.getUUID(), "player.inventory.enderchest.other.edit");
+        boolean edit = player.hasPermission("player.inventory.enderchest.other.edit");
         if(edit) openEnabledInventory(player, ec);
         else openBlocked(player, ec);
     }

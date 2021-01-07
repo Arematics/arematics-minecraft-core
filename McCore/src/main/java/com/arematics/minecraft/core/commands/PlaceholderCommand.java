@@ -7,9 +7,6 @@ import com.arematics.minecraft.core.messaging.advanced.MSGBuilder;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.CorePlayer;
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,9 +27,8 @@ public class PlaceholderCommand extends CoreCommand {
     @SubCommand("list")
     public boolean list(CorePlayer player) {
         List<Part> parts = new ArrayList<>();
-        placeholderController.getPlaceholders().values().forEach(globalPlaceholder -> {
-            parts.add(new Part(globalPlaceholder.getPlaceholderKey()));
-        });
+        placeholderController.getPlaceholders().values().forEach(globalPlaceholder ->
+                parts.add(new Part(globalPlaceholder.getPlaceholderKey())));
         player.info("listing").setInjector(AdvancedMessageInjector.class).
                 replace("list_type", new Part("Placeholder")).replace("list_value", MSGBuilder.join(parts, ',')).handle();
         return true;
@@ -52,9 +48,8 @@ public class PlaceholderCommand extends CoreCommand {
 
     private void execInspect(CorePlayer player, CorePlayer target) {
         List<Part> parts = new ArrayList<>();
-        placeholderController.getPlaceholders().values().forEach(globalPlaceholder -> {
-            parts.add(new Part(globalPlaceholder.getPlaceholderKey() + " = " + globalPlaceholder.getValue(target.getPlayer())));
-        });
+        placeholderController.getPlaceholders().values().forEach(globalPlaceholder ->
+                parts.add(new Part(globalPlaceholder.getPlaceholderKey() + " = " + globalPlaceholder.getValue(target))));
         player.info("placeholder_inspect").setInjector(AdvancedMessageInjector.class).replace("player", new Part(target.getPlayer().getDisplayName())).
                 replace("placeholders", MSGBuilder.join(parts, ' ')).handle();
 

@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 public class PermissionData implements PermConsumer {
     private final CommandSender sender;
     private final String permission;
-    private Consumer<CommandSender> permitted;
+    private Consumer<CommandSender> permitted = CommandSender::getName;
 
     @Override
     public PermissionData ifPermitted(Consumer<CommandSender> permitted){
