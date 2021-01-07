@@ -23,7 +23,7 @@ public class CoreBoot extends Bootstrap{
     private ConfigurableApplicationContext context;
     /**
      * Hooking Config File
-     * Starts the Multi Hook to get all Hooks loaded (Language, Commands, Listener)
+     * Starts the Multi Hook to get all Hooks loaded (Language)
      */
     public CoreBoot() {
         super(true);
@@ -33,7 +33,6 @@ public class CoreBoot extends Bootstrap{
 
     @Override
     public void postEnable() {
-        super.onEnable();
         Bukkit.getPluginManager().registerEvents(new SpringInitializedListener(), this);
         ArematicsExecutor.asyncDelayed(this.clearlag::start, 10, TimeUnit.SECONDS);
     }
