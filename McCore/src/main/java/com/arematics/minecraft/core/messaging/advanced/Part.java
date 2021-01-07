@@ -19,7 +19,7 @@ public class Part implements Cloneable {
     public String HOVER_VALUE = null;
     public ClickAction CLICK_ACTION = null;
     public String CLICK_VALUE = null;
-    public JsonColor BASE_COLOR = null;
+    public JsonColor BASE_COLOR;
     public final HashSet<Format> MESSAGE_FORMATS = new HashSet<>();
 
     public Part(String text){
@@ -35,39 +35,6 @@ public class Part implements Cloneable {
         this.BASE_COLOR = BASE_COLOR;
         if(!ArrayUtils.isEmpty(formats))
             Arrays.stream(formats).filter(Objects::nonNull).forEach(this.MESSAGE_FORMATS::add);
-    }
-
-    private Part(JsonObject jsonObject) throws JsonParseException {
-        if(!jsonObject.has("text")) throw new JsonParseException("Missing 'text'-Member in JsonObject!");
-
-        this.TEXT = jsonObject.get("text").getAsString();
-
-        if(jsonObject.has("color")) {
-            String color = getStringOrThrow(jsonObject, "color");
-            this.BASE_COLOR = JsonColor.findByName(color, this.BASE_COLOR);
-        }
-
-        for(Format format : Format.values()) {
-            if(jsonObject.has(format.FORMAT)) {
-                JsonElement formatElement = jsonObject.get(format.FORMAT);
-                if(!formatElement.isJsonPrimitive()) throw new JsonParseException("'" + format.FORMAT + "' is not a boolean!");
-                JsonPrimitive formatPrimitive = formatElement.getAsJsonPrimitive();
-                if(!formatPrimitive.isBoolean()) throw new JsonParseException("'" + format.FORMAT + "' is not a boolean!");
-                if(formatPrimitive.getAsBoolean()) this.MESSAGE_FORMATS.add(format);
-            }
-        }
-
-        if(jsonObject.has("hoverEvent")) {
-            JsonObject eventObject = readJsonPath(jsonObject, "hoverEvent");
-            this.HOVER_ACTION = HoverAction.findByAction(getStringOrThrow(eventObject, "action"), this.HOVER_ACTION);
-            this.HOVER_VALUE = getStringOrThrow(eventObject, "value");
-        }
-
-        if(jsonObject.has("clickEvent")) {
-            JsonObject eventObject = readJsonPath(jsonObject, "clickEvent");
-            this.CLICK_ACTION = ClickAction.findByAction(getStringOrThrow(eventObject, "action"), this.CLICK_ACTION);
-            this.CLICK_VALUE = getStringOrThrow(eventObject, "value");
-        }
     }
 
     public Part setHoverAction(HoverAction action, String value){
@@ -189,8 +156,6 @@ public class Part implements Cloneable {
     public String toJsonString() {
         return toJsonObject().toString();
     }
-
-
 
     public Part setHoverActionShowItem(ItemStack item){
         net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);

@@ -22,16 +22,6 @@ public class MethodProcessorEnvironment {
         this.processors = processors;
     }
 
-    public MethodProcessorEnvironment addDataPack(Map<String, Object> dataPack){
-        this.dataPack.putAll(dataPack);
-        return this;
-    }
-
-    public MethodProcessorEnvironment addData(String key, Object object){
-        this.dataPack.put(key, object);
-        return this;
-    }
-
     protected Object findData(String key){
         return this.dataPack.get(key);
     }

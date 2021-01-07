@@ -78,7 +78,7 @@ public class Pager {
     public boolean isToOld(String key){
         if(!pageables.containsKey(key)) return true;
         Pageable pageable = pageables.get(key);
-        if((System.currentTimeMillis()) - (pageable.getLastUse() + (1000*pageable.getMaxCacheSeconds())) > 0){
+        if((System.currentTimeMillis()) - (pageable.getLastUse() + (1000L * pageable.getMaxCacheSeconds())) > 0){
             pageables.remove(key);
             return true;
         }

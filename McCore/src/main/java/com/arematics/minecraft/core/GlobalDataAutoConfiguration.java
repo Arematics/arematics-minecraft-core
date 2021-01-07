@@ -49,6 +49,20 @@ public class GlobalDataAutoConfiguration {
         em.setPackagesToScan("com.arematics.minecraft.data.global.model",
                 "com.arematics.minecraft.data.share.model");
 
+        return getLocalContainerEntityManagerFactoryBean(em, env);
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+
+        JpaTransactionManager transactionManager
+                = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(
+                entityManagerFactory().getObject());
+        return transactionManager;
+    }
+
+    static LocalContainerEntityManagerFactoryBean getLocalContainerEntityManagerFactoryBean(LocalContainerEntityManagerFactoryBean em, Environment env) {
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
         HashMap<String, Object> properties = new HashMap<>();
@@ -64,15 +78,5 @@ public class GlobalDataAutoConfiguration {
 
 
         return em;
-    }
-
-    @Bean
-    public PlatformTransactionManager transactionManager() {
-
-        JpaTransactionManager transactionManager
-                = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(
-                entityManagerFactory().getObject());
-        return transactionManager;
     }
 }

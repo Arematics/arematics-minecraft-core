@@ -68,10 +68,6 @@ public class PlayerRequestSettings {
         ArematicsExecutor.asyncDelayed(() -> this.timeouts.remove(key), this.getRequestTimeout(), TimeUnit.SECONDS);
     }
 
-    public void removeTimeout(String key){
-        this.timeouts.remove(key);
-    }
-
     public void clearTimeouts(){
         this.timeouts.clear();
     }

@@ -16,12 +16,9 @@ public class Language {
         return name;
     }
 
-    public String addText(String key, String value){
-        if(text.containsKey(key))
-            return text.get(key);
-        else
-            text.put(key, value);
-        return value;
+    public void addText(String key, String value){
+        if(text.containsKey(key)) text.get(key);
+        else text.put(key, value);
     }
 
     public String getValue(String key){

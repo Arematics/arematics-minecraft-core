@@ -13,11 +13,11 @@ public abstract class Bootstrap extends JavaPlugin {
     public Config config;
     public final boolean configuration;
 
-    private final String dir = ClassUtils.getPackageName(this.getClass());
     protected final MultiHook hook;
 
     public Bootstrap(boolean configuration) {
         this.configuration = configuration;
+        String dir = ClassUtils.getPackageName(this.getClass());
         this.hook = new MultiHook(dir, this.getClass().getClassLoader(), this);
     }
 
@@ -65,7 +65,4 @@ public abstract class Bootstrap extends JavaPlugin {
         return config;
     }
 
-    public String getDir() {
-        return dir;
-    }
 }

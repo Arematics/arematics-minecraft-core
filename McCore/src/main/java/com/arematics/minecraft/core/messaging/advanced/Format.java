@@ -1,5 +1,10 @@
 package com.arematics.minecraft.core.messaging.advanced;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum Format {
 
     BOLD("bold", 'l'),
@@ -10,9 +15,4 @@ public enum Format {
 
     public final String FORMAT;
     public final char STYLE_CODE;
-
-    Format(String format, char stylecode){
-        this.FORMAT = format;
-        this.STYLE_CODE = stylecode;
-    }
 }

@@ -1,7 +1,12 @@
 package com.arematics.minecraft.core.messaging.advanced;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.util.Arrays;
 
+@Getter
+@RequiredArgsConstructor
 public enum JsonColor {
 
     WHITE("white", 'f'),
@@ -21,16 +26,11 @@ public enum JsonColor {
     GRAY("gray", '7'),
     DARK_GRAY("dark_gray", '8');
 
-    public static JsonColor findByName(String name, JsonColor orElse){
-        return Arrays.stream(values()).filter(color -> color.NAME.equalsIgnoreCase(name))
-                .findFirst().orElse(orElse);
-    }
-
     public final String NAME;
     public final char COLOR_CODE;
 
-    JsonColor(String name, char colorcode){
-        this.NAME = name;
-        this.COLOR_CODE = colorcode;
+    public static JsonColor findByName(String name, JsonColor orElse){
+        return Arrays.stream(values()).filter(color -> color.NAME.equalsIgnoreCase(name))
+                .findFirst().orElse(orElse);
     }
 }

@@ -60,10 +60,6 @@ public class CorePlayer implements CurrencyEntity {
         players.remove(player.getUniqueId());
     }
 
-    public static void unload(Player player){
-        players.remove(player.getUniqueId()).unload();
-    }
-
     private final Player player;
     private final Pager pager;
     private final BoardSet boardSet;
@@ -153,6 +149,7 @@ public class CorePlayer implements CurrencyEntity {
                 .count() >= 1;
     }
 
+    @SuppressWarnings("unused")
     public void equip(CoreItem... items){
         ArematicsExecutor.runAsync(() -> this.equipItems(items));
     }
@@ -249,20 +246,18 @@ public class CorePlayer implements CurrencyEntity {
         return this.userService.getOrCreateUser(this);
     }
 
-    UserService getUserService(){
-        return this.userService;
-    }
-
     public void update(User user){
         this.userService.update(user);
     }
 
+    @SuppressWarnings("unused")
     public void addKarma(int amount){
         User user = getUser();
         user.setKarma(user.getKarma() + amount);
         update(user);
     }
 
+    @SuppressWarnings("unused")
     public void removeKarma(int amount){
         User user = getUser();
         user.setKarma(user.getKarma() - amount);
@@ -302,6 +297,7 @@ public class CorePlayer implements CurrencyEntity {
         this.service.save(stats);
     }
 
+    @SuppressWarnings("unused")
     public void cleanStats(){
         this.service.delete(getStats());
     }
@@ -312,6 +308,7 @@ public class CorePlayer implements CurrencyEntity {
         saveStats(stats);
     }
 
+    @SuppressWarnings("unused")
     public void setKills(int kills){
         onStats(stats -> stats.setKills(kills));
         getBoard().getOrAddBoard("main", "§bSoulPvP")
@@ -326,6 +323,7 @@ public class CorePlayer implements CurrencyEntity {
                 .refresh();
     }
 
+    @SuppressWarnings("unused")
     public void setDeaths(int deaths){
         onStats(stats -> stats.setDeaths(deaths));
         onStats(stats -> stats.setDeaths(stats.getDeaths() + 1));
@@ -371,6 +369,7 @@ public class CorePlayer implements CurrencyEntity {
                 .refresh();
     }
 
+    @SuppressWarnings("unused")
     public void setBounty(int bounty){
         onStats(stats -> stats.setBounty(bounty));
     }

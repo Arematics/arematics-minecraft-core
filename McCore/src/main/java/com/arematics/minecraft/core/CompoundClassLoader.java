@@ -13,14 +13,6 @@ public class CompoundClassLoader extends ClassLoader {
      * Constructs a new CompoundClassLoader.
      * @param loaders the loaders to iterate over
      */
-    public CompoundClassLoader(ClassLoader... loaders) {
-        _loaders = Arrays.asList(loaders);
-    }
-
-    /**
-     * Constructs a new CompoundClassLoader.
-     * @param loaders the loaders to iterate over
-     */
     public CompoundClassLoader(Collection<ClassLoader> loaders) {
         _loaders = loaders;
     }
@@ -65,8 +57,8 @@ public class CompoundClassLoader extends ClassLoader {
      * {@inheritDoc}
      */
     @Override
-    public Enumeration<URL> getResources(String name) throws IOException {
-        List<URL> urls = new ArrayList<URL>();
+    public Enumeration<URL> getResources(String name) {
+        List<URL> urls = new ArrayList<>();
         for (ClassLoader loader : _loaders) {
             if (loader != null) {
                 try {
@@ -77,10 +69,7 @@ public class CompoundClassLoader extends ClassLoader {
                             urls.add(resource);
                         }
                     }
-                } catch (IOException ioe) {
-                    // ignoring, but to keep checkstyle happy ("Must have at least one statement."):
-                    ioe.getMessage();
-                }
+                } catch (IOException ignore) {}
             }
         }
         return Collections.enumeration(urls);
@@ -95,10 +84,7 @@ public class CompoundClassLoader extends ClassLoader {
             if (loader != null) {
                 try {
                     return loader.loadClass(name);
-                } catch (ClassNotFoundException cnfe) {
-                    // ignoring, but to keep checkstyle happy ("Must have at least one statement."):
-                    cnfe.getMessage();
-                }
+                } catch (ClassNotFoundException ignore) {}
             }
         }
         throw new ClassNotFoundException();
