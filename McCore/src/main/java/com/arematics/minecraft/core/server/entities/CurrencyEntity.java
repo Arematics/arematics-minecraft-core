@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.server;
+package com.arematics.minecraft.core.server.entities;
 
 public interface CurrencyEntity {
 

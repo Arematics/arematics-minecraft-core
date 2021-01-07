@@ -1,7 +1,7 @@
-package com.arematics.minecraft.core.scoreboard.functions;
+package com.arematics.minecraft.core.bukkit.scoreboard.functions;
 
-import com.arematics.minecraft.core.scoreboard.model.Board;
-import com.arematics.minecraft.core.scoreboard.model.BoardEntry;
+import com.arematics.minecraft.core.bukkit.scoreboard.model.Board;
+import com.arematics.minecraft.core.bukkit.scoreboard.model.BoardEntry;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.entity.Player;
 

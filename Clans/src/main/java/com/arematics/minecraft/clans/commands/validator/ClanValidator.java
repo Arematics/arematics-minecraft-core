@@ -2,7 +2,7 @@ package com.arematics.minecraft.clans.commands.validator;
 
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.command.processor.validator.ParameterValidator;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.service.ClanMemberService;
 import lombok.RequiredArgsConstructor;
 

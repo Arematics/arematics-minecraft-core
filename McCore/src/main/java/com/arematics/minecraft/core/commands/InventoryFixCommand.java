@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

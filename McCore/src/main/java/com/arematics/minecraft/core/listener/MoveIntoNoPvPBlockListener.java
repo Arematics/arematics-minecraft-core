@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.listener;
 
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.mewin.WGRegionEvents.events.RegionEnteredEvent;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag;

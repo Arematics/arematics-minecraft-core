@@ -1,15 +1,15 @@
-package com.arematics.minecraft.core.server;
+package com.arematics.minecraft.core.server.entities.player;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.controller.ChatThemeController;
-import com.arematics.minecraft.core.currency.Currency;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.permissions.Permissions;
-import com.arematics.minecraft.core.scoreboard.functions.BoardSet;
+import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSet;
+import com.arematics.minecraft.core.server.entities.CurrencyEntity;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.Inventories;
 import com.arematics.minecraft.data.global.model.ChatTheme;
@@ -24,7 +24,6 @@ import com.sk89q.worldguard.bukkit.RegionQuery;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import lombok.Data;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -66,7 +65,6 @@ public class CorePlayer implements CurrencyEntity {
     }
 
     private final Player player;
-    private final Map<Currency, Double> currencies = new HashMap<>();
     private final Pager pager;
     private final BoardSet boardSet;
     private final PlayerRequestSettings requestSettings;

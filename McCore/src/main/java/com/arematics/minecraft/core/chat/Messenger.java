@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.chat;
 
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;

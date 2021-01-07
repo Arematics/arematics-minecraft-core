@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.server;
+package com.arematics.minecraft.core.server.entities.player;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;

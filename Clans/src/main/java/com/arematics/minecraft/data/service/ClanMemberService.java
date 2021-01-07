@@ -1,6 +1,6 @@
 package com.arematics.minecraft.data.service;
 
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.mode.model.ClanMember;
 import com.arematics.minecraft.data.mode.repository.ClanMemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;

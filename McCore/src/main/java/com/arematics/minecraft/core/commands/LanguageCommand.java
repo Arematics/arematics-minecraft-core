@@ -9,7 +9,7 @@ import com.arematics.minecraft.core.language.LanguageUser;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.*;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.service.InventoryService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;

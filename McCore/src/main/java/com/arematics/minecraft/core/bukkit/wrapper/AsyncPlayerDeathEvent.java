@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.bukkit.wrapper;
 
 import com.arematics.minecraft.core.events.BaseEvent;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.inventory.ItemStack;

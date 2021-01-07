@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.scoreboard.model;
+package com.arematics.minecraft.core.bukkit.scoreboard.model;
 
 public class BoardEntryData {
 

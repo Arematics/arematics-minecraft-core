@@ -1,7 +1,7 @@
 package com.arematics.minecraft.data.mode.model;
 
-import com.arematics.minecraft.core.server.CorePlayer;
-import com.arematics.minecraft.core.server.CurrencyEntity;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.CurrencyEntity;
 import com.arematics.minecraft.data.service.ClanService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
