@@ -22,7 +22,7 @@ public class AfkCloseListener implements Listener {
         if(f.getBlockX() != t.getBlockX() || f.getBlockY() != t.getBlockY() || f.getBlockZ() != t.getBlockZ()){
             if(!t.getBlock().isLiquid() || t.clone().add(0, -1, 0).getBlock().isLiquid()){
                 CorePlayer player = CorePlayer.get(event.getPlayer());
-                player.callAntiAFK();
+                player.callAntiAfk();
             }
         }
     }
