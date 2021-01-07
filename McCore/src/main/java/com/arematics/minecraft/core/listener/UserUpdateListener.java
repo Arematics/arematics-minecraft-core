@@ -63,7 +63,7 @@ public class UserUpdateListener implements Listener {
         Timestamp current = new Timestamp(System.currentTimeMillis());
         User user = this.userService.getOrCreateUser(player.getUUID(), player.getPlayer().getName());
         chatAPI.login(player);
-        chatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().add(user);
+        chatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().add(player);
         user.setLastName(player.getPlayer().getName());
         user.setLastIp(Md5Crypt.md5Crypt(player.getPlayer().getAddress().getAddress().getHostAddress().getBytes()));
         user.setLastIpChange(current);

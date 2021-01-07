@@ -24,6 +24,7 @@ import com.sk89q.worldguard.bukkit.RegionQuery;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import lombok.Data;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -403,10 +404,11 @@ public class CorePlayer implements CurrencyEntity {
      */
     public void setTheme(ChatTheme theme) {
         User user = userService.getUserByUUID(getUUID());
+        CorePlayer player = CorePlayer.get(getPlayer());
         ChatTheme old = chatThemeController.getTheme(user.getActiveTheme().getThemeKey());
-        old.getActiveUsers().remove(user);
+        old.getActiveUsers().remove(player);
         user.setActiveTheme(theme);
-        theme.getActiveUsers().add(user);
+        theme.getActiveUsers().add(player);
     }
 
     public boolean hasPermission(String permission){

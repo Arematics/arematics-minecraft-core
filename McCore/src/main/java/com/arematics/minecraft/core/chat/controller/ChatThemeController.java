@@ -99,9 +99,9 @@ public class ChatThemeController {
         }
         User user = userService.getUserByUUID(player.getUUID());
         ChatTheme old = getTheme(user.getActiveTheme().getThemeKey());
-        old.getActiveUsers().remove(user);
+        old.getActiveUsers().remove(player);
         user.setActiveTheme(newTheme);
-        newTheme.getActiveUsers().add(user);
+        newTheme.getActiveUsers().add(player);
         return true;
     }
 
