@@ -238,13 +238,12 @@ public class ClanCommand extends CoreCommand {
     }
 
     @SubCommand("money add {amount}")
-    public void addClanMoney(@Validator(validators = InClanValidator.class) CorePlayer player,
+    public void addClanMoney(ClanMember member,
                              @Validator(validators = BalanceValidator.class) Long amount) {
-        player.removeMoney(amount);
-        Clan clan = clanMemberService.getMember(player.getUUID()).getClan(clanService);
+        Clan clan = member.getClan(clanService);
         clan.setCoins(clan.getCoins() + amount);
         clanService.update(clan);
-        player.info("You have send %amount% coins to your clan")
+        member.online().info("You have send %amount% coins to your clan")
                 .DEFAULT()
                 .replace("amount", String.valueOf(amount))
                 .handle();

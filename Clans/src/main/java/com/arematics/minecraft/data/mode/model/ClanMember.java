@@ -1,6 +1,7 @@
 package com.arematics.minecraft.data.mode.model;
 
 import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.CurrencyEntity;
 import com.arematics.minecraft.data.service.ClanService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "clan_member")
-public class ClanMember implements Serializable {
+public class ClanMember implements Serializable, CurrencyEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -46,5 +47,25 @@ public class ClanMember implements Serializable {
 
     public long getClanId(){
         return this.rank.getClanRankId().getClanId();
+    }
+
+    @Override
+    public long getMoney() {
+        return online().getMoney();
+    }
+
+    @Override
+    public void setMoney(long money) {
+        online().setMoney(money);
+    }
+
+    @Override
+    public void addMoney(long amount) {
+        online().addMoney(amount);
+    }
+
+    @Override
+    public void removeMoney(long amount) throws RuntimeException {
+        online().removeMoney(amount);
     }
 }

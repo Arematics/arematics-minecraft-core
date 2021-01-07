@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @Data
-public class CorePlayer{
+public class CorePlayer implements CurrencyEntity {
     private static Map<UUID, CorePlayer> players = new HashMap<>();
 
     private static InventoryService inventoryService;
@@ -342,6 +342,12 @@ public class CorePlayer{
                 .refresh();
     }
 
+    @Override
+    public long getMoney(){
+        return this.getStats().getCoins();
+    }
+
+    @Override
     public void setMoney(long money){
         onStats(stats -> stats.setCoins(money));
         getBoard().getOrAddBoard("main", "§bSoulPvP")
@@ -349,6 +355,7 @@ public class CorePlayer{
                 .refresh();
     }
 
+    @Override
     public void addMoney(long amount){
         onStats(stats -> stats.setCoins(stats.getCoins() + amount));
         getBoard().getOrAddBoard("main", "§bSoulPvP")
@@ -356,6 +363,7 @@ public class CorePlayer{
                 .refresh();
     }
 
+    @Override
     public void removeMoney(long amount) throws RuntimeException{
         if(getStats().getCoins() < amount) throw new RuntimeException("Not enough coins");
         onStats(stats -> stats.setCoins(stats.getCoins() - amount));
