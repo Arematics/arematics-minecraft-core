@@ -1,8 +1,10 @@
 package com.arematics.minecraft.core;
 
-import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.configurations.Config;
-import com.arematics.minecraft.core.hooks.*;
+import com.arematics.minecraft.core.hooks.ConfigHook;
+import com.arematics.minecraft.core.hooks.LanguageHook;
+import com.arematics.minecraft.core.hooks.MultiHook;
+import com.arematics.minecraft.core.hooks.PreFileExistHook;
 import org.apache.commons.lang3.ClassUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,13 +22,14 @@ public abstract class Bootstrap extends JavaPlugin {
     }
 
     @Override
-    public void onEnable() {
+    public final void onEnable() {
         System.setProperty("file.encoding", "UTF-8");
         this.getLogger().info("Bootstrap enabled, starting Engine!");
         try{
             Boots.addBoot(this);
             this.hook();
             this.config = configuration ? ConfigHook.loadConfig(this) : null;
+            this.postEnable();
         }catch (Exception e){
             this.getLogger().severe("Engine startup failed. Stopping Plugin");
             e.printStackTrace();
@@ -34,16 +37,21 @@ public abstract class Bootstrap extends JavaPlugin {
         }
     }
 
+    public void postEnable() {}
+
     @Override
-    public void onDisable() {
+    public final void onDisable() {
         this.getLogger().info("Bootstrap Shutdown called, stopping Engine!");
         try{
             Boots.shutdownBoot(this.getClass());
+            this.postDisable();
         }catch (Exception e){
             this.getLogger().severe("Engine not found, hard shutdown");
             e.printStackTrace();
         }
     }
+
+    public void postDisable() {}
 
     protected final void hook() {
         hook.addPreHook(new PreFileExistHook());

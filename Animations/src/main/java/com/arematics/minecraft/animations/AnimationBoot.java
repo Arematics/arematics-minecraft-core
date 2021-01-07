@@ -10,11 +10,6 @@ public class AnimationBoot extends Bootstrap {
     }
 
     @Override
-    public void onEnable() {
-        super.onEnable();
-    }
-
-    @Override
     public void shutdown() {
 
     }

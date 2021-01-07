@@ -9,11 +9,6 @@ public class CrystalBoot extends Bootstrap {
     }
 
     @Override
-    public void onEnable() {
-        super.onEnable();
-    }
-
-    @Override
     public void shutdown() {
 
     }

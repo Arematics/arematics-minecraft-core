@@ -8,13 +8,8 @@ public class WatcherBoot extends Bootstrap {
      * Hooking Config File
      * Starts the Multi Hook to get all Hooks loaded (Language, Commands, Listener)
      */
-    public WatcherBoot() throws Exception{
+    public WatcherBoot() {
         super(false);
-    }
-
-    @Override
-    public void onEnable() {
-        super.onEnable();
     }
 
     @Override
