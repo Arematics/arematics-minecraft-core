@@ -1,6 +1,7 @@
 package com.arematics.minecraft.data.mode.model;
 
 import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.data.service.ClanService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,10 @@ public class ClanMember implements Serializable {
 
     @Column(name = "clan_deaths", nullable = false)
     private Integer clanDeaths;
+
+    public Clan getClan(ClanService service){
+        return service.findClanById(getClanId());
+    }
 
     public CorePlayer online(){
         return CorePlayer.get(Bukkit.getPlayer(uuid));
