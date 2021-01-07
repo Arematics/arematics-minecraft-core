@@ -23,8 +23,8 @@ import com.arematics.minecraft.data.share.model.OnlineTime;
 import com.sk89q.worldguard.bukkit.RegionQuery;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.Data;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -37,10 +37,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -84,6 +81,7 @@ public class CorePlayer implements CurrencyEntity {
     private final OnlineTimeService onlineTimeService;
 
     private LocalDateTime lastPatch = null;
+    private final Set<ProtectedRegion> currentRegions;
 
     public CorePlayer(Player player){
         this.player = player;
@@ -97,6 +95,7 @@ public class CorePlayer implements CurrencyEntity {
         if(CorePlayer.inventoryService == null){
             CorePlayer.inventoryService = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
         }
+        this.currentRegions = new HashSet<>();
     }
 
     private void unload() {

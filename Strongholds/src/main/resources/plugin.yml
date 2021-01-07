@@ -1,0 +1,7 @@
+name: Strongholds
+author: Klysma
+description: Strongholds by Arematics
+version: 1.0.0
+depend: [McCore, Clans, RegionInteraction]
+
+main: com.arematics.minecraft.strongholds.StrongholdBoot
