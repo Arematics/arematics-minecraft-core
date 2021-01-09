@@ -1,5 +1,8 @@
 package com.arematics.minecraft.core.scoreboard.model;
 
+import lombok.ToString;
+
+@ToString
 public class BoardEntryData {
 
     public String NAME;
@@ -10,14 +13,5 @@ public class BoardEntryData {
         this.NAME = name;
         this.PREFIX = prefix;
         this.SUFFIX = suffix;
-    }
-
-    @Override
-    public String toString() {
-        return "BoardEntryData{" +
-                "NAME='" + NAME + '\'' +
-                ", PREFIX='" + PREFIX + '\'' +
-                ", SUFFIX='" + SUFFIX + '\'' +
-                '}';
     }
 }

@@ -4,12 +4,9 @@ import com.arematics.minecraft.core.scoreboard.model.Board;
 import com.arematics.minecraft.core.scoreboard.model.BoardEntry;
 import com.arematics.minecraft.core.scoreboard.model.BoardEntryData;
 import net.minecraft.server.v1_8_R3.ScoreboardObjective;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 public class BoardHandler {
 
@@ -110,10 +107,12 @@ public class BoardHandler {
         for(int i = dataSet.length - 1; i >= 0; i--){
             BoardEntryData data = dataSet[i];
             if(this.BOARD.MODERN_BOARD){
-                int multiplied = (i + 1) * 2;
+                int multiplied = (i + 1) * 3;
+                String spacerName = "§a" + "§" + multiplied / 10 + "§" + multiplied % 10 + "§a";
                 String boardEntrySecondName = "§" + multiplied / 10 + "§" + multiplied % 10 + "§a";
-                generateEntry(data.NAME + 1, multiplied, data.NAME, data.PREFIX, "");
-                generateEntry(data.NAME + 2, multiplied - 1, boardEntrySecondName, "", data.SUFFIX);
+                generateEntry(data.NAME + 1, multiplied, spacerName, "", "");
+                generateEntry(data.NAME + 2, multiplied - 1, data.NAME, data.PREFIX, "");
+                generateEntry(data.NAME + 3, multiplied - 2, boardEntrySecondName, "", data.SUFFIX);
             }else{
                 generateEntry(data.NAME + 1, i, data.NAME, data.PREFIX, data.SUFFIX);
             }

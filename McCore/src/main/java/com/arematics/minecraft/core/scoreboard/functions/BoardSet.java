@@ -98,7 +98,10 @@ public class BoardSet {
 
     public void enableScoreboard(Board board){
         if(isShown(board)) return;
-        if(this.SHOWN != null) this.SHOWN.ENTRIES.values().forEach(this::onTeamRemove);
+        if(this.SHOWN != null) {
+            this.PACKETS.nmsDisplaySidebar(null);
+            this.SHOWN = null;
+        }
         if(board == null){
             this.PACKETS.nmsDisplaySidebar(null);
             this.SHOWN = null;

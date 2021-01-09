@@ -4,9 +4,11 @@ import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.ri.MovementWay;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.Getter;
+import lombok.ToString;
 import org.bukkit.event.Cancellable;
 
 @Getter
+@ToString
 public class RegionLeaveEvent extends RegionEvent implements Cancellable {
     private boolean cancelled = false;
     private boolean cancellable;

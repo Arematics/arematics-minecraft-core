@@ -11,6 +11,6 @@ public class StrongholdService {
     public StrongholdService(){}
 
     public Stronghold findById(String id){
-        return null;
+        return new Stronghold(id);
     }
 }

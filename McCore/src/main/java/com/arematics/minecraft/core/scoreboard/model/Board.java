@@ -1,7 +1,10 @@
 package com.arematics.minecraft.core.scoreboard.model;
 
+import lombok.ToString;
+
 import java.util.*;
 
+@ToString
 public class Board {
 
     public final String BOARD_ID;
@@ -14,17 +17,5 @@ public class Board {
     public Board(String boardid){
         this.BOARD_ID = boardid;
         this.OBJECTIVE_NAME = "board_" + new Random(System.nanoTime()).nextInt(99999999);
-    }
-
-    @Override
-    public String toString() {
-        return "Board{" +
-                "BOARD_ID='" + BOARD_ID + '\'' +
-                ", OBJECTIVE_NAME='" + OBJECTIVE_NAME + '\'' +
-                ", ENTRIES=" + ENTRIES +
-                ", LAST_UPDATE_TIME=" + LAST_UPDATE_TIME +
-                ", ENTRY_DATA=" + ENTRY_DATA +
-                ", MODERN_BOARD=" + MODERN_BOARD +
-                '}';
     }
 }

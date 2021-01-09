@@ -7,7 +7,6 @@ import com.arematics.minecraft.ri.events.RegionEnteredEvent;
 import com.arematics.minecraft.ri.events.RegionLeaveEvent;
 import com.arematics.minecraft.ri.events.RegionLeftEvent;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.Getter;
@@ -16,7 +15,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.springframework.stereotype.Controller;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,51 +27,54 @@ public class PlayerRegionController {
     private final RegionInteractionBoot plugin = Boots.getBoot(RegionInteractionBoot.class);
 
     public synchronized boolean updateRegions(final CorePlayer player, final MovementWay movement, Location to) {
-        Set<ProtectedRegion> regions = player.getCurrentRegions();
-        Set<ProtectedRegion> oldRegions = new HashSet<>(regions);
+        Set<ProtectedRegion> oldRegions = new HashSet<>(player.getCurrentRegions());
         RegionManager rm = this.worldGuard.getRegionManager(to.getWorld());
         if (rm != null) {
-            ApplicableRegionSet appRegions = rm.getApplicableRegions(to);
+            Set<ProtectedRegion> appRegions = rm.getApplicableRegions(to).getRegions();
+            ProtectedRegion globalRegion = rm.getRegion("__global__");
+            if (globalRegion != null) {
+                appRegions.add(globalRegion);
+            }
 
             for(ProtectedRegion region : appRegions) {
-                if (!regions.contains(region)) {
+                if (!player.getCurrentRegions().contains(region)) {
                     RegionEnterEvent enterEvent = new RegionEnterEvent(region, movement, player);
                     this.plugin.getServer().getPluginManager().callEvent(enterEvent);
-                    if (enterEvent.isCancelled()) return cleanUP(regions, oldRegions);
+                    if (enterEvent.isCancelled()) return cleanUP(player, oldRegions);
 
                     Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
                         RegionEnteredEvent enteredEvent = new RegionEnteredEvent(region, movement, player);
-                        Boots.getBoot(RegionInteractionBoot.class).callEvent(enteredEvent);
+                        this.plugin.getServer().getPluginManager().callEvent(enteredEvent);
                     }, 1L);
-                    regions.add(region);
+                    player.getCurrentRegions().add(region);
                 }
             }
 
-            Collection<ProtectedRegion> app = appRegions.getRegions();
+            Set<ProtectedRegion> removeRegions = new HashSet<>();
 
-            for(ProtectedRegion region : app) {
-                if (!regions.contains(region)) {
+            for(ProtectedRegion region : player.getCurrentRegions()) {
+                if (!appRegions.contains(region)) {
                     RegionLeaveEvent leaveEvent = new RegionLeaveEvent(region, movement, player);
                     this.plugin.getServer().getPluginManager().callEvent(leaveEvent);
-                    if (leaveEvent.isCancelled()) return cleanUP(regions, oldRegions);
+                    if (leaveEvent.isCancelled()) return cleanUP(player, oldRegions);
 
                     Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
                         RegionLeftEvent leftEvent = new RegionLeftEvent(region, movement, player);
                         Boots.getBoot(RegionInteractionBoot.class).callEvent(leftEvent);
                     }, 1L);
-                    regions.add(region);
+                    removeRegions.add(region);
                 }
             }
 
-            player.getCurrentRegions().clear();
-            player.getCurrentRegions().addAll(regions);
+            player.getCurrentRegions().removeAll(removeRegions);
+            return false;
         }
         return false;
     }
 
-    private boolean cleanUP(Set<ProtectedRegion> regions, Set<ProtectedRegion> oldRegions){
-        regions.clear();
-        regions.addAll(oldRegions);
+    private synchronized boolean cleanUP(CorePlayer player, Set<ProtectedRegion> oldRegions){
+        player.getCurrentRegions().clear();
+        player.getCurrentRegions().addAll(oldRegions);
         return true;
     }
 }

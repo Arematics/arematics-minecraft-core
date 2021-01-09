@@ -1,19 +1,21 @@
 package com.arematics.minecraft.strongholds.events;
 
+import com.arematics.minecraft.core.events.BaseEvent;
 import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.mode.model.Stronghold;
 import com.arematics.minecraft.ri.MovementWay;
-import com.arematics.minecraft.ri.events.RegionEnteredEvent;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 @Getter
-public class StrongholdEnterEvent extends RegionEnteredEvent {
+@RequiredArgsConstructor
+@ToString(callSuper = true)
+public class StrongholdEnterEvent extends BaseEvent {
 
+    private final ProtectedRegion region;
+    private final CorePlayer player;
+    private final MovementWay movement;
     private final Stronghold stronghold;
-
-    public StrongholdEnterEvent(ProtectedRegion region, CorePlayer player, MovementWay movement, Stronghold stronghold) {
-        super(region, movement, player);
-        this.stronghold = stronghold;
-    }
 }

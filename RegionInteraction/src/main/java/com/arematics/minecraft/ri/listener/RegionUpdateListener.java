@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RegionUpdateListener implements Listener {
 
+
     private final PlayerRegionController controller;
 
     @Autowired

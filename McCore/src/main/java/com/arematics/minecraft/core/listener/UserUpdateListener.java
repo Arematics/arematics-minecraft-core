@@ -46,7 +46,7 @@ public class UserUpdateListener implements Listener {
     }
 
     private void sendScoreboard(CorePlayer player){
-        final BoardHandler handler = player.getBoard().getOrAddBoard("main", "§bSoulPvP");
+        final BoardHandler handler = player.getBoard().getOrAddBoard("main", "§b§lSOULPVP.DE");
         handler.addEntryData("Coins", "§c", "§7" + player.getStats().getCoins())
                 .addEntryData("Deaths", "§c", "§7" + player.getStats().getDeaths())
                 .addEntryData("Kills", "§c", "§7" + player.getStats().getKills())
