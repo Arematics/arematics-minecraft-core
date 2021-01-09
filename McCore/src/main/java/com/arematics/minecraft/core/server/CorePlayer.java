@@ -315,31 +315,27 @@ public class CorePlayer implements CurrencyEntity {
 
     public void setKills(int kills){
         onStats(stats -> stats.setKills(kills));
-        getBoard().getOrAddBoard("main", "§bSoulPvP")
-                .setEntrySuffix("Kills", "§7" + this.getStats().getKills())
-                .refresh();
+        getBoard().getBoard("main")
+                .setEntrySuffix("Kills", "§7" + this.getStats().getKills());
     }
 
     public void addKill(){
         onStats(stats -> stats.setKills(stats.getKills() + 1));
-        getBoard().getOrAddBoard("main", "§bSoulPvP")
-                .setEntrySuffix("Kills", "§7" + this.getStats().getKills())
-                .refresh();
+        getBoard().getBoard("main")
+                .setEntrySuffix("Kills", "§7" + this.getStats().getKills());
     }
 
     public void setDeaths(int deaths){
         onStats(stats -> stats.setDeaths(deaths));
         onStats(stats -> stats.setDeaths(stats.getDeaths() + 1));
-        getBoard().getOrAddBoard("main", "§bSoulPvP")
-                .setEntrySuffix("Deaths", "§7" + this.getStats().getDeaths())
-                .refresh();
+        getBoard().getBoard("main")
+                .setEntrySuffix("Deaths", "§7" + this.getStats().getDeaths());
     }
 
     public void addDeath(){
         onStats(stats -> stats.setDeaths(stats.getDeaths() + 1));
-        getBoard().getOrAddBoard("main", "§bSoulPvP")
-                .setEntrySuffix("Deaths", "§7" + this.getStats().getDeaths())
-                .refresh();
+        getBoard().getBoard("main")
+                .setEntrySuffix("Deaths", "§7" + this.getStats().getDeaths());
     }
 
     @Override
@@ -350,26 +346,23 @@ public class CorePlayer implements CurrencyEntity {
     @Override
     public void setMoney(long money){
         onStats(stats -> stats.setCoins(money));
-        getBoard().getOrAddBoard("main", "§bSoulPvP")
-                .setEntrySuffix("Coins", "§7" + this.getStats().getCoins())
-                .refresh();
+        getBoard().getBoard("main")
+                .setEntrySuffix("Coins", "§7" + this.getStats().getCoins());
     }
 
     @Override
     public void addMoney(long amount){
         onStats(stats -> stats.setCoins(stats.getCoins() + amount));
-        getBoard().getOrAddBoard("main", "§bSoulPvP")
-                .setEntrySuffix("Coins", "§7" + this.getStats().getCoins())
-                .refresh();
+        getBoard().getBoard("main")
+                .setEntrySuffix("Coins", "§7" + this.getStats().getCoins());
     }
 
     @Override
     public void removeMoney(long amount) throws RuntimeException{
         if(getStats().getCoins() < amount) throw new RuntimeException("Not enough coins");
         onStats(stats -> stats.setCoins(stats.getCoins() - amount));
-        getBoard().getOrAddBoard("main", "§bSoulPvP")
-                .setEntrySuffix("Coins", "§7" + this.getStats().getCoins())
-                .refresh();
+        getBoard().getBoard("main")
+                .setEntrySuffix("Coins", "§7" + this.getStats().getCoins());
     }
 
     public void setBounty(int bounty){

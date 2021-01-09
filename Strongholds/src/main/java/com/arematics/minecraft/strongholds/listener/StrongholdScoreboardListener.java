@@ -39,7 +39,7 @@ public class StrongholdScoreboardListener implements Listener {
     public void onStrongholdLeave(StrongholdLeaveEvent event){
         CorePlayer player = event.getPlayer();
         player.getBoard().getOrAddBoard("stronghold", "§4§lSTRONGHOLD").remove();
-        player.getBoard().getOrAddBoard("main", "§b§lSOULPVP.DE").toggle();
+        player.getBoard().getBoard("main").toggle();
     }
 
     @EventHandler

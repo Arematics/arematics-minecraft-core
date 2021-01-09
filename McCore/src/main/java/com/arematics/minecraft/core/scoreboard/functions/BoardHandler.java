@@ -33,6 +33,7 @@ public class BoardHandler {
         this.BOARD_SET.enableScoreboard(null);
     }
 
+    @Deprecated
     public void refresh(){
         this.buildEntries = false;
         hide();
@@ -78,7 +79,7 @@ public class BoardHandler {
                 .stream()
                 .filter(data -> data.NAME.equals(name))
                 .findFirst()
-                .ifPresent(entryData -> entryData.SUFFIX = suffix);
+                .ifPresent(entryData -> updateSuffix(entryData, suffix));
         return this;
 
     }
@@ -95,9 +96,21 @@ public class BoardHandler {
                 .stream()
                 .filter(data -> data.NAME.equals(name))
                 .findFirst()
-                .ifPresent(entryData -> entryData.PREFIX = prefix);
+                .ifPresent(entryData -> updatePrefix(entryData, prefix));
         return this;
 
+    }
+
+    private void updatePrefix(BoardEntryData entryData, String prefix){
+        entryData.PREFIX = prefix;
+        BoardEntry entry = getEntry(entryData.NAME + 2);
+        this.BOARD_SET.onSetTeam(entry, entry.NAME, entryData.PREFIX, "");
+    }
+
+    private void updateSuffix(BoardEntryData entryData, String suffix){
+        entryData.SUFFIX = suffix;
+        BoardEntry entry = getEntry(entryData.NAME + 3);
+        this.BOARD_SET.onSetTeam(entry, entry.NAME, "", entryData.SUFFIX);
     }
 
     void buildEntries(){
@@ -124,13 +137,6 @@ public class BoardHandler {
         BoardEntry entry = getEntry(id);
         if(entry == null) entry = addEntry(id, initialScore, name);
         this.BOARD_SET.onSetTeam(entry, name, prefix, suffix);
-    }
-
-    public BoardEntryData getDataByEntryName(BoardEntry boardEntry){
-        return this.BOARD.ENTRY_DATA.stream()
-                .filter(data -> data.NAME.equals(boardEntry.NAME))
-                .findFirst()
-                .orElse(new BoardEntryData(boardEntry.NAME, "", ""));
     }
 
     private BoardEntry addEntry(String id, int initialScore, String name){
