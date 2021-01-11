@@ -20,6 +20,16 @@ public class TimeUtils {
         return formatter.print(period);
     }
 
+    public static String toShortString(Period period){
+        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                .appendDays().appendSuffix(" D ")
+                .appendHours().appendSuffix(" H ")
+                .appendMinutes().appendSuffix(" M ")
+                .appendSeconds().appendSuffix(" S ")
+                .toFormatter();
+        return formatter.print(period);
+    }
+
     public static long toTicks(long time, TimeUnit unit){
         return unit.toMillis(time) / 50;
     }

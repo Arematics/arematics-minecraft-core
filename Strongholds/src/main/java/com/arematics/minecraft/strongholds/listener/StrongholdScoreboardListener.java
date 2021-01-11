@@ -21,6 +21,7 @@ public class StrongholdScoreboardListener implements Listener {
 
         final BoardHandler handler = player.getBoard().getOrAddBoard("stronghold", "§4§lSTRONGHOLD");
         handler.addEntryData("Name", "§c", "§7" + stronghold.getId())
+                .addEntryData("Time", "§c", "§a" + "§fNicht aktiv")
                 .show();
     }
 
@@ -32,20 +33,21 @@ public class StrongholdScoreboardListener implements Listener {
         final BoardHandler handler = player.getBoard().getOrAddBoard("stronghold-capture", "§4§lSH CAPTURE");
         handler.addEntryData("Name", "§c", "§7" + stronghold.getId())
                 .addEntryData("Capture", "§c", "§a" + "Enabled")
+                .addEntryData("Time", "§c", "§a" + "§fNicht aktiv")
                 .show();
     }
 
     @EventHandler
     public void onStrongholdLeave(StrongholdLeaveEvent event){
         CorePlayer player = event.getPlayer();
-        player.getBoard().getOrAddBoard("stronghold", "§4§lSTRONGHOLD").remove();
+        player.getBoard().getBoard("stronghold").remove();
         player.getBoard().getBoard("main").toggle();
     }
 
     @EventHandler
     public void onStrongholdCaptureLeave(StrongholdCaptureLeaveEvent event){
         CorePlayer player = event.getPlayer();
-        player.getBoard().getOrAddBoard("stronghold-capture", "§4§lSH CAPTURE").remove();
+        player.getBoard().getBoard("stronghold-capture").remove();
         player.getBoard().getOrAddBoard("stronghold", "§4§lSTRONGHOLD").toggle();
     }
 }
