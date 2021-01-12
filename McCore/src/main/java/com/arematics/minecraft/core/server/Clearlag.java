@@ -2,7 +2,7 @@ package com.arematics.minecraft.core.server;
 
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
-import com.arematics.minecraft.core.utils.TimeUtils;
+import com.arematics.minecraft.core.times.TimeUtils;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;

@@ -40,6 +40,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Data
 public class CorePlayer implements CurrencyEntity {
@@ -60,6 +61,12 @@ public class CorePlayer implements CurrencyEntity {
 
     public static void unload(Player player){
         players.remove(player.getUniqueId()).unload();
+    }
+
+    public static List<CorePlayer> inRegion(ProtectedRegion region){
+        return CorePlayer.players.values().stream()
+                .filter(player -> player.getCurrentRegions().contains(region))
+                .collect(Collectors.toList());
     }
 
     private final Player player;

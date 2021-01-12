@@ -5,10 +5,12 @@ import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.configurations.Config;
 import com.arematics.minecraft.core.messaging.injector.Injector;
 import com.arematics.minecraft.core.messaging.injector.StringInjector;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Message implements MessageHighlightType, MessageReciever, MessageInjector {
 
@@ -42,6 +44,14 @@ public class Message implements MessageHighlightType, MessageReciever, MessageIn
     @Override
     public MessageInjector to(CommandSender... senders){
         this.senders = Arrays.asList(senders);
+        return this;
+    }
+
+    @Override
+    public MessageInjector broadcast() {
+        this.senders = Bukkit.getOnlinePlayers().stream()
+                .map(player -> (CommandSender) player)
+                .collect(Collectors.toList());
         return this;
     }
 

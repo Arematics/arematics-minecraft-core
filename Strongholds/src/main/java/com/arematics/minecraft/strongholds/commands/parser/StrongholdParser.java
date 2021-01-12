@@ -1,4 +1,4 @@
-package com.arematics.minecraft.strongholds.parser;
+package com.arematics.minecraft.strongholds.commands.parser;
 
 import com.arematics.minecraft.core.command.processor.parser.CommandParameterParser;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;

@@ -9,7 +9,6 @@ import com.arematics.minecraft.core.annotations.Validator;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.command.processor.validator.BalanceValidator;
-import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.JsonColor;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
@@ -17,7 +16,10 @@ import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageI
 import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.User;
-import com.arematics.minecraft.data.mode.model.*;
+import com.arematics.minecraft.data.mode.model.Clan;
+import com.arematics.minecraft.data.mode.model.ClanMember;
+import com.arematics.minecraft.data.mode.model.ClanRank;
+import com.arematics.minecraft.data.mode.model.ClanRankId;
 import com.arematics.minecraft.data.service.ClanMemberService;
 import com.arematics.minecraft.data.service.ClanRankService;
 import com.arematics.minecraft.data.service.ClanService;
@@ -26,7 +28,10 @@ import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -85,8 +90,7 @@ public class ClanCommand extends CoreCommand {
             return;
         }
         Clan clan = member.getClan(clanService);
-        clan.getAllOnline().forEach(clanPlayer -> Messages.create("Your clan has been deleted by an admin")
-                .WARNING().to(clanPlayer).handle());
+        clan.getAllOnline().forEach(clanPlayer -> clanPlayer.warn("Your clan has been deleted by an admin").handle());
         member.online().addMoney(clan.getCoins());
         clanService.delete(clan);
     }
@@ -136,9 +140,7 @@ public class ClanCommand extends CoreCommand {
                 clanMemberService.update(member);
                 clan.getMembers().add(member);
                 clanService.update(clan);
-                clan.getAllOnline().forEach(online -> Messages
-                        .create("Player " + player.getPlayer().getName() + " joined the clan")
-                        .to(online)
+                clan.getAllOnline().forEach(online -> online.info("Player " + player.getPlayer().getName() + " joined the clan")
                         .handle());
                 clanInvites.remove(invation, player);
             }
@@ -173,7 +175,7 @@ public class ClanCommand extends CoreCommand {
             if(!ClanPermissions.rankLevelCorrect(member, targetMember))
                 throw new CommandProcessException("Not allowed to kick this player");
             clan.getAllOnline().forEach(clanPlayer ->
-                    Messages.create("Player " + target.getLastName() + " got kicked").to(clanPlayer).handle());
+                    clanPlayer.info("Player " + target.getLastName() + " got kicked").handle());
             clan.getMembers().remove(targetMember);
             clanService.update(clan);
             clanMemberService.delete(targetMember);
@@ -188,8 +190,7 @@ public class ClanCommand extends CoreCommand {
             throw new CommandProcessException("As admin you can not leave, you need to use /clan delete.");
         else{
             Clan clan = member.getClan(clanService);
-            clan.getAllOnline().forEach(clanPlayer ->
-                    Messages.create("Player " + member.online().getPlayer().getName() + " has left the clan").to(clanPlayer).handle());
+            clan.getAllOnline().forEach(clanPlayer -> clanPlayer.info("Player " + member.online().getPlayer().getName() + " has left the clan").handle());
             clan.getMembers().remove(member);
             clanService.update(clan);
             clanMemberService.delete(member);

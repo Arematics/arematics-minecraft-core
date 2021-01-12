@@ -14,5 +14,6 @@ public class StrongholdCapture {
     private final Stronghold stronghold;
     private final long endTime;
     private final Set<CorePlayer> inStronghold = new HashSet<>();
+    private final Set<CorePlayer> inStrongholdCapture = new HashSet<>();
     private final Map<Clan, Long> timings = new HashMap<>();
 }

@@ -21,6 +21,9 @@ public class StrongholdScoreboardListener implements Listener {
 
         final BoardHandler handler = player.getBoard().getOrAddBoard("stronghold", "§4§lSTRONGHOLD");
         handler.addEntryData("Name", "§c", "§7" + stronghold.getId())
+                .addEntryData("Platz 3", "§c", "§c" + "Not found")
+                .addEntryData("Platz 2", "§c", "§c" + "Not found")
+                .addEntryData("Platz 1", "§c", "§c" + "Not found")
                 .addEntryData("Time", "§c", "§a" + "§fNicht aktiv")
                 .show();
     }
@@ -33,6 +36,9 @@ public class StrongholdScoreboardListener implements Listener {
         final BoardHandler handler = player.getBoard().getOrAddBoard("stronghold-capture", "§4§lSH CAPTURE");
         handler.addEntryData("Name", "§c", "§7" + stronghold.getId())
                 .addEntryData("Capture", "§c", "§a" + "Enabled")
+                .addEntryData("Platz 3", "§c", "§c" + "Not found")
+                .addEntryData("Platz 2", "§c", "§c" + "Not found")
+                .addEntryData("Platz 1", "§c", "§c" + "Not found")
                 .addEntryData("Time", "§c", "§a" + "§fNicht aktiv")
                 .show();
     }

@@ -1,12 +1,18 @@
-package com.arematics.minecraft.core.utils;
+package com.arematics.minecraft.core.times;
 
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAccessor;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class TimeUtils {
 
@@ -37,5 +43,15 @@ public class TimeUtils {
     public static LocalDateTime toLocalDateTime(Period period){
         long millis = period.toStandardDuration().getMillis();
         return LocalDateTime.now().plus(millis, ChronoUnit.MILLIS);
+    }
+
+    public static List<DayOfWeek> fromDaysString(String daysString){
+        return Arrays.stream(daysString.split(",")).map(TimeUtils::fromDayString).collect(Collectors.toList());
+    }
+
+    private static DayOfWeek fromDayString(String day) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EE");
+        TemporalAccessor accessor = formatter.parse(day);
+        return DayOfWeek.from(accessor);
     }
 }

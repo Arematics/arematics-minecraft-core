@@ -1,12 +1,12 @@
 package com.arematics.minecraft.data.mode.model;
 
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.CommandUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -75,9 +75,10 @@ public class Clan implements Serializable {
 
     }
 
-    public Stream<Player> getAllOnline(){
+    public Stream<CorePlayer> getAllOnline(){
         return this.getMembers().stream()
                 .map(member -> Bukkit.getPlayer(member.getUuid()))
-                .filter(Objects::nonNull);
+                .filter(Objects::nonNull)
+                .map(CorePlayer::get);
     }
 }

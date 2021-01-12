@@ -6,4 +6,5 @@ public interface MessageHighlightType {
     MessageReciever WARNING();
     MessageReciever FAILURE();
     MessageInjector to(CommandSender... senders);
+    MessageInjector broadcast();
 }

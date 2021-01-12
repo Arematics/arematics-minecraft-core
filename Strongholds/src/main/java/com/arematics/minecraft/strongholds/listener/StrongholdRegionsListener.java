@@ -11,7 +11,7 @@ import com.arematics.minecraft.strongholds.events.StrongholdCaptureEnterEvent;
 import com.arematics.minecraft.strongholds.events.StrongholdCaptureLeaveEvent;
 import com.arematics.minecraft.strongholds.events.StrongholdEnterEvent;
 import com.arematics.minecraft.strongholds.events.StrongholdLeaveEvent;
-import com.arematics.minecraft.strongholds.parser.StrongholdParser;
+import com.arematics.minecraft.strongholds.commands.parser.StrongholdParser;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
