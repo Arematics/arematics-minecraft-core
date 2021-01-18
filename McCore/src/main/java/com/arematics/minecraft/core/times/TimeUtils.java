@@ -7,6 +7,7 @@ import org.joda.time.format.PeriodFormatterBuilder;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
@@ -49,9 +50,18 @@ public class TimeUtils {
         return Arrays.stream(daysString.split(",")).map(TimeUtils::fromDayString).collect(Collectors.toList());
     }
 
-    private static DayOfWeek fromDayString(String day) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EE");
-        TemporalAccessor accessor = formatter.parse(day);
+    public static DayOfWeek getToday(){
+        return DayOfWeek.of(org.joda.time.LocalDateTime.now().getDayOfWeek());
+    }
+
+    public static DayOfWeek fromDayString(String day) {
+        day = day.trim();
+        final DateTimeFormatter dtf = new DateTimeFormatterBuilder( )
+                .appendOptional(DateTimeFormatter.ofPattern("EEEE") )
+                .appendOptional(DateTimeFormatter.ofPattern("E"))
+                .toFormatter();
+        TemporalAccessor accessor = dtf.parse(day);
+        System.out.println(DayOfWeek.from(accessor).toString());
         return DayOfWeek.from(accessor);
     }
 }

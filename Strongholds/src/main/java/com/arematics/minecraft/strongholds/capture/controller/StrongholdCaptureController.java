@@ -3,8 +3,8 @@ package com.arematics.minecraft.strongholds.capture.controller;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.scoreboard.functions.BoardHandler;
 import com.arematics.minecraft.core.server.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.times.TimeUtils;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.mode.model.Clan;
 import com.arematics.minecraft.data.mode.model.Stronghold;
 import com.arematics.minecraft.data.mode.model.StrongholdTime;
@@ -13,13 +13,11 @@ import com.arematics.minecraft.data.service.StrongholdTimeService;
 import com.arematics.minecraft.strongholds.capture.model.StrongholdCapture;
 import lombok.Data;
 import org.bukkit.Bukkit;
-import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.sql.Time;
-import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Collections;
@@ -41,8 +39,7 @@ public class StrongholdCaptureController {
                                        StrongholdTimeService strongholdTimeService){
         this.strongholdService = strongholdService;
         this.strongholdTimeService = strongholdTimeService;
-        DayOfWeek today = DayOfWeek.of(LocalDateTime.now().getDayOfWeek());
-        this.strongholdTimeService.getTodayTimes(today).forEach(this::startTimer);
+        this.strongholdTimeService.getTodayTimes(TimeUtils.getToday()).forEach(this::startTimer);
     }
 
     private void startTimer(StrongholdTime time){

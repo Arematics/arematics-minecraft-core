@@ -11,7 +11,7 @@ public class TimeParser extends CommandParameterParser<Time> {
     public Time parse(String value) throws CommandProcessException {
         try{
             return Time.valueOf(value);
-        }catch (NumberFormatException nfe){
+        }catch (Exception nfe){
             throw new CommandProcessException("Not valid time format");
         }
     }

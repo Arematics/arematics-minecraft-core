@@ -58,10 +58,10 @@ public class ArematicsExecutor {
         }.runTaskLater(Boots.getBoot(CoreBoot.class), TimeUtils.toTicks(time, unit));
     }
 
-    public static void syncRepeat(Runnable runnable, long delay, long period, TimeUnit unit){
+    public static BukkitTask syncRepeat(Runnable runnable, long delay, long period, TimeUnit unit){
         delay = TimeUtils.toTicks(delay, unit);
         period = TimeUtils.toTicks(period, unit);
-        new BukkitRunnable(){
+        return new BukkitRunnable(){
             @Override
             public void run() {
                 runnable.run();
@@ -69,10 +69,10 @@ public class ArematicsExecutor {
         }.runTaskTimer(Boots.getBoot(CoreBoot.class), delay, period);
     }
 
-    public static void syncRepeat(Consumer<Integer> run, long delay, long period, TimeUnit unit, int times){
+    public static BukkitTask syncRepeat(Consumer<Integer> run, long delay, long period, TimeUnit unit, int times){
         delay = TimeUtils.toTicks(delay, unit);
         period = TimeUtils.toTicks(period, unit);
-        new BukkitRunnable(){
+        return new BukkitRunnable(){
             int amount = times;
             @Override
             public void run() {
@@ -83,10 +83,10 @@ public class ArematicsExecutor {
         }.runTaskTimer(Boots.getBoot(CoreBoot.class), delay, period);
     }
 
-    public static void asyncRepeat(Runnable runnable, long delay, long period, TimeUnit unit){
+    public static BukkitTask asyncRepeat(Runnable runnable, long delay, long period, TimeUnit unit){
         delay = TimeUtils.toTicks(delay, unit);
         period = TimeUtils.toTicks(period, unit);
-        new BukkitRunnable(){
+        return new BukkitRunnable(){
             @Override
             public void run() {
                 runnable.run();

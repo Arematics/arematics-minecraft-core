@@ -2,6 +2,7 @@ package com.arematics.minecraft.strongholds.commands;
 
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
+import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.times.TimeUtils;
@@ -19,7 +20,7 @@ import java.util.List;
 
 @Component
 @Perm(permission = "clans.stronghold.admin", description = "Permission for full stronghold administration")
-public class StrongholdAdminCommand {
+public class StrongholdAdminCommand extends CoreCommand {
 
     private final StrongholdTimeService strongholdTimeService;
     private final StrongholdCaptureController controller;
@@ -27,6 +28,7 @@ public class StrongholdAdminCommand {
     @Autowired
     public StrongholdAdminCommand(StrongholdTimeService strongholdTimeService,
                                   StrongholdCaptureController strongholdCaptureController){
+        super("shadmin", "shmgr", "sha");
         this.strongholdTimeService = strongholdTimeService;
         this.controller = strongholdCaptureController;
     }
@@ -55,6 +57,7 @@ public class StrongholdAdminCommand {
             days.forEach(day -> updateDay(stronghold, day, time));
             player.info("Stronghold times updated").handle();
         }catch (Exception e){
+            e.printStackTrace();
             throw new CommandProcessException("Day list is not correct formed");
         }
     }
@@ -78,7 +81,6 @@ public class StrongholdAdminCommand {
                 timeEntry = new StrongholdTime(stronghold.getId(), dayOfWeek, time);
             }
             this.strongholdTimeService.update(timeEntry);
-
         }
     }
 }

@@ -30,7 +30,7 @@ public class StrongholdTimeService {
     }
 
     public List<StrongholdTime> getTodayTimes(DayOfWeek dayOfWeek){
-        return repository.findAllByDayOfWeek(dayOfWeek);
+        return repository.findAllByDayOfWeekOrderByTimeAsc(dayOfWeek);
     }
 
     public List<StrongholdTime> getDayTimeMatching(DayOfWeek dayOfWeek, Time time){
