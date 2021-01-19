@@ -111,7 +111,6 @@ public class StrongholdCaptureController {
 
     private void updateScoreboard(CorePlayer player, String content, List<Clan> topList){
         ArematicsExecutor.syncRun(() -> updateCaptureTime(player, "stronghold-capture", content));
-        ArematicsExecutor.syncRun(() -> updateCaptureTime(player, "stronghold-capture", content));
         ArematicsExecutor.syncRun(() -> updateCaptureTime(player, "stronghold", content));
         if(topList != null){
             ArematicsExecutor.syncRun(() -> updateTopList(player, "stronghold-capture", topList));

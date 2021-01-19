@@ -9,6 +9,8 @@ import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.core.utils.CommandUtils;
 import com.arematics.minecraft.data.mode.model.StrongholdTime;
 import com.arematics.minecraft.data.service.StrongholdTimeService;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +27,11 @@ public class StrongholdListCommand extends CoreCommand {
     public StrongholdListCommand(StrongholdTimeService strongholdTimeService){
         super("strongholds");
         this.strongholdTimeService = strongholdTimeService;
+    }
+
+    @Override
+    public void onDefaultExecute(CommandSender sender) {
+        if(!(sender instanceof Player)) showTodaySchedule(CorePlayer.get((Player) sender));
     }
 
     @SubCommand("today")
