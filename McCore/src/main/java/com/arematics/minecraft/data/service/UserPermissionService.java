@@ -33,11 +33,12 @@ public class UserPermissionService {
 
     private boolean hasPerm(UUID uuid, String permission, UserPermissionRepository userPermissionRepository){
         return userPermissionRepository
-                .existsByUuidAndPermissionAndUntilAfter(uuid, permission, Timestamp.valueOf(LocalDateTime.now()));
+                .hasPerm(uuid, permission, Timestamp.valueOf(LocalDateTime.now()));
     }
 
     private boolean checkWildcardsAndPerm(UUID uuid, String permission){
         if(hasPerm(uuid, "*")) return true;
+        if(hasPerm(uuid, permission)) return true;
         int lastIndex = 0;
         while(lastIndex != -1){
             lastIndex = permission.indexOf(".", lastIndex);

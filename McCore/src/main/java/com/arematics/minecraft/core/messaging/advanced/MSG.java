@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.messaging.advanced;
 
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.PlaceholderAction;
 import com.arematics.minecraft.core.chat.ChatAPI;
@@ -260,7 +261,7 @@ public class MSG {
     private Part applyPlaceholderToPart(Part part, PlaceholderAction placeholderAction, Player player, PlaceholderController placeholderController) {
         String value = "";
         if (placeholderAction instanceof GlobalPlaceholderAction) {
-            value = placeholderController.getPlaceholder(placeholderAction.getPlaceholderKey()).getValues().get(player).get();
+            value = placeholderController.getPlaceholder(placeholderAction.getPlaceholderKey()).getValues().get(CorePlayer.get(player)).get();
             part.setText(value);
         } else if (placeholderAction instanceof ThemePlaceholder) {
             value = ((ThemePlaceholder) placeholderAction).getValue();
@@ -396,10 +397,10 @@ public class MSG {
         });
     }
 
-    public void sendAll(List<User> users, List<User> ignoredBy) {
+    public void sendAll(List<CorePlayer> users, List<CorePlayer> ignoredBy) {
         final String json = toJsonString();
         users.forEach(user -> {
-            Player player = Bukkit.getPlayer(user.getUuid());
+            Player player = user.getPlayer();
             if (!ignoredBy.contains(user)) {
                 ((CraftPlayer) player).getHandle().playerConnection.sendPacket(createPacketPlayOutChat(json));
             }

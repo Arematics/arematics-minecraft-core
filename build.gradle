@@ -53,7 +53,6 @@ subprojects {
         compileOnly "org.bukkit:PaperSpigot:1.8.8"
         compileOnly  name: 'WorldEdit'
         compileOnly  name: 'WorldGuard'
-        compileOnly  name: 'WGRegionEvents'
         compileOnly "com.compheonix:ProtocolLib:1.8.8"
         compileOnly "com.compheonix:PacketWrapper:1.8.8"
         compileOnly "de.tr7zw:NBT-API:1.0"

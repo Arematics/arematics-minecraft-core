@@ -1,16 +1,14 @@
 package com.arematics.minecraft.core.chat.controller;
 
 import com.arematics.minecraft.core.chat.ChatAPI;
-import com.arematics.minecraft.core.permissions.Permissions;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholder;
 import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.PlaceholderService;
-import com.arematics.minecraft.data.service.UserService;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,13 +27,11 @@ public class PlaceholderController {
     private final Map<String, GlobalPlaceholder> placeholders = new HashMap<>();
     private final List<String> reservedPlaceholderKeys = new ArrayList<>();
     private final PlaceholderService placeholderService;
-    private final UserService userService;
     private ChatAPI chatAPI;
 
     @Autowired
-    public PlaceholderController(PlaceholderService placeholderService, UserService userService) {
+    public PlaceholderController(PlaceholderService placeholderService) {
         this.placeholderService = placeholderService;
-        this.userService = userService;
     }
 
     public void initPlaceholders() {
@@ -103,10 +99,10 @@ public class PlaceholderController {
         return true;
     }
 
-    public void supply(Player player) {
-        User user = userService.getUserByUUID(player.getUniqueId());
+    public void supply(CorePlayer player) {
+        User user = player.getUser();
         Rank rank = getRank(user);
-        boolean canColor = Permissions.hasPermission(user.getUuid(), "chatcolor");
+        boolean canColor = player.hasPermission("chatcolor");
         supplyPlaceholder("rank", player, () ->  rank.getColorCode() + rank.getName());
         supplyPlaceholder("name", player, player.getPlayer()::getName);
         if(canColor) {
@@ -120,7 +116,7 @@ public class PlaceholderController {
         return user.getDisplayRank() != null ? user.getDisplayRank(): user.getRank();
     }
 
-    public void supplyPlaceholder(String placeholderName, Player player, Supplier<String> supplier) {
+    public void supplyPlaceholder(String placeholderName, CorePlayer player, Supplier<String> supplier) {
         getPlaceholder(placeholderName).getValues().put(player, supplier);
     }
 

@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 public class PermissionData implements PermConsumer {
     private final CommandSender sender;
     private final String permission;
-    private Consumer<CommandSender> permitted;
+    private Consumer<CommandSender> permitted = CommandSender::getName;
 
     @Override
     public PermissionData ifPermitted(Consumer<CommandSender> permitted){
@@ -23,7 +23,7 @@ public class PermissionData implements PermConsumer {
     }
 
     public void orElse(Consumer<CommandSender> orElse){
-        if(StringUtils.isBlank(permission) || !Permissions.isNotAllowed(sender, permission))
+        if(StringUtils.isBlank(permission) || Permissions.hasPermission(sender, permission))
             permitted.accept(sender);
         else orElse.accept(sender);
     }

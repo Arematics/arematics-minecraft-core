@@ -1,5 +1,6 @@
 package com.arematics.minecraft.data.global.model;
 
+import com.arematics.minecraft.core.server.CorePlayer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -32,6 +33,6 @@ public class ChatTheme {
     @JoinTable(name = "theme_global_placeholders")
     private Set<GlobalPlaceholderAction> globalPlaceholderActions = new HashSet<>();
     @Transient
-    private List<User> activeUsers = new ArrayList<>();
+    private List<CorePlayer> activeUsers = new ArrayList<>();
 
 }

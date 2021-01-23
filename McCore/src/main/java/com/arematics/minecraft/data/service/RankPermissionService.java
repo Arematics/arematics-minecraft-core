@@ -32,12 +32,13 @@ public class RankPermissionService {
     }
 
     private boolean hasPerm(Rank rank, String permission, RanksPermissionRepository ranksPermissionRepository){
-        return ranksPermissionRepository
-                .existsByIdAndPermissionAndUntilAfter(rank.getId(), permission, Timestamp.valueOf(LocalDateTime.now()));
+        return ranksPermissionRepository.hasPerm(
+                rank.getId(), permission, Timestamp.valueOf(LocalDateTime.now()));
     }
 
     private boolean checkWildcardsAndPerm(Rank rank, String permission){
         if(hasPerm(rank, "*")) return true;
+        if(hasPerm(rank, permission)) return true;
         int lastIndex = 0;
         while(lastIndex != -1){
             lastIndex = permission.indexOf(".", lastIndex);

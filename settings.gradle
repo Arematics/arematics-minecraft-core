@@ -1,6 +1,5 @@
 rootProject.name = 'Minecraft'
 include 'McCore'
-include 'RegionInteractor'
 include 'AdvancedPlots'
 include 'Clans'
 include 'Strongholds'
@@ -27,5 +26,5 @@ include 'Watcher'
 include 'Metadata'
 include 'SpringHook'
 include 'Animations'
-include 'Guns'
+include 'RegionInteraction'
 

@@ -1,7 +1,7 @@
-package com.arematics.minecraft.core.listener;
+package com.arematics.minecraft.ri.listener;
 
 import com.arematics.minecraft.core.server.CorePlayer;
-import com.mewin.WGRegionEvents.events.RegionEnteredEvent;
+import com.arematics.minecraft.ri.events.RegionEnteredEvent;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -19,7 +19,7 @@ public class MoveIntoNoPvPBlockListener implements Listener {
 
     @EventHandler
     public void onEnter(RegionEnteredEvent enteredEvent){
-        CorePlayer player = CorePlayer.get(enteredEvent.getPlayer());
+        CorePlayer player = enteredEvent.getPlayer();
         ProtectedRegion region = enteredEvent.getRegion();
         if(Objects.equals(region.getFlag(DefaultFlag.PVP), StateFlag.State.DENY) && player.isInFight()){
             calc(player.getPlayer());
@@ -29,7 +29,6 @@ public class MoveIntoNoPvPBlockListener implements Listener {
     private void calc(Player player){
         Location from = player.getLocation();
         Vector to = player.getLocation().getDirection();
-        Vector vec = null;
 
         double fx = from.getX();
         double tx = to.getX();
@@ -51,7 +50,7 @@ public class MoveIntoNoPvPBlockListener implements Listener {
             vecZ = -0.75;
         }
 
-        vec = new Vector(vecX, 0, vecZ);
+        Vector vec = new Vector(vecX, 0, vecZ);
 
         double hight = 0.45;
 

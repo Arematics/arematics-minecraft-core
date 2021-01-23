@@ -8,6 +8,7 @@ import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.pages.Pager;
+import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.scoreboard.functions.BoardSet;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.Inventories;
@@ -22,6 +23,7 @@ import com.arematics.minecraft.data.share.model.OnlineTime;
 import com.sk89q.worldguard.bukkit.RegionQuery;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.Data;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -35,16 +37,15 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @Data
-public class CorePlayer{
+public class CorePlayer implements CurrencyEntity {
     private static Map<UUID, CorePlayer> players = new HashMap<>();
+
+    private static InventoryService inventoryService;
 
     public static CorePlayer get(Player player){
         if(!players.containsKey(player.getUniqueId()))
@@ -84,6 +85,7 @@ public class CorePlayer{
     private LocalDateTime lastAntiAFKEvent;
 
     private Duration lastAfk = null;
+    private final Set<ProtectedRegion> currentRegions;
 
     public CorePlayer(Player player){
         this.player = player;
@@ -96,6 +98,10 @@ public class CorePlayer{
         this.onlineTimeService = Boots.getBoot(CoreBoot.class).getContext().getBean(OnlineTimeService.class);
         this.requestSettings = new PlayerRequestSettings(this);
         this.service = Boots.getBoot(CoreBoot.class).getContext().getBean(GameStatsService.class);
+        if(CorePlayer.inventoryService == null){
+            CorePlayer.inventoryService = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
+        }
+        this.currentRegions = new HashSet<>();
     }
 
     private void unload() {
@@ -210,11 +216,7 @@ public class CorePlayer{
     }
 
     private boolean equipArmor(CoreItem item) {
-        if(hasEffect(PotionEffectType.INVISIBILITY)) return true;
-        if(item.isArmor()){
-
-        }
-        return true;
+        return hasEffect(PotionEffectType.INVISIBILITY);
     }
 
     public void stopTeleport(){
@@ -260,14 +262,25 @@ public class CorePlayer{
         return player.getOpenInventory();
     }
 
+    /**
+     * Open inventory for player. Own inventory is disabled. Opened inventory is enabled
+     * @param inventory Inventory to open
+     */
     public void openInventory(Inventory inventory){
         Inventories.openLowerDisabledInventory(inventory, this);
     }
 
+    /**
+     * Open inventory for player. Both inventories are blocked
+     * @param inventory Inventory to open
+     */
     public void openTotalBlockedInventory(Inventory inventory){
         Inventories.openTotalBlockedInventory(inventory, this);
     }
-
+    /**
+     * Open inventory for player. Both inventories are enabled
+     * @param inventory Inventory to open
+     */
     public void openLowerEnabledInventory(Inventory inventory){
         Inventories.openInventory(inventory, this);
     }
@@ -368,6 +381,12 @@ public class CorePlayer{
                 .refresh();
     }
 
+    @Override
+    public long getMoney(){
+        return this.getStats().getCoins();
+    }
+
+    @Override
     public void setMoney(long money){
         onStats(stats -> stats.setCoins(money));
         getBoard().getOrAddBoard("main", "§bSoulPvP")
@@ -375,6 +394,7 @@ public class CorePlayer{
                 .refresh();
     }
 
+    @Override
     public void addMoney(long amount){
         onStats(stats -> stats.setCoins(stats.getCoins() + amount));
         getBoard().getOrAddBoard("main", "§bSoulPvP")
@@ -382,6 +402,7 @@ public class CorePlayer{
                 .refresh();
     }
 
+    @Override
     public void removeMoney(long amount) throws RuntimeException{
         if(getStats().getCoins() < amount) throw new RuntimeException("Not enough coins");
         onStats(stats -> stats.setCoins(stats.getCoins() - amount));
@@ -402,12 +423,12 @@ public class CorePlayer{
         return CoreItem.create(player.getItemInHand());
     }
 
-    public Inventory getInventory(InventoryService service, String key) throws RuntimeException{
-        return service.getInventory(player.getUniqueId() + "." + key);
+    public Inventory getInventory(String key) throws RuntimeException{
+        return CorePlayer.inventoryService.getInventory(player.getUniqueId() + "." + key);
     }
 
-    public Inventory getOrCreateInventory(InventoryService service, String key, String title, byte slots){
-        return service.getOrCreate(player.getUniqueId() + "." + key, title, slots);
+    public Inventory getOrCreateInventory(String key, String title, byte slots){
+        return CorePlayer.inventoryService.getOrCreate(player.getUniqueId() + "." + key, title, slots);
     }
 
     public Location getLocation() {
@@ -421,9 +442,14 @@ public class CorePlayer{
      */
     public void setTheme(ChatTheme theme) {
         User user = userService.getUserByUUID(getUUID());
+        CorePlayer player = CorePlayer.get(getPlayer());
         ChatTheme old = chatThemeController.getTheme(user.getActiveTheme().getThemeKey());
-        old.getActiveUsers().remove(user);
+        old.getActiveUsers().remove(player);
         user.setActiveTheme(theme);
-        theme.getActiveUsers().add(user);
+        theme.getActiveUsers().add(player);
+    }
+
+    public boolean hasPermission(String permission){
+        return Permissions.hasPermission(getUUID(), permission);
     }
 }

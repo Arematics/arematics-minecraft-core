@@ -35,7 +35,7 @@ public class UserQuitListener implements Listener {
         }
         ArematicsExecutor.runAsync(player::updateOnlineTime);
         this.tablist.remove(player);
-        chatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().remove(user);
+        chatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().remove(player);
         this.userService.update(user);
     }
 }

@@ -7,7 +7,6 @@ import com.arematics.minecraft.core.server.Clearlag;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -24,7 +23,7 @@ public class CoreBoot extends Bootstrap{
     private ConfigurableApplicationContext context;
     /**
      * Hooking Config File
-     * Starts the Multi Hook to get all Hooks loaded (Language, Commands, Listener)
+     * Starts the Multi Hook to get all Hooks loaded (Language)
      */
     public CoreBoot() {
         super(true);
@@ -32,14 +31,10 @@ public class CoreBoot extends Bootstrap{
         this.clearlag = new Clearlag();
     }
 
-    @SneakyThrows
     @Override
-    public void onEnable() {
-        super.onEnable();
+    public void postEnable() {
         Bukkit.getPluginManager().registerEvents(new SpringInitializedListener(), this);
         ArematicsExecutor.asyncDelayed(this.clearlag::start, 10, TimeUnit.SECONDS);
-
-
     }
 
     @Override

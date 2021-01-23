@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.items;
 
-import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.server.CorePlayer;
 import de.tr7zw.nbtapi.NBTItem;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,10 +58,10 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
                 .toArray(new CoreItem[]{});
     }
 
-    public static void executeOnHandItem(Player player, Consumer<CoreItem> execute){
+    public static void executeOnHandItem(CorePlayer player, Consumer<CoreItem> execute){
         CoreItem itemStack = CoreItem.create(player.getItemInHand());
         if(itemStack != null) execute.accept(itemStack);
-        else Messages.create("no_item_in_hand").WARNING().to(player).handle();
+        else player.warn("no_item_in_hand").handle();
     }
 
     private final NBTItem meta;
@@ -76,7 +76,7 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
     }
 
     public CoreItem bindCommand(String command){
-        this.getMeta().setString(BINDED_COMMAND, command);
+        this.getMeta().setString(BINDED_COMMAND, command.replaceFirst("/", ""));
         this.applyNBT();
         return this;
     }
@@ -214,6 +214,10 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
 
     public void updateTo(Player player){
         player.setItemInHand(this);
+    }
+
+    public void updateTo(CorePlayer player){
+        player.getPlayer().setItemInHand(this);
     }
 
     public BukkitObjectOutputStream toSingleStream() throws IOException {

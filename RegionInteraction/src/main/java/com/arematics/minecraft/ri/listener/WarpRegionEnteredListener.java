@@ -1,10 +1,10 @@
-package com.arematics.minecraft.core.listener;
+package com.arematics.minecraft.ri.listener;
 
 import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.mode.model.Warp;
 import com.arematics.minecraft.data.service.WarpService;
-import com.mewin.WGRegionEvents.events.RegionEnteredEvent;
+import com.arematics.minecraft.ri.events.RegionEnteredEvent;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.event.EventHandler;
@@ -24,7 +24,7 @@ public class WarpRegionEnteredListener implements Listener {
 
     @EventHandler
     public void onRegionEntered(RegionEnteredEvent enteredEvent){
-        CorePlayer player = CorePlayer.get(enteredEvent.getPlayer());
+        CorePlayer player = enteredEvent.getPlayer();
         ProtectedRegion region = enteredEvent.getRegion();
         String id = region.getId();
         if(id.startsWith("warpto_")){
