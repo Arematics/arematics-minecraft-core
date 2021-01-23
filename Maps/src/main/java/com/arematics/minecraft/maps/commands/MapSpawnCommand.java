@@ -5,7 +5,7 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.commands.SpawnCommand;
 import com.arematics.minecraft.core.commands.WarpCommand;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.controller.MapController;
 import com.arematics.minecraft.data.mode.model.GameMap;
 import com.arematics.minecraft.data.service.MapService;

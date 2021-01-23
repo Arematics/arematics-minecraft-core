@@ -2,7 +2,7 @@ package com.arematics.minecraft.data.controller;
 
 import com.arematics.minecraft.core.commands.SpawnCommand;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.mode.model.GameMap;
