@@ -1,7 +1,7 @@
 package com.arematics.minecraft.strongholds.listener;
 
-import com.arematics.minecraft.core.scoreboard.functions.BoardHandler;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardHandler;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.mode.model.Stronghold;
 import com.arematics.minecraft.strongholds.events.StrongholdCaptureEnterEvent;
 import com.arematics.minecraft.strongholds.events.StrongholdCaptureLeaveEvent;

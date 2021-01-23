@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.items;
 
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import de.tr7zw.nbtapi.NBTItem;
 import lombok.Getter;
 import lombok.Setter;

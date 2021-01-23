@@ -1,7 +1,7 @@
 package com.arematics.minecraft.strongholds.events;
 
 import com.arematics.minecraft.core.events.BaseEvent;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.mode.model.Stronghold;
 import com.arematics.minecraft.ri.MovementWay;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;

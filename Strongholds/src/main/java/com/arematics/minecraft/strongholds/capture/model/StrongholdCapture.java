@@ -1,12 +1,15 @@
 package com.arematics.minecraft.strongholds.capture.model;
 
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.mode.model.Clan;
 import com.arematics.minecraft.data.mode.model.Stronghold;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Data
 @RequiredArgsConstructor

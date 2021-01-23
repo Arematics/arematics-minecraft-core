@@ -1,7 +1,7 @@
 package com.arematics.minecraft.data.mode.model;
 
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.CommandUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;

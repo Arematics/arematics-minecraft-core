@@ -4,7 +4,7 @@ import com.arematics.minecraft.core.annotations.SkipEnum;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.injector.StringInjector;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.core.utils.CommandUtils;
 import com.arematics.minecraft.data.mode.model.StrongholdTime;

@@ -2,16 +2,16 @@ package com.arematics.minecraft.strongholds.listener;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.events.BaseEvent;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.mode.model.Stronghold;
 import com.arematics.minecraft.ri.events.RegionEnteredEvent;
 import com.arematics.minecraft.ri.events.RegionLeftEvent;
 import com.arematics.minecraft.strongholds.StrongholdBoot;
+import com.arematics.minecraft.strongholds.commands.parser.StrongholdParser;
 import com.arematics.minecraft.strongholds.events.StrongholdCaptureEnterEvent;
 import com.arematics.minecraft.strongholds.events.StrongholdCaptureLeaveEvent;
 import com.arematics.minecraft.strongholds.events.StrongholdEnterEvent;
 import com.arematics.minecraft.strongholds.events.StrongholdLeaveEvent;
-import com.arematics.minecraft.strongholds.commands.parser.StrongholdParser;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

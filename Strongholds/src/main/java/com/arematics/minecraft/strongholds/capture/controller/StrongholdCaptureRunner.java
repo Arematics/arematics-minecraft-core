@@ -1,10 +1,10 @@
 package com.arematics.minecraft.strongholds.capture.controller;
 
+import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardHandler;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.scoreboard.functions.BoardHandler;
-import com.arematics.minecraft.core.server.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.times.TimeUtils;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.mode.model.Clan;
 import com.arematics.minecraft.data.mode.model.Stronghold;
 import com.arematics.minecraft.strongholds.capture.model.StrongholdCapture;

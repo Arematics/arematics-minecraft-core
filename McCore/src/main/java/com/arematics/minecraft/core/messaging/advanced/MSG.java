@@ -1,15 +1,11 @@
 package com.arematics.minecraft.core.messaging.advanced;
 
 import com.arematics.minecraft.core.chat.controller.PlaceholderController;
-import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.JSONUtil;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholderAction;
 import com.arematics.minecraft.data.global.model.PlaceholderAction;
-import com.arematics.minecraft.core.chat.controller.PlaceholderController;
-import com.arematics.minecraft.core.utils.JSONUtil;
-import com.arematics.minecraft.data.global.model.GlobalPlaceholderAction;
 import com.arematics.minecraft.data.global.model.ThemePlaceholder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

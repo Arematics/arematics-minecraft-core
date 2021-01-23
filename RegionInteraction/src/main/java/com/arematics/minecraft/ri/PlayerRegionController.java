@@ -1,7 +1,7 @@
 package com.arematics.minecraft.ri;
 
 import com.arematics.minecraft.core.Boots;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.ri.events.RegionEnterEvent;
 import com.arematics.minecraft.ri.events.RegionEnteredEvent;
 import com.arematics.minecraft.ri.events.RegionLeaveEvent;

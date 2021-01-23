@@ -66,10 +66,6 @@ public abstract class Bootstrap extends JavaPlugin {
         return config;
     }
 
-    public String getDir() {
-        return dir;
-    }
-
     public void callEvent(Event event){
         this.getServer().getPluginManager().callEvent(event);
     }

@@ -1,7 +1,7 @@
 package com.arematics.minecraft.ri.listener;
 
 import com.arematics.minecraft.core.Boots;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.ri.MovementWay;
 import com.arematics.minecraft.ri.RegionInteractionBoot;
 import com.arematics.minecraft.ri.events.RegionLeftEvent;
