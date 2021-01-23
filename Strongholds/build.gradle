@@ -1,1 +1,7 @@
 version '1.0'
+
+dependencies {
+    compileOnly project(':McCore')
+    compileOnly project(':Clans')
+    compileOnly project(':RegionInteraction')
+}

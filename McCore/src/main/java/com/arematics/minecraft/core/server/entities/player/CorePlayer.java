@@ -23,6 +23,7 @@ import com.arematics.minecraft.data.share.model.OnlineTime;
 import com.sk89q.worldguard.bukkit.RegionQuery;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.Data;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -36,10 +37,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -77,10 +75,17 @@ public class CorePlayer implements CurrencyEntity {
     private final ChatThemeController chatThemeController;
     private final OnlineTimeService onlineTimeService;
 
+    private final LocalDateTime joined;
     private LocalDateTime lastPatch = null;
+    private LocalDateTime lastAntiAFKEvent;
+
+    private Duration lastAfk = null;
+    private final Set<ProtectedRegion> currentRegions;
 
     public CorePlayer(Player player){
         this.player = player;
+        this.joined = LocalDateTime.now();
+        this.lastAntiAFKEvent = this.joined;
         this.chatThemeController = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeController.class);
         this.pager = new Pager(this);
         this.boardSet = new BoardSet(player);
@@ -91,9 +96,11 @@ public class CorePlayer implements CurrencyEntity {
         if(CorePlayer.inventoryService == null){
             CorePlayer.inventoryService = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
         }
+        this.currentRegions = new HashSet<>();
     }
 
     private void unload() {
+        this.updateOnlineTime();
         this.pager.unload();
         this.boardSet.remove();
     }
@@ -109,12 +116,55 @@ public class CorePlayer implements CurrencyEntity {
         this.inFight = false;
     }
 
-    public void patchOnlineTime(){
+    /**
+     * Called if Anti AFK Event is executed updating lastAntiAfk Time
+     */
+    public void callAntiAfk(){
+        this.lastAntiAFKEvent = LocalDateTime.now();
+    }
+
+    /**
+     * Update Players Afk Time Data
+     */
+    private void updateAfkTime(){
+        this.lastAfk = Duration.between(this.lastAntiAFKEvent.plusMinutes(1), LocalDateTime.now());
+        this.lastAntiAFKEvent = LocalDateTime.now();
+        if(lastAfk.isNegative()) return;
+        updateOnlineTimeData(false, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
+        updateOnlineTimeData(true, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
+    }
+
+
+    /**
+     * Update Players OnlineTime Data
+     */
+    public void updateOnlineTime(){
+        this.updateAfkTime();
         if(lastPatch == null) lastPatch = getUser().getLastJoin().toLocalDateTime();
         Duration online = Duration.between(this.lastPatch, LocalDateTime.now());
-        patchOnlineTime(online, false);
-        patchOnlineTime(online, true);
+        updateOnlineTimeData(false, (time) -> updatePlayedTime(time, online));
+        updateOnlineTimeData(true, (time) -> updatePlayedTime(time, online));
         lastPatch = LocalDateTime.now();
+    }
+
+
+    /**
+     * Update Players Play Time Data
+     */
+    private void updatePlayedTime(OnlineTime time, Duration online){
+        long totalTime = time.getTime() + online.toMillis();
+        time.setTime(totalTime - (this.lastAfk.isNegative() ? 0 : this.lastAfk.toMillis()));
+    }
+
+    public void updateOnlineTimeData(boolean mode, Consumer<OnlineTime> update){
+        OnlineTime time;
+        try{
+            time = this.onlineTimeService.findByUUID(mode, getUUID());
+        }catch (RuntimeException re){
+            time = new OnlineTime(getUUID(), 0L, 0L);
+        }
+        update.accept(time);
+        this.onlineTimeService.put(mode, time);
     }
 
     public void removeAmountFromHand(int amount){
@@ -130,17 +180,6 @@ public class CorePlayer implements CurrencyEntity {
                 else
                     player.getItemInHand().setAmount(am - amount);
             }
-    }
-
-    public void patchOnlineTime(Duration duration, boolean mode){
-        OnlineTime time;
-        try{
-            time = this.onlineTimeService.findByUUID(mode, getUUID());
-        }catch (RuntimeException re){
-            time = new OnlineTime(getUUID(), 0L, 0L);
-        }
-        time.setTime(time.getTime() + duration.toMillis());
-        this.onlineTimeService.put(mode, time);
     }
 
     public boolean hasEffect(PotionEffectType type) {

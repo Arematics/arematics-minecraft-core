@@ -33,9 +33,9 @@ public class UserQuitListener implements Listener {
         if(player.isInFight()){
             player.getPlayer().setHealth(0.0D);
         }
-        ArematicsExecutor.runAsync(player::patchOnlineTime);
+        ArematicsExecutor.runAsync(player::updateOnlineTime);
         this.tablist.remove(player);
-        chatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().remove(user);
+        chatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().remove(player);
         this.userService.update(user);
     }
 }

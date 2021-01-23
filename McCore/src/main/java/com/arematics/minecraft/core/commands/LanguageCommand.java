@@ -83,17 +83,16 @@ public class LanguageCommand extends CoreCommand {
     }
 
     @SubCommand("{language}")
-    public boolean changeLanguage(Player player, String language) {
+    public boolean changeLanguage(CorePlayer player, String language) {
         language = mapLanguageInput(language);
         Language finalLanguage = LanguageAPI.getLanguage(language);
         if(finalLanguage == null){
-            Messages.create("language_not_found").WARNING().to(player).handle();
+            player.warn("language_not_found").handle();
             return true;
         }
-        LanguageUser user = LanguageAPI.getUser(player);
+        LanguageUser user = LanguageAPI.getUser(player.getPlayer());
         user.setLanguage(finalLanguage);
-        Messages.create("language_changed")
-                .to(player)
+        player.info("language_changed")
                 .DEFAULT()
                 .replace("language", finalLanguage.getName())
                 .handle();

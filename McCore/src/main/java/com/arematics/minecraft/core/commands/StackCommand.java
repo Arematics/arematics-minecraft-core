@@ -2,6 +2,7 @@ package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.server.CorePlayer;
 import com.sk89q.worldedit.blocks.ItemType;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,8 +25,8 @@ public class StackCommand extends CoreCommand {
     }
 
     @SubCommand("items")
-    public boolean stackItems(Player player) {
-        stackItems(player.getInventory(), true);
+    public boolean stackItems(CorePlayer player) {
+        stackItems(player.getPlayer().getInventory(), true);
         return true;
     }
 

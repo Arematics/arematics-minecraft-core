@@ -74,7 +74,7 @@ public class SpringInitializedListener implements Listener {
                     .handle();
         }catch (RuntimeException ignored){}
         tablist.refreshTeams();
-        Bukkit.getOnlinePlayers().stream().map(CorePlayer::get).forEach(CorePlayer::patchOnlineTime);
+        Bukkit.getOnlinePlayers().stream().map(CorePlayer::get).forEach(CorePlayer::updateOnlineTime);
     }
 
     private void saveInventories(){

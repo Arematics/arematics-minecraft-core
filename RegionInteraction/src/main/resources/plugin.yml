@@ -1,0 +1,7 @@
+name: RegionInteraction
+author: Klysma
+description: RegionInteraction by Arematics
+version: 1.0.0
+depend: [McCore, WorldGuard]
+
+main: com.arematics.minecraft.ri.RegionInteractionBoot

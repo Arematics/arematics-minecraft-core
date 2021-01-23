@@ -6,6 +6,7 @@ import com.arematics.minecraft.core.hooks.LanguageHook;
 import com.arematics.minecraft.core.hooks.MultiHook;
 import com.arematics.minecraft.core.hooks.PreFileExistHook;
 import org.apache.commons.lang3.ClassUtils;
+import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class Bootstrap extends JavaPlugin {
@@ -65,4 +66,11 @@ public abstract class Bootstrap extends JavaPlugin {
         return config;
     }
 
+    public String getDir() {
+        return dir;
+    }
+
+    public void callEvent(Event event){
+        this.getServer().getPluginManager().callEvent(event);
+    }
 }
