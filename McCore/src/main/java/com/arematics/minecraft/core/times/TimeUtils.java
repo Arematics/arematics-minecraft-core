@@ -61,7 +61,6 @@ public class TimeUtils {
                 .appendOptional(DateTimeFormatter.ofPattern("E"))
                 .toFormatter();
         TemporalAccessor accessor = dtf.parse(day);
-        System.out.println(DayOfWeek.from(accessor).toString());
         return DayOfWeek.from(accessor);
     }
 }

@@ -30,10 +30,14 @@ import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.plugin.SimplePluginManager;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -96,8 +100,33 @@ public abstract class CoreCommand extends Command {
     public void register(){
         if(this.subCommands.stream().distinct().count() != this.subCommands.size())
             throw new RuntimeException("The command: " + this.getName() + " has identical sub command methods");
-        else
+        else {
+            if(Bukkit.getCommandMap().getCommand(this.getName()) != null) {
+                Bukkit.getLogger().info("Command: " + this.getName() + " double register detected, removing first register");
+                try{
+                    unregisterCommand();
+                }catch (Exception ignore){}
+            }
             Bukkit.getServer().getCommandMap().register(this.getName(), this);
+        }
+    }
+
+    public void unregisterCommand() throws NoSuchFieldException, IllegalAccessException {
+        SimplePluginManager manager = (SimplePluginManager) Boots.getBoot(CoreBoot.class).getServer().getPluginManager();
+
+        Field commandMapField = SimplePluginManager.class.getDeclaredField("commandMap");
+        commandMapField.setAccessible(true);
+        CommandMap map = (CommandMap) commandMapField.get(manager);
+
+        Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
+        knownCommandsField.setAccessible(true);
+        Map<String, Command> knownCommands = (Map<String, Command>) knownCommandsField.get(map);
+
+        Command command = knownCommands.get(this.getName());
+        if (command != null) {
+            command.unregister(map);
+            knownCommands.remove(this.getName());
+        }
     }
 
     protected void registerLongArgument(String key){

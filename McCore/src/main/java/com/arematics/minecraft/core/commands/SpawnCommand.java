@@ -18,7 +18,6 @@ public class SpawnCommand extends CoreCommand {
     private final WarpCommand warpCommand;
     private final WarpService warpService;
 
-
     @Autowired
     public SpawnCommand(WarpCommand warpCommand, WarpService warpService) {
         super("spawn");
@@ -39,5 +38,13 @@ public class SpawnCommand extends CoreCommand {
             player.warn("Warp was not set yet").handle();
         }
 
+    }
+
+    public WarpCommand getWarpCommand() {
+        return warpCommand;
+    }
+
+    public WarpService getWarpService() {
+        return warpService;
     }
 }

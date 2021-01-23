@@ -32,7 +32,6 @@ public class LanguageHook implements Hook<String>{
         try(InputStream stream = this.loader.getResourceAsStream(file)){
             LanguageAPI.registerFile(stream);
         }catch (Exception e){
-            e.printStackTrace();
             Bukkit.getLogger().severe("Could not add Language File " + file + ": " + e.getMessage());
         }
     }

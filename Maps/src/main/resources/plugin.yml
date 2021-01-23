@@ -1,0 +1,7 @@
+name: Maps
+author: Klysma
+description: Maps by Arematics
+version: 0.4.2
+depend: [McCore]
+
+main: com.arematics.minecraft.maps.MapBoot
