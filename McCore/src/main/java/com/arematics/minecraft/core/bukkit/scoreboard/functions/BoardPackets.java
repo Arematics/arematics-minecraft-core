@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.scoreboard.functions;
+package com.arematics.minecraft.core.bukkit.scoreboard.functions;
 
 import net.minecraft.server.v1_8_R3.*;
 import org.apache.commons.codec.digest.Md5Crypt;

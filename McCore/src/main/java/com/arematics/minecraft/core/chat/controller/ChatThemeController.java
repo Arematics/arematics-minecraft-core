@@ -4,7 +4,7 @@ import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.chat.util.FormatBuilder;
 import com.arematics.minecraft.core.chat.util.GlobalActionsBuilder;
 import com.arematics.minecraft.core.chat.util.ThemePlaceholderBuilder;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholderAction;
 import com.arematics.minecraft.data.global.model.ThemePlaceholder;

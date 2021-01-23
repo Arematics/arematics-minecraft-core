@@ -1,7 +1,7 @@
 package com.arematics.minecraft.clans.listener;
 
 import com.arematics.minecraft.core.bukkit.wrapper.AsyncPlayerDeathEvent;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.mode.model.Clan;
 import com.arematics.minecraft.data.mode.model.ClanMember;
 import com.arematics.minecraft.data.service.ClanMemberService;

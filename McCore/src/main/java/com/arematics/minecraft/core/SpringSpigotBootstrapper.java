@@ -17,16 +17,6 @@ public class SpringSpigotBootstrapper {
     private SpringSpigotBootstrapper() {
     }
 
-    public static ConfigurableApplicationContext initialize(JavaPlugin plugin, Class<?> applicationClass) throws ExecutionException, InterruptedException {
-        CompoundClassLoader classLoader = new CompoundClassLoader(plugin.getClass().getClassLoader(), Thread.currentThread().getContextClassLoader());
-        return initialize(plugin, classLoader, new SpringApplicationBuilder(applicationClass));
-    }
-
-    public static ConfigurableApplicationContext initialize(JavaPlugin plugin, SpringApplicationBuilder builder) throws ExecutionException, InterruptedException {
-        CompoundClassLoader classLoader = new CompoundClassLoader(plugin.getClass().getClassLoader(), Thread.currentThread().getContextClassLoader());
-        return initialize(plugin, classLoader, builder);
-    }
-
     public static ConfigurableApplicationContext initialize(JavaPlugin plugin, ClassLoader classLoader, Class<?> applicationClass) throws ExecutionException, InterruptedException {
         return initialize(plugin, classLoader, new SpringApplicationBuilder(applicationClass));
     }

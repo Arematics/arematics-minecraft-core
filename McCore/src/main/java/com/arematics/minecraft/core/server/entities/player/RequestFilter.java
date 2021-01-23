@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.server;
+package com.arematics.minecraft.core.server.entities.player;
 
 public enum RequestFilter {
     EVERYONE(),

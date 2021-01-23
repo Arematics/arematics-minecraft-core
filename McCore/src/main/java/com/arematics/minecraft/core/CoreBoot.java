@@ -21,6 +21,7 @@ public class CoreBoot extends Bootstrap{
     private final Clearlag clearlag;
 
     private ConfigurableApplicationContext context;
+
     /**
      * Hooking Config File
      * Starts the Multi Hook to get all Hooks loaded (Language)

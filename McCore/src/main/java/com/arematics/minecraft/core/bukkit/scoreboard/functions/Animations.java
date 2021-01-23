@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.scoreboard.functions;
+package com.arematics.minecraft.core.bukkit.scoreboard.functions;
 
 public class Animations {
 

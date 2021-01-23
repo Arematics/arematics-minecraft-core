@@ -1,6 +1,6 @@
-package com.arematics.minecraft.core.tablist;
+package com.arematics.minecraft.core.bukkit;
 
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.service.RankService;
 import org.bukkit.Bukkit;

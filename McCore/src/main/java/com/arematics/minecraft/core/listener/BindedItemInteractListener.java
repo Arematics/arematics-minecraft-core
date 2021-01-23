@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

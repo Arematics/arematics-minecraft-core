@@ -1,6 +1,6 @@
 package com.arematics.minecraft.data.service;
 
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.global.repository.ChatThemeRepository;
 import com.arematics.minecraft.data.global.repository.UserRepository;

@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.server;
+package com.arematics.minecraft.core.server.entities.player;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
@@ -66,10 +66,6 @@ public class PlayerRequestSettings {
     public void addTimeout(String key){
         this.timeouts.add(key);
         ArematicsExecutor.asyncDelayed(() -> this.timeouts.remove(key), this.getRequestTimeout(), TimeUnit.SECONDS);
-    }
-
-    public void removeTimeout(String key){
-        this.timeouts.remove(key);
     }
 
     public void clearTimeouts(){

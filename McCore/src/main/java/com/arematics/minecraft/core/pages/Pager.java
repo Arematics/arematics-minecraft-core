@@ -6,7 +6,7 @@ import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import com.arematics.minecraft.core.messaging.advanced.JsonColor;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +78,7 @@ public class Pager {
     public boolean isToOld(String key){
         if(!pageables.containsKey(key)) return true;
         Pageable pageable = pageables.get(key);
-        if((System.currentTimeMillis()) - (pageable.getLastUse() + (1000*pageable.getMaxCacheSeconds())) > 0){
+        if((System.currentTimeMillis()) - (pageable.getLastUse() + (1000L * pageable.getMaxCacheSeconds())) > 0){
             pageables.remove(key);
             return true;
         }

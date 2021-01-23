@@ -3,9 +3,13 @@ package com.arematics.minecraft.core.messaging.advanced;
 import com.arematics.minecraft.core.chat.controller.PlaceholderController;
 import com.arematics.minecraft.core.server.CorePlayer;
 import com.arematics.minecraft.core.utils.JSONUtil;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholderAction;
 import com.arematics.minecraft.data.global.model.PlaceholderAction;
+import com.arematics.minecraft.core.chat.controller.PlaceholderController;
+import com.arematics.minecraft.core.utils.JSONUtil;
+import com.arematics.minecraft.data.global.model.GlobalPlaceholderAction;
 import com.arematics.minecraft.data.global.model.ThemePlaceholder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -168,7 +172,6 @@ public class MSG {
      *
      * @param term        Term that gets replaced (case-sensitive)
      * @param replacement Replacement
-     * @return Amount of parts that contained the term at least once
      */
     public void replaceAllAt(String term, MSG replacement, boolean ignoreCase) {
         if (term == null || term.isEmpty())
@@ -227,10 +230,9 @@ public class MSG {
         String text = PARTS.get(0).TEXT;
         PARTS.clear();
         String[] parts = text.split(",");
-        for (int i = 0; i < parts.length; i++) {
-            String s = parts[i];
+        for (String s : parts) {
             Part part = new Part(s).styleAndColorFromText();
-            if(this.lastColor == null){
+            if (this.lastColor == null) {
                 part = part.setBaseColor(part.BASE_COLOR);
             } else {
                 part = part.setBaseColor(this.lastColor);

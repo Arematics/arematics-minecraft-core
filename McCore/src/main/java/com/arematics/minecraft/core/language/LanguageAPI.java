@@ -2,7 +2,7 @@ package com.arematics.minecraft.core.language;
 
 import com.arematics.minecraft.core.configurations.Config;
 import com.arematics.minecraft.core.messaging.MessageHighlight;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -65,7 +65,7 @@ public class LanguageAPI {
         return lang;
     }
 
-    public static boolean registerFile(InputStream stream){
+    public static void registerFile(InputStream stream){
         Properties properties = new Properties();
 
         try{
@@ -76,7 +76,6 @@ public class LanguageAPI {
             Bukkit.getLogger().severe("Could not load File " + ioe.getMessage());
         }
 
-        return false;
     }
 
     private static void addVals(String langName, String key, String value){

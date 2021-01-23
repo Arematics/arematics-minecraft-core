@@ -1,15 +1,15 @@
-package com.arematics.minecraft.core.server;
+package com.arematics.minecraft.core.server.entities.player;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.chat.controller.ChatThemeController;
-import com.arematics.minecraft.core.currency.Currency;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.permissions.Permissions;
-import com.arematics.minecraft.core.scoreboard.functions.BoardSet;
+import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSet;
+import com.arematics.minecraft.core.server.entities.CurrencyEntity;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.Inventories;
 import com.arematics.minecraft.data.global.model.ChatTheme;
@@ -59,10 +59,6 @@ public class CorePlayer implements CurrencyEntity {
         players.remove(player.getUniqueId());
     }
 
-    public static void unload(Player player){
-        players.remove(player.getUniqueId()).unload();
-    }
-
     public static List<CorePlayer> inRegion(ProtectedRegion region){
         return CorePlayer.players.values().stream()
                 .filter(player -> player.getCurrentRegions().contains(region))
@@ -70,7 +66,6 @@ public class CorePlayer implements CurrencyEntity {
     }
 
     private final Player player;
-    private final Map<Currency, Double> currencies = new HashMap<>();
     private final Pager pager;
     private final BoardSet boardSet;
     private final PlayerRequestSettings requestSettings;
@@ -87,11 +82,17 @@ public class CorePlayer implements CurrencyEntity {
     private final ChatThemeController chatThemeController;
     private final OnlineTimeService onlineTimeService;
 
+    private final LocalDateTime joined;
     private LocalDateTime lastPatch = null;
+    private LocalDateTime lastAntiAFKEvent;
+
+    private Duration lastAfk = null;
     private final Set<ProtectedRegion> currentRegions;
 
     public CorePlayer(Player player){
         this.player = player;
+        this.joined = LocalDateTime.now();
+        this.lastAntiAFKEvent = this.joined;
         this.chatThemeController = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeController.class);
         this.pager = new Pager(this);
         this.boardSet = new BoardSet(player);
@@ -106,6 +107,7 @@ public class CorePlayer implements CurrencyEntity {
     }
 
     private void unload() {
+        this.updateOnlineTime();
         this.pager.unload();
         this.boardSet.remove();
     }
@@ -121,12 +123,55 @@ public class CorePlayer implements CurrencyEntity {
         this.inFight = false;
     }
 
-    public void patchOnlineTime(){
+    /**
+     * Called if Anti AFK Event is executed updating lastAntiAfk Time
+     */
+    public void callAntiAfk(){
+        this.lastAntiAFKEvent = LocalDateTime.now();
+    }
+
+    /**
+     * Update Players Afk Time Data
+     */
+    private void updateAfkTime(){
+        this.lastAfk = Duration.between(this.lastAntiAFKEvent.plusMinutes(1), LocalDateTime.now());
+        this.lastAntiAFKEvent = LocalDateTime.now();
+        if(lastAfk.isNegative()) return;
+        updateOnlineTimeData(false, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
+        updateOnlineTimeData(true, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
+    }
+
+
+    /**
+     * Update Players OnlineTime Data
+     */
+    public void updateOnlineTime(){
+        this.updateAfkTime();
         if(lastPatch == null) lastPatch = getUser().getLastJoin().toLocalDateTime();
         Duration online = Duration.between(this.lastPatch, LocalDateTime.now());
-        patchOnlineTime(online, false);
-        patchOnlineTime(online, true);
+        updateOnlineTimeData(false, (time) -> updatePlayedTime(time, online));
+        updateOnlineTimeData(true, (time) -> updatePlayedTime(time, online));
         lastPatch = LocalDateTime.now();
+    }
+
+
+    /**
+     * Update Players Play Time Data
+     */
+    private void updatePlayedTime(OnlineTime time, Duration online){
+        long totalTime = time.getTime() + online.toMillis();
+        time.setTime(totalTime - (this.lastAfk.isNegative() ? 0 : this.lastAfk.toMillis()));
+    }
+
+    public void updateOnlineTimeData(boolean mode, Consumer<OnlineTime> update){
+        OnlineTime time;
+        try{
+            time = this.onlineTimeService.findByUUID(mode, getUUID());
+        }catch (RuntimeException re){
+            time = new OnlineTime(getUUID(), 0L, 0L);
+        }
+        update.accept(time);
+        this.onlineTimeService.put(mode, time);
     }
 
     public void removeAmountFromHand(int amount){
@@ -144,23 +189,13 @@ public class CorePlayer implements CurrencyEntity {
             }
     }
 
-    public void patchOnlineTime(Duration duration, boolean mode){
-        OnlineTime time;
-        try{
-            time = this.onlineTimeService.findByUUID(mode, getUUID());
-        }catch (RuntimeException re){
-            time = new OnlineTime(getUUID(), 0L, 0L);
-        }
-        time.setTime(time.getTime() + duration.toMillis());
-        this.onlineTimeService.put(mode, time);
-    }
-
     public boolean hasEffect(PotionEffectType type) {
         return this.getPlayer().getActivePotionEffects().stream()
                 .filter(effect -> effect.getType() == type)
                 .count() >= 1;
     }
 
+    @SuppressWarnings("unused")
     public void equip(CoreItem... items){
         ArematicsExecutor.runAsync(() -> this.equipItems(items));
     }
@@ -257,20 +292,18 @@ public class CorePlayer implements CurrencyEntity {
         return this.userService.getOrCreateUser(this);
     }
 
-    UserService getUserService(){
-        return this.userService;
-    }
-
     public void update(User user){
         this.userService.update(user);
     }
 
+    @SuppressWarnings("unused")
     public void addKarma(int amount){
         User user = getUser();
         user.setKarma(user.getKarma() + amount);
         update(user);
     }
 
+    @SuppressWarnings("unused")
     public void removeKarma(int amount){
         User user = getUser();
         user.setKarma(user.getKarma() - amount);
@@ -310,6 +343,7 @@ public class CorePlayer implements CurrencyEntity {
         this.service.save(stats);
     }
 
+    @SuppressWarnings("unused")
     public void cleanStats(){
         this.service.delete(getStats());
     }
@@ -320,6 +354,7 @@ public class CorePlayer implements CurrencyEntity {
         saveStats(stats);
     }
 
+    @SuppressWarnings("unused")
     public void setKills(int kills){
         onStats(stats -> stats.setKills(kills));
         getBoard().getBoard("main")
@@ -332,6 +367,7 @@ public class CorePlayer implements CurrencyEntity {
                 .setEntrySuffix("Kills", "§7" + this.getStats().getKills());
     }
 
+    @SuppressWarnings("unused")
     public void setDeaths(int deaths){
         onStats(stats -> stats.setDeaths(deaths));
         onStats(stats -> stats.setDeaths(stats.getDeaths() + 1));
@@ -372,6 +408,7 @@ public class CorePlayer implements CurrencyEntity {
                 .setEntrySuffix("Coins", "§7" + this.getStats().getCoins());
     }
 
+    @SuppressWarnings("unused")
     public void setBounty(int bounty){
         onStats(stats -> stats.setBounty(bounty));
     }

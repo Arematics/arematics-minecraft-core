@@ -2,8 +2,7 @@ package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.server.CorePlayer;
-import lombok.var;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -11,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 @Perm(permission = "fix", description = "fix your items")
 @Component

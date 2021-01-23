@@ -1,8 +1,8 @@
-package com.arematics.minecraft.core.scoreboard.functions;
+package com.arematics.minecraft.core.bukkit.scoreboard.functions;
 
-import com.arematics.minecraft.core.scoreboard.model.Board;
-import com.arematics.minecraft.core.scoreboard.model.BoardEntry;
-import com.arematics.minecraft.core.scoreboard.model.BoardEntryData;
+import com.arematics.minecraft.core.bukkit.scoreboard.model.Board;
+import com.arematics.minecraft.core.bukkit.scoreboard.model.BoardEntry;
+import com.arematics.minecraft.core.bukkit.scoreboard.model.BoardEntryData;
 import net.minecraft.server.v1_8_R3.ScoreboardObjective;
 
 import java.util.ArrayList;

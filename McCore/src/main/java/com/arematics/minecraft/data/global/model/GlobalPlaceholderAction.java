@@ -24,7 +24,7 @@ import javax.persistence.Table;
 public class GlobalPlaceholderAction implements PlaceholderAction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String placeholderKey;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

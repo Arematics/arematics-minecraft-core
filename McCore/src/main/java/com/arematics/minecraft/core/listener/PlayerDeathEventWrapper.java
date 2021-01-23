@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.bukkit.wrapper.AsyncPlayerDeathEvent;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;

@@ -2,8 +2,8 @@ package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.server.CorePlayer;
-import com.arematics.minecraft.core.server.RequestFilter;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.RequestFilter;
 import com.arematics.minecraft.data.service.UserService;
 import org.joda.time.Period;
 import org.springframework.beans.factory.annotation.Autowired;

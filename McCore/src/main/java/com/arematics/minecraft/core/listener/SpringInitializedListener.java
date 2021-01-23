@@ -8,8 +8,8 @@ import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.events.SpringInitializedEvent;
 import com.arematics.minecraft.core.hooks.PermissionCreationHook;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.server.CorePlayer;
-import com.arematics.minecraft.core.tablist.Tablist;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.bukkit.Tablist;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.service.BroadcastService;
 import com.arematics.minecraft.data.service.InventoryService;
@@ -74,7 +74,7 @@ public class SpringInitializedListener implements Listener {
                     .handle();
         }catch (RuntimeException ignored){}
         tablist.refreshTeams();
-        Bukkit.getOnlinePlayers().stream().map(CorePlayer::get).forEach(CorePlayer::patchOnlineTime);
+        Bukkit.getOnlinePlayers().stream().map(CorePlayer::get).forEach(CorePlayer::updateOnlineTime);
     }
 
     private void saveInventories(){

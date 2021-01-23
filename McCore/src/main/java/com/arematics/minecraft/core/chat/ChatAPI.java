@@ -3,7 +3,7 @@ package com.arematics.minecraft.core.chat;
 import com.arematics.minecraft.core.chat.controller.ChatController;
 import com.arematics.minecraft.core.chat.controller.ChatThemeController;
 import com.arematics.minecraft.core.chat.controller.PlaceholderController;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholder;
 import com.arematics.minecraft.data.global.model.GlobalPlaceholderAction;

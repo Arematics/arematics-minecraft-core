@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.command.processor.validator;
 
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
-import com.arematics.minecraft.core.server.CurrencyEntity;
+import com.arematics.minecraft.core.server.entities.CurrencyEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

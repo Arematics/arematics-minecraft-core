@@ -1,7 +1,7 @@
 package com.arematics.minecraft.meta.listener;
 
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.Base64Utils;
 import com.arematics.minecraft.meta.NbtProperties;
 import com.arematics.minecraft.meta.events.PrepareAnvilEvent;

@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.pages;
 
-import com.arematics.minecraft.core.server.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
