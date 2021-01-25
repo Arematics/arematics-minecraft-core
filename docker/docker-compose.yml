@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  pvp:
+    build: spigot
+    ports:
+      - "25566:25565"
+    volumes:
+      - H:\Network\Git\arematics_mc_plugins\Server\PvP\plugins:/data/plugins
+      - H:\Network\Git\arematics_mc_plugins\Server\PvP\logs:/data/logs
+    environment:
+      XMX: 6G
+      VIEW_DISTANCE: 8
+  guns:
+    build: spigot
+    ports:
+      - "25567:25565"
+    environment:
+      XMX: 5G
+      VIEW_DISTANCE: 10
+  lobby-1:
+    build: spigot
+    ports:
+      - "25568:25565"
+    environment:
+      XMX: 4G
+      VIEW_DISTANCE: 12
+  lobby-2:
+    build: spigot
+    ports:
+      - "25569:25565"
+    environment:
+      XMX: 4G
+      VIEW_DISTANCE: 12
