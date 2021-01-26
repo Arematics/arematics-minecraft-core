@@ -5,8 +5,7 @@ services:
     ports:
       - "25565:25565"
     volumes:
-      - H:\Network\Git\arematics_mc_plugins\Server\Proxy\plugins:/data/plugins
-      - H:\Network\Git\arematics_mc_plugins\Server\Proxy\logs:/data/logs
+      - H:\Network\Git\arematics_mc_plugins\Server\Proxy\:/home/proxy
     networks:
       - pvp_network
       - guns_network
@@ -36,7 +35,7 @@ services:
       VIEW_DISTANCE: 10
     networks:
       - guns_network
-  lobby-1:
+  lobby_1:
     build: spigot
     ports:
       - "25568:25565"
@@ -48,7 +47,7 @@ services:
       VIEW_DISTANCE: 12
     networks:
       - lobby_network
-  lobby-2:
+  lobby_2:
     build: spigot
     ports:
       - "25569:25565"

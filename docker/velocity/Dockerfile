@@ -2,16 +2,19 @@ FROM amazoncorretto:latest
 
 MAINTAINER "contact@arematics.com <Arematics UG (haftungsbeschränkt)>"
 
-RUN mkdir /data
+RUN yum install -y rsync
 
 EXPOSE 25565
 
+RUN mkdir /home/proxy
+WORKDIR /tmp/
+
+ADD velocity.jar .
+ADD start.sh .
+ADD velocity.toml .
+
 WORKDIR /data
 
-COPY velocity.jar .
-COPY start.sh .
-COPY velocity.toml .
+COPY start /
 
-ENTRYPOINT ./start.sh
-
-VOLUME ["/data/plugins", "/data/logs"]
+ENTRYPOINT [ "/start" ]
