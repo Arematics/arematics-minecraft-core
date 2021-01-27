@@ -99,24 +99,12 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return this;
     }
 
-    public boolean closeOnClick(){
-        return this.getMeta().hasKey(CLOSE_INVENTORY);
-    }
-
-    public boolean clickDisabled(){
-        return this.getMeta().hasKey(DISABLE_CLICK);
-    }
-
     public String readMetaValue(String key){
         return this.getMeta().getString(key);
     }
 
     public boolean hasBindedCommand(){
         return this.getMeta().hasKey(BINDED_COMMAND);
-    }
-
-    public String getBindedCommand(){
-        return this.getMeta().getString(BINDED_COMMAND);
     }
 
     public CoreItem setInteger(String key, int value){
