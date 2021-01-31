@@ -6,23 +6,23 @@ public interface CurrencyEntity {
      * Get money from entity
      * @return Money Amount
      */
-    long getMoney();
+    double getMoney();
 
     /**
      * Set money for entity
      * @param money Amount to set
      */
-    void setMoney(long money);
+    void setMoney(double money);
 
     /**
      * Add money to current money balance for entity
      * @param amount Amount to add
      */
-    void addMoney(long amount);
+    void addMoney(double amount);
 
     /**
      * Remove money from current money balance for entity
      * @param amount Amount to remove
      */
-    void removeMoney(long amount) throws RuntimeException;
+    void removeMoney(double amount) throws RuntimeException;
 }

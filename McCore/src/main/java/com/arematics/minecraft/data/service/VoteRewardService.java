@@ -8,6 +8,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,6 +27,10 @@ public class VoteRewardService {
         if(!reward.isPresent())
             throw new RuntimeException("Vote Reward with id: " + id + " could not be found");
         return reward.get();
+    }
+
+    public List<VoteReward> findAll(){
+        return repository.findAllByOrderByCosts();
     }
 
     @CachePut(cacheNames = "vote_rewards", key = "#result.id")

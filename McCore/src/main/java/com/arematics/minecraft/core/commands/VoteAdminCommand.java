@@ -38,7 +38,7 @@ public class VoteAdminCommand extends CoreCommand {
             this.service.findVoteReward(id);
             player.warn("Vote Reward with id: " + id + " already exists").handle();
         }catch (RuntimeException re){
-            VoteReward voteReward = new VoteReward(id, costs, new CoreItem[]{item});
+            VoteReward voteReward = new VoteReward(id, costs, preparedItem(id, costs, item));
             this.service.update(voteReward);
             player.info("New Vote Reward with id: " + id + " has been created").handle();
         }
@@ -54,6 +54,30 @@ public class VoteAdminCommand extends CoreCommand {
         }catch (RuntimeException re){
             player.warn("Vote Reward with id: " + id + " not exists").handle();
         }
+    }
+
+    @SubCommand("setItem {id}")
+    public void setVoteRewardItem(CorePlayer player, String id) {
+        CoreItem item = player.getItemInHand();
+        if(item == null){
+            player.warn("no_item_in_hand").handle();
+            return;
+        }
+        try{
+            VoteReward reward = this.service.findVoteReward(id);
+            reward.setDisplayItem(preparedItem(id, reward.getCosts(), item));
+            this.service.update(reward);
+            player.info("Vote Reward display item changed").handle();
+        }catch (RuntimeException re){
+            player.warn("Vote Reward with id: " + id + " not exists").handle();
+        }
+    }
+
+    private CoreItem[] preparedItem(String rewardId, int costs, CoreItem hand){
+        CoreItem clone = CoreItem.create(hand.clone());
+        clone.setName("§cReward §e" + rewardId);
+        clone.addToLore("   §7Costs: §c" + costs);
+        return new CoreItem[]{clone};
     }
 
     @SubCommand("delete {id}")

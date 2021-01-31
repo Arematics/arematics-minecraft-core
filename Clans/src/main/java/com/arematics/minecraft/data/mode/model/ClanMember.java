@@ -50,22 +50,22 @@ public class ClanMember implements Serializable, CurrencyEntity {
     }
 
     @Override
-    public long getMoney() {
+    public double getMoney() {
         return online().getMoney();
     }
 
     @Override
-    public void setMoney(long money) {
+    public void setMoney(double money) {
         online().setMoney(money);
     }
 
     @Override
-    public void addMoney(long amount) {
+    public void addMoney(double amount) {
         online().addMoney(amount);
     }
 
     @Override
-    public void removeMoney(long amount) throws RuntimeException {
+    public void removeMoney(double amount) throws RuntimeException {
         online().removeMoney(amount);
     }
 }

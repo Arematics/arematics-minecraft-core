@@ -1,6 +1,5 @@
 package com.arematics.minecraft.core.listener;
 
-import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardHandler;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.bukkit.Tablist;
@@ -23,13 +22,11 @@ import java.sql.Timestamp;
 public class UserUpdateListener implements Listener {
 
     private final UserService userService;
-    private final ChatAPI chatAPI;
     private final Tablist tablist;
 
     @Autowired
-    public UserUpdateListener(UserService userService, ChatAPI chatAPI, Tablist tablist){
+    public UserUpdateListener(UserService userService, Tablist tablist){
         this.userService = userService;
-        this.chatAPI = chatAPI;
         this.tablist = tablist;
     }
 
@@ -59,16 +56,14 @@ public class UserUpdateListener implements Listener {
     }
 
     private void dispatchPlayerData(CorePlayer player){
-        ArematicsExecutor.syncRun(() -> sendTab(player));
-        sendInfo(player);
         patchUser(player);
+        sendInfo(player);
+        ArematicsExecutor.syncRun(() -> sendTab(player));
     }
 
     private void patchUser(CorePlayer player){
         Timestamp current = new Timestamp(System.currentTimeMillis());
         User user = this.userService.getOrCreateUser(player.getUUID(), player.getPlayer().getName());
-        chatAPI.login(player);
-        chatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().add(player);
         user.setLastName(player.getPlayer().getName());
         user.setLastIp(Md5Crypt.md5Crypt(player.getPlayer().getAddress().getAddress().getHostAddress().getBytes()));
         user.setLastIpChange(current);

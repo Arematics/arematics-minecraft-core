@@ -24,5 +24,5 @@ public class GameStats {
     private int deaths;
     private Integer bounty;
     @Column(name = "coins", nullable = false)
-    private Long coins;
+    private Double coins;
 }

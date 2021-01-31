@@ -9,10 +9,13 @@ import com.arematics.minecraft.core.annotations.Validator;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.command.processor.validator.BalanceValidator;
+import com.arematics.minecraft.core.events.CurrencyEvent;
+import com.arematics.minecraft.core.events.CurrencyEventType;
 import com.arematics.minecraft.core.messaging.advanced.JsonColor;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.User;
@@ -25,6 +28,7 @@ import com.arematics.minecraft.data.service.ClanRankService;
 import com.arematics.minecraft.data.service.ClanService;
 import com.arematics.minecraft.data.service.UserService;
 import com.google.common.collect.Lists;
+import org.bukkit.Bukkit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,23 +47,28 @@ public class ClanCommand extends CoreCommand {
     private final ClanMemberService clanMemberService;
     private final ClanRankService clanRankService;
     private final UserService userService;
+    private final Server server;
 
     @Autowired
     public ClanCommand(ClanService clanService,
                        ClanMemberService clanMemberService,
                        ClanRankService clanRankService,
-                       UserService userService){
+                       UserService userService,
+                       Server server){
         super("clan", "clans", "c");
         this.clanService = clanService;
         this.clanMemberService = clanMemberService;
         this.clanRankService = clanRankService;
         this.userService = userService;
+        this.server = server;
     }
 
     @SubCommand("create {name} {tag}")
     public boolean createClan(@Validator(validators = NoClanValidator.class) CorePlayer player, String name, String tag)
             throws CommandProcessException {
         final String clanExists = "Clan with %typ% %value% already exists";
+        if(player.getMoney() < 25000)
+            throw new CommandProcessException("You need 25.000 Coins to create a clan");
         try{
             clanService.findClanByName(name);
             player.warn(clanExists)
@@ -76,7 +85,16 @@ public class ClanCommand extends CoreCommand {
                         .replace("value", tag)
                         .handle();
             }catch (RuntimeException re2){
-                createNewClan(player, name, tag);
+                boolean success = server.getCurrencyController()
+                        .createEvent(player)
+                        .setAmount(25000)
+                        .setEventType(CurrencyEventType.WASTE)
+                        .setTarget("create-clan")
+                        .onSuccess(() -> this.createNewClan(player, name, tag));
+                if(success)
+                    player.removeMoney(25000);
+                else
+                    throw new CommandProcessException("Clan creation payment could not be made. Please read security info");
             }
         }
         return true;
@@ -240,7 +258,11 @@ public class ClanCommand extends CoreCommand {
 
     @SubCommand("money add {amount}")
     public void addClanMoney(ClanMember member,
-                             @Validator(validators = BalanceValidator.class) Long amount) {
+                             @Validator(validators = BalanceValidator.class) Double amount) {
+        CurrencyEvent event = new CurrencyEvent(member.online(), amount, CurrencyEventType.TRANSFER, "to-clan");
+        Bukkit.getServer().getPluginManager().callEvent(event);
+        if(event.isCancelled()) throw new CommandProcessException("Payment to clan bank has been cancelled. Please read security terms");
+        member.removeMoney(amount);
         Clan clan = member.getClan(clanService);
         clan.setCoins(clan.getCoins() + amount);
         clanService.update(clan);

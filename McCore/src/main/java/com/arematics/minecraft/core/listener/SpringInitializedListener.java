@@ -3,16 +3,16 @@ package com.arematics.minecraft.core.listener;
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CompoundClassLoader;
 import com.arematics.minecraft.core.CoreBoot;
-import com.arematics.minecraft.core.chat.ChatAPI;
+import com.arematics.minecraft.core.bukkit.Tablist;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.events.SpringInitializedEvent;
 import com.arematics.minecraft.core.hooks.PermissionCreationHook;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.bukkit.Tablist;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.service.BroadcastService;
 import com.arematics.minecraft.data.service.InventoryService;
+import com.arematics.minecraft.data.service.RankService;
 import com.arematics.minecraft.data.share.model.BroadcastMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -31,10 +31,11 @@ public class SpringInitializedListener implements Listener {
         boot.setSpringInitialized(true);
         ArematicsExecutor.runAsync(() -> scanPermissions(boot));
         registerBukkitWorkers(boot);
-        boot.getContext().getBean(ChatAPI.class).bootstrap();
         Tablist tablist = boot.getContext().getBean(Tablist.class);
         createAsyncTasks(tablist);
         tablist.flushOnlines();
+        RankService service = boot.getContext().getBean(RankService.class);
+        service.getDefaultRank();
     }
 
     private void scanPermissions(CoreBoot boot){

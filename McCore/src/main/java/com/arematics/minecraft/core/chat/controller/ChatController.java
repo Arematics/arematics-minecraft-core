@@ -1,65 +1,42 @@
 package com.arematics.minecraft.core.chat.controller;
 
-import com.arematics.minecraft.core.chat.ChatAPI;
-import com.arematics.minecraft.core.messaging.advanced.MSG;
-import com.arematics.minecraft.data.global.model.ChatTheme;
-import com.arematics.minecraft.data.global.model.PlaceholderAction;
+import com.arematics.minecraft.core.server.Server;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.data.global.model.Rank;
+import com.arematics.minecraft.data.global.model.User;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.bukkit.entity.Player;
+import org.bukkit.ChatColor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 @Getter
 @Setter
 @Component
+@RequiredArgsConstructor(onConstructor_=@Autowired)
 public class ChatController {
 
+    private final Server server;
+
     private String chatMessage;
-    private ChatAPI chatAPI;
 
-    public void chat(Player player, String message) {
+    public void chat(CorePlayer player, String message) {
         setChatMessage(message);
-        chatAPI.getThemes().forEach(chatTheme -> {
-            if (chatTheme.getActiveUsers().size() < 1) {
-                return;
-            }
-            MSG msg = buildThemeMessage(chatTheme, player);
-            msg.sendAll(chatTheme.getActiveUsers(), new ArrayList<>());
-        });
-
+        server.getOnline().forEach(user -> user.info(msg(player, message)).DEFAULT().disableServerPrefix().handle());
     }
 
-    /**
-     * creates a map out of all themeplaceholders and globalplaceholderactions with placeholder as key
-     * @param theme to get actions from
-     * @return map of all actions with delimited placeholder as key
-     */
-    public Map<String, PlaceholderAction> getActionsMap(ChatTheme theme) {
-        Map<String, PlaceholderAction> actions = new HashMap<>();
-        theme.getGlobalPlaceholderActions().forEach(globalPlaceholderAction -> mergeActionsIntoMap(actions, globalPlaceholderAction));
-        theme.getThemePlaceholders().forEach(themePlaceholder -> mergeActionsIntoMap(actions, themePlaceholder));
-        return actions;
+    private String msg(CorePlayer player, String message){
+        Rank rank = getRank(player.getUser());
+        return "§8§l[" + rank.getColorCode() + rank.getName() + "]§8§l " + player.getPlayer().getName() + " » " +
+                createChatMessage(player, message);
     }
 
-    private void mergeActionsIntoMap(Map<String, PlaceholderAction> actions, PlaceholderAction placeholderAction) {
-        actions.put(PlaceholderController.applyDelimiter(placeholderAction.getPlaceholderKey()), placeholderAction);
+    private String createChatMessage(CorePlayer player, String message){
+        return player.hasPermission("chatcolor") ? ChatColor.translateAlternateColorCodes('&', message) : message;
     }
 
-    /**
-     * creates chat message in a theme for a given player
-     * @param theme to use
-     * @param player who chatted
-     * @return themed chatmessage for player
-     */
-    private MSG buildThemeMessage(ChatTheme theme, Player player) {
-        MSG msg = new MSG(theme);
-        Map<String, PlaceholderAction> actions = getActionsMap(theme);
-        msg.createThemeParts(actions, player, chatAPI.getPlaceholderController());
-        return msg;
+    private Rank getRank(User user){
+        return user.getDisplayRank() != null ? user.getDisplayRank(): user.getRank();
     }
 }

@@ -72,7 +72,7 @@ create table if not exists ranks_AUD
     engine=MyISAM;
 
 create index if not exists FK9502yxwlwlrhjh6uw6k2gmrbq
-    on ranks_AUD (rev);
+    on ranks_aud (rev);
 
 create table if not exists ranks_permission
 (
