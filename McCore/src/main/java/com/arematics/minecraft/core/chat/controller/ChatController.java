@@ -28,7 +28,7 @@ public class ChatController {
 
     private String msg(CorePlayer player, String message){
         Rank rank = getRank(player.getUser());
-        return "§8§l[" + rank.getColorCode() + rank.getName() + "]§8§l " + player.getPlayer().getName() + " » " +
+        return "§8§l[" + rank.getColorCode() + rank.getName() + "§8§l] §7" + player.getPlayer().getName() + " §8» §f" +
                 createChatMessage(player, message);
     }
 

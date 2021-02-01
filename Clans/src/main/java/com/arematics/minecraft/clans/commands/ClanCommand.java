@@ -9,7 +9,6 @@ import com.arematics.minecraft.core.annotations.Validator;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.command.processor.validator.BalanceValidator;
-import com.arematics.minecraft.core.events.CurrencyEvent;
 import com.arematics.minecraft.core.events.CurrencyEventType;
 import com.arematics.minecraft.core.messaging.advanced.JsonColor;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
@@ -28,7 +27,6 @@ import com.arematics.minecraft.data.service.ClanRankService;
 import com.arematics.minecraft.data.service.ClanService;
 import com.arematics.minecraft.data.service.UserService;
 import com.google.common.collect.Lists;
-import org.bukkit.Bukkit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -259,10 +257,19 @@ public class ClanCommand extends CoreCommand {
     @SubCommand("money add {amount}")
     public void addClanMoney(ClanMember member,
                              @Validator(validators = BalanceValidator.class) Double amount) {
-        CurrencyEvent event = new CurrencyEvent(member.online(), amount, CurrencyEventType.TRANSFER, "to-clan");
-        Bukkit.getServer().getPluginManager().callEvent(event);
-        if(event.isCancelled()) throw new CommandProcessException("Payment to clan bank has been cancelled. Please read security terms");
-        member.removeMoney(amount);
+        boolean success = this.server.getCurrencyController()
+                .createEvent(member.online())
+                .setAmount(amount)
+                .setEventType(CurrencyEventType.TRANSFER)
+                .setTarget("clan")
+                .onSuccess(() -> addMoneyToClan(member, amount));
+        if(success) member.removeMoney(amount);
+        else
+            throw new CommandProcessException("Your payment to the clan bank could not be made");
+
+    }
+
+    private void addMoneyToClan(ClanMember member, double amount){
         Clan clan = member.getClan(clanService);
         clan.setCoins(clan.getCoins() + amount);
         clanService.update(clan);
@@ -273,13 +280,24 @@ public class ClanCommand extends CoreCommand {
     }
 
     @SubCommand("money rem {amount}")
-    public void removeClanMoney(ClanMember member, Long amount) {
+    public void removeClanMoney(ClanMember member, Double amount) {
         if(!ClanPermissions.isAdmin(member)) throw new CommandProcessException("Not allowed to perform this");
+        boolean success = this.server.getCurrencyController()
+                .createEvent(member.online())
+                .setAmount(amount)
+                .setEventType(CurrencyEventType.TRANSFER)
+                .setTarget("clan-to-player")
+                .onSuccess(() -> removeMoneyFromClan(member, amount));
+        if(success) member.addMoney(amount);
+        else
+            throw new CommandProcessException("Your payment from the clan bank could not be made");
+    }
+
+    private void removeMoneyFromClan(ClanMember member, double amount){
         Clan clan = member.getClan(clanService);
         if(clan.getCoins() < amount) throw new CommandProcessException("Clan has not enough coins");
         clan.setCoins(clan.getCoins() - amount);
         clanService.update(clan);
-        member.online().addMoney(amount);
         member.online().info("You have removed %amount% coins from your clan")
                 .DEFAULT()
                 .replace("amount", String.valueOf(amount))
