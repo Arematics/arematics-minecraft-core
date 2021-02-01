@@ -1,5 +1,5 @@
 name: Metadata
-author: Klysma
+author: Enrico
 description: Metadata by Arematics
 version: 1.0.0-Alpha
 depend: [McCore]

@@ -1,5 +1,5 @@
 name: Watcher
-author: Klysma
+author: Enrico
 description: Watcher by Arematics
 version: 1.0.0-Alpha
 depend: [WorldEdit, WorldGuard, McCore]
