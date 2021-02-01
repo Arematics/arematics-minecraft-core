@@ -51,6 +51,10 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return new CoreItem(item);
     }
 
+    public static CoreItem generate(Material material){
+        return CoreItem.create(new ItemStack(material));
+    }
+
     public static CoreItem[] create(ItemStack[] items){
         return Arrays.stream(items)
                 .map(CoreItem::create)

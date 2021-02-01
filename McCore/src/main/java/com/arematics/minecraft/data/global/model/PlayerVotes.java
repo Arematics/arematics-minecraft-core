@@ -8,6 +8,7 @@ import org.hibernate.annotations.Type;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Data
@@ -22,4 +23,6 @@ public class PlayerVotes {
     private int streak;
     private int totalVotes;
     private int currentVotePoints;
+    private boolean freeVoteSkip;
+    private Timestamp lastVote;
 }

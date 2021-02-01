@@ -75,8 +75,9 @@ public class VoteAdminCommand extends CoreCommand {
 
     private CoreItem[] preparedItem(String rewardId, int costs, CoreItem hand){
         CoreItem clone = CoreItem.create(hand.clone());
-        clone.setName("§cReward §e" + rewardId);
-        clone.addToLore("   §7Costs: §c" + costs);
+        clone.bindCommand("vote collect reward " + rewardId)
+                .setName("§7Reward: §e" + rewardId.replaceAll("_", " "))
+                .addToLore("   §7Costs: §c" + costs);
         return new CoreItem[]{clone};
     }
 
@@ -95,8 +96,7 @@ public class VoteAdminCommand extends CoreCommand {
     @SubCommand("edit {id}")
     public void editRewardsForVoteReward(CorePlayer player, String id) {
         try{
-            VoteReward reward = this.service.findVoteReward(id);
-            this.service.deleteReward(reward);
+            this.service.findVoteReward(id);
             Inventory inv = this.inventoryService.getOrCreate("inventory_vote_reward_" + id, "§aReward: " + id, (byte) 18);
             player.openLowerEnabledInventory(inv);
         }catch (RuntimeException re){

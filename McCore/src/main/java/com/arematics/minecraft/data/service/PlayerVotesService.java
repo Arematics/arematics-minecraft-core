@@ -42,6 +42,15 @@ public class PlayerVotesService {
         return votes.get();
     }
 
+    @Cacheable(cacheNames = "player_votes")
+    public PlayerVotes getOrCreate(UUID uuid){
+        try {
+            return findPlayerVotes(uuid);
+        } catch (Exception exception) {
+            return updatePlayerVotes(new PlayerVotes(uuid, 0, 0, 0, true, null));
+        }
+    }
+
     @CachePut(cacheNames = "player_votes", key = "#result.uuid")
     public PlayerVotes updatePlayerVotes(PlayerVotes playerVotes){
         return repository.save(playerVotes);
@@ -52,7 +61,7 @@ public class PlayerVotesService {
         repository.delete(playerVotes);
     }
 
-    public Map<Integer, Integer> fetchVotePointList() throws Exception{
+    public Map<Integer, Integer> fetchVotePointList() throws NumberFormatException {
         return Arrays.stream(fetchConfigValue())
                 .map(value -> value.trim().split(":"))
                 .collect(Collectors.toMap(data -> Integer.parseInt(data[0]), data -> Integer.parseInt(data[1])));
