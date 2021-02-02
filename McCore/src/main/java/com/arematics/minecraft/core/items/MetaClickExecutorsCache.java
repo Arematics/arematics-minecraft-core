@@ -23,7 +23,7 @@ public class MetaClickExecutorsCache {
     }
 
     public boolean searchAndRun(CorePlayer clicker, CoreItem clicked){
-        return clicked.getMeta().getKeys().stream()
+        return clicked != null && clicked.getMeta().getKeys().stream()
                 .filter(this.executors::containsKey)
                 .anyMatch(key -> this.executors.get(key).execute(clicker, clicked));
     }
