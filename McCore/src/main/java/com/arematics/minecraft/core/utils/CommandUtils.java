@@ -9,4 +9,8 @@ public class CommandUtils {
     public static String prettyHeader(String key, String value){
         return "§a\n\n§7" + key + " » " + "§c" + value;
     }
+
+    public static String prettyBoolean(boolean value){
+        return value ? "Yes" : "No";
+    }
 }

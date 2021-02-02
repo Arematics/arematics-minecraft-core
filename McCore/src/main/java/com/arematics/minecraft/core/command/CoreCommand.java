@@ -17,7 +17,6 @@ import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
-import com.arematics.minecraft.core.processor.methods.CommonData;
 import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
@@ -235,7 +234,7 @@ public abstract class CoreCommand extends Command {
     private void process(CommandSender sender, String[] arguments){
         boolean isDefault = arguments.length == 0;
         Map<String, Object> dataPack = new Hashtable<>();
-        dataPack.put(CommonData.COMMAND_SENDER.toString(), sender);
+        dataPack.put("sender", sender);
         dataPack.put("classLevelPermission", this.classPermission);
         try{
             if(isDefault)

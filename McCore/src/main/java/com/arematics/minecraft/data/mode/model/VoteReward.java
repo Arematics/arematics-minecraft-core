@@ -1,5 +1,6 @@
 package com.arematics.minecraft.data.mode.model;
 
+import com.arematics.minecraft.core.items.CoreItem;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,20 +10,17 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.UUID;
 
 @Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "player_game_stats")
-public class GameStats {
+@Table(name = "vote_rewards")
+public class VoteReward {
     @Id
-    @Type(type = "org.hibernate.type.UUIDCharType")
-    private UUID uuid;
-    private int kills;
-    private int deaths;
-    private Integer bounty;
-    @Column(name = "coins", nullable = false)
-    private Double coins;
+    private String id;
+    private int costs;
+    @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
+    @Column(name = "display_item", nullable = false)
+    private CoreItem[] displayItem;
 }

@@ -71,8 +71,8 @@ create table if not exists ranks_AUD
 )
     engine=MyISAM;
 
-create index FK9502yxwlwlrhjh6uw6k2gmrbq
-    on ranks_AUD (rev);
+create index if not exists FK9502yxwlwlrhjh6uw6k2gmrbq
+    on ranks_aud (rev);
 
 create table if not exists ranks_permission
 (
@@ -245,7 +245,7 @@ create table if not exists warns_history
             on update cascade on delete cascade
 );
 
-create table online_time
+create table if not exists online_time
 (
     uuid varchar(36) not null,
     time bigint null,
@@ -255,7 +255,7 @@ create table online_time
             on update cascade on delete cascade
 );
 
-create table chat_click_action
+create table if not exists chat_click_action
 (
     id     bigint auto_increment
         primary key,
@@ -263,7 +263,7 @@ create table chat_click_action
     value  varchar(255) null
 );
 
-create table chat_hover_action
+create table if not exists chat_hover_action
 (
     id     bigint auto_increment
         primary key,
@@ -271,20 +271,20 @@ create table chat_hover_action
     value  varchar(255) null
 );
 
-create table command_entity
+create table if not exists command_entity
 (
     uuid varchar(255) not null
         primary key,
     cmd  varchar(255) not null
 );
 
-create table global_placeholder
+create table if not exists global_placeholder
 (
     placeholder_key varchar(255) not null
         primary key
 );
 
-create table global_placeholder_actions
+create table if not exists global_placeholder_action
 (
     id              bigint       not null
         primary key,
@@ -297,14 +297,14 @@ create table global_placeholder_actions
         foreign key (click_action_id) references chat_click_action (id)
 );
 
-create table theme
+create table if not exists theme
 (
     theme_key varchar(255) not null
         primary key,
     format    varchar(255) null
 );
 
-create table theme_global_placeholder_actions
+create table if not exists theme_global_placeholder_actions
 (
     chat_theme_theme_key          varchar(255) not null,
     global_placeholder_actions_id bigint       not null,
@@ -314,7 +314,7 @@ create table theme_global_placeholder_actions
         foreign key (chat_theme_theme_key) references theme (theme_key)
 );
 
-create table theme_placeholder
+create table if not exists theme_placeholder
 (
     id              bigint auto_increment
         primary key,
@@ -328,7 +328,7 @@ create table theme_placeholder
         foreign key (hover_action_id) references chat_hover_action (id)
 );
 
-create table theme_mapping
+create table if not exists theme_mapping
 (
     chat_theme_theme_key  varchar(255) not null,
     theme_placeholders_id bigint       not null,

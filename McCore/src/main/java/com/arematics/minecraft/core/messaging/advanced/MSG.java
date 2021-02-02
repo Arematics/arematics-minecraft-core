@@ -1,12 +1,7 @@
 package com.arematics.minecraft.core.messaging.advanced;
 
-import com.arematics.minecraft.core.chat.controller.PlaceholderController;
-import com.arematics.minecraft.core.utils.JSONUtil;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.data.global.model.ChatTheme;
-import com.arematics.minecraft.data.global.model.GlobalPlaceholderAction;
-import com.arematics.minecraft.data.global.model.PlaceholderAction;
-import com.arematics.minecraft.data.global.model.ThemePlaceholder;
+import com.arematics.minecraft.core.utils.JSONUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -14,12 +9,14 @@ import net.md_5.bungee.api.ChatColor;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -65,11 +62,6 @@ public class MSG {
         // Remove all formatting (should already be translated into the parts):
         this.PARTS.forEach(part -> part.TEXT = ChatColor.stripColor(part.TEXT));
         clearEmptyParts();
-    }
-
-    public MSG(ChatTheme theme) {
-        Part part = new Part(theme.getFormat());
-        this.PARTS.add(part);
     }
 
     /**
@@ -211,80 +203,6 @@ public class MSG {
 
 
     JsonColor lastColor = null;
-
-    /**
-     * Splits encoded chat format into seperate parts and applies action & placeholder value on them
-     *
-     * @param actions to use
-     * @param player  needed for globalplaceholder value, chatter
-     */
-    public void createThemeParts(Map<String, PlaceholderAction> actions, Player player, PlaceholderController placeholderController) {
-        if (PARTS.size() > 1) {
-            Bukkit.broadcastMessage("Something wrong here, dont split this again");
-            return;
-        }
-        String text = PARTS.get(0).TEXT;
-        PARTS.clear();
-        String[] parts = text.split(",");
-        for (String s : parts) {
-            Part part = new Part(s).styleAndColorFromText();
-            if (this.lastColor == null) {
-                part = part.setBaseColor(part.BASE_COLOR);
-            } else {
-                part = part.setBaseColor(this.lastColor);
-            }
-            this.lastColor = part.BASE_COLOR;
-            this.PARTS.add(applyPlaceholderToPart(part.styleAndColorFromText(), getAction(s, actions), player, placeholderController));
-        }
-    }
-
-    private PlaceholderAction getAction(String coloredPart, Map<String, PlaceholderAction> actions) {
-        return actions.get(ChatColor.stripColor(coloredPart));
-    }
-
-    /**
-     * replaces placeholder with actual value and applies hover/click actions on them
-     *
-     * @param part              to apply actions and value
-     * @param placeholderAction to use
-     * @param player            needed for globalplaceholder value, chatter
-     */
-    private Part applyPlaceholderToPart(Part part, PlaceholderAction placeholderAction, Player player, PlaceholderController placeholderController) {
-        String value = "";
-        if (placeholderAction instanceof GlobalPlaceholderAction) {
-            value = placeholderController.getPlaceholder(placeholderAction.getPlaceholderKey()).getValues().get(CorePlayer.get(player)).get();
-            part.setText(value);
-        } else if (placeholderAction instanceof ThemePlaceholder) {
-            value = ((ThemePlaceholder) placeholderAction).getValue();
-            part.setText(value);
-        }
-        if (null == placeholderAction) {
-            return part;
-        }
-        if (null != placeholderAction.getHoverAction()) {
-            part.setHoverAction(placeholderAction.getHoverAction().getAction(),
-                    injectPlaceholders(placeholderAction.getHoverAction().getValue(), placeholderAction.getPlaceholderKey(), value));
-        }
-        if (null != placeholderAction.getClickAction()) {
-            part.setClickAction(placeholderAction.getClickAction().getAction(),
-                    injectPlaceholders(placeholderAction.getClickAction().getValue(), placeholderAction.getPlaceholderKey(), value));
-        }
-
-        return part;
-    }
-
-    /**
-     * allows for using %key% to actual key in hover and click messages
-     *
-     * @param actionMessage to replace key
-     * @param value         to inject
-     * @return replaced action value
-     */
-    private String injectPlaceholders(String actionMessage, String placeholderMatch, String value) {
-        return actionMessage.replace(PlaceholderController.applyDelimiter("placeholderMatch"), placeholderMatch).
-                replace(PlaceholderController.applyDelimiter("placeholderName"), PlaceholderController.stripPlaceholderDelimiter(placeholderMatch)).
-                replace(PlaceholderController.applyDelimiter("value"), value);
-    }
 
     /**
      * Copied from EnderSYS/Utils/TextUtils
