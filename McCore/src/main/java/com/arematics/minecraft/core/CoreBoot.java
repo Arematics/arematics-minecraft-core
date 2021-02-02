@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core;
 
+import com.arematics.minecraft.core.listener.BlockWithoutSpringListener;
 import com.arematics.minecraft.core.listener.SpringInitializedListener;
 import com.arematics.minecraft.core.messaging.injector.LanguageInjector;
 import com.arematics.minecraft.core.messaging.injector.StringInjector;
@@ -34,6 +35,7 @@ public class CoreBoot extends Bootstrap{
 
     @Override
     public void postEnable() {
+        Bukkit.getPluginManager().registerEvents(new BlockWithoutSpringListener(), this);
         Bukkit.getPluginManager().registerEvents(new SpringInitializedListener(), this);
         ArematicsExecutor.asyncDelayed(this.clearlag::start, 10, TimeUnit.SECONDS);
     }
