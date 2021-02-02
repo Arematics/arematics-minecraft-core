@@ -6,9 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Data
 @Entity
@@ -17,7 +15,10 @@ import javax.persistence.Table;
 @Table(name = "weapon_type_data")
 public class WeaponTypeData {
     @Id
+    @Enumerated(EnumType.STRING)
     private WeaponType weaponType;
     @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     private CoreItem[] typeItem;
+    @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
+    private CoreItem[] ammunition;
 }
