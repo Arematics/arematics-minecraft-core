@@ -6,12 +6,13 @@ dependencies {
 
     compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.6.2'
 
-    compile group: 'jakarta.persistence', name: 'jakarta.persistence-api', version: '3.0.0'
-    compile group: 'jakarta.transaction', name: 'jakarta.transaction-api', version: '2.0.0'
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.4.23.Final'
     compile group: 'org.hibernate', name: 'hibernate-envers', version: '5.4.23.Final'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.4.0'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.4.2'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '2.4.2'
     compile group: 'org.springframework', name: 'spring-aspects', version: '5.3.1'
+
+    compile group: 'redis.clients', name: 'jedis', version: '3.5.1'
 
     compile group: 'joda-time', name: 'joda-time', version: '2.10.6'
 
