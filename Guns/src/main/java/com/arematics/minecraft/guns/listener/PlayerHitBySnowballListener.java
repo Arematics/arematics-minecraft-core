@@ -13,21 +13,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-
 @Component
 public class PlayerHitBySnowballListener implements Listener {
 
     @EventHandler
     public void onHit(EntityDamageByEntityEvent event){
-        System.out.println("CALL A HIT");
-        Arrays.stream(event.getHandlers().getRegisteredListeners()).forEach(registeredListener -> System.out.println(registeredListener.getListener()));
         System.out.println(event.getDamager().getUniqueId());
         if(event.getEntity() instanceof Player){
             if(event.getDamager() instanceof Snowball){
                 try{
                     Bullet bullet = Bullet.findBulletById(event.getDamager().getUniqueId());
-                    System.out.println(bullet);
                     CorePlayer player = CorePlayer.get((Player) event.getEntity());
                     Location hitPoint = event.getDamager().getLocation();
                     Location playerLocation = event.getEntity().getLocation();
@@ -41,7 +36,6 @@ public class PlayerHitBySnowballListener implements Listener {
                     Bukkit.getServer().getPluginManager().callEvent(hitEvent);
                     event.setCancelled(hitEvent.isCancelled());
                     event.setDamage(hitEvent.getFinalDamage());
-                    System.out.println(event.getFinalDamage());
                     Bullet.remove(hitEvent.getBullet().getBulletId());
                 }catch (Exception e){
                     e.printStackTrace();
