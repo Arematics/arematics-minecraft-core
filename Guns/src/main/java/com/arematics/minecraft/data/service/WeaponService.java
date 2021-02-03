@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class WeaponService {
     private final WeaponRepository weaponRepository;
     private final Map<String, Weapon> weaponCache = new HashMap<>();
-    private final Map<WeaponType, List<String>> weaponTypeIdCache = new HashMap<>();
+    private final Map<WeaponType, Set<String>> weaponTypeIdCache = new HashMap<>();
 
     @Autowired
     public WeaponService(WeaponRepository weaponRepository){
@@ -24,7 +24,7 @@ public class WeaponService {
     public void init(){
         fetchAll().forEach(weapon -> {
             weaponCache.put(weapon.getId(), weapon);
-            List<String> ids = weaponTypeIdCache.getOrDefault(weapon.getType(), new ArrayList<>());
+            Set<String> ids = weaponTypeIdCache.getOrDefault(weapon.getType(), new HashSet<>());
             ids.add(weapon.getId());
             weaponTypeIdCache.put(weapon.getType(), ids);
         });
@@ -39,7 +39,7 @@ public class WeaponService {
         return findAllById(weaponTypeIdCache.get(weaponType));
     }
 
-    public List<Weapon> findAllById(List<String> ids){
+    public List<Weapon> findAllById(Set<String> ids){
         return weaponCache.values().stream().filter(weapon -> ids.contains(weapon.getId())).collect(Collectors.toList());
     }
 
@@ -58,11 +58,17 @@ public class WeaponService {
 
     public Weapon update(Weapon weapon){
         weaponCache.put(weapon.getId(), weapon);
+        Set<String> ids = weaponTypeIdCache.getOrDefault(weapon.getType(), new HashSet<>());
+        ids.add(weapon.getId());
+        weaponTypeIdCache.put(weapon.getType(), ids);
         return this.weaponRepository.save(weapon);
     }
 
     public void delete(Weapon weapon){
         weaponCache.remove(weapon.getId());
+        Set<String> ids = weaponTypeIdCache.getOrDefault(weapon.getType(), new HashSet<>());
+        ids.remove(weapon.getId());
+        weaponTypeIdCache.put(weapon.getType(), ids);
         this.weaponRepository.delete(weapon);
     }
 }

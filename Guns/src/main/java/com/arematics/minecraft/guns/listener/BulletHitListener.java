@@ -16,7 +16,7 @@ public class BulletHitListener implements Listener {
         Bullet bullet = event.getBullet();
         CorePlayer damaged = event.getDamaged();
         BodyLocation hitLocation = event.getHitLocation();
-        event.setFinalDamage(bullet.getDamage() * hitLocation.getDamageMultiplier());
+        event.setFinalDamage(bullet.getDamage());
         damaged.warn("Hit from " + bullet.getShooter().getPlayer().getName()).handle();
     }
 }

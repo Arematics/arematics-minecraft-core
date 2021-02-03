@@ -20,6 +20,7 @@ public class Weapon {
     private WeaponType type;
     private byte totalDamage;
     private byte bullets;
+    private short durability;
     @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     private CoreItem[] weaponItem;
 }

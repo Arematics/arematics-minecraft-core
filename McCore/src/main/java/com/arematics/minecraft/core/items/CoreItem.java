@@ -117,6 +117,12 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return this;
     }
 
+    public CoreItem setShort(String key, short value){
+        this.getMeta().setShort(key, value);
+        this.applyNBT();
+        return this;
+    }
+
     public CoreItem setString(String key, String value){
         this.getMeta().setString(key, value);
         this.applyNBT();

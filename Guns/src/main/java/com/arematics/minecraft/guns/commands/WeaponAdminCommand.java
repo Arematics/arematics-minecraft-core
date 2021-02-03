@@ -104,8 +104,8 @@ public class WeaponAdminCommand extends CoreCommand {
         inv.setItem(size - 1, createNewWeapon(type));
     }
 
-    @SubCommand("create weapon {id} {type} {damage} {bullets}")
-    public void createNewWeapon(CorePlayer player, String id, WeaponType type, Byte damage, Byte bullets) {
+    @SubCommand("create weapon {id} {type} {durability} {damage} {bullets}")
+    public void createNewWeapon(CorePlayer player, String id, WeaponType type, Short durability, Byte damage, Byte bullets) {
         CoreItem hand = player.getItemInHand();
         if(hand == null)
             throw new CommandProcessException("no_item_in_hand");
@@ -113,7 +113,10 @@ public class WeaponAdminCommand extends CoreCommand {
             this.weaponService.fetchWeapon(id);
             player.warn("Weapon with id: " + id + " already exists").handle();
         }catch (RuntimeException re){
-            Weapon weapon = new Weapon(id, type, damage, bullets, new CoreItem[]{CoreItem.create(hand).setName("§e" + id)});
+            Weapon weapon = new Weapon(id, type, damage, bullets, durability, new CoreItem[]{CoreItem.create(hand)
+                    .setString("weapon", id)
+                    .setShort("weapon-durability", durability)
+                    .setName("§e" + id)});
             this.weaponService.update(weapon);
             player.info("Weapon with id: " + id + " has been created").handle();
         }
@@ -132,7 +135,7 @@ public class WeaponAdminCommand extends CoreCommand {
 
     private CoreItem createNewWeapon(WeaponType weaponType){
         return CoreItem.generate(Material.EMERALD)
-                .bindCommand("wadmin create weapon {id} " + weaponType.name() + " {damage} {bullets}")
+                .bindCommand("wadmin create weapon {id} " + weaponType.name() + " {durability} {damage} {bullets}")
                 .setName("§aCreate new Weapon")
                 .addToLore("    §8> Click to create new weapon for this type")
                 .addToLore("    §8> Item in your hand should be the wanted weapon item");
