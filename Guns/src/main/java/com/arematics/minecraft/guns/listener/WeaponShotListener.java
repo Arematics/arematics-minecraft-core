@@ -3,11 +3,10 @@ package com.arematics.minecraft.guns.listener;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.mode.model.Weapon;
+import com.arematics.minecraft.data.mode.model.WeaponType;
 import com.arematics.minecraft.data.service.WeaponService;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -35,19 +34,19 @@ public class WeaponShotListener implements Listener {
             if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK){
                 try{
                     Weapon weapon = this.weaponService.fetchWeapon(weaponId);
-                    IntStream.range(0, weapon.getBullets()).forEach((i) -> launchSnowball(player));
+                    IntStream.range(0, weapon.getBullets()).forEach((i) -> launchSnowball(weapon.getType(), player));
                 }catch (RuntimeException ignore){}
             }
         }
     }
 
-    private void launchSnowball(CorePlayer source){
-        int acc = 300;
+    private void launchSnowball(WeaponType weaponType, CorePlayer source){
+        int acc = (int) weaponType.getAccuracy() * 1000;
         Snowball ball = source.getPlayer().launchProjectile(Snowball.class);
-        Item item = source.getPlayer().getWorld().dropItem(source.getLocation(), CoreItem.generate(Material.REDSTONE_BLOCK));
+        /*Item item = source.getPlayer().getWorld().dropItem(source.getLocation(), CoreItem.generate(Material.REDSTONE_BLOCK));
         item.setPickupDelay(999999);
 
-        ball.setPassenger(item);
+        ball.setPassenger(item);*/
 
         Random rand = new Random();
         Location ploc = source.getLocation();
