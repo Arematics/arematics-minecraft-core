@@ -48,6 +48,7 @@ public class CorePlayer implements CurrencyEntity {
     private static InventoryService inventoryService;
 
     public static CorePlayer get(Player player){
+        if(player == null) return null;
         if(!players.containsKey(player.getUniqueId()))
             players.put(player.getUniqueId(), new CorePlayer(player));
         return players.get(player.getUniqueId());

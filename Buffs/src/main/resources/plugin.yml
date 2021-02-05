@@ -1,0 +1,7 @@
+name: Buffs
+author: Klysma
+description: Buffs by Arematics
+version: 1.0-Alpha
+depend: [McCore]
+
+main: com.arematics.minecraft.buffs.BuffsCore

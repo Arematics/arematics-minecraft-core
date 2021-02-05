@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Getter
@@ -20,5 +21,9 @@ public class Server {
 
     public List<CorePlayer> getOnline(){
         return Bukkit.getOnlinePlayers().stream().map(CorePlayer::get).collect(Collectors.toList());
+    }
+
+    public CorePlayer findOnline(UUID uuid){
+        return CorePlayer.get(Bukkit.getPlayer(uuid));
     }
 }
