@@ -41,7 +41,7 @@ public class WeaponShotListener implements Listener {
     }
 
     private void launchSnowball(WeaponType weaponType, CorePlayer source){
-        int acc = (int) weaponType.getAccuracy() * 1000;
+        int acc = (int) (weaponType.getAccuracy() * 1000);
         Snowball ball = source.getPlayer().launchProjectile(Snowball.class);
         /*Item item = source.getPlayer().getWorld().dropItem(source.getLocation(), CoreItem.generate(Material.REDSTONE_BLOCK));
         item.setPickupDelay(999999);
