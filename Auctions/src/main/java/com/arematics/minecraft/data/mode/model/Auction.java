@@ -26,6 +26,9 @@ public class Auction implements Serializable {
     private double instantSell;
     @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     private CoreItem[] sell;
+    @OneToOne
+    @JoinColumn(name = "auction_category", referencedColumnName = "category_id")
+    private AuctionCategory auctionCategory;
     private Timestamp endTime;
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "auction_bids", joinColumns = @JoinColumn(name = "auction_id"))
