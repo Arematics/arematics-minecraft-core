@@ -123,6 +123,12 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return this;
     }
 
+    public CoreItem setByte(String key, byte value){
+        this.getMeta().setByte(key, value);
+        this.applyNBT();
+        return this;
+    }
+
     public CoreItem setString(String key, String value){
         this.getMeta().setString(key, value);
         this.applyNBT();
@@ -159,6 +165,20 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         ItemMeta meta = this.getItemMeta();
         List<String> lore = getLore();
         lore.set(index, message);
+        meta.setLore(lore);
+        this.setItemMeta(meta);
+        return this;
+    }
+
+    public CoreItem setOrAddLoreAt(int index, String message){
+        message = message.replaceAll("&", "§");
+        ItemMeta meta = this.getItemMeta();
+        List<String> lore = getLore();
+        if(lore.size() - 1 < index){
+            lore.add(message);
+        }else{
+            lore.set(index, message);
+        }
         meta.setLore(lore);
         this.setItemMeta(meta);
         return this;

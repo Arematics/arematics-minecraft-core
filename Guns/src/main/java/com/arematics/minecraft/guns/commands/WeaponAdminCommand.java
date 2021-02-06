@@ -62,7 +62,7 @@ public class WeaponAdminCommand extends CoreCommand {
         }
         data.setAmmunition(new CoreItem[]{hand});
         this.weaponTypeDataService.update(data);
-        player.info("Display Item for type: " + type.name() + " has been changed").handle();
+        player.info("Ammunition Item for type: " + type.name() + " has been changed").handle();
     }
 
     @SubCommand("list types")
@@ -104,8 +104,11 @@ public class WeaponAdminCommand extends CoreCommand {
         inv.setItem(size - 1, createNewWeapon(type));
     }
 
-    @SubCommand("create weapon {id} {type} {durability} {damage} {bullets}")
-    public void createNewWeapon(CorePlayer player, String id, WeaponType type, Short durability, Byte damage, Byte bullets) {
+    @SubCommand("create weapon {id} {type} {durability} {damage} {bullets} {apl}")
+    public void createNewWeapon(CorePlayer player, String id,
+                                WeaponType type, Short durability,
+                                Byte damage, Byte bullets,
+                                Byte ammoPerLoading) {
         CoreItem hand = player.getItemInHand();
         if(hand == null)
             throw new CommandProcessException("no_item_in_hand");
@@ -113,10 +116,11 @@ public class WeaponAdminCommand extends CoreCommand {
             this.weaponService.fetchWeapon(id);
             player.warn("Weapon with id: " + id + " already exists").handle();
         }catch (RuntimeException re){
-            Weapon weapon = new Weapon(id, type, damage, bullets, durability, new CoreItem[]{CoreItem.create(hand)
+            Weapon weapon = new Weapon(id, type, damage, bullets, durability, (short) 0, ammoPerLoading,
+                    new CoreItem[]{CoreItem.create(hand)
                     .setString("weapon", id)
                     .setShort("weapon-durability", durability)
-                    .setName("§e" + id)});
+                    .setName("§e" + id + " §7< 0 / " + ammoPerLoading + " >")});
             this.weaponService.update(weapon);
             player.info("Weapon with id: " + id + " has been created").handle();
         }
@@ -126,7 +130,8 @@ public class WeaponAdminCommand extends CoreCommand {
     public void getWeapon(CorePlayer player, String id) {
         try{
             Weapon weapon = this.weaponService.fetchWeapon(id);
-            player.getPlayer().getInventory().addItem(weapon.getWeaponItem());
+            CoreItem item = weapon.getWeaponItem()[0].setByte("ammo", (byte) 0);
+            player.getPlayer().getInventory().addItem(item);
             player.info("Recieved weapon: " + id).handle();
         }catch (RuntimeException re){
             player.warn("Weapon with id: " + id + " not exists").handle();
@@ -135,9 +140,10 @@ public class WeaponAdminCommand extends CoreCommand {
 
     private CoreItem createNewWeapon(WeaponType weaponType){
         return CoreItem.generate(Material.EMERALD)
-                .bindCommand("wadmin create weapon {id} " + weaponType.name() + " {durability} {damage} {bullets}")
+                .bindCommand("wadmin create weapon {id} " + weaponType.name() + " {durability} {damage} {bullets} {apl}")
                 .setName("§aCreate new Weapon")
                 .addToLore("    §8> Click to create new weapon for this type")
+                .addToLore("    §8> apl means Ammo per Loading (Max Ammo per Loading Cycle)")
                 .addToLore("    §8> Item in your hand should be the wanted weapon item");
     }
 

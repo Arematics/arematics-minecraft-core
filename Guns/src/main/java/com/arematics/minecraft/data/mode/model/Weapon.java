@@ -21,6 +21,8 @@ public class Weapon {
     private byte totalDamage;
     private byte bullets;
     private short durability;
+    private short maxAmmo;
+    private byte ammoPerLoading;
     @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     private CoreItem[] weaponItem;
 }

@@ -5,6 +5,8 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.mode.model.Weapon;
 import com.arematics.minecraft.data.mode.model.WeaponType;
 import com.arematics.minecraft.data.service.WeaponService;
+import com.arematics.minecraft.guns.calculation.Ammo;
+import com.arematics.minecraft.guns.server.Gun;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.entity.Snowball;
@@ -23,6 +25,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor(onConstructor_=@Autowired)
 public class WeaponShotListener implements Listener {
 
+    private final Ammo ammo;
     private final WeaponService weaponService;
 
     @EventHandler
@@ -34,7 +37,15 @@ public class WeaponShotListener implements Listener {
             if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK){
                 try{
                     Weapon weapon = this.weaponService.fetchWeapon(weaponId);
-                    IntStream.range(0, weapon.getBullets()).forEach((i) -> launchSnowball(weapon.getType(), player));
+                    byte bullets = weapon.getBullets();
+                    Gun gun = ammo.fetchGun(hand);
+                    byte ammunition = gun.getAmmo();
+                    if(ammunition < bullets) bullets = ammunition;
+                    IntStream.range(0, bullets).forEach((i) -> launchSnowball(weapon.getType(), player));
+                    gun.removeAmmo(bullets);
+                    player.getPlayer().setItemInHand(gun.getItem());
+                    if(bullets == 0)
+                        player.warn("No ammunition loaded").handle();
                 }catch (RuntimeException ignore){}
             }
         }
