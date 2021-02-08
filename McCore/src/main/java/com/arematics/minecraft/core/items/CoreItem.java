@@ -1,9 +1,13 @@
 package com.arematics.minecraft.core.items;
 
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import de.tr7zw.nbtapi.NBTItem;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.EnumUtils;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.enchantments.Enchantment;
@@ -21,8 +25,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Getter
 @Setter
@@ -103,6 +110,12 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return this;
     }
 
+    public CoreItem verified(){
+        this.getMeta().setString("verified", "42774");
+        this.applyNBT();
+        return this.addToLore("§aVerified Item §8(See more about verified items /faq)");
+    }
+
     public String readMetaValue(String key){
         return this.getMeta().getString(key);
     }
@@ -177,6 +190,7 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return this;
     }
 
+
     public CoreItem clearLore(){
         ItemMeta meta = this.getItemMeta();
         meta.setLore(new ArrayList<>());
@@ -184,6 +198,26 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         return this;
     }
 
+    public boolean containsLore(String sequence){
+        List<String> lore = this.getLore();
+        if(lore != null)
+            return lore.stream().anyMatch(row -> row.contains(sequence));
+        return false;
+    }
+
+    public int findFirst(String sequence){
+        List<String> lore = this.getLore();
+        return IntStream.range(0, lore.size())
+                .filter(index -> lore.get(index).contains(sequence))
+                .findFirst()
+                .orElse(-1);
+    }
+    public <E extends Enum<E>> CoreItem bindEnumLore(E value){
+        List<E> enums = EnumUtils.getEnumList(value.getDeclaringClass());
+        this.clearLore();
+        enums.forEach(item -> addToLore((item.equals(value) ? "§a" : "§8") + "> " + item.name().replaceAll("_", " ")));
+        return this;
+    }
     public CoreItem clearName(){
         ItemMeta meta = this.getItemMeta();
         meta.setDisplayName(null);
@@ -197,6 +231,17 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         this.setItemMeta(meta);
+        return this;
+    }
+
+    public CoreItem executeAndRegister(Server server, CorePlayer player, Function<CoreItem, CoreItem> action){
+        CoreItem clone = action.apply(this);
+        ArematicsExecutor.syncDelayed(() -> server.registerItemListener(player, clone, action), 250, TimeUnit.MILLISECONDS);
+        return clone;
+    }
+
+    public CoreItem register(Server server, CorePlayer player, Function<CoreItem, CoreItem> action){
+        ArematicsExecutor.syncDelayed(() -> server.registerItemListener(player, this, action), 250, TimeUnit.MILLISECONDS);
         return this;
     }
 
@@ -228,6 +273,7 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
                 '}';
     }
 
+    @SneakyThrows
     @Override
     public Map<String, Object> serialize() {
         return super.serialize();

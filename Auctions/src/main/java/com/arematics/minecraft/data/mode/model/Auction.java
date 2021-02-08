@@ -19,6 +19,7 @@ import java.util.UUID;
 @Table(name = "auction")
 public class Auction implements Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long auctionId;
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID creator;
@@ -27,10 +28,12 @@ public class Auction implements Serializable {
     @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     private CoreItem[] sell;
     @OneToOne
-    @JoinColumn(name = "auction_category", referencedColumnName = "category_id")
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
     private AuctionCategory auctionCategory;
+    @Enumerated(EnumType.STRING)
+    private AuctionType auctionType;
     private Timestamp endTime;
     @OneToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "auction_bids", joinColumns = @JoinColumn(name = "auction_id"))
+    @JoinColumn(name = "auctionId", referencedColumnName = "auctionId")
     private Set<Bid> bids;
 }

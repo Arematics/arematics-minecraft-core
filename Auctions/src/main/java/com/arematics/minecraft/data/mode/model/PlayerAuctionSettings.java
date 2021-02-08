@@ -1,13 +1,12 @@
 package com.arematics.minecraft.data.mode.model;
 
-import com.arematics.minecraft.auctions.handler.AuctionSort;
-import com.arematics.minecraft.auctions.handler.AuctionType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.UUID;
 
 @Data
@@ -15,12 +14,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "player_auction_settings")
-public class PlayerAuctionSettings {
+public class PlayerAuctionSettings implements Serializable {
+
     @Id
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID uuid;
     @OneToOne
-    @JoinColumn(name = "auction_category", referencedColumnName = "category_id")
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
     private AuctionCategory category;
     @Enumerated(EnumType.STRING)
     private AuctionType auctionType;

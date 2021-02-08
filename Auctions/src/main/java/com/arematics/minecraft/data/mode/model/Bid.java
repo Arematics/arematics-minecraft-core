@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.util.UUID;
 
 @Data
@@ -17,9 +18,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @IdClass(BidId.class)
 @Table(name = "auction_bid")
-public class Bid {
+public class Bid implements Serializable {
     @Id
-    private String auctionId;
+    private Long auctionId;
     @Id
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID bidder;

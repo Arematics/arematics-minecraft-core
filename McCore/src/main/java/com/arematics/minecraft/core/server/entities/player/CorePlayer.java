@@ -2,12 +2,14 @@ package com.arematics.minecraft.core.server.entities.player;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSet;
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.items.ItemUpdateClickListener;
 import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.permissions.Permissions;
-import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSet;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.CurrencyEntity;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.Inventories;
@@ -87,6 +89,8 @@ public class CorePlayer implements CurrencyEntity {
     private Duration lastAfk = null;
     private final Set<ProtectedRegion> currentRegions;
 
+    private final List<ItemUpdateClickListener> itemUpdateClickListeners = new ArrayList<>();
+
     public CorePlayer(Player player){
         this.player = player;
         this.joined = LocalDateTime.now();
@@ -136,6 +140,16 @@ public class CorePlayer implements CurrencyEntity {
         if(lastAfk.isNegative()) return;
         updateOnlineTimeData(false, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
         updateOnlineTimeData(true, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
+    }
+
+    public void addListener(ItemUpdateClickListener listener){
+        this.itemUpdateClickListeners.add(listener);
+    }
+
+    public void tearDownListeners(){
+        Server server = Boots.getBoot(CoreBoot.class).getContext().getBean(Server.class);
+        this.itemUpdateClickListeners.forEach(server::tearDownItemListener);
+        this.itemUpdateClickListeners.clear();
     }
 
 
@@ -417,6 +431,10 @@ public class CorePlayer implements CurrencyEntity {
 
     public CoreItem getItemInHand(){
         return CoreItem.create(player.getItemInHand());
+    }
+
+    public void setItemInHand(ItemStack item){
+        player.setItemInHand(item);
     }
 
     public Inventory getInventory(String key) throws RuntimeException{

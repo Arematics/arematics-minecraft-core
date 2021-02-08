@@ -10,7 +10,7 @@ import java.util.UUID;
 @Embeddable
 public class BidId implements Serializable {
     @Id
-    private String auctionId;
+    private Long auctionId;
     @Id
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID bidder;

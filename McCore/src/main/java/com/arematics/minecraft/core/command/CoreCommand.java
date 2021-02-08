@@ -216,8 +216,8 @@ public abstract class CoreCommand extends Command {
                 .distinct()
                 .collect(Collectors.toList());
         results.addAll(Bukkit.getOnlinePlayers().stream()
-                .filter(player -> player.getName().toLowerCase().startsWith(arguments[arguments.length - 1].toLowerCase()))
                 .map(HumanEntity::getName)
+                .filter(name -> name.toLowerCase().startsWith(arguments[arguments.length - 1].toLowerCase()))
                 .collect(Collectors.toList()));
         return results;
     }
@@ -257,7 +257,7 @@ public abstract class CoreCommand extends Command {
                 handleProcessorException(sender, (CommandProcessException) pe.getCause());
         }catch (CommandProcessException pe){
             handleProcessorException(sender, pe);
-        } catch (Exception exception){
+        } catch (Throwable exception){
             exception.printStackTrace();
             Messages.create(CMD_FAILURE).FAILURE().to(sender).handle();
         }
