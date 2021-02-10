@@ -8,6 +8,7 @@ import org.hibernate.annotations.Type;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.UUID;
 
@@ -16,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "player_votes")
-public class PlayerVotes {
+public class PlayerVotes implements Serializable {
     @Id
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID uuid;

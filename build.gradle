@@ -56,14 +56,16 @@ subprojects {
         compileOnly "com.compheonix:ProtocolLib:1.8.8"
         compileOnly "com.compheonix:PacketWrapper:1.8.8"
         compileOnly "de.tr7zw:NBT-API:1.0"
-        compileOnly group: 'com.google.guava', name: 'guava', version: '29.0-jre'
+        compileOnly group: 'com.google.guava', name: 'guava', version: '30.1-jre'
 
         compileOnly group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
         compileOnly group: 'commons-io', name: 'commons-io', version: '2.8.0'
 
-        compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.16'
-        annotationProcessor group: 'org.projectlombok', name: 'lombok', version:  '1.18.16'
+        compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.18'
+        annotationProcessor group: 'org.projectlombok', name: 'lombok', version:  '1.18.18'
 
+        testCompile "org.bukkit:PaperSpigot:1.8.8"
+        testCompile group: 'org.mockito', name: 'mockito-inline', version: '3.7.7'
         testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.4.0'
         testCompile group: 'com.h2database', name: 'h2', version: '1.4.200'
     }

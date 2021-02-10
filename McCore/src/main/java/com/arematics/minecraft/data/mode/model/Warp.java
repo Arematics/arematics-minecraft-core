@@ -7,13 +7,14 @@ import org.bukkit.Location;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "warps")
-public class Warp {
+public class Warp implements Serializable {
 
     @Id
     @Column(name = "warp_name", nullable = false)

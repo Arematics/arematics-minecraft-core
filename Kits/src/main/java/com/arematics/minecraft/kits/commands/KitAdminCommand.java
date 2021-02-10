@@ -3,6 +3,7 @@ package com.arematics.minecraft.kits.commands;
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.ClickAction;
@@ -10,13 +11,12 @@ import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
-import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.KitService;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.joda.time.Period;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,12 +45,12 @@ public class KitAdminCommand extends CoreCommand {
     }
 
     @SubCommand("info {kit}")
-    public boolean sendKitInfo(CommandSender sender, Kit kit) {
-        prettyPrintKitInfo(sender, kit);
+    public boolean sendKitInfo(CorePlayer player, Kit kit) {
+        prettyPrintKitInfo(player, kit);
         return true;
     }
 
-    private void prettyPrintKitInfo(CommandSender sender, Kit kit){
+    private void prettyPrintKitInfo(CorePlayer player, Kit kit){
         String msg = "§a\n\n§7Kit" + " » " + "§c/" + kit.getName() + "\n" +
                 "%information%";
         List<Part> parts = new ArrayList<>();
@@ -66,8 +66,7 @@ public class KitAdminCommand extends CoreCommand {
                 (TimeUtils.toString(Period.seconds((int) (kit.getMinPlayTime()/1000))))  + "\n")
                 .setHoverAction(HoverAction.SHOW_TEXT, "§7Change Kit Playtime")
                 .setClickAction(ClickAction.SUGGEST_COMMAND, "/kitadm setPlaytime " + kit.getName() + " {playtime}"));
-        Messages.create(msg)
-                .to(sender)
+        player.info(msg)
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("information", new MSG(parts))
                 .disableServerPrefix()
@@ -75,46 +74,45 @@ public class KitAdminCommand extends CoreCommand {
     }
 
     @SubCommand("create {name} {permission} {cooldown}")
-    public boolean createKit(Player player, String name, String permission, Period cooldown) {
-        return createKit(player, name, permission, cooldown, Period.millis(1));
+    public void createKit(CorePlayer player, String name, String permission, Period cooldown) {
+        createKit(player, name, permission, cooldown, Period.millis(1));
     }
 
     @SubCommand("create {name} {permission} {cooldown} {minPlayTime}")
-    public boolean createKit(Player player, String name, String permission,
+    public void createKit(CorePlayer player, String name, String permission,
                              Period cooldown, Period minPlayTime) {
         try{
             service.findKit(name);
-            Messages.create(KIT_ALREADY_EXISTS)
-                    .WARNING()
-                    .to(player)
+            player.warn(KIT_ALREADY_EXISTS)
                     .DEFAULT()
                     .replace("kitName", name)
                     .handle();
-            return true;
         }catch (RuntimeException re){
             CoreItem itemStack = CoreItem.create(player.getItemInHand());
             if(itemStack != null) {
-                Kit newKit = new Kit(null, name, permission, cooldown.toStandardDuration().getMillis(),
-                        minPlayTime.toStandardDuration().getMillis(), new CoreItem[]{itemStack});
-                service.update(newKit);
-                Messages.create(KIT_CREATED)
-                        .to(player)
-                        .DEFAULT()
-                        .replace("kitName", name)
-                        .handle();
+                try{
+                    Kit newKit = new Kit(null, name, permission, cooldown.toStandardDuration().getMillis(),
+                            minPlayTime.toStandardDuration().getMillis(), new CoreItem[]{itemStack});
+                    service.update(newKit);
+                    player.info(KIT_CREATED)
+                            .DEFAULT()
+                            .replace("kitName", name)
+                            .handle();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }else {
+                throw new CommandProcessException("no_item_in_hand");
             }
-            else Messages.create("no_item_in_hand").WARNING().to(player).handle();
-            return true;
         }
     }
 
     @SubCommand("delete {kit}")
     @Perm(permission = "delete", description = "Permission to delete kit")
-    public boolean deleteKit(CommandSender sender, Kit kit) {
+    public boolean deleteKit(CorePlayer sender, Kit kit) {
         inventoryService.delete("kit.inventory." + kit.getName());
         service.delete(kit);
-        Messages.create(KIT_DELETED)
-                .to(sender)
+        sender.info(KIT_DELETED)
                 .DEFAULT()
                 .replace("kitName", kit.getName())
                 .handle();

@@ -16,6 +16,10 @@ public abstract class Bootstrap extends JavaPlugin {
 
     protected final MultiHook hook;
 
+    public Bootstrap() {
+        this(false);
+    }
+
     public Bootstrap(boolean configuration) {
         this.configuration = configuration;
         String dir = ClassUtils.getPackageName(this.getClass());

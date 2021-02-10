@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.UUID;
 
@@ -16,7 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Table(name = "currency_statistic_data")
 @IdClass(CurrencyDataId.class)
-public class CurrencyData {
+public class CurrencyData implements Serializable {
     @Id
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID executor;
