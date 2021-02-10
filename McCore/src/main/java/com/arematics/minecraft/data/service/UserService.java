@@ -5,6 +5,7 @@ import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.global.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@CacheConfig(cacheNames = "userCache", cacheManager = "globalCache")
 public class UserService {
 
     @Value("${mode.name}")
@@ -34,7 +36,7 @@ public class UserService {
         this.userPermissionService = userPermissionService;
     }
 
-    @Cacheable(cacheNames = "userCache", key = "#uuid")
+    @Cacheable(key = "#uuid")
     public User getUserByUUID(UUID uuid){
         Optional<User> user = repository.findById(uuid);
         if(!user.isPresent()) throw new RuntimeException("User with uuid: " + uuid + " could not be found");
@@ -47,14 +49,14 @@ public class UserService {
         return user.get();
     }
 
-    @CachePut(cacheNames = "userCache", key = "#result.uuid")
+    @CachePut(key = "#result.uuid")
     public User createUser(UUID uuid, String name){
         User user = new User(UUID.randomUUID(), uuid, name, new Timestamp(System.currentTimeMillis()), null,
-                null, rankService.findByName("User"), null, 0, new HashMap<>(), new HashSet<>());
+                null, rankService.getDefaultRank(), null, 0, new HashMap<>(), new HashSet<>());
         return repository.save(user);
     }
 
-    @CachePut(cacheNames = "userCache", key = "#result.uuid")
+    @CachePut(key = "#result.uuid")
     public User update(User user){
         return repository.save(user);
     }

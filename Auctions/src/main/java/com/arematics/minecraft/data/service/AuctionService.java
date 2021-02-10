@@ -6,6 +6,7 @@ import com.arematics.minecraft.data.mode.model.PlayerAuctionSettings;
 import com.arematics.minecraft.data.mode.repository.AuctionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
+@CacheConfig(cacheNames = "auctions")
 @RequiredArgsConstructor(onConstructor_=@Autowired)
 public class AuctionService {
     private final AuctionRepository auctionRepository;
@@ -44,7 +46,7 @@ public class AuctionService {
                 pageable);
     }
 
-    @Cacheable(cacheNames = "auctions", key = "#auctionId")
+    @Cacheable(key = "#auctionId")
     public Auction findById(Long auctionId){
         Optional<Auction> result = auctionRepository.findById(auctionId);
         if(!result.isPresent())
@@ -52,18 +54,18 @@ public class AuctionService {
         return result.get();
     }
 
-    @CachePut(cacheNames = "auctions", key = "#result.auctionId")
+    @CachePut(key = "#result.auctionId")
     public Auction save(Auction auction){
         return auctionRepository.save(auction);
     }
 
-    @CachePut(cacheNames = "auctions", key = "#result.auctionId")
+    @CachePut(key = "#result.auctionId")
     public Auction create(Auction auction){
         auction.setAuctionId(null);
         return auctionRepository.save(auction);
     }
 
-    @CacheEvict(cacheNames = "auctions", key = "#auction.auctionId")
+    @CacheEvict(key = "#auction.auctionId")
     public void delete(Auction auction){
         auctionRepository.delete(auction);
     }

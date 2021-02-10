@@ -199,12 +199,15 @@ public class CorePlayer implements CurrencyEntity {
     public void updateOnlineTimeData(boolean mode, Consumer<OnlineTime> update){
         OnlineTime time;
         try{
-            time = this.onlineTimeService.findByUUID(mode, getUUID());
+            time = mode ? this.onlineTimeService.findByModeUUID(getUUID()) : this.onlineTimeService.findByGlobalUUID(getUUID());
         }catch (RuntimeException re){
             time = new OnlineTime(getUUID(), 0L, 0L);
         }
         update.accept(time);
-        this.onlineTimeService.put(mode, time);
+        if(mode)
+            this.onlineTimeService.putMode(time);
+        else
+            this.onlineTimeService.putGlobal(time);
     }
 
     public void removeAmountFromHand(int amount){

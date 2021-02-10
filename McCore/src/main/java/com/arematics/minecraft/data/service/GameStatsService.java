@@ -3,6 +3,7 @@ package com.arematics.minecraft.data.service;
 import com.arematics.minecraft.data.mode.model.GameStats;
 import com.arematics.minecraft.data.mode.repository.GameStatsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@CacheConfig(cacheNames = "playerStats")
 public class GameStatsService {
 
     private final GameStatsRepository repository;
@@ -21,7 +23,7 @@ public class GameStatsService {
         this.repository = gameStatsRepository;
     }
 
-    @Cacheable(cacheNames = "playerStats")
+    @Cacheable(key = "#uuid")
     public GameStats findGameStats(UUID uuid){
         Optional<GameStats> gameStats = repository.findById(uuid);
         if(!gameStats.isPresent())
@@ -29,7 +31,7 @@ public class GameStatsService {
         return gameStats.get();
     }
 
-    @Cacheable(cacheNames = "playerStats")
+    @Cacheable(key = "#uuid")
     public GameStats getOrCreate(UUID uuid){
         try {
             return findGameStats(uuid);
@@ -38,12 +40,12 @@ public class GameStatsService {
         }
     }
 
-    @CachePut(cacheNames = "playerStats")
+    @CachePut(key = "#result.uuid")
     public GameStats save(GameStats stats){
         return repository.save(stats);
     }
 
-    @CacheEvict(cacheNames = "playerStats")
+    @CacheEvict(key = "#stats.uuid")
     public void delete(GameStats stats){
         repository.delete(stats);
     }

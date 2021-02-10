@@ -2,13 +2,13 @@ FROM amazoncorretto:latest
 
 MAINTAINER "contact@arematics.com <Arematics UG (haftungsbeschränkt)>"
 
-RUN yum install -y iputils
+RUN yum install -y rsync
 
 EXPOSE 25565
-WORKDIR /data
 
 ENV XMX=4G XMS=2G PVP=true DIFFICULTY=1 ONLINE_MODE=false LEVEL=world VIEW_DISTANCE=10 SPAWN_MONSTERS=true SPAWN_ANIMALS=true WHITELIST=false ALLOW_NETHER=true
 
+WORKDIR /tmp
 
 COPY server.jar .
 COPY eula.txt .
@@ -31,6 +31,8 @@ RUN sed -i "s/online-mode=false/online-mode=$ONLINE_MODE/g" server.properties
 RUN sed -i "s/view-distance: 12/view-distance: $VIEW_DISTANCE/g" spigot.yml
 RUN sed -i "s/bungeecord: false/bungeecord: true/g" spigot.yml
 
-ENTRYPOINT ./start.sh
+WORKDIR /data
 
-VOLUME ["/data/plugins", "/data/logs"]
+COPY start /
+
+ENTRYPOINT [ "/start" ]

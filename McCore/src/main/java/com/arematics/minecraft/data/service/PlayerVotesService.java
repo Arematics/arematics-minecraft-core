@@ -6,6 +6,7 @@ import com.arematics.minecraft.data.global.model.PlayerVotes;
 import com.arematics.minecraft.data.global.repository.PlayerVotesRepository;
 import org.bukkit.Bukkit;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -15,6 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@CacheConfig(cacheNames = "player_votes", cacheManager = "globalCache")
 public class PlayerVotesService {
 
     private final Map<Integer, Integer> votePointsList = new HashMap<>();
@@ -34,7 +36,7 @@ public class PlayerVotesService {
         return votePointsList;
     }
 
-    @Cacheable(cacheNames = "player_votes", key = "#uuid")
+    @Cacheable(key = "#uuid")
     public PlayerVotes findPlayerVotes(UUID uuid){
         Optional<PlayerVotes> votes = repository.findById(uuid);
         if(!votes.isPresent())
@@ -42,7 +44,7 @@ public class PlayerVotesService {
         return votes.get();
     }
 
-    @Cacheable(cacheNames = "player_votes")
+    @Cacheable(key = "#uuid")
     public PlayerVotes getOrCreate(UUID uuid){
         try {
             return findPlayerVotes(uuid);
@@ -51,12 +53,12 @@ public class PlayerVotesService {
         }
     }
 
-    @CachePut(cacheNames = "player_votes", key = "#result.uuid")
+    @CachePut(key = "#result.uuid")
     public PlayerVotes updatePlayerVotes(PlayerVotes playerVotes){
         return repository.save(playerVotes);
     }
 
-    @CacheEvict(cacheNames = "player_votes", key = "#playerVotes.uuid")
+    @CacheEvict(key = "#playerVotes.uuid")
     public void removePlayerVotes(PlayerVotes playerVotes){
         repository.delete(playerVotes);
     }

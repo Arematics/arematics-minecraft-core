@@ -6,6 +6,8 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.DefaultResourceLoader;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -29,7 +31,8 @@ public class SpringSpigotBootstrapper {
 
                 val props = new Properties();
                 try {
-                    props.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("application.properties"));
+                    File file = new File(plugin.getDataFolder() + "/spring.properties");
+                    props.load(new FileInputStream(file));
                 } catch (Exception ignored) {
                 }
 

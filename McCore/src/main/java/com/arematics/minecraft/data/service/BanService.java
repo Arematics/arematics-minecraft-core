@@ -3,6 +3,7 @@ package com.arematics.minecraft.data.service;
 import com.arematics.minecraft.data.global.model.Ban;
 import com.arematics.minecraft.data.global.repository.BansRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@CacheConfig(cacheNames = "banCache", cacheManager = "globalCache")
 public class BanService {
 
     private final BansRepository repository;
@@ -21,7 +23,7 @@ public class BanService {
         this.repository = bansRepository;
     }
 
-    @Cacheable(cacheNames = "banCache", key = "#uuid")
+    @Cacheable(key = "#uuid")
     public Ban getBan(UUID uuid){
         Optional<Ban> ban = repository.findById(uuid);
         if(!ban.isPresent())
@@ -29,12 +31,12 @@ public class BanService {
         return ban.get();
     }
 
-    @CachePut(cacheNames = "banCache", key = "#result.uuid")
+    @CachePut(key = "#result.uuid")
     public Ban save(Ban ban){
         return repository.save(ban);
     }
 
-    @CacheEvict(cacheNames = "banCache", key = "#ban.uuid")
+    @CacheEvict(key = "#ban.uuid")
     public void remove(Ban ban){
         repository.delete(ban);
     }

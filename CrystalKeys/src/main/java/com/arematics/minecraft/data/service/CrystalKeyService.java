@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@CacheConfig(cacheNames={"crystalCache"})
+@CacheConfig(cacheNames="crystalCache")
 public class CrystalKeyService {
 
     private final CrystalKeyRepository repository;

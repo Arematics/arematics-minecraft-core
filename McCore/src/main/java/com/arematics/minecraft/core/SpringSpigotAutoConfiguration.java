@@ -53,17 +53,23 @@ class SpringSpigotAutoConfiguration {
         return server.getScheduler();
     }
 
+    @Value("${spring.redis.host}")
+    private String redisGlobalHost;
+
+    @Value("${spring.redis.port}")
+    private Integer redisGlobalPort;
+
     @Value("${spring.redis.mode.host}")
-    private String redisHost;
+    private String redisModeHost;
 
     @Value("${spring.redis.mode.port}")
-    private Integer redisPort;
+    private Integer redisModePort;
 
-    @Bean
+    @Bean(name = "jedisConnectionFactory")
     @Primary
     public JedisConnectionFactory jedisConnectionFactory() {
         RedisStandaloneConfiguration configuration =
-                new RedisStandaloneConfiguration(redisHost, redisPort);
+                new RedisStandaloneConfiguration(redisModeHost, redisModePort);
         return new JedisConnectionFactory(configuration);
     }
 
@@ -86,6 +92,16 @@ class SpringSpigotAutoConfiguration {
     public CacheManager cacheManager(RedisConnectionFactory jedisConnectionFactory, RedisCacheConfiguration redisCacheConfiguration) {
         RedisCacheManager.RedisCacheManagerBuilder builder = RedisCacheManager
                 .RedisCacheManagerBuilder.fromConnectionFactory(jedisConnectionFactory)
+                .cacheDefaults(redisCacheConfiguration);
+        return builder.build();
+    }
+
+    @Bean(name = "globalCache")
+    public CacheManager globalCacheManager(RedisCacheConfiguration redisCacheConfiguration) {
+        RedisStandaloneConfiguration configuration =
+                new RedisStandaloneConfiguration(redisGlobalHost, redisGlobalPort);
+        RedisCacheManager.RedisCacheManagerBuilder builder = RedisCacheManager
+                .RedisCacheManagerBuilder.fromConnectionFactory(new JedisConnectionFactory(configuration))
                 .cacheDefaults(redisCacheConfiguration);
         return builder.build();
     }

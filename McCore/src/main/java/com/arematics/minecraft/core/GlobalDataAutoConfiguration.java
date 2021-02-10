@@ -9,7 +9,6 @@ import org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -22,7 +21,6 @@ import java.util.HashMap;
 
 @IgnoreInAppScan
 @Configuration
-@PropertySource({"classpath:application.properties"})
 @EnableJpaRepositories(basePackages = {"com.arematics.minecraft.data.global", "com.arematics.minecraft.data.share"})
 public class GlobalDataAutoConfiguration {
 

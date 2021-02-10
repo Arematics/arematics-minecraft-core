@@ -3,6 +3,7 @@ package com.arematics.minecraft.data.service;
 import com.arematics.minecraft.data.global.model.Mute;
 import com.arematics.minecraft.data.global.repository.MutesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@CacheConfig(cacheNames = "muteCache")
 public class MuteService {
 
     private final MutesRepository repository;
@@ -21,7 +23,7 @@ public class MuteService {
         this.repository = mutesRepository;
     }
 
-    @Cacheable(cacheNames = "muteCache")
+    @Cacheable(key = "#uuid")
     public Mute getMute(UUID uuid){
         Optional<Mute> mute = repository.findById(uuid);
         if(!mute.isPresent())
@@ -29,12 +31,12 @@ public class MuteService {
         return mute.get();
     }
 
-    @CachePut(cacheNames = "muteCache")
+    @CachePut(key = "#result.uuid")
     public Mute save(Mute mute){
         return repository.save(mute);
     }
 
-    @CacheEvict(cacheNames = "muteCache")
+    @CacheEvict(key = "#mute.uuid")
     public void remove(Mute mute){
         repository.delete(mute);
     }

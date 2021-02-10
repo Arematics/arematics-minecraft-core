@@ -6,6 +6,7 @@ import com.arematics.minecraft.data.mode.model.PlayerAuctionSettings;
 import com.arematics.minecraft.data.mode.repository.PlayerAuctionSettingsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -15,11 +16,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@CacheConfig(cacheNames = "player_auction_settings")
 @RequiredArgsConstructor(onConstructor_=@Autowired)
 public class PlayerAuctionSettingsService {
     private final PlayerAuctionSettingsRepository playerAuctionSettingsRepository;
 
-    @CachePut(cacheNames = "player_auction_settings", key = "#result.uuid")
+    @CachePut(key = "#result.uuid")
     public PlayerAuctionSettings findOrCreateDefault(UUID uuid){
         try{
             return findById(uuid);
@@ -28,7 +30,7 @@ public class PlayerAuctionSettingsService {
         }
     }
 
-    @Cacheable(cacheNames = "player_auction_settings", key = "#uuid")
+    @Cacheable(key = "#uuid")
     public PlayerAuctionSettings findById(UUID uuid){
         Optional<PlayerAuctionSettings> result = playerAuctionSettingsRepository.findById(uuid);
         if(!result.isPresent())
@@ -36,12 +38,12 @@ public class PlayerAuctionSettingsService {
         return result.get();
     }
 
-    @CachePut(cacheNames = "player_auction_settings", key = "#result.uuid")
+    @CachePut(key = "#result.uuid")
     public PlayerAuctionSettings save(PlayerAuctionSettings settings){
         return playerAuctionSettingsRepository.save(settings);
     }
 
-    @CacheEvict(cacheNames = "player_auction_settings", key = "#settings.uuid")
+    @CacheEvict(key = "#settings.uuid")
     public void delete(PlayerAuctionSettings settings){
         playerAuctionSettingsRepository.delete(settings);
     }

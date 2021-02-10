@@ -3,6 +3,7 @@ package com.arematics.minecraft.data.service;
 import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.repository.RankRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@CacheConfig(cacheNames = "rankCache", cacheManager = "globalCache")
 public class RankService {
 
     private final RankRepository repository;
@@ -28,7 +30,7 @@ public class RankService {
         return repository.findAll();
     }
 
-    @Cacheable(cacheNames = "rankCache")
+    @Cacheable(key = "#id")
     public Rank getById(long id){
         Optional<Rank> rank = repository.findById(id);
         if(!rank.isPresent()) throw new RuntimeException("Rank with id: " + id + " not exists");
@@ -41,7 +43,7 @@ public class RankService {
         return rank.get();
     }
 
-    @CachePut(cacheNames = "rankCache")
+    @CachePut(key = "#result.id")
     public Rank getDefaultRank(){
         Optional<Rank> rank = repository.findByName("User");
         return rank.orElseGet(() -> repository.save(new Rank(1L, "User", "U",

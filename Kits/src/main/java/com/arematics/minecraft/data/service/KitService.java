@@ -5,6 +5,7 @@ import com.arematics.minecraft.data.mode.repository.KitRepository;
 import com.arematics.minecraft.data.share.model.CooldownKey;
 import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@CacheConfig(cacheNames = "kitCache")
 public class KitService {
 
     private final KitRepository repository;
@@ -28,19 +30,19 @@ public class KitService {
         this.cooldownService = cooldownService;
     }
 
-    @Cacheable(cacheNames = "kitCache", key = "#name")
+    @Cacheable(key = "#name")
     public Kit findKit(String name){
         Optional<Kit> result = repository.findByName(name);
         if(!result.isPresent()) throw new RuntimeException("Kit with name: " + name + " could not be found");
         return result.get();
     }
 
-    @CachePut(cacheNames = "kitCache", key = "#result.name")
+    @CachePut(key = "#result.name")
     public Kit update(Kit kit){
         return repository.save(kit);
     }
 
-    @CacheEvict(cacheNames = "kitCache", key = "#kit.name")
+    @CacheEvict(key = "#kit.name")
     public void delete(Kit kit){
         repository.delete(kit);
     }

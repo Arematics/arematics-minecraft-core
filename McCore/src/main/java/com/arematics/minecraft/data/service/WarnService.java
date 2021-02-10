@@ -3,15 +3,16 @@ package com.arematics.minecraft.data.service;
 import com.arematics.minecraft.data.global.model.Warn;
 import com.arematics.minecraft.data.global.repository.WarnsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@CacheConfig(cacheNames = "warnCache", cacheManager = "globalCache")
 public class WarnService {
 
     private final WarnsRepository repository;
@@ -21,17 +22,16 @@ public class WarnService {
         this.repository = warnsRepository;
     }
 
-    @Cacheable(cacheNames = "warnCache")
     public List<Warn> getWarn(UUID uuid){
         return repository.findAllByUuidOrderByWarnedTimeDesc(uuid);
     }
 
-    @CachePut(cacheNames = "warnCache")
+    @CachePut(key = "#result.warnedTime")
     public Warn save(Warn warn){
         return repository.save(warn);
     }
 
-    @CacheEvict(cacheNames = "warnCache")
+    @CacheEvict(key = "#warn.warnedTime")
     public void remove(Warn warn){
         repository.delete(warn);
     }

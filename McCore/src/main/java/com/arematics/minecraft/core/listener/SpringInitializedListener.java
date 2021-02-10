@@ -35,7 +35,6 @@ public class SpringInitializedListener implements Listener {
         createAsyncTasks(tablist);
         tablist.flushOnlines();
         RankService service = boot.getContext().getBean(RankService.class);
-        service.getDefaultRank();
     }
 
     private void scanPermissions(CoreBoot boot){

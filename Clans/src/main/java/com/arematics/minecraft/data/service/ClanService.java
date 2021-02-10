@@ -3,6 +3,7 @@ package com.arematics.minecraft.data.service;
 import com.arematics.minecraft.data.mode.model.Clan;
 import com.arematics.minecraft.data.mode.repository.ClanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -12,6 +13,7 @@ import java.util.HashSet;
 import java.util.Optional;
 
 @Service
+@CacheConfig(cacheNames = "clanCache")
 public class ClanService {
 
     private final ClanRepository repository;
@@ -21,21 +23,21 @@ public class ClanService {
         this.repository = clanRepository;
     }
 
-    @Cacheable(cacheNames = "clanCache")
+    @Cacheable(key = "#id")
     public Clan findClanById(long id){
         Optional<Clan> clan = repository.findById(id);
         if(!clan.isPresent()) throw new RuntimeException("Clan with id: " + id + " could not be found");
         return clan.get();
     }
 
-    @Cacheable(cacheNames = "clanCache")
+    @Cacheable(key = "#name")
     public Clan findClanByName(String name){
         Optional<Clan> clan = repository.findByName(name);
         if(!clan.isPresent()) throw new RuntimeException("Clan with name: " + name + " could not be found");
         return clan.get();
     }
 
-    @Cacheable(cacheNames = "clanCache")
+    @Cacheable(key = "#tag")
     public Clan findClanByTag(String tag){
         Optional<Clan> clan = repository.findByTag(tag);
         if(!clan.isPresent()) throw new RuntimeException("Clan with tag: " + tag + " could not be found");
@@ -48,12 +50,12 @@ public class ClanService {
         return repository.save(clan);
     }
 
-    @CachePut(cacheNames = "clanCache")
+    @CachePut(key = "#clan.id")
     public Clan update(Clan clan){
         return repository.save(clan);
     }
 
-    @CacheEvict(cacheNames = "clanCache")
+    @CacheEvict(key = "#clan.id")
     public void delete(Clan clan){
         repository.delete(clan);
     }
