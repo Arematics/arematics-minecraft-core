@@ -10,13 +10,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 @Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "vote_rewards")
-public class VoteReward {
+public class VoteReward implements Serializable {
     @Id
     private String id;
     private int costs;

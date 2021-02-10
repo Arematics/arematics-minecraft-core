@@ -21,10 +21,15 @@ public class PlayerAuctionDataUnloadListener implements Listener {
         CorePlayer player = CorePlayer.get(event.getPlayer());
         if(player.getUser().getConfigurations().containsKey("auction-saving")){
             Configuration value = player.getUser().getConfigurations().get("auction-saving");
-            if(!value.getValue().equals("database"))
-                playerAuctionSettingsService.delete(playerAuctionSettingsService.findById(player.getUUID()));
+            if(!value.getValue().equals("database")) {
+                try {
+                    playerAuctionSettingsService.delete(playerAuctionSettingsService.findById(player.getUUID()));
+                } catch (Exception ignore) {}
+            }
         }else{
-            playerAuctionSettingsService.delete(playerAuctionSettingsService.findById(player.getUUID()));
+            try{
+                playerAuctionSettingsService.delete(playerAuctionSettingsService.findById(player.getUUID()));
+            }catch (Exception ignore){}
         }
     }
 }

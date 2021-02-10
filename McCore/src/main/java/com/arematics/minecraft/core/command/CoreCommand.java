@@ -33,6 +33,7 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.SimplePluginManager;
 
@@ -236,6 +237,8 @@ public abstract class CoreCommand extends Command {
         Map<String, Object> dataPack = new Hashtable<>();
         dataPack.put("sender", sender);
         dataPack.put("classLevelPermission", this.classPermission);
+        if(sender instanceof Player) CorePlayer.get((Player) sender)
+                .addLastCommand(getName() + " " + StringUtils.join(arguments, " "));
         try{
             if(isDefault)
                 Permissions.check(sender, this.classPermission).ifPermitted(this::onDefaultExecute).submit();

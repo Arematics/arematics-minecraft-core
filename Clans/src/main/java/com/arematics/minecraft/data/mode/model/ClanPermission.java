@@ -7,13 +7,14 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "clan_permission")
-public class ClanPermission {
+public class ClanPermission implements Serializable {
     public static ClanPermission of(String value){
         return new ClanPermission(value);
     }

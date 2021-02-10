@@ -18,11 +18,16 @@ import java.util.UUID;
 @AllArgsConstructor
 @IdClass(BidId.class)
 @Table(name = "auction_bid")
-public class Bid implements Serializable {
+public class Bid implements Serializable, Comparable<Bid> {
     @Id
     private Long auctionId;
     @Id
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID bidder;
     private double amount;
+
+    @Override
+    public int compareTo(Bid o) {
+        return Double.compare(amount, o.getAmount());
+    }
 }

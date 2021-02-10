@@ -1,10 +1,10 @@
 package com.arematics.minecraft.data.service;
 
-import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.data.mode.model.*;
+import com.arematics.minecraft.data.mode.model.Auction;
+import com.arematics.minecraft.data.mode.model.AuctionType;
+import com.arematics.minecraft.data.mode.model.PlayerAuctionSettings;
 import com.arematics.minecraft.data.mode.repository.AuctionRepository;
-import com.sk89q.worldguard.blacklist.action.ActionType;
-import org.bukkit.Material;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -20,46 +20,16 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor(onConstructor_=@Autowired)
 public class AuctionService {
     private final AuctionRepository auctionRepository;
-
-    @Autowired
-    public AuctionService(AuctionRepository auctionRepository, AuctionCategoryService auctionCategoryService, BidService bidService){
-        this.auctionRepository = auctionRepository;
-        AuctionCategory category = auctionCategoryService.save(new AuctionCategory("stone", new CoreItem[]{CoreItem.generate(Material.STONE)}, new CoreItem[]{CoreItem.generate(Material.STONE)}));
-        Auction auction = new Auction(0L, UUID.fromString("84e0aac6-aede-41a1-a912-e5f762e33684"), 500.0, 0.0,
-                new CoreItem[]{CoreItem.generate(Material.STONE)},
-                category,
-                AuctionType.ALL,
-                Timestamp.valueOf(LocalDateTime.now().plusHours(5)),
-                new HashSet<>());
-        auction = create(auction);
-        auction.getBids().add(bidService.save(new Bid(auction.getAuctionId(), UUID.fromString("84e0aac6-aede-41a1-a912-e5f762e33684"), 3466437)));
-        save(auction);
-        Auction auction2 = new Auction(0L, UUID.fromString("84e0aac6-aede-41a1-a912-e5f762e33684"), 0, 100.0,
-                new CoreItem[]{CoreItem.generate(Material.STONE)},
-                category,
-                AuctionType.INSTANT_BUY,
-                Timestamp.valueOf(LocalDateTime.now().plusHours(6)),
-                new HashSet<>());
-        auction2 = create(auction2);
-        auction2.getBids().add(bidService.save(new Bid(auction2.getAuctionId(), UUID.fromString("84e0aac6-aede-41a1-a912-e5f762e33684"), 23523)));
-        save(auction2);
-    }
 
     public List<Auction> findAllByCreator(UUID creator){
         return auctionRepository.findAllByCreator(creator);
     }
 
     public Page<Auction> findAllByFilter(PlayerAuctionSettings settings, int page){
-        Sort sort;
-        switch (settings.getAuctionSort()){
-            case LOWEST_BID: sort = Sort.by("bids.amount").descending(); break;
-            case MOST_BIDS: sort = Sort.by("bids").ascending(); break;
-            case ENDING_SOON: sort = Sort.by("endTime").ascending(); break;
-            case HIGHEST_BID:
-            default: sort = Sort.by("bids.amount").ascending();
-        }
+        Sort sort = settings.getAuctionSort().getSort();
         Pageable pageable = PageRequest.of(page, 28, sort);
         Set<AuctionType> types = new HashSet<>();
         types.add(settings.getAuctionType());
@@ -68,7 +38,10 @@ public class AuctionService {
             types.add(AuctionType.INSTANT_BUY);
         }
         types.add(AuctionType.ALL);
-        return auctionRepository.findAllByAuctionCategoryAndAuctionTypeIsIn(settings.getCategory(), types, pageable);
+        return auctionRepository.findAllByAuctionCategoryAndEndTimeIsAfterAndAuctionTypeIsIn(settings.getCategory(),
+                Timestamp.valueOf(LocalDateTime.now()),
+                types,
+                pageable);
     }
 
     @Cacheable(cacheNames = "auctions", key = "#auctionId")

@@ -25,6 +25,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.Data;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -90,6 +91,8 @@ public class CorePlayer implements CurrencyEntity {
     private final Set<ProtectedRegion> currentRegions;
 
     private final List<ItemUpdateClickListener> itemUpdateClickListeners = new ArrayList<>();
+    private Consumer<Inventory> emptySlotClick;
+    private List<String> lastCommands = new ArrayList<>();
 
     public CorePlayer(Player player){
         this.player = player;
@@ -111,6 +114,24 @@ public class CorePlayer implements CurrencyEntity {
         this.updateOnlineTime();
         this.pager.unload();
         this.boardSet.remove();
+    }
+
+    public void addLastCommand(String command){
+        if(lastCommands.size() == 5)
+            lastCommands.remove(0);
+        this.lastCommands.add(command);
+    }
+
+    public String getLastCommand(int index){
+        try{
+            return lastCommands.get(index);
+        }catch (ArrayIndexOutOfBoundsException e){
+            return "";
+        }
+    }
+
+    public String getLastCommand(){
+        return getLastCommand(lastCommands.size() - 2);
     }
 
     public void setInFight(){
@@ -204,6 +225,10 @@ public class CorePlayer implements CurrencyEntity {
         return this.getPlayer().getActivePotionEffects().stream()
                 .filter(effect -> effect.getType() == type)
                 .count() >= 1;
+    }
+
+    public void dispatchCommand(String command){
+        Bukkit.dispatchCommand(this.getPlayer(), command.replaceFirst("/", ""));
     }
 
     @SuppressWarnings("unused")

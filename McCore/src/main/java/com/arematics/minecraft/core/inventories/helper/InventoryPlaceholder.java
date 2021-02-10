@@ -36,4 +36,5 @@ public class InventoryPlaceholder {
     public static void clear(Inventory inv, IntegerBox box){
         box.toList().forEach(index -> inv.setItem(index, null));
     }
+
 }

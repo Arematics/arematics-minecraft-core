@@ -9,7 +9,6 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.EnumUtils;
 import org.bukkit.Material;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -33,7 +32,7 @@ import java.util.stream.IntStream;
 
 @Getter
 @Setter
-public class CoreItem extends ItemStack implements ConfigurationSerializable {
+public class CoreItem extends ItemStack {
 
     public static final String BINDED_COMMAND = "binded_command";
     public static final String DISABLE_CLICK = "disable_click";
@@ -83,7 +82,7 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
     }
 
     public NBTItem getMeta(){
-        return this.meta;
+        return meta;
     }
 
     public CoreItem bindCommand(String command){
@@ -268,9 +267,7 @@ public class CoreItem extends ItemStack implements ConfigurationSerializable {
 
     @Override
     public String toString() {
-        return "CoreItem{item" + super.toString() +
-                ",meta=" + meta +
-                '}';
+        return "CoreItem{item" + super.toString() + "}'";
     }
 
     @SneakyThrows
