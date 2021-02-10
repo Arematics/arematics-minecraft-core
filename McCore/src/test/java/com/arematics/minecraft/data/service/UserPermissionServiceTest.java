@@ -1,17 +1,10 @@
 package com.arematics.minecraft.data.service;
 
-import com.arematics.minecraft.core.permissions.Permissions;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 public class UserPermissionServiceTest extends Assertions {
 
-    private UUID uuid;
+  /*  private UUID uuid;
     private List<String> permissions;
 
     @BeforeEach
@@ -63,5 +56,5 @@ public class UserPermissionServiceTest extends Assertions {
             if(hasPerm(uuid, perm)) return true;
         }
         return false;
-    }
+    }*/
 }

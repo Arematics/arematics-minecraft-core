@@ -67,6 +67,7 @@ public class MapController {
         if(allIds.size() >= 1) this.nextMapIds.add(allIds.get(0));
         if(allIds.size() >= 2) this.nextMapIds.add(allIds.get(1));
         if(allIds.size() >= 3 && this.nextMapIds.size() == 2) this.nextMapIds.add(allIds.get(2));
+        this.getNextMapIds().forEach(mapId -> this.votes.put(mapId, 0));
     }
 
     private void start(){
@@ -128,7 +129,6 @@ public class MapController {
         votes.clear();
         List<String> ids = this.service.findAllIds();
         generateNextIds(ids);
-        this.getNextMapIds().forEach(mapId -> this.votes.put(mapId, 0));
     }
 
     private Duration getDuration(){

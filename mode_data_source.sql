@@ -100,14 +100,9 @@ create table if not exists player_game_stats
     bounty int null
 );
 
-create table online_time
+create table if not exists online_time
 (
     uuid varchar(36) not null,
     time bigint null,
     afk bigint null
 );
-
-
-
-alter table clan
-    add slots tinyint not null after colorCode;

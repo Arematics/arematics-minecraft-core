@@ -8,6 +8,7 @@ import org.hibernate.annotations.Type;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.util.UUID;
 
 @Data
@@ -15,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "online_time")
-public class OnlineTime {
+public class OnlineTime implements Serializable {
     @Id
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID uuid;

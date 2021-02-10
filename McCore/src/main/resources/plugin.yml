@@ -1,5 +1,5 @@
 name: McCore
-author: Klysma
+author: Enrico
 description: McCore by Arematics
 version: 0.4.2
 depend: [WorldEdit, WorldGuard]

@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Time;
 import java.time.DayOfWeek;
 
@@ -14,7 +15,7 @@ import java.time.DayOfWeek;
 @Entity
 @IdClass(ShTimeId.class)
 @Table(name = "stronghold_timings")
-public class StrongholdTime {
+public class StrongholdTime implements Serializable {
     @Id
     @Column(name = "stronghold_name")
     private String strongholdName;

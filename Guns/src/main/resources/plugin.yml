@@ -1,7 +1,7 @@
 name: Guns
-author: Caychu
+author: Enrico
 description: Guns by Arematics
 version: 1.0.0
-depend: [McCore]
+depend: [McCore, AdvancedEnchantments]
 
 main: com.arematics.minecraft.guns.GunsBoot

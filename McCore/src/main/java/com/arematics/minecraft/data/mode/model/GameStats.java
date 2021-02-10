@@ -9,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.util.UUID;
 
 @Data
@@ -16,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "player_game_stats")
-public class GameStats {
+public class GameStats implements Serializable {
     @Id
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID uuid;
@@ -24,5 +25,5 @@ public class GameStats {
     private int deaths;
     private Integer bounty;
     @Column(name = "coins", nullable = false)
-    private Long coins;
+    private Double coins;
 }

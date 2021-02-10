@@ -64,7 +64,6 @@ public class TimebanCommand extends CoreCommand {
         service.save(ban);
         int days = (int) period.toStandardDuration().getMillis() / 1000 / 60 / 60 / 24;
         target.setKarma(target.getKarma() - (days * 5));
-        System.out.println(service.getBan(target.getUuid()));
         userService.update(target);
     }
 }

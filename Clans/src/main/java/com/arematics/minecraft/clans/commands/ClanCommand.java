@@ -9,10 +9,12 @@ import com.arematics.minecraft.core.annotations.Validator;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.command.processor.validator.BalanceValidator;
+import com.arematics.minecraft.core.events.CurrencyEventType;
 import com.arematics.minecraft.core.messaging.advanced.JsonColor;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.User;
@@ -43,23 +45,28 @@ public class ClanCommand extends CoreCommand {
     private final ClanMemberService clanMemberService;
     private final ClanRankService clanRankService;
     private final UserService userService;
+    private final Server server;
 
     @Autowired
     public ClanCommand(ClanService clanService,
                        ClanMemberService clanMemberService,
                        ClanRankService clanRankService,
-                       UserService userService){
+                       UserService userService,
+                       Server server){
         super("clan", "clans", "c");
         this.clanService = clanService;
         this.clanMemberService = clanMemberService;
         this.clanRankService = clanRankService;
         this.userService = userService;
+        this.server = server;
     }
 
     @SubCommand("create {name} {tag}")
     public boolean createClan(@Validator(validators = NoClanValidator.class) CorePlayer player, String name, String tag)
             throws CommandProcessException {
         final String clanExists = "Clan with %typ% %value% already exists";
+        if(player.getMoney() < 25000)
+            throw new CommandProcessException("You need 25.000 Coins to create a clan");
         try{
             clanService.findClanByName(name);
             player.warn(clanExists)
@@ -76,7 +83,16 @@ public class ClanCommand extends CoreCommand {
                         .replace("value", tag)
                         .handle();
             }catch (RuntimeException re2){
-                createNewClan(player, name, tag);
+                boolean success = server.getCurrencyController()
+                        .createEvent(player)
+                        .setAmount(25000)
+                        .setEventType(CurrencyEventType.WASTE)
+                        .setTarget("create-clan")
+                        .onSuccess(() -> this.createNewClan(player, name, tag));
+                if(success)
+                    player.removeMoney(25000);
+                else
+                    throw new CommandProcessException("Clan creation payment could not be made. Please read security info");
             }
         }
         return true;
@@ -240,7 +256,20 @@ public class ClanCommand extends CoreCommand {
 
     @SubCommand("money add {amount}")
     public void addClanMoney(ClanMember member,
-                             @Validator(validators = BalanceValidator.class) Long amount) {
+                             @Validator(validators = BalanceValidator.class) Double amount) {
+        boolean success = this.server.getCurrencyController()
+                .createEvent(member.online())
+                .setAmount(amount)
+                .setEventType(CurrencyEventType.TRANSFER)
+                .setTarget("clan")
+                .onSuccess(() -> addMoneyToClan(member, amount));
+        if(success) member.removeMoney(amount);
+        else
+            throw new CommandProcessException("Your payment to the clan bank could not be made");
+
+    }
+
+    private void addMoneyToClan(ClanMember member, double amount){
         Clan clan = member.getClan(clanService);
         clan.setCoins(clan.getCoins() + amount);
         clanService.update(clan);
@@ -251,13 +280,24 @@ public class ClanCommand extends CoreCommand {
     }
 
     @SubCommand("money rem {amount}")
-    public void removeClanMoney(ClanMember member, Long amount) {
+    public void removeClanMoney(ClanMember member, Double amount) {
         if(!ClanPermissions.isAdmin(member)) throw new CommandProcessException("Not allowed to perform this");
+        boolean success = this.server.getCurrencyController()
+                .createEvent(member.online())
+                .setAmount(amount)
+                .setEventType(CurrencyEventType.TRANSFER)
+                .setTarget("clan-to-player")
+                .onSuccess(() -> removeMoneyFromClan(member, amount));
+        if(success) member.addMoney(amount);
+        else
+            throw new CommandProcessException("Your payment from the clan bank could not be made");
+    }
+
+    private void removeMoneyFromClan(ClanMember member, double amount){
         Clan clan = member.getClan(clanService);
         if(clan.getCoins() < amount) throw new CommandProcessException("Clan has not enough coins");
         clan.setCoins(clan.getCoins() - amount);
         clanService.update(clan);
-        member.online().addMoney(amount);
         member.online().info("You have removed %amount% coins from your clan")
                 .DEFAULT()
                 .replace("amount", String.valueOf(amount))

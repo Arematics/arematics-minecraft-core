@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.chat.controller.ChatController;
-import org.bukkit.entity.Player;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -22,7 +22,7 @@ public class PlayerChatListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerChat(AsyncPlayerChatEvent chatEvent) {
         if(!chatEvent.isCancelled()){
-            Player player = chatEvent.getPlayer();
+            CorePlayer player = CorePlayer.get(chatEvent.getPlayer());
             chatController.chat(player, chatEvent.getMessage());
             chatEvent.setCancelled(true);
         }

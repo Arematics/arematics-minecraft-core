@@ -1,0 +1,7 @@
+name: Auctions
+author: Klysma
+description: Auctions by Arematics
+version: 1.0-Alpha
+depend: [McCore]
+
+main: com.arematics.minecraft.auctions.AuctionBoot

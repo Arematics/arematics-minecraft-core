@@ -1,5 +1,5 @@
 name: RegionInteraction
-author: Klysma
+author: Enrico
 description: RegionInteraction by Arematics
 version: 1.0.0
 depend: [McCore, WorldGuard]

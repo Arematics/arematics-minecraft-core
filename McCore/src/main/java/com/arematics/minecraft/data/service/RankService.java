@@ -35,9 +35,15 @@ public class RankService {
         return rank.get();
     }
 
+    public Rank findByName(String name){
+        Optional<Rank> rank = repository.findByName(name);
+        if(!rank.isPresent()) throw new RuntimeException("Rank with name: " + name + " not exists");
+        return rank.get();
+    }
+
     @CachePut(cacheNames = "rankCache")
     public Rank getDefaultRank(){
-        Optional<Rank> rank = repository.findById(1L);
+        Optional<Rank> rank = repository.findByName("User");
         return rank.orElseGet(() -> repository.save(new Rank(1L, "User", "U",
                 "§b", false, "g", new Timestamp(System.currentTimeMillis()))));
     }

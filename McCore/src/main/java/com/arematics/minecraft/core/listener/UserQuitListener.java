@@ -1,6 +1,5 @@
 package com.arematics.minecraft.core.listener;
 
-import com.arematics.minecraft.core.chat.ChatAPI;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.bukkit.Tablist;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
@@ -16,13 +15,11 @@ import org.springframework.stereotype.Component;
 public class UserQuitListener implements Listener {
 
     private final UserService userService;
-    private final ChatAPI chatAPI;
     private final Tablist tablist;
 
     @Autowired
-    public UserQuitListener(UserService userService, ChatAPI chatAPI, Tablist tablist) {
+    public UserQuitListener(UserService userService, Tablist tablist) {
         this.userService = userService;
-        this.chatAPI = chatAPI;
         this.tablist = tablist;
     }
 
@@ -35,7 +32,6 @@ public class UserQuitListener implements Listener {
         }
         ArematicsExecutor.runAsync(player::updateOnlineTime);
         this.tablist.remove(player);
-        chatAPI.getTheme(user.getActiveTheme().getThemeKey()).getActiveUsers().remove(player);
         this.userService.update(user);
     }
 }

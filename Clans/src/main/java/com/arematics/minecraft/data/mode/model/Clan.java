@@ -47,7 +47,7 @@ public class Clan implements Serializable {
     private Integer deaths;
 
     @Column(name = "coins", nullable = false)
-    private Long coins;
+    private double coins;
 
     @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, targetEntity = ClanRank.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "clan_id", updatable = false, insertable = false)

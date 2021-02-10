@@ -6,9 +6,7 @@ import com.arematics.minecraft.core.language.LanguageAPI;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
-import org.springframework.stereotype.Component;
 
-@Component
 public class BlockWithoutSpringListener implements Listener {
 
     @EventHandler

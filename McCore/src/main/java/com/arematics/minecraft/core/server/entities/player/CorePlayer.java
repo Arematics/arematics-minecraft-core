@@ -2,17 +2,17 @@ package com.arematics.minecraft.core.server.entities.player;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
-import com.arematics.minecraft.core.chat.controller.ChatThemeController;
+import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSet;
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.items.ItemUpdateClickListener;
 import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.permissions.Permissions;
-import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSet;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.CurrencyEntity;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.Inventories;
-import com.arematics.minecraft.data.global.model.ChatTheme;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.GameStats;
 import com.arematics.minecraft.data.service.GameStatsService;
@@ -25,6 +25,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.Data;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -35,6 +36,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -49,6 +51,7 @@ public class CorePlayer implements CurrencyEntity {
     private static InventoryService inventoryService;
 
     public static CorePlayer get(Player player){
+        if(player == null) return null;
         if(!players.containsKey(player.getUniqueId()))
             players.put(player.getUniqueId(), new CorePlayer(player));
         return players.get(player.getUniqueId());
@@ -79,7 +82,6 @@ public class CorePlayer implements CurrencyEntity {
 
     private final GameStatsService service;
     private final UserService userService;
-    private final ChatThemeController chatThemeController;
     private final OnlineTimeService onlineTimeService;
 
     private final LocalDateTime joined;
@@ -89,11 +91,14 @@ public class CorePlayer implements CurrencyEntity {
     private Duration lastAfk = null;
     private final Set<ProtectedRegion> currentRegions;
 
+    private final List<ItemUpdateClickListener> itemUpdateClickListeners = new ArrayList<>();
+    private Consumer<Inventory> emptySlotClick;
+    private List<String> lastCommands = new ArrayList<>();
+
     public CorePlayer(Player player){
         this.player = player;
         this.joined = LocalDateTime.now();
         this.lastAntiAFKEvent = this.joined;
-        this.chatThemeController = Boots.getBoot(CoreBoot.class).getContext().getBean(ChatThemeController.class);
         this.pager = new Pager(this);
         this.boardSet = new BoardSet(player);
         this.userService = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
@@ -110,6 +115,24 @@ public class CorePlayer implements CurrencyEntity {
         this.updateOnlineTime();
         this.pager.unload();
         this.boardSet.remove();
+    }
+
+    public void addLastCommand(String command){
+        if(lastCommands.size() == 5)
+            lastCommands.remove(0);
+        this.lastCommands.add(command);
+    }
+
+    public String getLastCommand(int index){
+        try{
+            return lastCommands.get(index);
+        }catch (ArrayIndexOutOfBoundsException e){
+            return "";
+        }
+    }
+
+    public String getLastCommand(){
+        return getLastCommand(lastCommands.size() - 2);
     }
 
     public void setInFight(){
@@ -139,6 +162,16 @@ public class CorePlayer implements CurrencyEntity {
         if(lastAfk.isNegative()) return;
         updateOnlineTimeData(false, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
         updateOnlineTimeData(true, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
+    }
+
+    public void addListener(ItemUpdateClickListener listener){
+        this.itemUpdateClickListeners.add(listener);
+    }
+
+    public void tearDownListeners(){
+        Server server = Boots.getBoot(CoreBoot.class).getContext().getBean(Server.class);
+        this.itemUpdateClickListeners.forEach(server::tearDownItemListener);
+        this.itemUpdateClickListeners.clear();
     }
 
 
@@ -193,6 +226,10 @@ public class CorePlayer implements CurrencyEntity {
         return this.getPlayer().getActivePotionEffects().stream()
                 .filter(effect -> effect.getType() == type)
                 .count() >= 1;
+    }
+
+    public void dispatchCommand(String command){
+        Bukkit.dispatchCommand(this.getPlayer(), command.replaceFirst("/", ""));
     }
 
     @SuppressWarnings("unused")
@@ -377,35 +414,36 @@ public class CorePlayer implements CurrencyEntity {
 
     public void addDeath(){
         onStats(stats -> stats.setDeaths(stats.getDeaths() + 1));
-        getBoard().getBoard("main")
-                .setEntrySuffix("Deaths", "§7" + this.getStats().getDeaths());
+        getBoard().getBoard("main").setEntrySuffix("Deaths", "§7" + this.getStats().getDeaths());
     }
 
     @Override
-    public long getMoney(){
+    public double getMoney(){
         return this.getStats().getCoins();
     }
 
+    private String stripMoney(){
+        DecimalFormat format = new DecimalFormat("#.##");
+        return format.format(this.getStats().getCoins());
+    }
+
     @Override
-    public void setMoney(long money){
+    public void setMoney(double money){
         onStats(stats -> stats.setCoins(money));
-        getBoard().getBoard("main")
-                .setEntrySuffix("Coins", "§7" + this.getStats().getCoins());
+        getBoard().getBoard("main").setEntrySuffix("Coins", "§7" + stripMoney());
     }
 
     @Override
-    public void addMoney(long amount){
+    public void addMoney(double amount){
         onStats(stats -> stats.setCoins(stats.getCoins() + amount));
-        getBoard().getBoard("main")
-                .setEntrySuffix("Coins", "§7" + this.getStats().getCoins());
+        getBoard().getBoard("main").setEntrySuffix("Coins", "§7" + stripMoney());
     }
 
     @Override
-    public void removeMoney(long amount) throws RuntimeException{
+    public void removeMoney(double amount) throws RuntimeException{
         if(getStats().getCoins() < amount) throw new RuntimeException("Not enough coins");
         onStats(stats -> stats.setCoins(stats.getCoins() - amount));
-        getBoard().getBoard("main")
-                .setEntrySuffix("Coins", "§7" + this.getStats().getCoins());
+        getBoard().getBoard("main").setEntrySuffix("Coins", "§7" + stripMoney());
     }
 
     @SuppressWarnings("unused")
@@ -421,6 +459,10 @@ public class CorePlayer implements CurrencyEntity {
         return CoreItem.create(player.getItemInHand());
     }
 
+    public void setItemInHand(ItemStack item){
+        player.setItemInHand(item);
+    }
+
     public Inventory getInventory(String key) throws RuntimeException{
         return CorePlayer.inventoryService.getInventory(player.getUniqueId() + "." + key);
     }
@@ -431,20 +473,6 @@ public class CorePlayer implements CurrencyEntity {
 
     public Location getLocation() {
         return this.player.getLocation();
-    }
-
-    /**
-     * sets active theme for chatthemeuser and adds to senders chattheme
-     *
-     * @param theme which is activated
-     */
-    public void setTheme(ChatTheme theme) {
-        User user = userService.getUserByUUID(getUUID());
-        CorePlayer player = CorePlayer.get(getPlayer());
-        ChatTheme old = chatThemeController.getTheme(user.getActiveTheme().getThemeKey());
-        old.getActiveUsers().remove(player);
-        user.setActiveTheme(theme);
-        theme.getActiveUsers().add(player);
     }
 
     public boolean hasPermission(String permission){

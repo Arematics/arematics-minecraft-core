@@ -1,5 +1,5 @@
 name: Strongholds
-author: Klysma
+author: Enrico
 description: Strongholds by Arematics
 version: 1.0.0
 depend: [McCore, Clans, RegionInteraction]

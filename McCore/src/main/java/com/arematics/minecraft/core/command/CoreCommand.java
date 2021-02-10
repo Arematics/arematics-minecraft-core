@@ -17,7 +17,6 @@ import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
-import com.arematics.minecraft.core.processor.methods.CommonData;
 import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
@@ -34,6 +33,7 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.SimplePluginManager;
 
@@ -217,8 +217,8 @@ public abstract class CoreCommand extends Command {
                 .distinct()
                 .collect(Collectors.toList());
         results.addAll(Bukkit.getOnlinePlayers().stream()
-                .filter(player -> player.getName().toLowerCase().startsWith(arguments[arguments.length - 1].toLowerCase()))
                 .map(HumanEntity::getName)
+                .filter(name -> name.toLowerCase().startsWith(arguments[arguments.length - 1].toLowerCase()))
                 .collect(Collectors.toList()));
         return results;
     }
@@ -235,8 +235,10 @@ public abstract class CoreCommand extends Command {
     private void process(CommandSender sender, String[] arguments){
         boolean isDefault = arguments.length == 0;
         Map<String, Object> dataPack = new Hashtable<>();
-        dataPack.put(CommonData.COMMAND_SENDER.toString(), sender);
+        dataPack.put("sender", sender);
         dataPack.put("classLevelPermission", this.classPermission);
+        if(sender instanceof Player) CorePlayer.get((Player) sender)
+                .addLastCommand(getName() + " " + StringUtils.join(arguments, " "));
         try{
             if(isDefault)
                 Permissions.check(sender, this.classPermission).ifPermitted(this::onDefaultExecute).submit();
@@ -258,7 +260,7 @@ public abstract class CoreCommand extends Command {
                 handleProcessorException(sender, (CommandProcessException) pe.getCause());
         }catch (CommandProcessException pe){
             handleProcessorException(sender, pe);
-        } catch (Exception exception){
+        } catch (Throwable exception){
             exception.printStackTrace();
             Messages.create(CMD_FAILURE).FAILURE().to(sender).handle();
         }

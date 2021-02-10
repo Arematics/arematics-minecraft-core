@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.listener;
 
-import com.arematics.minecraft.core.entities.ModifiedLivingEntity;
+import com.arematics.minecraft.core.server.entities.ModifiedLivingEntity;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
