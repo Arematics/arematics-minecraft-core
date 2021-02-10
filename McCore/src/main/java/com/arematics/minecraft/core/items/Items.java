@@ -18,12 +18,14 @@ public class Items {
     public static final CoreItem PLAYERHOLDER;
     public static final CoreItem NEXT_PAGE;
     public static final CoreItem BEFORE_PAGE;
+    public static final CoreItem BACK;
 
     static{
         ItemStack itemStack = new ItemStack(Material.STAINED_GLASS_PANE, 1, DyeColor.GRAY.getData());
         PLAYERHOLDER = CoreItem.create(itemStack).disableClick().setName("§7");
         NEXT_PAGE = nextPage().bindCommand("page NEXT");
         BEFORE_PAGE = pageBefore().bindCommand("page BEFORE");
+        BACK = CoreItem.generate(Material.NETHER_STAR).setName("§fBack");
     }
 
     private static CoreItem pageBefore(){

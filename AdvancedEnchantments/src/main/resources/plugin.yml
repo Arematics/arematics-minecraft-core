@@ -1,0 +1,7 @@
+name: AdvancedEnchantments
+author: Enrico
+description: AdvancedEnchantment by Arematics
+version: 1.0.0
+depend: [McCore, Metadata]
+
+main: com.arematics.minecraft.enchants.EnchantBoot

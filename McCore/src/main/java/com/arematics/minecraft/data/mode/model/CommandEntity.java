@@ -9,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.util.UUID;
 
 @Data
@@ -16,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "command_entity")
-public class CommandEntity {
+public class CommandEntity implements Serializable {
 
     @Id
     @Type(type = "org.hibernate.type.UUIDCharType")

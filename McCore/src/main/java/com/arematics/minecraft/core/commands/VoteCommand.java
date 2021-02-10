@@ -69,6 +69,7 @@ public class VoteCommand extends CoreCommand {
 
     private CoreItem generatePlayerInfo(PlayerVotes playerVotes){
         return CoreItem.generate(Material.BOOK)
+                .disableClick()
                 .addToLore("    §7> Your Vote Points: §c" + playerVotes.getCurrentVotePoints())
                 .addToLore("    §7> Your Streak: §c" + playerVotes.getStreak() + " Days")
                 .addToLore("    §7> Total Votes: §c" + playerVotes.getTotalVotes())

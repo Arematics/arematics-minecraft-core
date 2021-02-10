@@ -5,10 +5,8 @@ import com.arematics.minecraft.core.generics.UncheckedFunction;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author Enrico
@@ -29,7 +27,7 @@ public class ClassUtils {
     }
 
     public static <T> boolean execute(Class<T> theClass, Method method, UncheckedFunction<Method, Boolean> func)
-            throws Exception {
+            throws Throwable {
         if(Arrays.stream(method.getDeclaredAnnotations()).anyMatch(classes -> classes.annotationType() == theClass))
             return func.apply(method);
         return false;

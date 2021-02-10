@@ -4,7 +4,9 @@ import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
+import java.sql.Timestamp;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -19,10 +21,10 @@ public class TimeUtils {
 
     public static String toString(Period period){
         PeriodFormatter formatter = new PeriodFormatterBuilder()
-                .appendDays().appendSuffix(" Days")
-                .appendHours().appendSuffix(" Hours")
-                .appendMinutes().appendSuffix(" Minutes")
-                .appendSeconds().appendSuffix(" Seconds")
+                .appendDays().appendSuffix(" Days ")
+                .appendHours().appendSuffix(" Hours ")
+                .appendMinutes().appendSuffix(" Minutes ")
+                .appendSeconds().appendSuffix(" Seconds ")
                 .toFormatter();
         return formatter.print(period);
     }
@@ -35,6 +37,13 @@ public class TimeUtils {
                 .appendSeconds().appendSuffix(" S ")
                 .toFormatter();
         return formatter.print(period);
+    }
+
+    public static String fetchEndDate(Timestamp timestamp){
+        LocalDateTime time = timestamp.toLocalDateTime();
+        LocalDateTime now = LocalDateTime.now();
+        Period period = Period.seconds((int) Duration.between(now, time).getSeconds()).normalizedStandard();
+        return toString(period);
     }
 
     public static long toTicks(long time, TimeUnit unit){

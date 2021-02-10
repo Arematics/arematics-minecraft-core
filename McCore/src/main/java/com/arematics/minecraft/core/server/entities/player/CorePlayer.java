@@ -2,12 +2,14 @@ package com.arematics.minecraft.core.server.entities.player;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSet;
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.items.ItemUpdateClickListener;
 import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.permissions.Permissions;
-import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSet;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.CurrencyEntity;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.Inventories;
@@ -23,6 +25,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.Data;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -88,6 +91,10 @@ public class CorePlayer implements CurrencyEntity {
     private Duration lastAfk = null;
     private final Set<ProtectedRegion> currentRegions;
 
+    private final List<ItemUpdateClickListener> itemUpdateClickListeners = new ArrayList<>();
+    private Consumer<Inventory> emptySlotClick;
+    private List<String> lastCommands = new ArrayList<>();
+
     public CorePlayer(Player player){
         this.player = player;
         this.joined = LocalDateTime.now();
@@ -108,6 +115,24 @@ public class CorePlayer implements CurrencyEntity {
         this.updateOnlineTime();
         this.pager.unload();
         this.boardSet.remove();
+    }
+
+    public void addLastCommand(String command){
+        if(lastCommands.size() == 5)
+            lastCommands.remove(0);
+        this.lastCommands.add(command);
+    }
+
+    public String getLastCommand(int index){
+        try{
+            return lastCommands.get(index);
+        }catch (ArrayIndexOutOfBoundsException e){
+            return "";
+        }
+    }
+
+    public String getLastCommand(){
+        return getLastCommand(lastCommands.size() - 2);
     }
 
     public void setInFight(){
@@ -137,6 +162,16 @@ public class CorePlayer implements CurrencyEntity {
         if(lastAfk.isNegative()) return;
         updateOnlineTimeData(false, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
         updateOnlineTimeData(true, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
+    }
+
+    public void addListener(ItemUpdateClickListener listener){
+        this.itemUpdateClickListeners.add(listener);
+    }
+
+    public void tearDownListeners(){
+        Server server = Boots.getBoot(CoreBoot.class).getContext().getBean(Server.class);
+        this.itemUpdateClickListeners.forEach(server::tearDownItemListener);
+        this.itemUpdateClickListeners.clear();
     }
 
 
@@ -191,6 +226,10 @@ public class CorePlayer implements CurrencyEntity {
         return this.getPlayer().getActivePotionEffects().stream()
                 .filter(effect -> effect.getType() == type)
                 .count() >= 1;
+    }
+
+    public void dispatchCommand(String command){
+        Bukkit.dispatchCommand(this.getPlayer(), command.replaceFirst("/", ""));
     }
 
     @SuppressWarnings("unused")
@@ -418,6 +457,10 @@ public class CorePlayer implements CurrencyEntity {
 
     public CoreItem getItemInHand(){
         return CoreItem.create(player.getItemInHand());
+    }
+
+    public void setItemInHand(ItemStack item){
+        player.setItemInHand(item);
     }
 
     public Inventory getInventory(String key) throws RuntimeException{

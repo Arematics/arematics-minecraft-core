@@ -13,7 +13,7 @@ import java.util.List;
 public class FirstMethodSuccess {
     private final List<Method> methods;
 
-    public boolean apply(UncheckedFunction<Method, Boolean> methodConsumer) throws Exception {
+    public boolean apply(UncheckedFunction<Method, Boolean> methodConsumer) throws Throwable {
         for(final Method method : getMethods())
             if(methodConsumer.apply(method)) return true;
         return false;

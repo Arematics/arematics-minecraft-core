@@ -1,5 +1,5 @@
 name: CrystalKeys
-author: Klysma
+author: Enrico
 description: CrystalKeys by Arematics
 version: 1.0-Alpha
 depend: [McCore, Animations]

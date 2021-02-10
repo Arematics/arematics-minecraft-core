@@ -1,5 +1,5 @@
 name: Maps
-author: Klysma
+author: Enrico
 description: Maps by Arematics
 version: 0.4.2
 depend: [McCore]
