@@ -2,6 +2,6 @@ name: SpringHook
 author: Enrico
 description: SpringHook by Arematics
 version: 1.0-Alpha
-depend: [McCore, Metadata, Watcher, Clans, CrystalKeys]
+depend: [McCore]
 
 main: com.arematics.minecraft.spring.SpringHook

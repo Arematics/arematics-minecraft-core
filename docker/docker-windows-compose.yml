@@ -1,0 +1,88 @@
+version: "3.9"
+services:
+  proxy:
+    build: velocity
+    ports:
+      - "25565:25565"
+    volumes:
+      - H:\Network\Git\arematics_mc_plugins\Server\Proxy\:/home/proxy
+    networks:
+      - pvp_network
+      - guns_network
+      - lobby_network
+      - default
+  pvp:
+    build: spigot
+    volumes:
+      - H:\Network\Git\arematics_mc_plugins\Server\PvP\:/home/minecraft
+    environment:
+      XMX: 6G
+      VIEW_DISTANCE: 8
+    container_name: pvp
+    networks:
+      - pvp_network
+      - default
+  guns:
+    build: spigot
+    volumes:
+      - H:\Network\Git\arematics_mc_plugins\Server\Guns\:/home/minecraft
+    environment:
+      XMX: 5G
+      VIEW_DISTANCE: 10
+    container_name: guns
+    networks:
+      - guns_network
+      - default
+  lobby_1:
+    build: spigot
+    volumes:
+      - H:\Network\Git\arematics_mc_plugins\Server\Lobby-01\:/home/minecraft
+    environment:
+      XMX: 4G
+      VIEW_DISTANCE: 12
+    container_name: lobbyone
+    networks:
+      - lobby_network
+      - default
+  lobby_2:
+    build: spigot
+    volumes:
+      - H:\Network\Git\arematics_mc_plugins\Server\Lobby-02\:/home/minecraft
+    environment:
+      XMX: 4G
+      VIEW_DISTANCE: 12
+    container_name: lobbytwo
+    networks:
+      - lobby_network
+      - default
+  redis_pvp:
+    image: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - pvp_network
+      - default
+  redis_guns:
+    image: redis
+    networks:
+      - guns_network
+      - default
+  redis_lobby:
+    image: redis
+    networks:
+      - lobby_network
+      - default
+  redis_global:
+    image: redis
+    networks:
+      - pvp_network
+      - guns_network
+      - lobby_network
+      - default
+networks:
+  pvp_network:
+    driver: bridge
+  guns_network:
+    driver: bridge
+  lobby_network:
+    driver: bridge

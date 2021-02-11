@@ -1,0 +1,7 @@
+name: Lobby
+author: Enrico
+description: Lobby by Arematics
+version: 1.0.0
+depend: [McCore, RegionInteraction]
+
+main: com.arematics.minecraft.lobby.LobbyBoot

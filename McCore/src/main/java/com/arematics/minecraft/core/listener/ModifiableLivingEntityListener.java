@@ -15,7 +15,11 @@ public class ModifiableLivingEntityListener implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEntityEvent event){
         Player interacter = event.getPlayer();
-        ModifiedLivingEntity entity = new ModifiedLivingEntity((LivingEntity) event.getRightClicked());
-        if(entity.hasBindedCommand()) Bukkit.dispatchCommand(interacter, entity.getBindedCommand());
+        if(event.getRightClicked() instanceof LivingEntity){
+            try{
+                ModifiedLivingEntity entity = new ModifiedLivingEntity((LivingEntity) event.getRightClicked());
+                if(entity.hasBindedCommand()) Bukkit.dispatchCommand(interacter, entity.getBindedCommand());
+            }catch (Exception ignore){}
+        }
     }
 }

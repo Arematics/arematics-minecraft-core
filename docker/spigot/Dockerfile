@@ -34,5 +34,6 @@ RUN sed -i "s/bungeecord: false/bungeecord: true/g" spigot.yml
 WORKDIR /data
 
 COPY start /
+RUN chmod 777 start
 
 ENTRYPOINT [ "/start" ]

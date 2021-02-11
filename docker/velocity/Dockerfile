@@ -16,5 +16,6 @@ ADD velocity.toml .
 WORKDIR /data
 
 COPY start /
+RUN chmod 777 start
 
 ENTRYPOINT [ "/start" ]

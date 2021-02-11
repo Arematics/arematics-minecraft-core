@@ -118,4 +118,9 @@ subprojects {
     }
 
     copyFileToCityBuild.dependsOn(shadowJar)
+
+    task copyFileToServer(type:Copy) {
+        with filesToCopy
+        into rootProject.file("Server/${System.getProperty("args")}/plugins").absolutePath
+    }
 }

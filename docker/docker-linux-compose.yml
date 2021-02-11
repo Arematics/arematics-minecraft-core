@@ -1,0 +1,86 @@
+version: "3.9"
+services:
+  proxy:
+    build: velocity
+    ports:
+      - "25565:25565"
+    volumes:
+      - /home/minecraft/proxy:/home/proxy
+    networks:
+      - pvp_network
+      - guns_network
+      - lobby_network
+      - default
+  pvp:
+    build: spigot
+    container_name: pvp
+    volumes:
+      - /home/minecraft/servers/pvp:/home/minecraft
+    environment:
+      XMX: 4G
+      VIEW_DISTANCE: 8
+    networks:
+      - pvp_network
+      - default
+  guns:
+    build: spigot
+    container_name: guns
+    volumes:
+      - /home/minecraft/servers/guns:/home/minecraft
+    environment:
+      XMX: 2G
+      VIEW_DISTANCE: 10
+    networks:
+      - guns_network
+      - default
+  lobby_1:
+    build: spigot
+    container_name: lobbyone
+    volumes:
+      - /home/minecraft/servers/lobby_01:/home/minecraft
+    environment:
+      XMX: 1G
+      VIEW_DISTANCE: 12
+    networks:
+      - lobby_network
+      - default
+  lobby_2:
+    build: spigot
+    container_name: lobbytwo
+    volumes:
+      - /home/minecraft/servers/lobby_02:/home/minecraft
+    environment:
+      XMX: 1G
+      VIEW_DISTANCE: 12
+    networks:
+      - lobby_network
+      - default
+  redis_pvp:
+    image: redis
+    networks:
+      - pvp_network
+      - default
+  redis_guns:
+    image: redis
+    networks:
+      - guns_network
+      - default
+  redis_lobby:
+    image: redis
+    networks:
+      - lobby_network
+      - default
+  redis_global:
+    image: redis
+    networks:
+      - pvp_network
+      - guns_network
+      - lobby_network
+      - default
+networks:
+  pvp_network:
+    driver: bridge
+  guns_network:
+    driver: bridge
+  lobby_network:
+    driver: bridge

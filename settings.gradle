@@ -27,4 +27,5 @@ include 'Metadata'
 include 'SpringHook'
 include 'Animations'
 include 'RegionInteraction'
+include 'Lobby'
 
