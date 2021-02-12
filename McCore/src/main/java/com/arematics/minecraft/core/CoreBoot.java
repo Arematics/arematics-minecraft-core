@@ -35,6 +35,7 @@ public class CoreBoot extends Bootstrap{
 
     @Override
     public void postEnable() {
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         Bukkit.getPluginManager().registerEvents(new BlockWithoutSpringListener(), this);
         Bukkit.getPluginManager().registerEvents(new SpringInitializedListener(), this);
         ArematicsExecutor.asyncDelayed(this.clearlag::start, 10, TimeUnit.SECONDS);

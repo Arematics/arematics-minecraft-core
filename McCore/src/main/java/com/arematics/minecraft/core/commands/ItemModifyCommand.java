@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class ItemModifyCommand extends CoreCommand {
 
     public ItemModifyCommand(){
-        super("imodify");
+        super("imodify", "im", "itemmod");
         registerLongArgument("lore");
         registerLongArgument("command");
     }

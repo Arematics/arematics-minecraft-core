@@ -38,7 +38,6 @@ public class Ammo {
     public void loadGun(CorePlayer player, Gun gun){
         WeaponTypeData data = weaponTypeDataService.findById(gun.getWeapon().getType());
         CoreItem ammo = data.getAmmunition()[0];
-        System.out.println(ammo);
         short inInventory = getAmountOfAmmoFromInventory(player, ammo);
         System.out.println("In Inv: " + ammo);
         if(inInventory <= 0){

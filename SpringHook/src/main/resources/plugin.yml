@@ -3,5 +3,6 @@ author: Enrico
 description: SpringHook by Arematics
 version: 1.0-Alpha
 depend: [McCore]
+softdepend: [Metadata, Watcher, Strongholds, Skills, Shop, Rewards, Maps, Lobby, Kits, Guns, CrystalKeys, Clans, Buffs, Auctions]
 
 main: com.arematics.minecraft.spring.SpringHook

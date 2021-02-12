@@ -33,7 +33,7 @@ RUN sed -i "s/bungeecord: false/bungeecord: true/g" spigot.yml
 
 WORKDIR /data
 
-COPY start /
-RUN chmod 777 start
+COPY docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
 
-ENTRYPOINT [ "/start" ]
+ENTRYPOINT [ "/docker-entrypoint.sh" ]

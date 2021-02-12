@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import java.util.stream.Collectors;
 
 @Component
-@Perm(permission = "crystal-key", description = "Permission to get a crystal key")
+@Perm(permission = "crystals.manage.keys", description = "Permission to get informations about crystal keys")
 public class CrystalKeyCommand extends CoreCommand {
 
     private final CrystalKeyService service;
@@ -32,7 +32,7 @@ public class CrystalKeyCommand extends CoreCommand {
     }
     
     @SubCommand("{crystal}")
-    @Perm(permission = "item", description = "permission to get a crystal item")
+    @Perm(permission = "getNew", description = "permission to get a crystal item")
     public void getCrystalKey(CorePlayer player, CrystalKey key) {
         ArematicsExecutor.syncRun(() -> player.getPlayer().getInventory().addItem(CrystalKeyItem.fromKey(key)));
         player.info("You received a crystal key: " + key.getName()).handle();

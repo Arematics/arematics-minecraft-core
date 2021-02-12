@@ -57,7 +57,6 @@ public class UserUpdateListener implements Listener {
 
     private void dispatchPlayerData(CorePlayer player){
         patchUser(player);
-        sendInfo(player);
         ArematicsExecutor.syncRun(() -> sendTab(player));
     }
 
@@ -71,20 +70,12 @@ public class UserUpdateListener implements Listener {
         this.userService.update(user);
     }
 
-    private void sendInfo(CorePlayer player){
-        player.info("broadcast_beta_disclaimer")
-                .DEFAULT()
-                .replace("prefix", "§c§lInfo » §7")
-                .disableServerPrefix()
-                .handle();
-    }
-
     private void sendTab(CorePlayer player){
         this.tablist.refresh(player);
         TextComponent header = new TextComponent("Arematics presents SoulPvP");
         header.setColor(ChatColor.AQUA);
         header.setBold(true);
-        TextComponent footer = new TextComponent("OPEN BETA");
+        TextComponent footer = new TextComponent("CLOSED BETA");
         footer.setColor(ChatColor.DARK_GRAY);
         footer.setBold(true);
         player.getPlayer().setPlayerListHeaderFooter(header, footer);

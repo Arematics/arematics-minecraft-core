@@ -22,7 +22,9 @@ public class PermissionAnnotationProcessor extends AnnotationProcessor<Perm> {
         super.supply(method);
         if(StringUtils.isBlank(classLevelPermission))
             return true;
-        String result = this.classLevelPermission + "." + getSerializedPermission(method);
+        String methodName = getSerializedPermission(method);
+        String result = this.classLevelPermission;
+        if(StringUtils.isNotBlank(methodName)) result += "." + methodName;
         if(!Permissions.hasPermission(this.sender, result)){
             Messages.create("cmd_noperms")
                     .WARNING()

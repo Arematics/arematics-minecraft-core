@@ -25,7 +25,7 @@ public class SellSignClickListener implements Listener {
         if(event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null &&
                 (event.getClickedBlock().getType() == Material.SIGN || event.getClickedBlock().getType() == Material.WALL_SIGN)){
             Sign clicked = (Sign) event.getClickedBlock().getState();
-            if(clicked.getLine(0).equals("§8[§bSELL§8]")){
+            if(clicked.getLine(0).equals("§8[§bBUY§8]")){
                 String rawPrice = clicked.getLine(1)
                         .replaceAll("Coins", "")
                         .replaceAll(" ", "");

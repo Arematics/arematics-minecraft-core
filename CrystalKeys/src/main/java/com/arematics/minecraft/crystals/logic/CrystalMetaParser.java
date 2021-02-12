@@ -22,6 +22,10 @@ public class CrystalMetaParser {
         types.forEach(type -> this.types.put(type.propertyValue(), type));
     }
 
+    public Map<String, CrystalType> getTypes() {
+        return types;
+    }
+
     public void parse(CorePlayer player, CoreItem coreItem, CrystalKey crystalKey) throws RuntimeException{
         Optional<String> key = this.types.keySet().stream().filter(val -> coreItem.getMeta().hasKey(val)).findFirst();
         if(!key.isPresent())

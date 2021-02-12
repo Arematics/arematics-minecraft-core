@@ -1,8 +1,10 @@
 package com.arematics.minecraft.lobby.commands;
 
+import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.inventories.helper.InventoryPlaceholder;
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.proxy.MessagingUtils;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -27,10 +29,15 @@ public class ServerMenuCommand extends CoreCommand {
         player.openTotalBlockedInventory(inv);
         InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLUE);
         inv.setItem(9 + 3, CoreItem.generate(Material.DIAMOND_SWORD)
-                .bindCommand("server pvp")
+                .bindCommand("servermenu connect pvp")
                 .setName("§bPVP"));
         inv.setItem(9 + 5, CoreItem.generate(Material.GOLD_AXE)
-                .bindCommand("server guns")
+                .bindCommand("servermenu connect guns")
                 .setName("§6GUNS"));
+    }
+
+    @SubCommand("connect {server}")
+    public void connectToServer(CorePlayer player, String server) {
+        MessagingUtils.sendToServer(player, server);
     }
 }
