@@ -27,7 +27,7 @@ public class ServerMenuCommand extends CoreCommand {
         CorePlayer player = CorePlayer.get((Player) sender);
         Inventory inv = Bukkit.createInventory(null, 3*9, "§bSelect Server");
         player.openTotalBlockedInventory(inv);
-        InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLUE);
+        InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLACK);
         inv.setItem(9 + 3, CoreItem.generate(Material.DIAMOND_SWORD)
                 .bindCommand("servermenu connect pvp")
                 .setName("§bPVP"));

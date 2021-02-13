@@ -7,6 +7,7 @@ public class StringParser extends CommandParameterParser<String> {
 
     @Override
     public String parse(String value) {
+        if(value.equals("null")) return null;
         return value;
     }
 }

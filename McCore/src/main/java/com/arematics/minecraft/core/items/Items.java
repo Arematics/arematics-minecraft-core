@@ -21,7 +21,7 @@ public class Items {
     public static final CoreItem BACK;
 
     static{
-        ItemStack itemStack = new ItemStack(Material.STAINED_GLASS_PANE, 1, DyeColor.GRAY.getData());
+        ItemStack itemStack = new ItemStack(Material.STAINED_GLASS_PANE, 1, DyeColor.BLACK.getData());
         PLAYERHOLDER = CoreItem.create(itemStack).disableClick().setName("§7");
         NEXT_PAGE = nextPage().bindCommand("page NEXT");
         BEFORE_PAGE = pageBefore().bindCommand("page BEFORE");

@@ -13,7 +13,7 @@ public class LobbyItemJoinListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
-        player.teleport(player.getPlayer().getWorld().getSpawnLocation());
+        player.instantTeleport(player.getPlayer().getWorld().getSpawnLocation());
         player.getPlayer().getInventory().setItem(4, Items.COMPASS);
     }
 }

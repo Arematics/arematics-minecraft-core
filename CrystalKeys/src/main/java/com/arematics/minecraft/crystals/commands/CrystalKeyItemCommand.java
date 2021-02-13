@@ -39,7 +39,7 @@ public class CrystalKeyItemCommand extends CoreCommand {
     public void listCrystalItemMeta(CorePlayer sender) {
         sender.info("listing")
                 .DEFAULT()
-                .replace("list_type", "Crystal Metas")
+                .replace("list_type", "Crystal Meta")
                 .replace("list_value", "§c" + StringUtils.join(parser.getTypes().keySet(), ", "))
                 .handle();
     }
@@ -54,6 +54,20 @@ public class CrystalKeyItemCommand extends CoreCommand {
         hand.setString(key, value);
         sender.setItemInHand(hand);
         sender.info("Crystal Item Meta set").handle();
+    }
+
+    @SubCommand("check")
+    public void checkItemForCrystal(CorePlayer sender) {
+        CoreItem hand = sender.getItemInHand();
+        if(hand == null)
+            throw new CommandProcessException("no_item_in_hand");
+        String rawChance = hand.getMeta().getString("chance");
+        try{
+            double chance = Double.parseDouble(rawChance);
+            if(chance < 0.01 || chance > 100) throw new CommandProcessException("Chance is out of range");
+        }catch (Exception e){
+            throw new CommandProcessException("Item chance is not correct");
+        }
     }
 
     private String fetchRarityByPercent(double chance){

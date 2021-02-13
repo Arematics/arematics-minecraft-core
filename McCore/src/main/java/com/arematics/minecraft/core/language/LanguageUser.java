@@ -31,6 +31,7 @@ public class LanguageUser {
     public void setLanguage(Language language) {
         Configuration configuration = this.player.getUser().getConfigurations().get("language");
         if(configuration == null) configuration = new Configuration(language.getName());
+        configuration.setValue(language.getName());
         User user = this.player.getUser();
         user.getConfigurations().put("language", configuration);
         UserService service = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);

@@ -25,7 +25,6 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.Data;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -94,6 +93,7 @@ public class CorePlayer implements CurrencyEntity {
     private final List<ItemUpdateClickListener> itemUpdateClickListeners = new ArrayList<>();
     private Consumer<Inventory> emptySlotClick;
     private List<String> lastCommands = new ArrayList<>();
+    private int page;
 
     public CorePlayer(Player player){
         this.player = player;
@@ -129,6 +129,14 @@ public class CorePlayer implements CurrencyEntity {
         }catch (ArrayIndexOutOfBoundsException e){
             return "";
         }
+    }
+
+    public int nextPage(){
+        return ++page;
+    }
+
+    public int pageBefore(){
+        return --page;
     }
 
     public String getLastCommand(){
@@ -232,7 +240,7 @@ public class CorePlayer implements CurrencyEntity {
     }
 
     public void dispatchCommand(String command){
-        Bukkit.dispatchCommand(this.getPlayer(), command.replaceFirst("/", ""));
+        this.getPlayer().performCommand(command.replaceFirst("/", ""));
     }
 
     @SuppressWarnings("unused")

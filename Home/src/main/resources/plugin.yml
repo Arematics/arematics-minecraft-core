@@ -1,0 +1,7 @@
+name: Home
+author: Enrico
+description: Home by Arematics
+version: 1.0-Alpha
+depend: [McCore]
+
+main: com.arematics.minecraft.homes.HomeBoot

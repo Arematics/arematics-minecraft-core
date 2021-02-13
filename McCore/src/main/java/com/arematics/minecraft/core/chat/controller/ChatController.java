@@ -28,8 +28,12 @@ public class ChatController {
 
     private String msg(CorePlayer player, String message){
         Rank rank = getRank(player.getUser());
-        return "§8§l[" + rank.getColorCode() + rank.getName() + "§8§l] §7" + player.getPlayer().getName() + " §8» §f" +
+        return "§8§l[" + rank.getColorCode() + rank.getName() + "§8§l] §7" + player.getPlayer().getName() + " §8» " + colorCode(player) +
                 createChatMessage(player, message);
+    }
+
+    private String colorCode(CorePlayer player){
+        return player.getUser().getRank().isInTeam() ? "§c" : "§f";
     }
 
     private String createChatMessage(CorePlayer player, String message){

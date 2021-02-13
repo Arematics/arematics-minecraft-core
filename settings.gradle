@@ -28,4 +28,5 @@ include 'SpringHook'
 include 'Animations'
 include 'RegionInteraction'
 include 'Lobby'
+include 'Home'
 
