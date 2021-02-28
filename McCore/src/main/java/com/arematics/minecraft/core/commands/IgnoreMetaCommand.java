@@ -6,7 +6,6 @@ import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.utils.TitleAPI;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,7 +14,7 @@ public class IgnoreMetaCommand extends CoreCommand {
 
     public static void setIgnoreMeta(CorePlayer player){
         player.setIgnoreMeta(true);
-        TitleAPI.sendTitle(player.getPlayer(),
+        player.getTitle().sendTitle(
                 LanguageAPI.prepareRawMessage(player.getPlayer(), "ignore_item_meta_enabled"),
                 LanguageAPI.prepareRawMessage(player.getPlayer(), "ignore_item_meta_inventory_can_edit"),
                 10, 20*5, 10);

@@ -37,6 +37,8 @@ public class PlayerHitBySnowballListener implements Listener {
                     }else if(hitPoint.getY() < playerLocation.getY() + 0.9){
                         location = BodyLocation.BODY;
                     }else location = BodyLocation.LEGS;
+                    event.getEntity().setVelocity(event.getEntity().getVelocity().multiply(0.8f));
+                    if(player.getUUID().equals(bullet.getShooter().getUUID())) return;
                     BulletHitEvent hitEvent = new BulletHitEvent(bullet, player, location);
                     Bukkit.getServer().getPluginManager().callEvent(hitEvent);
                     event.setCancelled(true);

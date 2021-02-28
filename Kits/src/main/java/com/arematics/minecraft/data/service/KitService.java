@@ -2,6 +2,7 @@ package com.arematics.minecraft.data.service;
 
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.mode.repository.KitRepository;
+import com.arematics.minecraft.data.share.model.Cooldown;
 import com.arematics.minecraft.data.share.model.CooldownKey;
 import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,16 @@ public class KitService {
     public boolean hasCooldownOnKit(UUID uuid, Kit kit){
         CooldownKey key = from(uuid, kit);
         return cooldownService.hasCooldown(key);
+    }
+
+    public Optional<Cooldown> getCooldownOnKit(UUID uuid, Kit kit){
+        CooldownKey key = from(uuid, kit);
+        return cooldownService.getModeCooldown(key);
+    }
+
+    public void setCooldownOnKit(UUID uuid, Kit kit){
+        Cooldown cooldown = new Cooldown(uuid.toString(), kit.getName(), System.currentTimeMillis() + kit.getCooldown());
+        cooldownService.ofMode(cooldown);
     }
 
     public List<String> findKitNames(){

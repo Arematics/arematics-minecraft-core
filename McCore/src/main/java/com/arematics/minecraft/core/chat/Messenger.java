@@ -1,6 +1,9 @@
 package com.arematics.minecraft.core.chat;
 
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.data.global.model.Rank;
+import com.arematics.minecraft.data.global.model.User;
+import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -8,7 +11,7 @@ import java.util.HashMap;
 @Component
 public class Messenger {
 
-    private final HashMap<CorePlayer, CorePlayer> lastMessenger = new HashMap<>();
+    private final HashMap<Player, Player> lastMessenger = new HashMap<>();
 
 
     public Messenger() {
@@ -18,21 +21,30 @@ public class Messenger {
         if(player == target) {
             return;
         }
-        lastMessenger.put(player, target);
+        lastMessenger.put(target.getPlayer(), player.getPlayer());
         message(player, target, message);
     }
 
     public void reply(CorePlayer player, String message) {
-        CorePlayer target = lastMessenger.get(player);
-        if(target != null) {
-           message(player, target, message);
+        Player result = lastMessenger.get(player.getPlayer());
+        if(result != null && result.isOnline()) {
+            lastMessenger.put(result, player.getPlayer());
+            lastMessenger.put(player.getPlayer(), result);
+            message(player, CorePlayer.get(result), message);
         }
     }
 
     private void message(CorePlayer player, CorePlayer target, String message) {
-        player.info("§8<§bMSG§8> §7Du §8» §b" + target.getPlayer().getDisplayName() + "§7: §f" + message).DEFAULT().disableServerPrefix().handle();
-        target.info("§8<§bMSG§8> §b" + player.getPlayer().getDisplayName() + " §8» §7Dir: §f" + message).DEFAULT().disableServerPrefix().handle();
+        player.info("§8<§bMSG§8> §7Du §8» §b" + parseName(target) + "§7: §f" + message).DEFAULT().disableServerPrefix().handle();
+        target.info("§8<§bMSG§8> " + parseName(player) + " §8» §7Dir: §f" + message).DEFAULT().disableServerPrefix().handle();
         target.getRequestSettings().addTimeout(player.getPlayer().getName());
     }
 
+    private String parseName(CorePlayer target){
+        return getRank(target.getUser()).getColorCode() + target.getPlayer().getDisplayName();
+    }
+
+    private Rank getRank(User user){
+        return user.getDisplayRank() != null ? user.getDisplayRank(): user.getRank();
+    }
 }

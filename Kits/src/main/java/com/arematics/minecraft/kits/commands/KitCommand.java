@@ -13,10 +13,12 @@ import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageI
 import com.arematics.minecraft.core.pages.Page;
 import com.arematics.minecraft.core.pages.Pageable;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.KitService;
 import com.arematics.minecraft.data.service.UserService;
+import com.arematics.minecraft.data.share.model.Cooldown;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -100,9 +102,8 @@ public class KitCommand extends CoreCommand {
     }
 
     @SubCommand("{kit}")
-    public boolean giveKit(CorePlayer player, Kit kit) {
+    public void giveKit(CorePlayer player, Kit kit) {
         giveToPlayer(kit, player, player.hasPermission("kit.force"));
-        return true;
     }
 
     private void giveToPlayer(Kit kit, CorePlayer player, boolean force){
@@ -110,11 +111,17 @@ public class KitCommand extends CoreCommand {
             player.warn("cmd_noperms").handle();
             return;
         }
+        if(!force && service.hasCooldownOnKit(player.getUUID(), kit)){
+            Cooldown cooldown = service.getCooldownOnKit(player.getUUID(), kit).orElse(null);
+            player.warn("You need to wait until " + TimeUtils.toString(cooldown.getEndTime()) + " to collect this kit again").handle();
+            return;
+        }
         Inventory inv = inventoryService.getOrCreate("kit.inventory." + kit.getName(), "§6Kit " + kit.getName(),
                 (byte)27);
         ItemStack[] items = Arrays.stream(inv.getContents())
                 .filter(item -> item != null && item.getType() != Material.AIR)
                 .toArray(ItemStack[]::new);
+        service.setCooldownOnKit(player.getUUID(), kit);
         Items.giveItem(player, items);
     }
 }

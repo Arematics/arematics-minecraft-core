@@ -26,7 +26,7 @@ public class RequestSettingsCommand extends CoreCommand {
         player.getRequestSettings().clearTimeouts();
         player.info("Request timeout set to %seconds% seconds. Timeouts were reset.")
                 .DEFAULT()
-                .replace("seconds", "" + period.toStandardSeconds().getSeconds())
+                .replace("seconds", "" + period.normalizedStandard().getSeconds())
                 .handle();
         return true;
     }

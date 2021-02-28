@@ -21,11 +21,11 @@ public class Gun {
         return weapon.getType();
     }
 
-    public byte getTotalDamage() {
+    public short getTotalDamage() {
         return weapon.getTotalDamage();
     }
 
-    public byte getBullets() {
+    public short getBullets() {
         return weapon.getBullets();
     }
 
@@ -37,39 +37,39 @@ public class Gun {
         return weapon.getMaxAmmo();
     }
 
-    public byte getAmmoPerLoading(){
+    public short getAmmoPerLoading(){
         return weapon.getAmmoPerLoading();
     }
 
-    public byte getAmmo(){
-        return this.item.getMeta().getByte("ammo");
+    public short getAmmo(){
+        return this.item.getMeta().getShort("ammo");
     }
 
     public void removeAmmo(){
-        byte current = this.item.getMeta().getByte("ammo");
-        updateAmmo((byte) (current - this.getBullets()));
+        short current = this.item.getMeta().getShort("ammo");
+        updateAmmo((short) (current - this.getBullets()));
     }
 
-    public void removeAmmo(byte amount){
-        byte current = this.item.getMeta().getByte("ammo");
-        updateAmmo((byte) (current - amount));
+    public void removeAmmo(short amount){
+        short current = this.item.getMeta().getShort("ammo");
+        updateAmmo((short) (current - amount));
     }
 
-    public byte reload(short ammoInInventory){
-        byte current = this.item.getMeta().getByte("ammo");
+    public short reload(short ammoInInventory){
+        short current = this.item.getMeta().getShort("ammo");
         if(current >= getAmmoPerLoading()) return 0;
-        byte free = (byte) (getAmmoPerLoading() - current);
+        short free = (short) (getAmmoPerLoading() - current);
         if(free >= ammoInInventory){
-            updateAmmo((byte) (current + ammoInInventory));
-            return (byte) ammoInInventory;
+            updateAmmo((short) (current + ammoInInventory));
+            return ammoInInventory;
         }else{
-            updateAmmo((byte) (current + free));
+            updateAmmo((short) (current + free));
             return free;
         }
     }
 
-    private void updateAmmo(byte newAmount){
-        this.item.getMeta().setByte("ammo", newAmount);
-        this.item.setName("§e" + this.getId() + " §7< " + this.item.getMeta().getByte("ammo") + " / " + this.getAmmoPerLoading() + " >");
+    private void updateAmmo(short newAmount){
+        this.item.getMeta().setShort("ammo", newAmount);
+        this.item.setName("§e" + this.getId() + " §7< " + this.item.getMeta().getShort("ammo") + " / " + this.getAmmoPerLoading() + " >");
     }
 }

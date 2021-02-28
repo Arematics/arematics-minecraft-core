@@ -7,4 +7,9 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 public class PlayerEvent extends BaseEvent {
     private final CorePlayer player;
+
+    public PlayerEvent(CorePlayer player, boolean async){
+        super(async);
+        this.player = player;
+    }
 }

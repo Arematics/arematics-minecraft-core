@@ -81,7 +81,7 @@ public class AuctionCommand extends CoreCommand {
         Inventory inv = Bukkit.createInventory(null, 6*9, "§8Auction Search");
         player.openTotalBlockedInventory(inv);
         InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLACK);
-        inv.setItem(5 * 9 + 4, CoreItem.create(Items.BACK.clone()).bindCommand(player.getLastCommand()));
+        inv.setItem(5 * 9 + 4, CoreItem.create(Items.BACK.clone()));
         CoreItem type = CoreItem.generate(Material.PAPER)
                 .bindCommand("auction next type")
                 .setName("§bAuction Type")
@@ -107,7 +107,7 @@ public class AuctionCommand extends CoreCommand {
         Inventory inv = Bukkit.createInventory(null, 5*9, "§8Your Auctions");
         player.openTotalBlockedInventory(inv);
         InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLACK);
-        inv.setItem(4 * 9 + 4, CoreItem.create(Items.BACK.clone()).bindCommand(player.getLastCommand()));
+        inv.setItem(4 * 9 + 4, CoreItem.create(Items.BACK.clone()));
         ArematicsExecutor.asyncDelayed(() -> player.setEmptySlotClick(clicked -> player.dispatchCommand("auction sells createNew")),
                 100,
                 TimeUnit.MILLISECONDS);
@@ -118,7 +118,7 @@ public class AuctionCommand extends CoreCommand {
         Inventory inv = Bukkit.createInventory(null, 3*9, "§8New Auction");
         player.openLowerEnabledInventory(inv);
         InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLACK);
-        inv.setItem(3 * 9 + 4, CoreItem.create(Items.BACK.clone()).bindCommand(player.getLastCommand()));
+        inv.setItem(3 * 9 + 4, CoreItem.create(Items.BACK.clone()));
     }
 
     @SubCommand("next type")

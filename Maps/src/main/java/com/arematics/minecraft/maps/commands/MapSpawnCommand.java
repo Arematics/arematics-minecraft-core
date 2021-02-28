@@ -10,6 +10,7 @@ import com.arematics.minecraft.data.controller.MapController;
 import com.arematics.minecraft.data.mode.model.GameMap;
 import com.arematics.minecraft.data.service.MapService;
 import com.arematics.minecraft.data.service.WarpService;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class MapSpawnCommand extends SpawnCommand {
 
         try{
             GameMap map = this.mapService.findById(this.mapController.getCurrentMapId());
-            player.teleport(map.getLocation());
+            player.teleport(map.getLocation()).schedule();
         }catch (Exception e){
             super.onDefaultExecute(sender);
         }
@@ -59,5 +60,14 @@ public class MapSpawnCommand extends SpawnCommand {
         map.setLocation(player.getLocation());
         this.mapService.save(map);
         player.info("Spawn for map: " + mapId + " has been set to your location").handle();
+    }
+
+    public Location findCurrentSpawn(){
+        try{
+            GameMap map = this.mapService.findById(this.mapController.getCurrentMapId());
+            return map.getLocation();
+        }catch (Exception e){
+            return getWarpService().getWarp("spawn").getLocation();
+        }
     }
 }

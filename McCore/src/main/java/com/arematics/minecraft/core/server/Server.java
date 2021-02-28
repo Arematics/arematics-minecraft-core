@@ -29,6 +29,13 @@ public class Server {
         return Bukkit.getOnlinePlayers().stream().map(CorePlayer::get).collect(Collectors.toList());
     }
 
+    public List<CorePlayer> getOnlineTeam(){
+        return Bukkit.getOnlinePlayers().stream()
+                .map(CorePlayer::get)
+                .filter(player -> player.getUser().getRank().isInTeam())
+                .collect(Collectors.toList());
+    }
+
     public void registerItemListener(CorePlayer player, CoreItem item, Function<CoreItem, CoreItem> function){
         ItemUpdateClickListener listener = new ItemUpdateClickListener(item, function);
         player.addListener(listener);

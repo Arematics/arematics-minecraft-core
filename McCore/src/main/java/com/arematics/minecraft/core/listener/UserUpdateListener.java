@@ -39,16 +39,11 @@ public class UserUpdateListener implements Listener {
         CorePlayer player = CorePlayer.get(joinPlayer);
         dispatchPlayerData(player);
         sendScoreboard(player);
-        player.info("broadcast_beta_disclaimer")
-                .DEFAULT()
-                .replace("prefix", "§c§lInfo » §7")
-                .disableServerPrefix()
-                .handle();
     }
 
     private void sendScoreboard(CorePlayer player){
         final BoardHandler handler = player.getBoard().getOrAddBoard("main", "§b§lSOULPVP.DE");
-        handler.addEntryData("Coins", "§c", "§7" + player.getStats().getCoins())
+        handler.addEntryData("Coins", "§c", "§7" + player.stripMoney())
                 .addEntryData("Deaths", "§c", "§7" + player.getStats().getDeaths())
                 .addEntryData("Kills", "§c", "§7" + player.getStats().getKills());
 

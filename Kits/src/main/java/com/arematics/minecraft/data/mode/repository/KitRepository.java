@@ -10,8 +10,8 @@ import java.util.Optional;
 
 public interface KitRepository extends JpaRepository<Kit, Long>, JpaSpecificationExecutor<Kit> {
     String FIND_NAMES = "SELECT name FROM kit";
-
     Optional<Kit> findByName(String name);
+
     @Query(value = FIND_NAMES, nativeQuery = true)
     List<String> findNames();
 }

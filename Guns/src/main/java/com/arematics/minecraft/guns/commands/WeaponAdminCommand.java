@@ -1,5 +1,6 @@
 package com.arematics.minecraft.guns.commands;
 
+import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
+@Perm(permission = "guns.weapons.administrate")
 public class WeaponAdminCommand extends CoreCommand {
 
     private final WeaponService weaponService;
@@ -77,7 +79,7 @@ public class WeaponAdminCommand extends CoreCommand {
     @SubCommand("config")
     public void configureWeapons(CorePlayer player) {
         Inventory inv = Bukkit.createInventory(null, 9, "§cWeapon Types");
-        int slot = 2;
+        int slot = 1;
         for(WeaponType weaponType : WeaponType.values()){
             try{
                 WeaponTypeData data = this.weaponTypeDataService.findById(weaponType);
@@ -96,19 +98,23 @@ public class WeaponAdminCommand extends CoreCommand {
 
     @SubCommand("config {type}")
     public void configureWeapons(CorePlayer player, WeaponType type) {
-        List<Weapon> weapons = this.weaponService.findAllByType(type);
-        int size = 18 + ((weapons.size() / 9) * 9);
-        Inventory inv = Bukkit.createInventory(null, size, "§cWeapons");
-        player.openTotalBlockedInventory(inv);
-        weapons.forEach(weapon -> inv.addItem(prepareWeapon(weapon)));
-        inv.setItem(size - 1, createNewWeapon(type));
+        try{
+            List<Weapon> weapons = this.weaponService.findAllByType(type);
+            int size = 18 + ((weapons.size() / 9) * 9);
+            Inventory inv = Bukkit.createInventory(null, size, "§cWeapons");
+            player.openTotalBlockedInventory(inv);
+            weapons.forEach(weapon -> inv.addItem(prepareWeapon(weapon)));
+            inv.setItem(size - 1, createNewWeapon(type));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @SubCommand("create weapon {id} {type} {durability} {damage} {bullets} {apl}")
     public void createNewWeapon(CorePlayer player, String id,
                                 WeaponType type, Short durability,
-                                Byte damage, Byte bullets,
-                                Byte ammoPerLoading) {
+                                Short damage, Short bullets,
+                                Short ammoPerLoading) {
         CoreItem hand = player.getItemInHand();
         if(hand == null)
             throw new CommandProcessException("no_item_in_hand");
@@ -123,6 +129,54 @@ public class WeaponAdminCommand extends CoreCommand {
                     .setName("§e" + id + " §7< 0 / " + ammoPerLoading + " >")});
             this.weaponService.update(weapon);
             player.info("Weapon with id: " + id + " has been created").handle();
+        }
+    }
+
+    @SubCommand("set durability {id} {durability}")
+    public void setDurability(CorePlayer sender, String id, Short durability) {
+        try{
+            Weapon weapon = this.weaponService.fetchWeapon(id);
+            weapon.setDurability(durability);
+            weaponService.update(weapon);
+            sender.info("Weapon durability for weapon: " + id + " changed to: " + durability).handle();
+        }catch (RuntimeException re){
+            throw new CommandProcessException("Weapon with name: " + id + " could not be found");
+        }
+    }
+
+    @SubCommand("set damage {id} {totalDamage}")
+    public void setDamage(CorePlayer sender, String id, Short damage) {
+        try{
+            Weapon weapon = this.weaponService.fetchWeapon(id);
+            weapon.setTotalDamage(damage);
+            weaponService.update(weapon);
+            sender.info("Weapon totalDamage for weapon: " + id + " changed to: " + damage).handle();
+        }catch (RuntimeException re){
+            throw new CommandProcessException("Weapon with name: " + id + " could not be found");
+        }
+    }
+
+    @SubCommand("set bullets {id} {bullets}")
+    public void setBullets(CorePlayer sender, String id, Short bullets) {
+        try{
+            Weapon weapon = this.weaponService.fetchWeapon(id);
+            weapon.setBullets(bullets);
+            weaponService.update(weapon);
+            sender.info("Weapon bullets for weapon: " + id + " changed to: " + bullets).handle();
+        }catch (RuntimeException re){
+            throw new CommandProcessException("Weapon with name: " + id + " could not be found");
+        }
+    }
+
+    @SubCommand("set apl {id} {apl}")
+    public void setAmmoPerLoading(CorePlayer sender, String id, Short apl) {
+        try{
+            Weapon weapon = this.weaponService.fetchWeapon(id);
+            weapon.setAmmoPerLoading(apl);
+            weaponService.update(weapon);
+            sender.info("Weapon ammo per loading for weapon: " + id + " changed to: " + apl).handle();
+        }catch (RuntimeException re){
+            throw new CommandProcessException("Weapon with name: " + id + " could not be found");
         }
     }
 

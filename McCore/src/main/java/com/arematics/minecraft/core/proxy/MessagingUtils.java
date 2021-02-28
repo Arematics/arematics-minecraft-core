@@ -13,7 +13,6 @@ public class MessagingUtils {
         out.writeUTF("ConnectOther");
         out.writeUTF(player.getPlayer().getName());
         out.writeUTF(server);
-        System.out.println(server);
 
         player.getPlayer().sendPluginMessage(Boots.getBoot(CoreBoot.class), "BungeeCord", out.toByteArray());
     }

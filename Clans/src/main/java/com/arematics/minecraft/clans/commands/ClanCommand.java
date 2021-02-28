@@ -28,7 +28,6 @@ import com.arematics.minecraft.data.service.ClanService;
 import com.arematics.minecraft.data.service.UserService;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@Component
 public class ClanCommand extends CoreCommand {
 
     private final Map<ClanInvite, CorePlayer> clanInvites = new HashMap<>();
@@ -257,13 +255,18 @@ public class ClanCommand extends CoreCommand {
     @SubCommand("money add {amount}")
     public void addClanMoney(ClanMember member,
                              @Validator(validators = BalanceValidator.class) Double amount) {
+        if(member.getMoney() < amount)
+            throw new CommandProcessException("You dont have enough money to afford this");
         boolean success = this.server.getCurrencyController()
                 .createEvent(member.online())
                 .setAmount(amount)
                 .setEventType(CurrencyEventType.TRANSFER)
                 .setTarget("clan")
                 .onSuccess(() -> addMoneyToClan(member, amount));
-        if(success) member.removeMoney(amount);
+        if(success){
+            member.removeMoney(amount);
+            member.online().info("Send " + amount + " coins to clan bank").handle();
+        }
         else
             throw new CommandProcessException("Your payment to the clan bank could not be made");
 
@@ -282,6 +285,7 @@ public class ClanCommand extends CoreCommand {
     @SubCommand("money rem {amount}")
     public void removeClanMoney(ClanMember member, Double amount) {
         if(!ClanPermissions.isAdmin(member)) throw new CommandProcessException("Not allowed to perform this");
+        if(member.getClan(clanService).getCoins() < amount) throw new CommandProcessException("Clan does not have enough coins");
         boolean success = this.server.getCurrencyController()
                 .createEvent(member.online())
                 .setAmount(amount)

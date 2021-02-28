@@ -54,6 +54,8 @@ public class PlayerRequestSettings {
             case FRIENDS:
                 if(!player.getUser().getFriends().contains(requester))
                     throw new CommandProcessException("This player is accepting requests from friends only");
+                else
+                    break;
             case NOBODY:
                 throw new CommandProcessException("This player does not accept requests");
         }

@@ -34,4 +34,8 @@ public class Rank implements Serializable {
     private String sortChar;
     @Column(name = "last_change", nullable = false)
     private Timestamp lastChange;
+
+    public boolean isOver(Rank target){
+        return sortChar.compareToIgnoreCase(target.getSortChar()) < 0;
+    }
 }

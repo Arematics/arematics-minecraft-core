@@ -70,6 +70,10 @@ subprojects {
         testCompile group: 'com.h2database', name: 'h2', version: '1.4.200'
     }
 
+    configurations {
+        all*.exclude module : 'spring-boot-starter-logging'
+    }
+
     jar {
         from {
             configurations.compile.collect {

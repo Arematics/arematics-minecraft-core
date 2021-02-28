@@ -2,8 +2,6 @@ name: Watcher
 author: Enrico
 description: Watcher by Arematics
 version: 1.0.0-Alpha
-depend: [WorldEdit, WorldGuard, McCore]
+depend: [McCore]
 
 main: com.arematics.minecraft.watcher.WatcherBoot
-
-commands:

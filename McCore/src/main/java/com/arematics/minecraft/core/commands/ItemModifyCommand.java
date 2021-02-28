@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.items.Items;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.springframework.stereotype.Component;
 
@@ -82,5 +83,11 @@ public class ItemModifyCommand extends CoreCommand {
     public boolean delMeta(CorePlayer player, String key) {
         CoreItem.executeOnHandItem(player, item -> item.removeString(key).updateTo(player));
         return true;
+    }
+
+    @SubCommand("items get back")
+    public void getBackItem(CorePlayer sender) {
+        sender.getPlayer().getInventory().addItem(CoreItem.create(Items.BACK.clone()));
+        sender.info("Received back item").handle();
     }
 }

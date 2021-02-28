@@ -1,19 +1,20 @@
 package com.arematics.minecraft.guns.listener;
 
+import com.arematics.minecraft.core.events.PlayerInteractEvent;
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.server.entities.InteractType;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.mode.model.Weapon;
 import com.arematics.minecraft.data.mode.model.WeaponType;
 import com.arematics.minecraft.data.service.WeaponService;
 import com.arematics.minecraft.guns.calculation.Ammo;
 import com.arematics.minecraft.guns.server.Gun;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,22 +31,27 @@ public class WeaponShotListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event){
-        CorePlayer player = CorePlayer.get(event.getPlayer());
+        CorePlayer player = event.getPlayer();
         CoreItem hand = player.getItemInHand();
         if(hand != null && hand.getMeta().hasKey("weapon") != null){
+            if(player.inRegionWithFlag(DefaultFlag.PVP)) return;
             String weaponId = hand.getMeta().getString("weapon");
-            if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK){
+            if(ammo.getReloading().contains(player)){
+                player.getActionBar().sendActionBar("§c§lWait until reload end");
+                return;
+            }
+            if(event.getType() == InteractType.RIGHT_CLICK){
                 try{
                     Weapon weapon = this.weaponService.fetchWeapon(weaponId);
-                    byte bullets = weapon.getBullets();
+                    short bullets = weapon.getBullets();
                     Gun gun = ammo.fetchGun(hand);
-                    byte ammunition = gun.getAmmo();
-                    if(ammunition < bullets) bullets = ammunition;
-                    IntStream.range(0, bullets).forEach((i) -> launchSnowball(weapon.getType(), player));
-                    gun.removeAmmo(bullets);
-                    player.getPlayer().setItemInHand(gun.getItem());
-                    if(bullets == 0)
-                        player.warn("No ammunition loaded").handle();
+                    short ammunition = gun.getAmmo();
+                    if(ammunition != 0) {
+                        IntStream.range(0, bullets).forEach((i) -> launchSnowball(weapon.getType(), player));
+                        gun.removeAmmo((short) 1);
+                        player.getPlayer().setItemInHand(gun.getItem());
+                    }else
+                        player.getActionBar().sendActionBar("§eNo ammunition loaded");
                 }catch (RuntimeException ignore){}
             }
         }
@@ -53,6 +59,7 @@ public class WeaponShotListener implements Listener {
 
     private void launchSnowball(WeaponType weaponType, CorePlayer source){
         int acc = (int) (weaponType.getAccuracy() * 1000);
+        if(weaponType == WeaponType.SNIPER && ammo.getAim().contains(source)) acc = 1;
         Snowball ball = source.getPlayer().launchProjectile(Snowball.class);
         /*Item item = source.getPlayer().getWorld().dropItem(source.getLocation(), CoreItem.generate(Material.REDSTONE_BLOCK));
         item.setPickupDelay(999999);
@@ -72,8 +79,7 @@ public class WeaponShotListener implements Listener {
         double zd = -Math.sin(Math.toRadians(dir)) *
                 Math.cos(Math.toRadians(pitch)) + zwep;
         Vector vec = new Vector(xd, yd, zd);
-        double rnd = rand.nextDouble();
-        vec.multiply(1 + rnd);
+        vec.multiply(weaponType.getSpeed());
         ball.setVelocity(vec);
     }
 }

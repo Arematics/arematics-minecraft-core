@@ -65,6 +65,7 @@ public class UiCommand extends CoreCommand {
         User user = service.getUserByUUID(player.getUUID());
         user.getConfigurations().put("command-mode", new Configuration(mode));
         service.update(user);
+        player.info("UI mode switch to " + mode).handle();
         return true;
     }
 }

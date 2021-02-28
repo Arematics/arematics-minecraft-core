@@ -2,15 +2,14 @@ package com.arematics.minecraft.core.server;
 
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
-import com.arematics.minecraft.core.times.TimeUtils;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.joda.time.Period;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -19,9 +18,16 @@ import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
 @Data
-@RequiredArgsConstructor
+@Component
 public class Clearlag {
     LocalDateTime nextExecute;
+    private final Server server;
+
+    @Autowired
+    public Clearlag(Server server){
+        this.server = server;
+        start();
+    }
 
     public void start(){
         Duration duration = getDuration();
@@ -38,11 +44,10 @@ public class Clearlag {
 
     private void mentionClearLag(){
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-        Messages.create("clear_lag_time")
-                .to(Bukkit.getOnlinePlayers().toArray(new Player[]{}))
+        server.getOnline().forEach(player -> player.info("clear_lag_time")
                 .DEFAULT()
-                .replace("time", dateTimeFormatter.format(nextExecute))
-                .handle();
+                .replace("time", dateTimeFormatter.format(player.parseTime(nextExecute)))
+                .handle());
     }
 
     private void executeClearLag(){
@@ -57,11 +62,10 @@ public class Clearlag {
             clear();
             ArematicsExecutor.asyncDelayed(this::start, 5, TimeUnit.SECONDS);
         } else {
-            Period period = Period.seconds(time);
             Messages.create("clear_lag_in")
                     .to(Bukkit.getOnlinePlayers().toArray(new Player[]{}))
                     .DEFAULT()
-                    .replace("seconds", TimeUtils.toString(period))
+                    .replace("seconds", String.valueOf(time))
                     .handle();
         }
     }

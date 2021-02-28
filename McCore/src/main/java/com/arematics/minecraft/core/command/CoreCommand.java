@@ -185,8 +185,8 @@ public abstract class CoreCommand extends Command {
     }
 
     private int moreSubArguments(String[] v1, String[] v2){
-        if(v2.length > v1.length) return -1;
-        if(v1.length > v2.length) return 1;
+        if(v2.length > v1.length) return 1;
+        if(v1.length > v2.length) return -1;
         for(int i = 0; i < v1.length; i++){
             String sub = v1[i];
             String sub2 = v2[i];

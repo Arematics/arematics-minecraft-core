@@ -22,9 +22,9 @@ import java.util.UUID;
 public class HomeService {
     private final HomeRepository homeRepository;
 
-    public Page<Home> findAllByOwnerAndSearch(UUID owner, String startsWith, int page){
+    public Page<Home> findAllByOwnerAndSearch(UUID owner, String contains, int page){
         Pageable pageable = PageRequest.of(page, 28);
-        return homeRepository.findAllByOwnerAndNameStartsWithOrderByName(owner, startsWith, pageable);
+        return homeRepository.findAllByOwnerAndNameContainsOrderByName(owner, contains, pageable);
     }
 
     public Page<Home> findAllByOwner(UUID owner, int page){

@@ -35,7 +35,7 @@ public class BanCommand extends CoreCommand {
 
     @SubCommand("{player} {reason}")
     public void banPlayer(CorePlayer player, User target, String reason) {
-        if(target.getRank().isInTeam()){
+        if(!player.getUser().getRank().isOver(target.getRank())){
             player.warn("Player " + target.getLastName() + " could not be banned").handle();
             return;
         }

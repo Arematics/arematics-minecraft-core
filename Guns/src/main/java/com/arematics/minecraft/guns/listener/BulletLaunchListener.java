@@ -31,7 +31,7 @@ public class BulletLaunchListener implements Listener {
             if(hand != null && hand.getMeta().hasKey("weapon") != null){
                 String weaponId = hand.getMeta().getString("weapon");
                 Weapon weapon = this.weaponService.fetchWeapon(weaponId);
-                Bullet bullet = new Bullet(snowball.getUniqueId(), player, weapon, weapon.getTotalDamage() / weapon.getBullets());
+                Bullet bullet = new Bullet(snowball.getUniqueId(), player, weapon, (double) (weapon.getTotalDamage() / weapon.getBullets()));
                 Bullet.register(bullet);
             }
         }

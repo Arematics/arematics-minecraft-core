@@ -24,6 +24,6 @@ public class PlayerVotes implements Serializable {
     private int streak;
     private int totalVotes;
     private int currentVotePoints;
-    private boolean freeVoteSkip;
+    private short freeVoteSkips;
     private Timestamp lastVote;
 }

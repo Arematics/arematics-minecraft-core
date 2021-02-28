@@ -1,57 +1,43 @@
 package com.arematics.minecraft.watcher.analyses;
 
+import com.arematics.minecraft.data.service.ChatFilterService;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
+@Component
+@RequiredArgsConstructor(onConstructor_=@Autowired)
 public class ChatAnalyses {
 
-    private static final List<String> blocked = new ArrayList<>();
-    private static final int MAX_DIFFERENCE = 2;
+    private final ChatFilterService chatFilterService;
+
+    private static final int MAX_DIFFERENCE = 1;
     private static final String HIDE_CHAR = "*";
 
-    static{
-        blocked.add("Arschloch");
+    public boolean isBlocking(String message){
+        return Arrays.stream(message.split(" "))
+                .anyMatch(this::possibleBlocking);
     }
 
-    public static String[] doChatMessageCheck(String message){
-        List<String> messages = new ArrayList<>();
-        for(String value : message.split(" ")){
-            String result = checkString(value);
-            if(result != null) messages.add(result);
-        }
-        return messages.toArray(new String[]{});
+    private boolean possibleBlocking(String income){
+        return chatFilterService.getBlocked().stream().anyMatch(block -> analyse(income, block));
     }
 
-    private static String checkString(String income){
-        if(possibleBlocking(income))
-            return income;
-        return null;
+    private boolean analyse(String income, String blocked){
+        return blocked.compareToIgnoreCase(income) == 0;
     }
 
-    private static boolean possibleBlocking(String income){
-        return blocked.stream().anyMatch(block -> analyse(income, block));
-    }
-
-    private static boolean analyse(String income, String blocked){
-        return isDistanceMatch(income, blocked) || isMatchAfterReplaceHideChar(income, blocked);
-    }
-
-    private static boolean isMatchAfterReplaceHideChar(String income, String blocked){
-        return StringUtils.getLevenshteinDistance(blocked, income) <=
-                StringUtils.countMatches(income, HIDE_CHAR) + MAX_DIFFERENCE &&
-                isLengthMatch(income, blocked);
+    private boolean isMatchAfterReplaceHideChar(String income, String blocked){
+        int result = blocked.compareToIgnoreCase(income);
+        return result - 1 >= (StringUtils.countMatches(income, HIDE_CHAR) + MAX_DIFFERENCE)
+                && result <= (StringUtils.countMatches(income, HIDE_CHAR) + MAX_DIFFERENCE);
     }
 
     private static boolean isDistanceMatch(String income, String blocked){
-       return StringUtils.getLevenshteinDistance(blocked, income) <= MAX_DIFFERENCE &&
-                isLengthMatch(income, blocked);
-    }
-
-    private static boolean isLengthMatch(String income, String blocked){
-        return income.length() == blocked.length() ||
-                income.length() + 1 == blocked.length() ||
-                income.length() - 1 == blocked.length();
+        int result = blocked.compareToIgnoreCase(income);
+       return result - 1 >= MAX_DIFFERENCE && result <= MAX_DIFFERENCE;
     }
 }

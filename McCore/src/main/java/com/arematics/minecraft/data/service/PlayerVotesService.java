@@ -49,7 +49,7 @@ public class PlayerVotesService {
         try {
             return findPlayerVotes(uuid);
         } catch (Exception exception) {
-            return updatePlayerVotes(new PlayerVotes(uuid, 0, 0, 0, true, null));
+            return updatePlayerVotes(new PlayerVotes(uuid, 0, 0, 0, (short)1, null));
         }
     }
 

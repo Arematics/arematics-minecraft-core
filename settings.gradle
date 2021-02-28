@@ -29,4 +29,5 @@ include 'Animations'
 include 'RegionInteraction'
 include 'Lobby'
 include 'Home'
+include 'PvP'
 

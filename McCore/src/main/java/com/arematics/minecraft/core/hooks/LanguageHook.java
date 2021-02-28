@@ -29,7 +29,6 @@ public class LanguageHook implements Hook<String>{
 
     @Override
     public void processAction(String file, JavaPlugin plugin) {
-        System.setProperty("file.encoding", "UTF-8");
         try(InputStream stream = this.loader.getResourceAsStream(file)){
             LanguageAPI.registerFile(stream);
         }catch (Exception e){

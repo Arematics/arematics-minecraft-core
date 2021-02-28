@@ -73,7 +73,7 @@ public class VoteCommand extends CoreCommand {
                 .addToLore("    §7> Your Vote Points: §c" + playerVotes.getCurrentVotePoints())
                 .addToLore("    §7> Your Streak: §c" + playerVotes.getStreak() + " Days")
                 .addToLore("    §7> Total Votes: §c" + playerVotes.getTotalVotes())
-                .addToLore("    §7> Free Streak Skip: §c" + CommandUtils.prettyBoolean(playerVotes.isFreeVoteSkip()))
+                .addToLore("    §7> Free Streak Skips: §c" + playerVotes.getFreeVoteSkips() + " Days")
                 .setName("§7Your Vote Data");
     }
 

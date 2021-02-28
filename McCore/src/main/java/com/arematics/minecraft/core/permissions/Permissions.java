@@ -6,9 +6,13 @@ import com.arematics.minecraft.data.service.UserService;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class Permissions {
+
+    private static final Map<String, Boolean> permissionCache = new HashMap<>();
 
     /**
      * Check if sender has Permission over Rank Permissions and User Permissions.
@@ -18,6 +22,8 @@ public class Permissions {
      * @return Command Executor has permission access
      */
     public static boolean hasPermission(CommandSender sender, String permission){
+        String key = keyFromData(sender.getName(), permission);
+        if(permissionCache.containsKey(key)) return permissionCache.get(key);
         if(sender instanceof Player)
             return hasPermission(((Player)sender).getUniqueId(), permission);
         return true;
@@ -29,6 +35,8 @@ public class Permissions {
      * @return UUID has permission access
      */
     public static boolean hasPermission(UUID uuid, String permission){
+        String key = keyFromData(uuid.toString(), permission);
+        if(permissionCache.containsKey(key)) return permissionCache.get(key);
         UserService service = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
         return service.hasPermission(uuid, permission);
     }
@@ -41,5 +49,9 @@ public class Permissions {
      */
     public static PermConsumer check(CommandSender sender, String permission){
         return new PermissionData(sender, permission);
+    }
+
+    private static String keyFromData(String key, String permission){
+        return key + "." + permission;
     }
 }

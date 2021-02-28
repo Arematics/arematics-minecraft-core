@@ -7,13 +7,14 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "weapon_type_data")
-public class WeaponTypeData {
+public class WeaponTypeData implements Serializable {
     @Id
     @Enumerated(EnumType.STRING)
     private WeaponType weaponType;

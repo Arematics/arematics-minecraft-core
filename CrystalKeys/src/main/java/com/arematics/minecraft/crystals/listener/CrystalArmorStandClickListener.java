@@ -12,6 +12,7 @@ import com.arematics.minecraft.crystals.logic.CrystalMetaParser;
 import com.arematics.minecraft.data.mode.model.CrystalKey;
 import com.arematics.minecraft.data.service.InventoryService;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -96,6 +97,14 @@ public class CrystalArmorStandClickListener implements Listener {
         if(checkKeySame(key, player)){
             open.add(player);
             player.removeAmountFromHand(1);
+            CoreItem[] contents = CoreItem.create(service.getOrCreate("crystal.inventory." +
+                    key.getName(), "§7Crystal " +
+                    key.getTotalName(), (byte)27).getContents());
+            if(Arrays.stream(contents).filter(content -> content != null && content.getType() != Material.AIR).count() <= 0){
+                player.warn("Key has no items to filter").handle();
+                open.remove(player);
+                return;
+            }
             try{
                 this.crystalMetaParser.parse(player, calculate(key), key);
             }catch (CommandProcessException e){

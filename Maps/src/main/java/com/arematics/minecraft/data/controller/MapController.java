@@ -2,15 +2,14 @@ package com.arematics.minecraft.data.controller;
 
 import com.arematics.minecraft.core.commands.SpawnCommand;
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.mode.model.GameMap;
 import com.arematics.minecraft.data.service.MapService;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.joda.time.Period;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -25,17 +24,20 @@ import java.util.concurrent.TimeUnit;
 @Controller
 public class MapController {
 
+    private final Server server;
+    private final MapService service;
+    private final SpawnCommand spawnCommand;
+
     private String currentMapId;
     private final Set<CorePlayer> voted = new HashSet<>();
     private final Map<String, Integer> votes = new HashMap<>();
     private final List<String> nextMapIds = new ArrayList<>();
-    private final MapService service;
-    private final SpawnCommand spawnCommand;
     private final SecureRandom random;
     LocalDateTime nextExecute;
 
     @Autowired
-    public MapController(MapService mapService, SpawnCommand spawnCommand){
+    public MapController(Server server, MapService mapService, SpawnCommand spawnCommand){
+        this.server = server;
         this.service = mapService;
         this.spawnCommand = spawnCommand;
         this.random = new SecureRandom();
@@ -85,11 +87,10 @@ public class MapController {
 
     private void mentionMapChange(){
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-        Messages.create("map_change_time")
-                .to(Bukkit.getOnlinePlayers().toArray(new Player[]{}))
+        server.getOnline().forEach(player -> player.info("map_change_time")
                 .DEFAULT()
-                .replace("time", dateTimeFormatter.format(nextExecute))
-                .handle();
+                .replace("time", dateTimeFormatter.format(player.parseTime(nextExecute)))
+                .handle());
     }
 
     private void executeMapChange(){
@@ -101,11 +102,10 @@ public class MapController {
             ArematicsExecutor.syncRun(this::changeMap);
             ArematicsExecutor.asyncDelayed(this::start, 1, TimeUnit.SECONDS);
         } else {
-            Period period = Period.seconds(time);
             Messages.create("map_change_in")
                     .to(Bukkit.getOnlinePlayers().toArray(new Player[]{}))
                     .DEFAULT()
-                    .replace("seconds", TimeUtils.toString(period))
+                    .replace("seconds", String.valueOf(time))
                     .handle();
         }
     }

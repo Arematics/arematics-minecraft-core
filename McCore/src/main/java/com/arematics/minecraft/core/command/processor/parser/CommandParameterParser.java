@@ -4,6 +4,8 @@ import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.annotations.Validator;
 import com.arematics.minecraft.core.command.processor.validator.ParameterValidator;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.data.global.model.User;
 
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
@@ -26,10 +28,18 @@ public abstract class CommandParameterParser<T> {
                     .collect(Collectors.toList());
             for(ParameterValidator<?> validator : validators){
                 Class<?> classType = validator.getType();
-                if(classType.equals(getType()))
-                    ((ParameterValidator<T>) validator).supply(result, data);
+                if(matchingType(classType))
+                    ((ParameterValidator<T>) validator).supply(correctResult(classType, result), data);
             }
         }
+    }
+
+    public boolean matchingType(Class<?> classType){
+        return classType.equals(getType()) || (classType == User.class && getType() == CorePlayer.class);
+    }
+
+    public T correctResult(Class<?> classType, T result){
+        return (classType == User.class && getType() == CorePlayer.class) ? (T) ((CorePlayer) result).getUser() : result;
     }
 
     public abstract T parse(String value) throws CommandProcessException;

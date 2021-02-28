@@ -7,22 +7,23 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "weapon")
-public class Weapon {
+public class Weapon implements Serializable {
     @Id
     private String id;
     @Enumerated(EnumType.STRING)
     private WeaponType type;
-    private byte totalDamage;
-    private byte bullets;
+    private short totalDamage;
+    private short bullets;
     private short durability;
     private short maxAmmo;
-    private byte ammoPerLoading;
+    private short ammoPerLoading;
     @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     private CoreItem[] weaponItem;
 }

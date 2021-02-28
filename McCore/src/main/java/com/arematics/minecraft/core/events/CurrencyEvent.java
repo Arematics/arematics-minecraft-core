@@ -17,7 +17,7 @@ public class CurrencyEvent extends PlayerEvent implements Cancellable {
     private boolean cancelled;
 
     public CurrencyEvent(CorePlayer player, double amount, CurrencyEventType type, String target){
-        super(player);
+        super(player, true);
         this.amount = amount;
         this.type = type;
         this.target = target;

@@ -40,6 +40,7 @@ public class WeaponService {
     }
 
     public List<Weapon> findAllById(Set<String> ids){
+        if(weaponCache.isEmpty() || ids == null || ids.isEmpty()) return new ArrayList<>();
         return weaponCache.values().stream().filter(weapon -> ids.contains(weapon.getId())).collect(Collectors.toList());
     }
 

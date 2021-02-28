@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.commands;
 
+import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.entities.ModifiedLivingEntity;
@@ -9,6 +10,7 @@ import org.bukkit.entity.EntityType;
 import org.springframework.stereotype.Component;
 
 @Component
+@Perm(permission = "world.interact.entities.modliving")
 public class ModifiedLivingEntityCommand extends CoreCommand {
 
     public ModifiedLivingEntityCommand(){

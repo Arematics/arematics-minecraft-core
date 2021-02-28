@@ -28,7 +28,7 @@ public class Kit implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "permission", nullable = false)
+    @Column(name = "permission", nullable = true)
     private String permission;
 
     @Column(name = "cooldown", nullable = false)
@@ -40,5 +40,6 @@ public class Kit implements Serializable {
     @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     @Column(name = "display_item", nullable = false)
     private CoreItem[] displayItem;
+
 
 }

@@ -5,6 +5,7 @@ import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.inventories.helper.InventoryPlaceholder;
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.MSGBuilder;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
@@ -58,17 +59,6 @@ public class HomeCommand extends CoreCommand {
         return true;
     }
 
-    @SubCommand("teleport {name}")
-    public void teleportHome(CorePlayer sender, String name) {
-        HomeId id = new HomeId(sender.getUUID(), name);
-        try{
-            Home home = service.findByOwnerAndName(id);
-            sender.teleport(home.getLocation());
-        }catch (RuntimeException re){
-            throw new CommandProcessException("Home with name: " + name + " not exists");
-        }
-    }
-
     @SubCommand("set {name}")
     public void setHome(CorePlayer sender, String name) {
         HomeId id = new HomeId(sender.getUUID(), name);
@@ -80,8 +70,9 @@ public class HomeCommand extends CoreCommand {
         }catch (RuntimeException re){
             home = new Home(sender.getUUID(), name, sender.getLocation(), Timestamp.valueOf(LocalDateTime.now()));
         }
+        home.setLocation(sender.getLocation());
         service.save(home);
-        sender.info("Home location for " + (newHome ? "new home" : "your home") + " " + name + " has been changed").handle();
+        sender.info("Home location for " + (newHome ? "new home" : "your home") + " " + name + " has been set").handle();
     }
 
     @SubCommand("delete {name}")
@@ -101,7 +92,7 @@ public class HomeCommand extends CoreCommand {
         listInventoryPagesQuery(sender, page, deleteMode, null);
     }
 
-    @SubCommand("inventory {page} {deleteMode} {startsWith}")
+    @SubCommand("inventory {page} {deleteMode} {contains}")
     public void listInventoryPagesQuery(CorePlayer sender, Integer page, Boolean deleteMode, String query) {
         Page<Home> homes = query == null ?
                 service.findAllByOwner(sender.getUUID(), page) :
@@ -114,11 +105,11 @@ public class HomeCommand extends CoreCommand {
         Page<Home> homes = query == null ?
                 service.findAllByOwner(sender.getUUID(), page) :
                 service.findAllByOwnerAndSearch(sender.getUUID(), query, page);
-        List<Part> parts = homes.getContent().stream().map(this::homePart).collect(Collectors.toList());
+        List<MSG> msgs = homes.getContent().stream().map(this::homePart).collect(Collectors.toList());
         sender.info("listing")
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("list_type", new Part("Home"))
-                .replace("list_value", MSGBuilder.join(parts, ','))
+                .replace("list_value", MSGBuilder.joinMessages(msgs, ','))
                 .handle();
         if(homes.hasNext() || homes.hasPrevious()){
             CommandUtils.sendPreviousAndNext(sender,
@@ -127,10 +118,25 @@ public class HomeCommand extends CoreCommand {
         }
     }
 
-    private Part homePart(Home home){
-        return PartBuilder.createHoverAndSuggest(home.getName(),
+    @SubCommand("{name}")
+    public void teleportToHome(CorePlayer sender, String name) {
+        HomeId id = new HomeId(sender.getUUID(), name);
+        try{
+            Home home = service.findByOwnerAndName(id);
+            sender.teleport(home.getLocation()).schedule();
+        }catch (RuntimeException re){
+            throw new CommandProcessException("Home with name: " + name + " not exists");
+        }
+    }
+
+    private MSG homePart(Home home){
+        Part teleport = PartBuilder.createHoverAndRun("§a" + home.getName(),
+                "§aTeleport to home " + home.getName(),
+                "/home " + home.getName());
+        Part delete = PartBuilder.createHoverAndSuggest(" §8[§cX§8]",
                 "§cDelete home " + home.getName(),
-                "/delhome " + home.getName());
+                "/delhome "+ home.getName());
+        return new MSG(teleport, delete);
     }
 
     private void openInventoryQuery(CorePlayer sender, Page<Home> homes, Boolean deleteMode, String query){
@@ -145,22 +151,23 @@ public class HomeCommand extends CoreCommand {
             inv.setItem(1 + 5, CoreItem.generate(Material.ENDER_PORTAL_FRAME)
                     .bindCommand("home inventory " + homes.getNumber() + " false" + (query != null ? " " + query : ""))
                     .setName("§cEnable Teleport Mode"));
-        sender.setEmptySlotClick(clicked -> sender.dispatchCommand("home set {name}"));
+        sender.setEmptySlotClick(clicked -> sender.dispatchCommand("sethome {name}"));
         if(!deleteMode)
             homes.getContent().forEach(home -> inv.addItem(CoreItem.generate(Material.BED)
                     .bindCommand("home teleport " + home.getName())
-                    .setName("§cHome: §7" + home.getName())));
+                    .setName("§cHome: §7" + split(home.getName(), query))));
         else
             homes.getContent().forEach(home -> inv.addItem(CoreItem.generate(Material.BED)
                     .bindCommand("delhome " + home.getName())
-                    .setName("§cRemove §7" + home.getName())
+                    .setName("§cRemove §7" + split(home.getName(), query))
                     .register(server, sender, (item) -> null)));
         inv.setItem(1 + 1, CoreItem.generate(Material.BOOK_AND_QUILL)
-                .bindCommand("home inventory 0 " + deleteMode + " {startsWith}")
-                .setName("§bSearch homes by startsWith"));
+                .bindCommand("home inventory 0 " + deleteMode + " {contains}")
+                .setName("§aSearch homes by query")
+                .addToLore("§7Current Query: §b" + (query != null ? query : "None")));
         inv.setItem(1 + 2, CoreItem.generate(Material.BOOK)
                 .bindCommand("home inventory 0 " + deleteMode)
-                .setName("§bRemove search query"));
+                .setName("§eRemove search query"));
         if(homes.hasNext())
             inv.setItem(6*9 - 1, CoreItem.generate(Material.ARROW)
                     .bindCommand("home inventory "
@@ -175,5 +182,10 @@ public class HomeCommand extends CoreCommand {
                             + (deleteMode ? "true":"false")
                             + (query != null ? " " + query : ""))
                     .setName("§cPage Before"));
+    }
+
+    private String split(String name, String query){
+        if(query == null) return name;
+        return name.replaceAll(query, "§b" + query + "§7");
     }
 }

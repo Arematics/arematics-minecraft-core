@@ -11,8 +11,13 @@ import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.CurrencyEntity;
+import com.arematics.minecraft.core.server.entities.player.protocols.ActionBar;
+import com.arematics.minecraft.core.server.entities.player.protocols.Packets;
+import com.arematics.minecraft.core.server.entities.player.protocols.Title;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.Inventories;
+import com.arematics.minecraft.data.global.model.Configuration;
+import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.GameStats;
 import com.arematics.minecraft.data.service.GameStatsService;
@@ -23,6 +28,7 @@ import com.arematics.minecraft.data.share.model.OnlineTime;
 import com.sk89q.worldguard.bukkit.RegionQuery;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.Data;
 import org.bukkit.GameMode;
@@ -32,12 +38,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -45,6 +53,8 @@ import java.util.stream.Collectors;
 
 @Data
 public class CorePlayer implements CurrencyEntity {
+
+    private static Locale defaultLocale = Locale.GERMAN;
     private static Map<UUID, CorePlayer> players = new HashMap<>();
 
     private static InventoryService inventoryService;
@@ -95,6 +105,17 @@ public class CorePlayer implements CurrencyEntity {
     private List<String> lastCommands = new ArrayList<>();
     private int page;
 
+    private Packets packets;
+    private ActionBar actionBar;
+    private Title title;
+
+    private Locale selectedLocale;
+
+    private Rank cachedRank;
+    private Rank cachedDisplayRank;
+
+    private String chatMessage;
+
     public CorePlayer(Player player){
         this.player = player;
         this.joined = LocalDateTime.now();
@@ -109,6 +130,47 @@ public class CorePlayer implements CurrencyEntity {
             CorePlayer.inventoryService = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
         }
         this.currentRegions = new HashSet<>();
+        this.packets = new Packets(player);
+        this.actionBar = new ActionBar(this);
+        this.title = new Title(this);
+
+        User user = this.getUser();
+        this.cachedRank = user.getRank();
+        this.cachedDisplayRank = user.getDisplayRank();
+
+        Configuration configuration = getUser().getConfigurations().get("locale");
+        if(configuration != null) this.selectedLocale = Locale.forLanguageTag(configuration.getValue());
+        else setLocale(CorePlayer.defaultLocale);
+        Rank topLevel = getTopLevel();
+        this.chatMessage = "§8§l[" + topLevel.getColorCode() + topLevel.getName() + "§8§l] §7"
+                + player.getPlayer().getName()
+                + " §8» " + colorCode(topLevel)
+                + "%message%";
+
+        this.updateOnlineTimeData(true, OnlineTime::getTime);
+        this.updateOnlineTimeData(false, OnlineTime::getTime);
+    }
+
+    public Rank getTopLevel(){
+        return cachedDisplayRank != null ? cachedDisplayRank : cachedRank;
+    }
+
+    private String colorCode(Rank rank){
+        return rank.isInTeam() ? "§c" : "§f";
+    }
+
+    public void setLocale(Locale locale){
+        Configuration configuration = getUser().getConfigurations().get("locale");
+        if(configuration == null) configuration = new Configuration(locale.toLanguageTag());
+        configuration.setValue(locale.toLanguageTag());
+        User user = getUser();
+        user.getConfigurations().put("locale", configuration);
+        userService.update(user);
+        this.selectedLocale = locale;
+    }
+
+    public ZonedDateTime parseTime(LocalDateTime time){
+        return ZonedDateTime.of(time, TimeZone.getTimeZone("Europe/Berlin").toZoneId());
     }
 
     private void unload() {
@@ -123,9 +185,9 @@ public class CorePlayer implements CurrencyEntity {
         this.lastCommands.add(command);
     }
 
-    public String getLastCommand(int index){
+    public String getLastCommand(int number){
         try{
-            return lastCommands.get(index);
+            return lastCommands.get(lastCommands.size() - number);
         }catch (ArrayIndexOutOfBoundsException e){
             return "";
         }
@@ -140,7 +202,7 @@ public class CorePlayer implements CurrencyEntity {
     }
 
     public String getLastCommand(){
-        return getLastCommand(lastCommands.size() - 2);
+        return getLastCommand(2);
     }
 
     public void setInFight(){
@@ -233,10 +295,16 @@ public class CorePlayer implements CurrencyEntity {
             }
     }
 
+    public void addPotionEffect(PotionEffect potionEffect) {
+        this.getPlayer().addPotionEffect(potionEffect);
+    }
+
     public boolean hasEffect(PotionEffectType type) {
-        return this.getPlayer().getActivePotionEffects().stream()
-                .filter(effect -> effect.getType() == type)
-                .count() >= 1;
+        return this.getPlayer().hasPotionEffect(type);
+    }
+
+    public void removePotionEffect(PotionEffectType type) {
+        this.getPlayer().removePotionEffect(type);
     }
 
     public void dispatchCommand(String command){
@@ -278,31 +346,16 @@ public class CorePlayer implements CurrencyEntity {
         }
     }
 
-    public void instantTeleport(Location location){
-        ArematicsExecutor.syncRun(() -> this.getPlayer().teleport(location));
+    public TeleportScheduler teleport(Location location, boolean instant){
+        return new TeleportScheduler(this, location, instant);
     }
 
-    public void teleport(Location location){
-        if(inTeleport != null){
-            inTeleport.cancel();
-            warn("Old teleport request cancelled").handle();
-        }
-        inTeleport = ArematicsExecutor.asyncRepeat((count) -> teleport(count, location),
-                0, 1, TimeUnit.SECONDS, getUser().getRank().isInTeam() ? 0 : 3);
+    public TeleportScheduler teleport(Location location){
+        return teleport(location, false);
     }
 
-    private void teleport(int count, Location location){
-        if (count == 0) {
-            ArematicsExecutor.syncRun(() -> this.getPlayer().teleport(location));
-            inTeleport = null;
-        } else {
-            this.info("%prefix%Teleport in %seconds%§7...")
-                    .DEFAULT()
-                    .replace("prefix", "   §cTP » §7")
-                    .replace("seconds", "§c" + count)
-                    .disableServerPrefix()
-                    .handle();
-        }
+    public TeleportScheduler instantTeleport(Location location){
+        return teleport(location, true);
     }
 
     public boolean isFlagEnabled(RegionQuery query, StateFlag flag){
@@ -433,8 +486,8 @@ public class CorePlayer implements CurrencyEntity {
         return this.getStats().getCoins();
     }
 
-    private String stripMoney(){
-        DecimalFormat format = new DecimalFormat("#.##");
+    public String stripMoney(){
+        DecimalFormat format = new DecimalFormat("#");
         return format.format(this.getStats().getCoins());
     }
 
@@ -488,5 +541,10 @@ public class CorePlayer implements CurrencyEntity {
 
     public boolean hasPermission(String permission){
         return Permissions.hasPermission(getUUID(), permission);
+    }
+
+    public boolean inRegionWithFlag(StateFlag flag){
+        RegionManager manager = WorldGuardPlugin.inst().getRegionManager(getPlayer().getWorld());
+        return getCurrentRegions().stream().anyMatch(region -> !manager.getApplicableRegions(region).testState(null, flag));
     }
 }

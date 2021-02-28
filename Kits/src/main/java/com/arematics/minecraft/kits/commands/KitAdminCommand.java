@@ -59,11 +59,11 @@ public class KitAdminCommand extends CoreCommand {
                 .setHoverAction(HoverAction.SHOW_TEXT, "§7Change Kit Permission")
                 .setClickAction(ClickAction.SUGGEST_COMMAND, "/kitadm setPerm " + kit.getName() + " {permission}"));
         parts.add(new Part("     §7" + "Cooldown: " + " §c" +
-                (TimeUtils.toString(Period.seconds((int) (kit.getCooldown()/1000))))  + "\n")
+                (TimeUtils.toRawString(kit.getCooldown()))  + "\n")
                 .setHoverAction(HoverAction.SHOW_TEXT, "§7Change Kit Cooldown")
                 .setClickAction(ClickAction.SUGGEST_COMMAND, "/kitadm setCooldown " + kit.getName() + " {cooldown}"));
         parts.add(new Part("     §7" + "Playtime: " + " §c" +
-                (TimeUtils.toString(Period.seconds((int) (kit.getMinPlayTime()/1000))))  + "\n")
+                (TimeUtils.toRawString(kit.getMinPlayTime()))  + "\n")
                 .setHoverAction(HoverAction.SHOW_TEXT, "§7Change Kit Playtime")
                 .setClickAction(ClickAction.SUGGEST_COMMAND, "/kitadm setPlaytime " + kit.getName() + " {playtime}"));
         player.info(msg)

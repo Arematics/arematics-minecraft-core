@@ -9,6 +9,8 @@ import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -69,7 +71,7 @@ public class LanguageAPI {
         Properties properties = new Properties();
 
         try{
-            properties.load(stream);
+            properties.load(new InputStreamReader(stream, StandardCharsets.UTF_8));
             String langName = properties.getProperty("language_name").replaceAll("\"", "");
             properties.forEach((k, s) -> addVals(langName, k.toString(), s.toString().replaceAll("\"", "")));
         }catch (IOException ioe){

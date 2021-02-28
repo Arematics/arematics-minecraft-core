@@ -27,5 +27,5 @@ public class Bullet {
     private final UUID bulletId;
     private final CorePlayer shooter;
     private final Weapon firegun;
-    private final int damage;
+    private final double damage;
 }

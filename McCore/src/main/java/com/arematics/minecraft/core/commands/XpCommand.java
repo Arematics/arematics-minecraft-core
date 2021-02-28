@@ -18,7 +18,7 @@ public class XpCommand extends CoreCommand {
     public void onDefaultExecute(CommandSender sender) {
         CorePlayer player = CorePlayer.get((Player) sender);
 
-        player.info("Command comming soon").handle();
+        player.info("Command coming soon").handle();
     }
 
     /*@SubCommand("{target} {amount}")

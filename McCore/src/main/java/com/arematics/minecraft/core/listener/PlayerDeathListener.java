@@ -16,11 +16,12 @@ public class PlayerDeathListener implements Listener {
                 .replace("player", event.getKiller().getPlayer().getName())
                 .handle();
         event.getPlayer().fightEnd();
-        event.getKiller().addKill();
-        event.getKiller().info("You have killed player %player%")
-                .DEFAULT()
-                .replace("player", event.getPlayer().getPlayer().getName())
-                .handle();
-        event.getKiller().fightEnd();
+        if(event.getKiller() != null){
+            event.getKiller().addKill();
+            event.getKiller().info("You have killed player %player%")
+                    .DEFAULT()
+                    .replace("player", event.getPlayer().getPlayer().getName())
+                    .handle();
+        }
     }
 }

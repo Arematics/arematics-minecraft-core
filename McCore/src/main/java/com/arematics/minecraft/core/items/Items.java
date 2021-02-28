@@ -25,7 +25,7 @@ public class Items {
         PLAYERHOLDER = CoreItem.create(itemStack).disableClick().setName("§7");
         NEXT_PAGE = nextPage().bindCommand("page NEXT");
         BEFORE_PAGE = pageBefore().bindCommand("page BEFORE");
-        BACK = CoreItem.generate(Material.NETHER_STAR).setName("§fBack");
+        BACK = CoreItem.generate(Material.NETHER_STAR).bindCommand("cmdback").setName("§fBack");
     }
 
     private static CoreItem pageBefore(){

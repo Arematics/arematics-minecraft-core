@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.times;
 
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
@@ -27,6 +28,15 @@ public class TimeUtils {
                 .appendSeconds().appendSuffix(" Seconds ")
                 .toFormatter();
         return formatter.print(period);
+    }
+
+    public static String toString(Long end){
+        Duration duration = Duration.ofMillis(end - System.currentTimeMillis());
+        return duration.isNegative() ? "None" : DurationFormatUtils.formatDurationWords(duration.toMillis(), true, true);
+    }
+
+    public static String toRawString(Long end){
+        return DurationFormatUtils.formatDurationWords(end, true, true);
     }
 
     public static String toShortString(Period period){

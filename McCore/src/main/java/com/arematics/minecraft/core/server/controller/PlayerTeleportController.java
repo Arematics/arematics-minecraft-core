@@ -56,7 +56,7 @@ public class PlayerTeleportController {
         private final CorePlayer receiver;
 
         public void teleportPlayer() {
-            sender.teleport(receiver.getLocation());
+            sender.teleport(receiver.getLocation()).schedule();
         }
 
     }

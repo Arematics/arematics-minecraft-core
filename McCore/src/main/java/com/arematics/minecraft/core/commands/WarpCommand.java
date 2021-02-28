@@ -3,12 +3,21 @@ package com.arematics.minecraft.core.commands;
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.messaging.advanced.MSG;
+import com.arematics.minecraft.core.messaging.advanced.MSGBuilder;
+import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
+import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.mode.model.Warp;
 import com.arematics.minecraft.data.service.WarpService;
 import lombok.Getter;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.stream.Collectors;
 
 @Component
 @Getter
@@ -20,6 +29,27 @@ public class WarpCommand extends CoreCommand {
     @Autowired
     public WarpCommand(WarpService warpService) { super("warp"); this.warpService = warpService; }
 
+    @Override
+    protected boolean onDefaultCLI(CommandSender sender) {
+        if(!(sender instanceof Player)) return true;
+        CorePlayer player = CorePlayer.get((Player) sender);
+        MSG items = MSGBuilder.join(warpService.fetchAllWarps()
+                .stream()
+                .map(this::toPart)
+                .collect(Collectors.toList()), ',');
+        player.info("listing")
+                .setInjector(AdvancedMessageInjector.class)
+                .replace("list_type", new Part("Warp"))
+                .replace("list_value", items)
+                .handle();
+        return true;
+    }
+
+    private Part toPart(Warp warp){
+        return PartBuilder.createHoverAndSuggest(warp.getName(),
+                "§aTeleport to warp", "/warp " + warp.getName());
+    }
+
     @SubCommand("{warp}")
     @Perm(permission = "to", description = "set Warp")
     public void warpTo(CorePlayer player, Warp warp) {
@@ -28,8 +58,7 @@ public class WarpCommand extends CoreCommand {
     }
 
     public void teleport(CorePlayer player, Warp warp, boolean instant){
-        if(!instant) player.teleport(warp.getLocation());
-        else player.instantTeleport(warp.getLocation());
+        player.teleport(warp.getLocation(), instant).schedule();
     }
 
     @SubCommand("set {warp}")
@@ -56,17 +85,14 @@ public class WarpCommand extends CoreCommand {
     }
 
     private void setWarp(CorePlayer player, String warpName) {
-
+        Warp warp;
         try{
-            Warp warp = getWarpService().getWarp(warpName);
-            warp.setLocation(player.getLocation());
-            Warp savedWarp = getWarpService().updateWarp(warp);
+            warp = getWarpService().getWarp(warpName);
         }catch (RuntimeException re){
-            Warp warp = new Warp();
-            warp.setLocation(player.getLocation());
-            warp.setName(warpName);
-            getWarpService().saveWarp(warp);
+            warp = new Warp(warpName, player.getLocation());
         }
+        warp.setLocation(player.getLocation());
+        warpService.saveWarp(warp);
 
         player.info("Warp has been set to your current location").handle();
 

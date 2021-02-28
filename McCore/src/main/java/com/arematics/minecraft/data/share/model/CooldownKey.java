@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
+import javax.persistence.Id;
 import java.io.Serializable;
 
 @Data
@@ -12,6 +13,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Embeddable
 public class CooldownKey implements Serializable {
-    private String key;
+    @Id
+    private String id;
+    @Id
     private String secondKey;
 }
