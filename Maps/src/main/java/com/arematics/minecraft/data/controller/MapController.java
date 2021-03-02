@@ -57,6 +57,7 @@ public class MapController {
     }
 
     public String getHighest(){
+        if(votes.entrySet().isEmpty()) return "noMapFound";
         return Collections.max(votes.entrySet(), Map.Entry.comparingByValue()).getKey();
     }
 

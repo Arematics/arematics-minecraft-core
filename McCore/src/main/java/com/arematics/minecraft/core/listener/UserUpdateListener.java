@@ -1,14 +1,13 @@
 package com.arematics.minecraft.core.listener;
 
+import com.arematics.minecraft.core.bukkit.Tablist;
 import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardHandler;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.bukkit.Tablist;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.UserService;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.apache.commons.codec.digest.Md5Crypt;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -59,8 +58,6 @@ public class UserUpdateListener implements Listener {
         Timestamp current = new Timestamp(System.currentTimeMillis());
         User user = this.userService.getOrCreateUser(player.getUUID(), player.getPlayer().getName());
         user.setLastName(player.getPlayer().getName());
-        user.setLastIp(Md5Crypt.md5Crypt(player.getPlayer().getAddress().getAddress().getHostAddress().getBytes()));
-        user.setLastIpChange(current);
         user.setLastJoin(current);
         this.userService.update(user);
     }

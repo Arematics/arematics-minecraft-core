@@ -24,7 +24,6 @@ public class CommandPreprocessListener implements Listener {
         if(split.length > 1) cmd = split[1];
         cmd = cmd.replaceAll("/", "");
         CommandRedirect redirect = commandRedirectService.findRedirect(cmd);
-        System.out.println(redirect);
         if(redirect != null){
             if(redirect.getRedirectCmd() != null)
                 event.setMessage(redirect.getRedirectCmd());

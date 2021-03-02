@@ -36,11 +36,6 @@ public class User implements Serializable {
     private String lastName;
     @Column(name = "last_join")
     private Timestamp lastJoin;
-    @NotAudited
-    @Column(name = "last_ip")
-    private String lastIp;
-    @Column(name = "last_ip_change")
-    private Timestamp lastIpChange;
     @OneToOne
     @JoinColumn(name = "rank", referencedColumnName = "id")
     private Rank rank;
