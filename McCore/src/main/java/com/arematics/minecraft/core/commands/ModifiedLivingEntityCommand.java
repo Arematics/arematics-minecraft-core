@@ -3,9 +3,12 @@ package com.arematics.minecraft.core.commands;
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.server.entities.ModifiedLivingEntity;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.springframework.stereotype.Component;
 
@@ -26,5 +29,14 @@ public class ModifiedLivingEntityCommand extends CoreCommand {
             modifiedLivingEntity.setBindedCommand(command);
         });
         return true;
+    }
+
+    @SubCommand("setName {message}")
+    public void setEntityName(CorePlayer sender, String message) {
+        Entity nearestEntity = sender.next();
+        if(nearestEntity == null) throw new CommandProcessException("No entity in range");
+        nearestEntity.setCustomName(ChatColor.translateAlternateColorCodes('&', message));
+        nearestEntity.setCustomNameVisible(true);
+        sender.info("Entity name changed").handle();
     }
 }

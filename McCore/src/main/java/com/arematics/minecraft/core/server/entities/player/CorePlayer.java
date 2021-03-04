@@ -34,6 +34,7 @@ import lombok.Data;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -264,6 +265,16 @@ public class CorePlayer implements CurrencyEntity {
     private void updatePlayedTime(OnlineTime time, Duration online){
         long totalTime = time.getTime() + online.toMillis();
         time.setTime(totalTime - (this.lastAfk.isNegative() ? 0 : this.lastAfk.toMillis()));
+    }
+
+    public Entity next(){
+        return next(5);
+    }
+
+    public Entity next(int range){
+        List<Entity> entities = player.getNearbyEntities(range, range, range);
+        if(entities.isEmpty()) return null;
+        return entities.get(0);
     }
 
     public void updateOnlineTimeData(boolean mode, Consumer<OnlineTime> update){

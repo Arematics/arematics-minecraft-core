@@ -26,9 +26,14 @@ public class Ammo {
     private final Map<CoreItem, Gun> gunCache = new HashMap<>();
     private final List<CorePlayer> reloading = new ArrayList<>();
     private final List<CorePlayer> aim = new ArrayList<>();
+    private final Map<String, Long> shootCooldown = new HashMap<>();
 
     public List<CorePlayer> getReloading() {
         return reloading;
+    }
+
+    public Map<String, Long> getShootCooldown() {
+        return shootCooldown;
     }
 
     public List<CorePlayer> getAim() {
@@ -68,7 +73,7 @@ public class Ammo {
                 short removed = removeAmmoFromInventory(player, ammo, reloaded);
                 player.getActionBar().sendActionBar("§a§lReloaded");
                 player.getPlayer().getInventory().setItemInHand(gun.getItem());
-                player.info("Totally " + removed + " bullets have been reloaded").handle();
+                player.getActionBar().sendActionBar("§a" + removed + " bullets have been reloaded");
                 this.reloading.remove(player);
             }, time, TimeUnit.SECONDS);
         }

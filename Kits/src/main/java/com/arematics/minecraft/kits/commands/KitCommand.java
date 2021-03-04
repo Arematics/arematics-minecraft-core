@@ -103,7 +103,11 @@ public class KitCommand extends CoreCommand {
 
     @SubCommand("{kit}")
     public void giveKit(CorePlayer player, Kit kit) {
-        giveToPlayer(kit, player, player.hasPermission("kit.force"));
+        try{
+            giveToPlayer(kit, player, player.hasPermission("kit.force"));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void giveToPlayer(Kit kit, CorePlayer player, boolean force){

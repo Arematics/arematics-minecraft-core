@@ -40,6 +40,9 @@ public class WeaponShotListener implements Listener {
                 player.getActionBar().sendActionBar("§c§lWait until reload end");
                 return;
             }
+            String cooldownKey = player.getUUID().toString() + weaponId;
+            if(ammo.getShootCooldown().containsKey(cooldownKey) &&
+                    ammo.getShootCooldown().get(cooldownKey) > System.currentTimeMillis()) return;
             if(event.getType() == InteractType.RIGHT_CLICK){
                 try{
                     Weapon weapon = this.weaponService.fetchWeapon(weaponId);
@@ -50,6 +53,7 @@ public class WeaponShotListener implements Listener {
                         IntStream.range(0, bullets).forEach((i) -> launchSnowball(weapon.getType(), player));
                         gun.removeAmmo((short) 1);
                         player.getPlayer().setItemInHand(gun.getItem());
+                        ammo.getShootCooldown().put(cooldownKey, System.currentTimeMillis() + (long) (1000 * weapon.getType().getShootSpeed()));
                     }else
                         player.getActionBar().sendActionBar("§eNo ammunition loaded");
                 }catch (RuntimeException ignore){}
