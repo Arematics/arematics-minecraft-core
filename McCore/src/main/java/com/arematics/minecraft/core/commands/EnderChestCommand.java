@@ -3,12 +3,9 @@ package com.arematics.minecraft.core.commands;
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.InventoryService;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,11 +23,9 @@ public class EnderChestCommand extends CoreCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
-        if(!(sender instanceof Player)) throw new CommandProcessException("Only Players could perform this command");
-        CorePlayer player = CorePlayer.get((Player) sender);
-        player.openLowerEnabledInventory(player.getOrCreateInventory("enderchest", "§c"
-                + player.getPlayer().getName() + "'s Enderchest", (byte)36));
+    public void onDefaultExecute(CorePlayer sender) {
+        sender.inventories().openLowerEnabledInventory(sender.inventories().getOrCreateInventory("enderchest", "§c"
+                + sender.getName() + "'s Enderchest", (byte)36));
     }
 
     @SubCommand("{target}")
@@ -44,10 +39,10 @@ public class EnderChestCommand extends CoreCommand {
     }
 
     private void openEnabledInventory(CorePlayer player, Inventory inventory){
-        player.openLowerEnabledInventory(inventory);
+        player.inventories().openLowerEnabledInventory(inventory);
     }
 
     private void openBlocked(CorePlayer player, Inventory inventory){
-        player.openTotalBlockedInventory(inventory);
+        player.inventories().openTotalBlockedInventory(inventory);
     }
 }

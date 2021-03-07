@@ -8,7 +8,6 @@ import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
@@ -19,18 +18,13 @@ public class GiveAllCommand extends CoreCommand {
     public GiveAllCommand() { super("giveall"); }
 
     @Override
-    protected boolean onDefaultCLI(CommandSender sender) {
-        Player player = (Player) sender;
-
+    protected void onDefaultCLI(CorePlayer sender) {
         Bukkit.getOnlinePlayers().forEach(target -> onGiveAll(sender, target));
-
-        return true;
     }
 
-    private static void onGiveAll(CommandSender sender, Player target) {
+    private static void onGiveAll(CorePlayer sender, Player target) {
         if (sender instanceof Player) {
-            CorePlayer player = CorePlayer.get(((Player) sender));
-            CoreItem givenItem = player.getItemInHand();
+            CoreItem givenItem = sender.getItemInHand();
 
             if(givenItem == null) return;
 
@@ -40,7 +34,7 @@ public class GiveAllCommand extends CoreCommand {
 
             Part part = new Part(itemName).setHoverActionShowItem(givenItem);
 
-            if(!player.getPlayer().equals(target)) {
+            if(!sender.getPlayer().equals(target)) {
                 CorePlayer targetPlayer = CorePlayer.get(target);
                 Items.giveItem(targetPlayer, givenItem);
                 targetPlayer.info("You have received the item %itemName% " + givenItem.getAmount() + " times")
@@ -48,7 +42,7 @@ public class GiveAllCommand extends CoreCommand {
                         .replace("itemName", part)
                         .handle();
             } else {
-                player.info("You distributed the item %itemName% " + givenItem.getAmount() + " times")
+                sender.info("You distributed the item %itemName% " + givenItem.getAmount() + " times")
                         .setInjector(AdvancedMessageInjector.class)
                         .replace("itemName", part)
                         .handle();

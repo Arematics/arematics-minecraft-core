@@ -39,7 +39,7 @@ public class BuffAdminCommand extends CoreCommand {
 
     @SubCommand("view {user}")
     public void viewUserBuffs(CorePlayer sender, User target) {
-        List<PlayerBuff> buffs = handler.getPlayerBuffService().findActiveBuffsByPlayer(target.getUuid());
+        List<PlayerBuff> buffs = handler.getPlayerBuffService().findValidBuffsByPlayer(target.getUuid());
         sender.info(CommandUtils.prettyHeader("Buffs", target.getLastName())).DEFAULT().disableServerPrefix().handle();
         buffs.forEach(buff -> sender.info("%content%")
                 .setInjector(AdvancedMessageInjector.class)

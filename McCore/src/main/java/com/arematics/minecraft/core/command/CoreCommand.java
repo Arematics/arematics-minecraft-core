@@ -9,7 +9,6 @@ import com.arematics.minecraft.core.command.processor.SubCommandAnnotationProces
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.command.supplier.standard.CommandSupplier;
 import com.arematics.minecraft.core.language.LanguageAPI;
-import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.ClickAction;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
@@ -133,29 +132,26 @@ public abstract class CoreCommand extends Command {
         this.longArgumentParameters.add("{" + key + "}");
     }
 
-    public void onDefaultExecute(CommandSender sender){
+    public void onDefaultExecute(CorePlayer sender){
         CommandSupplier.create().setCLI(this::onDefaultCLI).setGUI(this::onDefaultGUI).accept(sender);
     }
 
-    protected boolean onDefaultCLI(CommandSender sender){
+    protected void onDefaultCLI(CorePlayer sender){
         Part[] commandInformationValues = this.subCommands.stream()
                 .map(subcmd -> toSubCommandExecute(sender, subcmd))
                 .toArray(Part[]::new);
-        Messages.create(this.commandInformationString)
-                .to(sender)
+        sender.info(this.commandInformationString)
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("value", new MSG(commandInformationValues))
                 .disableServerPrefix()
                 .handle();
-        return true;
     }
 
-    protected boolean onDefaultGUI(CorePlayer player){
+    protected void onDefaultGUI(CorePlayer player){
         InventoryService service = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
         Inventory inv = service.getOrCreate("command.default.menu." + this.getName(),
                 "§8Command: §c" + this.getName(), this.uiSlots);
-        player.openInventory(inv);
-        return true;
+        player.inventories().openInventory(inv);
     }
 
     private byte calculateSlots(){
@@ -177,10 +173,10 @@ public abstract class CoreCommand extends Command {
     }
 
 
-    private Part toSubCommandExecute(CommandSender sender, String cmdName){
+    private Part toSubCommandExecute(CorePlayer player, String cmdName){
         return new Part("     §7/" + this.getName() + " §c" + cmdName + "\n")
                 .setHoverAction(HoverAction.SHOW_TEXT,
-                        LanguageAPI.prepareRawMessage(sender, PASTE_SUB_COMMAND).replaceAll("%subcmd%", cmdName))
+                        LanguageAPI.prepareRawMessage(player.getPlayer(), PASTE_SUB_COMMAND).replaceAll("%subcmd%", cmdName))
                 .setClickAction(ClickAction.SUGGEST_COMMAND, "/" + this.getName() + " " + cmdName);
     }
 
@@ -199,7 +195,9 @@ public abstract class CoreCommand extends Command {
 
     @Override
     public final boolean execute(final CommandSender commandSender, String labels, String[] arguments) {
-        ArematicsExecutor.runAsync(() -> process(commandSender, arguments));
+        if(!(commandSender instanceof Player)) return true;
+        CorePlayer player = CorePlayer.get(commandSender);
+        ArematicsExecutor.runAsync(() -> process(player, arguments));
         return true;
     }
 
@@ -232,7 +230,7 @@ public abstract class CoreCommand extends Command {
         return text.contains(" ") ? text.substring(0, text.indexOf(" ")) : text;
     }
 
-    private void process(CommandSender sender, String[] arguments){
+    private void process(CorePlayer sender, String[] arguments){
         boolean isDefault = arguments.length == 0;
         Map<String, Object> dataPack = new Hashtable<>();
         dataPack.put("sender", sender);
@@ -262,13 +260,13 @@ public abstract class CoreCommand extends Command {
             handleProcessorException(sender, pe);
         } catch (Throwable exception){
             exception.printStackTrace();
-            Messages.create(CMD_FAILURE).FAILURE().to(sender).handle();
+            sender.failure(CMD_FAILURE).handle();
         }
     }
 
-    private void handleProcessorException(CommandSender sender, CommandProcessException pe){
+    private void handleProcessorException(CorePlayer sender, CommandProcessException pe){
         if(pe.getInjector() != null) pe.getInjector().handle();
-        else Messages.create(pe.getMessage()).WARNING().to(sender).handle();
+        else sender.warn(pe.getMessage()).handle();
     }
 
     private boolean isMatch(String[] annotation, String[] src){

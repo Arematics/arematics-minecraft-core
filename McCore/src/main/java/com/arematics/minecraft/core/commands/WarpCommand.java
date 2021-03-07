@@ -12,8 +12,6 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.mode.model.Warp;
 import com.arematics.minecraft.data.service.WarpService;
 import lombok.Getter;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,19 +28,16 @@ public class WarpCommand extends CoreCommand {
     public WarpCommand(WarpService warpService) { super("warp"); this.warpService = warpService; }
 
     @Override
-    protected boolean onDefaultCLI(CommandSender sender) {
-        if(!(sender instanceof Player)) return true;
-        CorePlayer player = CorePlayer.get((Player) sender);
+    protected void onDefaultCLI(CorePlayer sender) {
         MSG items = MSGBuilder.join(warpService.fetchAllWarps()
                 .stream()
                 .map(this::toPart)
                 .collect(Collectors.toList()), ',');
-        player.info("listing")
+        sender.info("listing")
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("list_type", new Part("Warp"))
                 .replace("list_value", items)
                 .handle();
-        return true;
     }
 
     private Part toPart(Warp warp){

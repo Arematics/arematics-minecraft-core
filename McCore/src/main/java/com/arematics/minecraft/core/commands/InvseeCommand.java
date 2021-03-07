@@ -16,8 +16,8 @@ public class InvseeCommand extends CoreCommand {
 
     @SubCommand("{player}")
     public void seeInventory(CorePlayer player, CorePlayer target) {
-        Permissions.check(player.getPlayer(),"invsee-change")
-                .ifPermitted(sender -> player.openLowerEnabledInventory(target.getPlayer().getInventory()))
-                .orElse(sender -> player.openTotalBlockedInventory(target.getPlayer().getInventory()));
+        Permissions.check(player,"invsee-change")
+                .ifPermitted(sender -> player.inventories().openLowerEnabledInventory(target.getPlayer().getInventory()))
+                .orElse(sender -> player.inventories().openTotalBlockedInventory(target.getPlayer().getInventory()));
     }
 }

@@ -36,8 +36,8 @@ public class PlayerLeaveListeners implements Listener {
 
     private void removePlayerFromRegions(Player eventPlayer){
         CorePlayer player = CorePlayer.get(eventPlayer);
-        Set<ProtectedRegion> regions =  player.getCurrentRegions();
-        player.getCurrentRegions().clear();
+        Set<ProtectedRegion> regions =  player.regions().getCurrentRegions();
+        player.regions().getCurrentRegions().clear();
         if (regions != null) {
             regions.forEach(region -> callLeftEvent(player, region));
         }

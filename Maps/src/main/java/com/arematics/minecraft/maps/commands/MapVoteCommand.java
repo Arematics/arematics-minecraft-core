@@ -12,8 +12,6 @@ import com.arematics.minecraft.core.utils.CommandUtils;
 import com.arematics.minecraft.data.controller.MapController;
 import com.arematics.minecraft.data.mode.model.GameMap;
 import com.arematics.minecraft.data.service.MapService;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,14 +29,10 @@ public class MapVoteCommand extends CoreCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
-        if(!(sender instanceof Player))
-            throw new CommandProcessException("Only players could perform this");
-        CorePlayer player = CorePlayer.get((Player) sender);
-
+    public void onDefaultExecute(CorePlayer sender) {
         String result = CommandUtils.prettyHeader("Map Vote", "Next Map");
-        player.info(result).DEFAULT().disableServerPrefix().handle();
-        this.controller.getNextMapIds().forEach(mapId -> sendInteractMessage(player, mapId));
+        sender.info(result).DEFAULT().disableServerPrefix().handle();
+        this.controller.getNextMapIds().forEach(mapId -> sendInteractMessage(sender, mapId));
     }
 
     private void sendInteractMessage(CorePlayer player, String mapId){

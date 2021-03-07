@@ -4,8 +4,6 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.springframework.stereotype.Component;
 
@@ -49,23 +47,17 @@ public class FixCommand extends CoreCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
+    public void onDefaultExecute(CorePlayer sender) {
+        for(ItemStack current : sender.getPlayer().getInventory().getArmorContents())
+            if (current != null)
+                current.setDurability((short) 0);
 
-        if(sender instanceof Player) {
-            CorePlayer player = CorePlayer.get((Player) sender);
-
-            for(ItemStack current : player.getPlayer().getInventory().getArmorContents())
-                if (current != null)
-                    current.setDurability((short) 0);
-
-            for(ItemStack current : player.getPlayer().getInventory().getContents())
-                if (current != null && !forbiddenStackItems.contains(current.getType()) && !current.getType().isBlock())
-                    current.setDurability((short) 0);
+        for(ItemStack current : sender.getPlayer().getInventory().getContents())
+            if (current != null && !forbiddenStackItems.contains(current.getType()) && !current.getType().isBlock())
+                current.setDurability((short) 0);
 
 
-            player.info("You have repaired your items").handle();
-
-        }
+        sender.info("You have repaired your items").handle();
     }
 
 }

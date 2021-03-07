@@ -9,8 +9,6 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.springframework.stereotype.Component;
 
@@ -22,11 +20,9 @@ public class ServerMenuCommand extends CoreCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
-        if(! (sender instanceof Player)) return;
-        CorePlayer player = CorePlayer.get((Player) sender);
+    public void onDefaultExecute(CorePlayer sender) {
         Inventory inv = Bukkit.createInventory(null, 3*9, "§bSelect Server");
-        player.openTotalBlockedInventory(inv);
+        sender.inventories().openTotalBlockedInventory(inv);
         InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLACK);
         inv.setItem(9 + 3, CoreItem.generate(Material.DIAMOND_SWORD)
                 .bindCommand("servermenu connect pvp")

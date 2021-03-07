@@ -2,8 +2,7 @@ package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.command.CoreCommand;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,8 +14,7 @@ public class WorkbenchCommand extends CoreCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
-        if(sender instanceof Player)
-            ((Player) sender).openWorkbench(((Player) sender).getLocation(), true);
+    public void onDefaultExecute(CorePlayer sender) {
+        sender.getPlayer().openWorkbench(sender.getLocation(), true);
     }
 }

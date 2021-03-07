@@ -98,7 +98,7 @@ public class VoteAdminCommand extends CoreCommand {
         try{
             this.service.findVoteReward(id);
             Inventory inv = this.inventoryService.getOrCreate("inventory_vote_reward_" + id, "§aReward: " + id, (byte) 18);
-            player.openLowerEnabledInventory(inv);
+            player.inventories().openLowerEnabledInventory(inv);
         }catch (RuntimeException re){
             player.warn("Vote Reward with id: " + id + " not exists").handle();
         }

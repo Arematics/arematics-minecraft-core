@@ -108,7 +108,7 @@ public class IgnoreCommand extends CoreCommand {
             page.setInventory(inventory);
         }
         Inventory finalInventory = inventory;
-        player.openInventory(finalInventory);
+        player.inventories().openInventory(finalInventory);
         return true;
     }
 

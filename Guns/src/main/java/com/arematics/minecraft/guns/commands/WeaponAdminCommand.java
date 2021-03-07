@@ -93,7 +93,7 @@ public class WeaponAdminCommand extends CoreCommand {
                 throw new CommandProcessException("Weapon Types configuration not completed yet");
             }
         }
-        player.openTotalBlockedInventory(inv);
+        player.inventories().openTotalBlockedInventory(inv);
     }
 
     @SubCommand("config {type}")
@@ -102,7 +102,7 @@ public class WeaponAdminCommand extends CoreCommand {
             List<Weapon> weapons = this.weaponService.findAllByType(type);
             int size = 18 + ((weapons.size() / 9) * 9);
             Inventory inv = Bukkit.createInventory(null, size, "§cWeapons");
-            player.openTotalBlockedInventory(inv);
+            player.inventories().openTotalBlockedInventory(inv);
             weapons.forEach(weapon -> inv.addItem(prepareWeapon(weapon)));
             inv.setItem(size - 1, createNewWeapon(type));
         }catch (Exception e){

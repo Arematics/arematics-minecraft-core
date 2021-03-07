@@ -24,4 +24,5 @@ public class PlayerBuff implements Serializable {
     private String potionEffectType;
     private byte strength;
     private Timestamp endTime;
+    private boolean active;
 }

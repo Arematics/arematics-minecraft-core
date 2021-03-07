@@ -32,8 +32,13 @@ public class AccountLinkListener implements Listener {
             userMap.put(ip, player);
         }else{
             CorePlayer from = userMap.get(ip);
-            if(!accountLinkService.isLinkExistsBoth(from.getUUID(), player.getUUID()))
-                accountLinkService.save(new AccountLink(from.getUUID(), player.getUUID(), "System", null));
+            if(!from.getUUID().equals(player.getUUID())) {
+                if (!accountLinkService.isLinkExistsBoth(from.getUUID(), player.getUUID())) {
+                    AccountLink link = new AccountLink(from.getUUID(), player.getUUID(),
+                            "System", null);
+                    accountLinkService.save(link);
+                }
+            }
         }
     }
 

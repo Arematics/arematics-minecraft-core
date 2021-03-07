@@ -8,7 +8,6 @@ import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import org.bukkit.command.CommandSender;
 import org.springframework.stereotype.Component;
 
 import java.text.DateFormat;
@@ -22,16 +21,6 @@ public class LocaleCommand extends CoreCommand {
 
     public LocaleCommand(){
         super("locale");
-    }
-
-    @Override
-    protected boolean onDefaultCLI(CommandSender sender) {
-        return super.onDefaultCLI(sender);
-    }
-
-    @Override
-    protected boolean onDefaultGUI(CorePlayer player) {
-        return super.onDefaultGUI(player);
     }
 
     @SubCommand("set {locale}")

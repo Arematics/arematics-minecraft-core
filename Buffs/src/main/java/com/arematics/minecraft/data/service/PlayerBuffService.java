@@ -32,6 +32,10 @@ public class PlayerBuffService {
     }
 
     public List<PlayerBuff> findActiveBuffsByPlayer(UUID uuid){
+        return playerBuffRepository.findAllByIdAndActiveIsTrueAndEndTimeAfter(uuid, Timestamp.valueOf(LocalDateTime.now()));
+    }
+
+    public List<PlayerBuff> findValidBuffsByPlayer(UUID uuid){
         return playerBuffRepository.findAllByIdAndEndTimeAfter(uuid, Timestamp.valueOf(LocalDateTime.now()));
     }
 

@@ -125,7 +125,7 @@ public class KitAdminCommand extends CoreCommand {
             Kit kit = service.findKit(name);
             Inventory inv = inventoryService.getOrCreate("kit.inventory." + kit.getName(), "§6Kit " + name,
                     (byte)27);
-            player.openLowerEnabledInventory(inv);
+            player.inventories().openLowerEnabledInventory(inv);
             return true;
         }catch (RuntimeException re){
             player.warn(KIT_NOT_FOUND)

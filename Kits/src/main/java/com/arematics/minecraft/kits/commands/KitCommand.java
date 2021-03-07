@@ -21,8 +21,6 @@ import com.arematics.minecraft.data.service.UserService;
 import com.arematics.minecraft.data.share.model.Cooldown;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,17 +47,9 @@ public class KitCommand extends CoreCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
-        if(!(sender instanceof Player)){
-            Messages.create("Only Players allowed to perform this command")
-                    .WARNING()
-                    .to(sender)
-                    .handle();
-            return;
-        }
-        CorePlayer player = CorePlayer.get((Player)sender);
-        Pageable pageable = player.getPager().fetchOrCreate(KitCommand.PAGER_KEY, (p) -> service.findKitNames());
-        PageCommandSupplier.create(pageable.current()).setCLI(this::onCLI).setGUI(this::onUI).accept(player);
+    public void onDefaultExecute(CorePlayer sender) {
+        Pageable pageable = sender.getPager().fetchOrCreate(KitCommand.PAGER_KEY, (p) -> service.findKitNames());
+        PageCommandSupplier.create(pageable.current()).setCLI(this::onCLI).setGUI(this::onUI).accept(sender);
     }
 
     private boolean onCLI(CorePlayer player, Page page){
@@ -97,7 +87,7 @@ public class KitCommand extends CoreCommand {
             page.setInventory(inventory);
         }
         Inventory finalInventory = inventory;
-        player.openInventory(finalInventory);
+        player.inventories().openInventory(finalInventory);
         return true;
     }
 

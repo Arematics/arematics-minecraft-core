@@ -17,8 +17,6 @@ import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.UserService;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -45,17 +43,9 @@ public class FriendCommand extends CoreCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
-        if(!(sender instanceof Player)){
-            Messages.create("Only Players allowed to perform this command")
-                    .WARNING()
-                    .to(sender)
-                    .handle();
-            return;
-        }
-        CorePlayer player = CorePlayer.get((Player)sender);
-        Pageable pageable = player.getPager().fetchOrCreate(FriendCommand.PAGER_KEY, this::getFriends);
-        PageCommandSupplier.create(pageable.current()).setCLI(this::onCLI).setGUI(this::onUI).accept(player);
+    public void onDefaultExecute(CorePlayer sender) {
+        Pageable pageable = sender.getPager().fetchOrCreate(FriendCommand.PAGER_KEY, this::getFriends);
+        PageCommandSupplier.create(pageable.current()).setCLI(this::onCLI).setGUI(this::onUI).accept(sender);
     }
 
     @SubCommand("add {name}")
@@ -170,7 +160,7 @@ public class FriendCommand extends CoreCommand {
             page.setInventory(inventory);
         }
         Inventory finalInventory = inventory;
-        player.openInventory(finalInventory);
+        player.inventories().openInventory(finalInventory);
         return true;
     }
 }

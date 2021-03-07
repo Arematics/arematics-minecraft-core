@@ -15,29 +15,24 @@ import com.arematics.minecraft.core.server.entities.player.protocols.ActionBar;
 import com.arematics.minecraft.core.server.entities.player.protocols.Packets;
 import com.arematics.minecraft.core.server.entities.player.protocols.Title;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
-import com.arematics.minecraft.core.utils.Inventories;
 import com.arematics.minecraft.data.global.model.Configuration;
 import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.GameStats;
 import com.arematics.minecraft.data.service.GameStatsService;
-import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.OnlineTimeService;
 import com.arematics.minecraft.data.service.UserService;
 import com.arematics.minecraft.data.share.model.OnlineTime;
-import com.sk89q.worldguard.bukkit.RegionQuery;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.Data;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -58,10 +53,9 @@ public class CorePlayer implements CurrencyEntity {
     private static Locale defaultLocale = Locale.GERMAN;
     private static Map<UUID, CorePlayer> players = new HashMap<>();
 
-    private static InventoryService inventoryService;
-
-    public static CorePlayer get(Player player){
-        if(player == null) return null;
+    public static CorePlayer get(CommandSender sender){
+        if(!(sender instanceof Player)) return null;
+        Player player = (Player) sender;
         if(!players.containsKey(player.getUniqueId()))
             players.put(player.getUniqueId(), new CorePlayer(player));
         return players.get(player.getUniqueId());
@@ -74,7 +68,7 @@ public class CorePlayer implements CurrencyEntity {
 
     public static List<CorePlayer> inRegion(ProtectedRegion region){
         return CorePlayer.players.values().stream()
-                .filter(player -> player.getCurrentRegions().contains(region))
+                .filter(player -> player.regions().getCurrentRegions().contains(region))
                 .collect(Collectors.toList());
     }
 
@@ -82,6 +76,8 @@ public class CorePlayer implements CurrencyEntity {
     private final Pager pager;
     private final BoardSet boardSet;
     private final PlayerRequestSettings requestSettings;
+    private final InventoryHandler inventoryHandler;
+    private final RegionHandler regionHandler;
     private boolean ignoreMeta = false;
     private boolean disableLowerInventory = false;
     private boolean disableUpperInventory = false;
@@ -99,7 +95,6 @@ public class CorePlayer implements CurrencyEntity {
     private LocalDateTime lastAntiAFKEvent;
 
     private Duration lastAfk = null;
-    private final Set<ProtectedRegion> currentRegions;
 
     private final List<ItemUpdateClickListener> itemUpdateClickListeners = new ArrayList<>();
     private Consumer<Inventory> emptySlotClick;
@@ -126,11 +121,9 @@ public class CorePlayer implements CurrencyEntity {
         this.userService = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
         this.onlineTimeService = Boots.getBoot(CoreBoot.class).getContext().getBean(OnlineTimeService.class);
         this.requestSettings = new PlayerRequestSettings(this);
+        this.inventoryHandler = new InventoryHandler(this);
+        this.regionHandler = new RegionHandler(this);
         this.service = Boots.getBoot(CoreBoot.class).getContext().getBean(GameStatsService.class);
-        if(CorePlayer.inventoryService == null){
-            CorePlayer.inventoryService = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
-        }
-        this.currentRegions = new HashSet<>();
         this.packets = new Packets(player);
         this.actionBar = new ActionBar(this);
         this.title = new Title(this);
@@ -160,6 +153,18 @@ public class CorePlayer implements CurrencyEntity {
         return rank.isInTeam() ? "§c" : "§f";
     }
 
+    public InventoryHandler inventories(){
+        return this.inventoryHandler;
+    }
+
+    public RegionHandler regions(){
+        return this.regionHandler;
+    }
+
+    public String getName(){
+        return player.getName();
+    }
+
     public void setLocale(Locale locale){
         Configuration configuration = getUser().getConfigurations().get("locale");
         if(configuration == null) configuration = new Configuration(locale.toLanguageTag());
@@ -168,6 +173,10 @@ public class CorePlayer implements CurrencyEntity {
         user.getConfigurations().put("locale", configuration);
         userService.update(user);
         this.selectedLocale = locale;
+    }
+
+    public World getWorld(){
+        return player.getWorld();
     }
 
     public ZonedDateTime parseTime(LocalDateTime time){
@@ -192,14 +201,6 @@ public class CorePlayer implements CurrencyEntity {
         }catch (ArrayIndexOutOfBoundsException e){
             return "";
         }
-    }
-
-    public int nextPage(){
-        return ++page;
-    }
-
-    public int pageBefore(){
-        return --page;
     }
 
     public String getLastCommand(){
@@ -369,37 +370,6 @@ public class CorePlayer implements CurrencyEntity {
         return teleport(location, true);
     }
 
-    public boolean isFlagEnabled(RegionQuery query, StateFlag flag){
-        return query.testState(this.getLocation(), WorldGuardPlugin.inst().wrapPlayer(this.getPlayer()), flag);
-    }
-
-    public InventoryView getView(){
-        return player.getOpenInventory();
-    }
-
-    /**
-     * Open inventory for player. Own inventory is disabled. Opened inventory is enabled
-     * @param inventory Inventory to open
-     */
-    public void openInventory(Inventory inventory){
-        Inventories.openLowerDisabledInventory(inventory, this);
-    }
-
-    /**
-     * Open inventory for player. Both inventories are blocked
-     * @param inventory Inventory to open
-     */
-    public void openTotalBlockedInventory(Inventory inventory){
-        Inventories.openTotalBlockedInventory(inventory, this);
-    }
-    /**
-     * Open inventory for player. Both inventories are enabled
-     * @param inventory Inventory to open
-     */
-    public void openLowerEnabledInventory(Inventory inventory){
-        Inventories.openInventory(inventory, this);
-    }
-
     public User getUser(){
         return this.userService.getOrCreateUser(this);
     }
@@ -538,24 +508,11 @@ public class CorePlayer implements CurrencyEntity {
         player.setItemInHand(item);
     }
 
-    public Inventory getInventory(String key) throws RuntimeException{
-        return CorePlayer.inventoryService.getInventory(player.getUniqueId() + "." + key);
-    }
-
-    public Inventory getOrCreateInventory(String key, String title, byte slots){
-        return CorePlayer.inventoryService.getOrCreate(player.getUniqueId() + "." + key, title, slots);
-    }
-
     public Location getLocation() {
         return this.player.getLocation();
     }
 
     public boolean hasPermission(String permission){
         return Permissions.hasPermission(getUUID(), permission);
-    }
-
-    public boolean inRegionWithFlag(StateFlag flag){
-        RegionManager manager = WorldGuardPlugin.inst().getRegionManager(getPlayer().getWorld());
-        return getCurrentRegions().stream().anyMatch(region -> !manager.getApplicableRegions(region).testState(null, flag));
     }
 }

@@ -16,7 +16,7 @@ public class PlayerEmptySlotClickListener implements Listener {
         CorePlayer player = CorePlayer.get((Player) event.getWhoClicked());
         if(player.getEmptySlotClick() != null
                 && event.getClickedInventory() != null
-                && player.getView().getTopInventory().equals(event.getClickedInventory())
+                && player.inventories().getView().getTopInventory().equals(event.getClickedInventory())
                 && event.getCurrentItem().getType() == Material.AIR){
             player.getEmptySlotClick().accept(event.getClickedInventory());
         }

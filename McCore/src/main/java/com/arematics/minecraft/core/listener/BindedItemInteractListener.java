@@ -40,13 +40,13 @@ public class BindedItemInteractListener implements Listener {
         if(!player.isIgnoreMeta())
             event.setCancelled(this.executorsCache.searchAndRun(player, clicked));
         if(!player.isIgnoreMeta() && event.getClickedInventory() != null &&
-                event.getClickedInventory().equals(player.getView().getBottomInventory()) &&
+                event.getClickedInventory().equals(player.inventories().getView().getBottomInventory()) &&
                 player.isDisableLowerInventory()){
             event.setCancelled(true);
             return;
         }
         if(!player.isIgnoreMeta() && event.getClickedInventory() != null &&
-                event.getClickedInventory().equals(player.getView().getTopInventory()) &&
+                event.getClickedInventory().equals(player.inventories().getView().getTopInventory()) &&
                 player.isDisableUpperInventory()){
             event.setCancelled(true);
         }

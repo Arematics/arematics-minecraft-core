@@ -19,8 +19,6 @@ import com.arematics.minecraft.data.service.HomeService;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -46,17 +44,13 @@ public class HomeCommand extends CoreCommand {
     }
 
     @Override
-    protected boolean onDefaultCLI(CommandSender sender) {
-        if(!(sender instanceof Player)) return true;
-        CorePlayer player = CorePlayer.get((Player) sender);
-        queryHomes(player, null, 0);
-        return true;
+    protected void onDefaultCLI(CorePlayer sender) {
+        queryHomes(sender, null, 0);
     }
 
     @Override
-    protected boolean onDefaultGUI(CorePlayer player) {
+    protected void onDefaultGUI(CorePlayer player) {
         listInventoryPages(player, 0, false);
-        return true;
     }
 
     @SubCommand("set {name}")
@@ -141,7 +135,7 @@ public class HomeCommand extends CoreCommand {
 
     private void openInventoryQuery(CorePlayer sender, Page<Home> homes, Boolean deleteMode, String query){
         Inventory inv = Bukkit.createInventory(null, 54, deleteMode ? "§cDelete Homes" : "§6Homes");
-        sender.openTotalBlockedInventory(inv);
+        sender.inventories().openTotalBlockedInventory(inv);
         InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLACK);
         if(!deleteMode)
             inv.setItem(1 + 5, CoreItem.generate(Material.REDSTONE_BLOCK)
@@ -154,7 +148,7 @@ public class HomeCommand extends CoreCommand {
         sender.setEmptySlotClick(clicked -> sender.dispatchCommand("sethome {name}"));
         if(!deleteMode)
             homes.getContent().forEach(home -> inv.addItem(CoreItem.generate(Material.BED)
-                    .bindCommand("home teleport " + home.getName())
+                    .bindCommand("home " + home.getName())
                     .setName("§cHome: §7" + split(home.getName(), query))));
         else
             homes.getContent().forEach(home -> inv.addItem(CoreItem.generate(Material.BED)

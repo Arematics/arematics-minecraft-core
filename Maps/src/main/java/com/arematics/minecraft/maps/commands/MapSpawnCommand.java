@@ -2,7 +2,6 @@ package com.arematics.minecraft.maps.commands;
 
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
-import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.commands.SpawnCommand;
 import com.arematics.minecraft.core.commands.WarpCommand;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
@@ -11,8 +10,6 @@ import com.arematics.minecraft.data.mode.model.GameMap;
 import com.arematics.minecraft.data.service.MapService;
 import com.arematics.minecraft.data.service.WarpService;
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -34,14 +31,10 @@ public class MapSpawnCommand extends SpawnCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
-        if (!(sender instanceof Player))
-            throw new CommandProcessException("Only Player can perform this command");
-        CorePlayer player = CorePlayer.get((Player) sender);
-
+    public void onDefaultExecute(CorePlayer sender) {
         try{
             GameMap map = this.mapService.findById(this.mapController.getCurrentMapId());
-            player.teleport(map.getLocation()).schedule();
+            sender.teleport(map.getLocation()).schedule();
         }catch (Exception e){
             super.onDefaultExecute(sender);
         }

@@ -6,10 +6,9 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.global.model.Configuration;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.UserService;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 public class CommandSupplier implements CommandCLI, CommandUI, CommandAccept{
 
@@ -17,8 +16,8 @@ public class CommandSupplier implements CommandCLI, CommandUI, CommandAccept{
         return new CommandSupplier();
     }
 
-    private Function<CommandSender, Boolean> onCli;
-    private Function<CorePlayer, Boolean> onGUI = null;
+    private Consumer<CorePlayer> onCli;
+    private Consumer<CorePlayer> onGUI = null;
 
     private final UserService userService;
 
@@ -27,26 +26,26 @@ public class CommandSupplier implements CommandCLI, CommandUI, CommandAccept{
     }
 
     @Override
-    public CommandUI setCLI(Function<CommandSender, Boolean> onCli) {
+    public CommandUI setCLI(Consumer<CorePlayer> onCli) {
         this.onCli = onCli;
         return this;
     }
 
     @Override
-    public CommandAccept setGUI(Function<CorePlayer, Boolean> onUI) {
+    public CommandAccept setGUI(Consumer<CorePlayer> onUI) {
         this.onGUI = onUI;
         return this;
     }
 
     @Override
-    public boolean accept(CommandSender sender) {
+    public void accept(CorePlayer sender) {
         if(isGUIAccepted(sender))
-            return onGUI.apply(CorePlayer.get((Player)sender));
-        return onCli.apply(sender);
+            onGUI.accept(sender);
+        else
+            onCli.accept(sender);
     }
 
-    private boolean isGUIAccepted(CommandSender sender){
-        if(!(sender instanceof Player)) return false;
+    private boolean isGUIAccepted(CorePlayer sender){
         return hasUserGUIEnabled((Player) sender);
     }
 

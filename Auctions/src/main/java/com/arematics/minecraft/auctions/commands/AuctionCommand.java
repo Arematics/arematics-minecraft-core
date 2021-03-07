@@ -18,8 +18,6 @@ import com.arematics.minecraft.data.service.PlayerAuctionSettingsService;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,14 +53,9 @@ public class AuctionCommand extends CoreCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
-        if(!(sender instanceof Player)){
-            sender.sendMessage("This command is only for players");
-            return;
-        }
-        CorePlayer player = CorePlayer.get((Player) sender);
+    public void onDefaultExecute(CorePlayer sender) {
         Inventory inv = Bukkit.createInventory(null, 3*9, "§8Auctions");
-        player.openTotalBlockedInventory(inv);
+        sender.inventories().openTotalBlockedInventory(inv);
         InventoryPlaceholder.fillInventory(inv, DyeColor.BLACK);
         inv.setItem(8 + 3, CoreItem.generate(Material.DIAMOND_BLOCK)
                 .bindCommand("auction search")
@@ -79,7 +72,7 @@ public class AuctionCommand extends CoreCommand {
     public void searchMarket(CorePlayer player) {
         PlayerAuctionSettings settings = playerAuctionSettingsService.findOrCreateDefault(player.getUUID());
         Inventory inv = Bukkit.createInventory(null, 6*9, "§8Auction Search");
-        player.openTotalBlockedInventory(inv);
+        player.inventories().openTotalBlockedInventory(inv);
         InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLACK);
         inv.setItem(5 * 9 + 4, CoreItem.create(Items.BACK.clone()));
         CoreItem type = CoreItem.generate(Material.PAPER)
@@ -105,7 +98,7 @@ public class AuctionCommand extends CoreCommand {
     @SubCommand("sells")
     public void shopOwnSells(CorePlayer player) {
         Inventory inv = Bukkit.createInventory(null, 5*9, "§8Your Auctions");
-        player.openTotalBlockedInventory(inv);
+        player.inventories().openTotalBlockedInventory(inv);
         InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLACK);
         inv.setItem(4 * 9 + 4, CoreItem.create(Items.BACK.clone()));
         ArematicsExecutor.asyncDelayed(() -> player.setEmptySlotClick(clicked -> player.dispatchCommand("auction sells createNew")),
@@ -116,7 +109,7 @@ public class AuctionCommand extends CoreCommand {
     @SubCommand("sells createNew")
     public void createNewSell(CorePlayer player) {
         Inventory inv = Bukkit.createInventory(null, 3*9, "§8New Auction");
-        player.openLowerEnabledInventory(inv);
+        player.inventories().openLowerEnabledInventory(inv);
         InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLACK);
         inv.setItem(3 * 9 + 4, CoreItem.create(Items.BACK.clone()));
     }
@@ -144,7 +137,7 @@ public class AuctionCommand extends CoreCommand {
     }
 
     private PlayerAuctionSettings updateContent(CorePlayer player){
-        InventoryView view = player.getView();
+        InventoryView view = player.inventories().getView();
         AuctionCategory category = auctionCategoryService.findById("stone");
         PlayerAuctionSettings settings = playerAuctionSettingsService.findOrCreateDefault(player.getUUID());
         settings.setCategory(category);

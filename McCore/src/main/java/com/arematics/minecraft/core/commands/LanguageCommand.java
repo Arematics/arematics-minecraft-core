@@ -6,13 +6,11 @@ import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.language.Language;
 import com.arematics.minecraft.core.language.LanguageAPI;
 import com.arematics.minecraft.core.language.LanguageUser;
-import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.*;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.service.InventoryService;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,30 +30,27 @@ public class LanguageCommand extends CoreCommand {
     }
 
     @Override
-    protected boolean onDefaultCLI(CommandSender sender){
+    protected void onDefaultCLI(CorePlayer sender){
         MSG languages = MSGBuilder.join(',', asPart(sender, "EN"), asPart(sender, "DE"));
-        Messages.create("cmd_not_valid")
-                .to(sender)
+        sender.info("cmd_not_valid")
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("cmd_usage", languages)
                 .handle();
-        return true;
     }
 
     @Override
-    protected boolean onDefaultGUI(CorePlayer player){
+    protected void onDefaultGUI(CorePlayer player){
         Inventory inv = service.getOrCreate("language.default.selection", "§9Language", (byte) 9);
         if(player.isIgnoreMeta()){
-            player.openLowerEnabledInventory(inv);
-            return true;
+            player.inventories().openLowerEnabledInventory(inv);
+            return;
         }
         CoreItem[] items = Arrays.stream(CoreItem.create(inv.getContents()))
                 .map(item -> process(player.getPlayer(), item))
                 .toArray(CoreItem[]::new);
         Inventory clone = Bukkit.createInventory(null, (byte) 9, "§9Language");
         clone.setContents(items);
-        player.openInventory(clone);
-        return true;
+        player.inventories().openInventory(clone);
     }
 
     private CoreItem process(Player player, CoreItem item){
@@ -75,9 +70,9 @@ public class LanguageCommand extends CoreCommand {
         return item;
     }
 
-    private Part asPart(CommandSender sender, String language){
+    private Part asPart(CorePlayer sender, String language){
         return new Part(language)
-                .setHoverAction(HoverAction.SHOW_TEXT, LanguageAPI.prepareRawMessage(sender, "language_change_to")
+                .setHoverAction(HoverAction.SHOW_TEXT, LanguageAPI.prepareRawMessage(sender.getPlayer(), "language_change_to")
                         .replaceAll("%language%", language))
                 .setClickAction(ClickAction.RUN_COMMAND, "/language " + language);
     }

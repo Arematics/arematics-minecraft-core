@@ -27,7 +27,7 @@ public class PlayerRegionController {
     private final RegionInteractionBoot plugin = Boots.getBoot(RegionInteractionBoot.class);
 
     public synchronized boolean updateRegions(final CorePlayer player, final MovementWay movement, Location to) {
-        Set<ProtectedRegion> oldRegions = new HashSet<>(player.getCurrentRegions());
+        Set<ProtectedRegion> oldRegions = new HashSet<>(player.regions().getCurrentRegions());
         RegionManager rm = this.worldGuard.getRegionManager(to.getWorld());
         if (rm != null) {
             Set<ProtectedRegion> appRegions = rm.getApplicableRegions(to).getRegions();
@@ -37,7 +37,7 @@ public class PlayerRegionController {
             }
 
             for(ProtectedRegion region : appRegions) {
-                if (!player.getCurrentRegions().contains(region)) {
+                if (!player.regions().getCurrentRegions().contains(region)) {
                     RegionEnterEvent enterEvent = new RegionEnterEvent(region, movement, player);
                     this.plugin.getServer().getPluginManager().callEvent(enterEvent);
                     if (enterEvent.isCancelled()) return cleanUP(player, oldRegions);
@@ -46,13 +46,13 @@ public class PlayerRegionController {
                         RegionEnteredEvent enteredEvent = new RegionEnteredEvent(region, movement, player);
                         this.plugin.getServer().getPluginManager().callEvent(enteredEvent);
                     }, 1L);
-                    player.getCurrentRegions().add(region);
+                    player.regions().getCurrentRegions().add(region);
                 }
             }
 
             Set<ProtectedRegion> removeRegions = new HashSet<>();
 
-            for(ProtectedRegion region : player.getCurrentRegions()) {
+            for(ProtectedRegion region : player.regions().getCurrentRegions()) {
                 if (!appRegions.contains(region)) {
                     RegionLeaveEvent leaveEvent = new RegionLeaveEvent(region, movement, player);
                     this.plugin.getServer().getPluginManager().callEvent(leaveEvent);
@@ -66,15 +66,15 @@ public class PlayerRegionController {
                 }
             }
 
-            player.getCurrentRegions().removeAll(removeRegions);
+            player.regions().getCurrentRegions().removeAll(removeRegions);
             return false;
         }
         return false;
     }
 
     private synchronized boolean cleanUP(CorePlayer player, Set<ProtectedRegion> oldRegions){
-        player.getCurrentRegions().clear();
-        player.getCurrentRegions().addAll(oldRegions);
+        player.regions().getCurrentRegions().clear();
+        player.regions().getCurrentRegions().addAll(oldRegions);
         return true;
     }
 }

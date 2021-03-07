@@ -3,8 +3,6 @@ package com.arematics.minecraft.core.commands;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -45,18 +43,12 @@ public class InventoryFixCommand extends CoreCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
-
-        if (sender instanceof Player) {
-            CorePlayer player = CorePlayer.get((Player) sender);
-
-            for (ItemStack current : player.getPlayer().getInventory().getContents())
-                if (current != null && !forbiddenStackItems.contains(current.getType()) && !current.getType().isBlock())
-                    current.setDurability((short) 0);
+    public void onDefaultExecute(CorePlayer sender) {
+        for (ItemStack current : sender.getPlayer().getInventory().getContents())
+            if (current != null && !forbiddenStackItems.contains(current.getType()) && !current.getType().isBlock())
+                current.setDurability((short) 0);
 
 
-            player.info("You have repaired your inventory items").handle();
-
-        }
+        sender.info("You have repaired your inventory items").handle();
     }
 }

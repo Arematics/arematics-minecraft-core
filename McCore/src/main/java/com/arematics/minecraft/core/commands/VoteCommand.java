@@ -14,8 +14,6 @@ import com.arematics.minecraft.data.service.PlayerVotesService;
 import com.arematics.minecraft.data.service.VoteRewardService;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,11 +42,9 @@ public class VoteCommand extends CoreCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
-        if(!(sender instanceof Player)) throw new CommandProcessException("This command is only for players");
-        CorePlayer player = CorePlayer.get((Player) sender);
+    public void onDefaultExecute(CorePlayer sender) {
         String header = CommandUtils.prettyHeader("Votes", "Information");
-        player.info(header).DEFAULT().disableServerPrefix().handle();
+        sender.info(header).DEFAULT().disableServerPrefix().handle();
     }
 
     @SubCommand("data")
@@ -59,7 +55,7 @@ public class VoteCommand extends CoreCommand {
         int size = 18 + 18;
         Inventory inv = Bukkit.createInventory(null, size, "§aVotes");
         inv.setItem(3, generatePlayerInfo(votes));
-        sender.openTotalBlockedInventory(inv);
+        sender.inventories().openTotalBlockedInventory(inv);
         int index = 17 + 2;
         for(VoteReward reward : rewards){
             inv.setItem(index, reward.getDisplayItem()[0]);

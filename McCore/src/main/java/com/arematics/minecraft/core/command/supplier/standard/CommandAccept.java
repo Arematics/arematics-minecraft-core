@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.command.supplier.standard;
 
-import org.bukkit.command.CommandSender;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 
 public interface CommandAccept {
-    boolean accept(CommandSender sender);
+    void accept(CorePlayer sender);
 }

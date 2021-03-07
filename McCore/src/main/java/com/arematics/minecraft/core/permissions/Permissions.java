@@ -2,6 +2,7 @@ package com.arematics.minecraft.core.permissions;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.service.UserService;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -47,7 +48,7 @@ public class Permissions {
      * @param permission Permission searching for
      * @return Class with ifPermitted Consumer and orElse Consumer
      */
-    public static PermConsumer check(CommandSender sender, String permission){
+    public static PermConsumer check(CorePlayer sender, String permission){
         return new PermissionData(sender, permission);
     }
 

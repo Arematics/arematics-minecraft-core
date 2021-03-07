@@ -10,8 +10,6 @@ import com.arematics.minecraft.data.share.model.Cooldown;
 import com.arematics.minecraft.data.share.model.CooldownKey;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,21 +28,29 @@ public class RandomTeleportCommand extends CoreCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
-        if(!(sender instanceof Player)) return;
-        CorePlayer player = CorePlayer.get((Player) sender);
-        CooldownKey key = new CooldownKey(player.getUUID().toString(), "rtp");
+    public void onDefaultExecute(CorePlayer sender) {
+        CooldownKey key = new CooldownKey(sender.getUUID().toString(), "rtp");
         if(cooldownService.hasCooldown(key)){
             Cooldown cooldown = cooldownService.getModeCooldown(key).orElse(null);
             throw new CommandProcessException("You need to wait until " + TimeUtils.toString(cooldown.getEndTime()) + " to use rtp");
         }
 
-        ArematicsExecutor.syncRun(() -> {
-            Location location = new Location(player.getPlayer().getWorld(), (random.nextInt(5000) - random.nextInt(6000)) + 1000, 100, random.nextInt(5000) - random.nextInt(6000));
-            Block block = location.getWorld().getHighestBlockAt(location);
-            player.teleport(block.getLocation().add(0, 2, 0)).onEnd(c -> addCooldown(key)).schedule();
-        });
-        player.info("Random teleport is called").handle();
+        int x = random.nextInt(3000) + 2000;
+        int z = random.nextInt(3000) + 2000;
+        int xOff = random.nextInt(2);
+        int zOff = random.nextInt(2);
+        x = xOff == 1 ? Math.negateExact(x) : x;
+        z = zOff == 1 ? Math.negateExact(z) : z;
+        Location location = new Location(sender.getPlayer().getWorld(), x, 100, z);
+        Block block = location.getWorld().getHighestBlockAt(location);
+
+        ArematicsExecutor.syncRun(() -> sender.teleport(block.getLocation().add(0, 2, 0))
+                .onEnd(c -> {
+                    addCooldown(key);
+                    sender.info("Random teleport is called").handle();
+                })
+                .schedule()
+        );
     }
 
     private void addCooldown(CooldownKey key){

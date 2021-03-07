@@ -10,5 +10,6 @@ import java.util.UUID;
 
 public interface PlayerBuffRepository extends JpaRepository<PlayerBuff, PlayerBuffId> {
     List<PlayerBuff> findAllById(UUID uuid);
+    List<PlayerBuff> findAllByIdAndActiveIsTrueAndEndTimeAfter(UUID uuid, Timestamp timestamp);
     List<PlayerBuff> findAllByIdAndEndTimeAfter(UUID uuid, Timestamp timestamp);
 }

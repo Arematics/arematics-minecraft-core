@@ -19,8 +19,8 @@ public class InFightLogicListener implements Listener {
             CorePlayer damagePlayer = CorePlayer.get((Player) event.getEntity());
             CorePlayer damagedPlayer = CorePlayer.get((Player) event.getDamager());
             RegionQuery query = WorldGuardPlugin.inst().getRegionContainer().createQuery();
-            if(damagePlayer.isFlagEnabled(query, DefaultFlag.PVP) &&
-                    damagedPlayer.isFlagEnabled(query, DefaultFlag.PVP)) {
+            if(damagePlayer.regions().isFlagEnabled(query, DefaultFlag.PVP) &&
+                    damagedPlayer.regions().isFlagEnabled(query, DefaultFlag.PVP)) {
                 if (!damagePlayer.equals(damagedPlayer)) {
                     if (!damagePlayer.isInFight()) damagePlayer.warn("In fight, dont log out").handle();
                     if (!damagedPlayer.isInFight()) damagedPlayer.warn("In fight, dont log out").handle();

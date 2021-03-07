@@ -3,12 +3,10 @@ package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.pages.Pageable;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import org.bukkit.command.CommandSender;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,9 +17,8 @@ public class PageCommand extends CoreCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender){
-        Messages.create("cmd_not_valid")
-                .to(sender)
+    public void onDefaultExecute(CorePlayer sender){
+        sender.info("cmd_not_valid")
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("cmd_usage", new Part("\n/page before\n/page next"))
                 .handle();

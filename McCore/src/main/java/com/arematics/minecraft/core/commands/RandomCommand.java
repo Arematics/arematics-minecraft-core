@@ -4,7 +4,6 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +18,7 @@ public class RandomCommand extends CoreCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
+    public void onDefaultExecute(CorePlayer sender) {
         ArrayList<CorePlayer> listOfPlayer = new ArrayList<>();
 
         for(Player player : Bukkit.getOnlinePlayers()) {

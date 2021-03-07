@@ -4,8 +4,6 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.sk89q.worldedit.blocks.ItemType;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -20,8 +18,8 @@ public class StackCommand extends CoreCommand {
     }
 
     @Override
-    public void onDefaultExecute(CommandSender sender) {
-        stackItems(((Player)sender).getInventory(), true);
+    public void onDefaultExecute(CorePlayer sender) {
+        stackItems(sender.getPlayer().getInventory(), true);
     }
 
     @SubCommand("items")
