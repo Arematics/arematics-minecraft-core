@@ -4,9 +4,9 @@ import com.arematics.minecraft.core.annotations.ProcessorData;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.processor.parser.Parser;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.reflect.MethodUtils;
-import org.bukkit.command.CommandSender;
 
 import java.lang.reflect.Method;
 
@@ -17,7 +17,7 @@ public class SubCommandAnnotationProcessor extends AnnotationProcessor<SubComman
     @ProcessorData
     private String[] arguments;
     @ProcessorData
-    private CommandSender sender;
+    private CorePlayer sender;
 
     @Override
     public boolean supply(Method method) throws Exception {

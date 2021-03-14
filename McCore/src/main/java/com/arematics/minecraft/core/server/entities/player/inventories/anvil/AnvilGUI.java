@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.inventories.anvil;
+package com.arematics.minecraft.core.server.entities.player.inventories.anvil;
 
 import com.arematics.minecraft.core.Bootstrap;
 import com.arematics.minecraft.core.items.CoreItem;

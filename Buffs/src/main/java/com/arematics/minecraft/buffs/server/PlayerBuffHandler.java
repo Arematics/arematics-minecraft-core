@@ -29,31 +29,30 @@ public class PlayerBuffHandler {
     }
 
     public void enableBuffs(CorePlayer player){
-        List<PlayerBuff> activeBuffs = playerBuffService.findActiveBuffsByPlayer(player.getUUID());
+        List<PlayerBuff> activeBuffs = playerBuffService.findAllActiveBuffsByPlayer(player.getUUID());
         activeBuffs.forEach((buff) -> addPotionEffectToPlayer(player, buff));
     }
 
     public void addNewBuff(UUID uuid, PlayerBuff buff){
         playerBuffService.update(buff);
         CorePlayer online = server.findOnline(uuid);
-        if(online != null)
-            ArematicsExecutor.syncRun(() -> addPotionEffectToPlayer(online, buff));
+        if(online != null) addPotionEffectToPlayer(online, buff);
     }
 
     public void removeBuff(UUID uuid, PlayerBuff buff){
         playerBuffService.delete(buff);
         CorePlayer online = server.findOnline(uuid);
-        if(online != null)
-            ArematicsExecutor.syncRun(() -> removePotionEffectFromPlayer(online, PotionEffectType.getByName(buff.getPotionEffectType())));
+        if(online != null) removePotionEffectFromPlayer(online, PotionEffectType.getByName(buff.getPotionEffectType()));
     }
 
-    private void addPotionEffectToPlayer(CorePlayer player, PlayerBuff buff){
+    public void addPotionEffectToPlayer(CorePlayer player, PlayerBuff buff){
         removePotionEffectFromPlayer(player, PotionEffectType.getByName(buff.getPotionEffectType()));
-        player.getPlayer().addPotionEffect(generatePotionEffect(buff));
+        ArematicsExecutor.syncRun(() -> player.getPlayer().addPotionEffect(generatePotionEffect(buff)));
     }
 
-    private void removePotionEffectFromPlayer(CorePlayer player, PotionEffectType potionEffectType){
-        if(player.getPlayer().hasPotionEffect(potionEffectType)) player.getPlayer().removePotionEffect(potionEffectType);
+    public void removePotionEffectFromPlayer(CorePlayer player, PotionEffectType potionEffectType){
+        if(player.getPlayer().hasPotionEffect(potionEffectType))
+            ArematicsExecutor.syncRun(() -> player.getPlayer().removePotionEffect(potionEffectType));
     }
 
     private PotionEffect generatePotionEffect(PlayerBuff buff){

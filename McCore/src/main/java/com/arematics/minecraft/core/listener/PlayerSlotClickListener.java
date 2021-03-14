@@ -1,0 +1,31 @@
+package com.arematics.minecraft.core.listener;
+
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.springframework.stereotype.Component;
+
+import java.util.concurrent.TimeUnit;
+
+@Component
+public class PlayerSlotClickListener implements Listener {
+
+    @EventHandler
+    public void onClick(InventoryClickEvent event){
+        CorePlayer player = CorePlayer.get(event.getWhoClicked());
+        if(player.inventories().getSlotClick() != null
+                && player.inventories().getSlots() != null
+                && event.getClickedInventory() != null
+                && event.getCurrentItem() != null
+                && event.getCurrentItem().getType() != Material.AIR
+                && player.inventories().getView().getTopInventory().equals(event.getClickedInventory())
+                && player.inventories().getSlots().toList().contains(event.getSlot())){
+            ArematicsExecutor.syncDelayed(() -> player.inventories().getSlotClick().accept(event.getClickedInventory()),
+                    250,
+                    TimeUnit.MILLISECONDS);
+        }
+    }
+}

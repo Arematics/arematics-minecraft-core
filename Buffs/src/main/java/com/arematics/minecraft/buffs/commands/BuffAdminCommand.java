@@ -9,10 +9,8 @@ import com.arematics.minecraft.core.messaging.advanced.ClickAction;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.Part;
-import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.times.TimeUtils;
-import com.arematics.minecraft.core.utils.CommandUtils;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.PlayerBuff;
 import org.bukkit.potion.PotionEffectType;
@@ -23,7 +21,6 @@ import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Component
 @Perm(permission = "player.buffs.admin", description = "Permission to manage player buffs")
@@ -39,13 +36,6 @@ public class BuffAdminCommand extends CoreCommand {
 
     @SubCommand("view {user}")
     public void viewUserBuffs(CorePlayer sender, User target) {
-        List<PlayerBuff> buffs = handler.getPlayerBuffService().findValidBuffsByPlayer(target.getUuid());
-        sender.info(CommandUtils.prettyHeader("Buffs", target.getLastName())).DEFAULT().disableServerPrefix().handle();
-        buffs.forEach(buff -> sender.info("%content%")
-                .setInjector(AdvancedMessageInjector.class)
-                .disableServerPrefix()
-                .replace("content", toPrettyMessage(target, buff))
-                .handle());
     }
 
     @SubCommand("add {user} {type} {strength}")
@@ -59,12 +49,13 @@ public class BuffAdminCommand extends CoreCommand {
         buff.setId(target.getUuid());
         buff.setPotionEffectType(potionEffectType.getName());
         buff.setStrength(strength);
+        buff.setActive(false);
         if(period != null) {
             LocalDateTime result = LocalDateTime.now().plusSeconds(period.toStandardSeconds().getSeconds());
             buff.setEndTime(Timestamp.valueOf(result));
         }
-        handler.addNewBuff(target.getUuid(), buff);
-        sender.info("Buff for player has been activated").handle();
+        handler.getPlayerBuffService().update(buff);
+        sender.info("Buff added to player").handle();
     }
 
     @SubCommand("remove {user} {type}")

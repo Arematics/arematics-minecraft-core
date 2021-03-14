@@ -1,15 +1,13 @@
-package com.arematics.minecraft.crystals.logic;
+package com.arematics.minecraft.core.items.parser;
 
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.items.Items;
 import com.arematics.minecraft.core.messaging.advanced.Part;
-import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.data.mode.model.CrystalKey;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultItemCrystalType extends CrystalType {
+public class DefaultItemType extends ItemType {
 
     @Override
     public String propertyValue() {
@@ -17,21 +15,18 @@ public class DefaultItemCrystalType extends CrystalType {
     }
 
     @Override
-    public void execute(CorePlayer player, CoreItem item, CrystalKey key) {
+    public Part execute(CorePlayer player, CoreItem item) {
         try{
             CoreItem clone = CoreItem.create(item.clone());
             clone.getMeta().clearCustomNBT();
             clone.clearLore().clearName();
             Items.giveItem(player, clone);
-            Part part = new Part(clone.getItemMeta().getDisplayName() != null ? clone.getItemMeta().getDisplayName() :
+            return new Part(clone.getItemMeta().getDisplayName() != null ? clone.getItemMeta().getDisplayName() :
                     clone.getType().name())
                     .setHoverActionShowItem(clone);
-            player.info("You received %items% from §7Magic Crystal §8(" + key.getTotalName() + "§8)")
-                    .setInjector(AdvancedMessageInjector.class)
-                    .replace("items", part)
-                    .handle();
         }catch (RuntimeException re){
             player.failure("This key could not be found, please report to team").handle();
         }
+        throw new RuntimeException("Something went wrong");
     }
 }

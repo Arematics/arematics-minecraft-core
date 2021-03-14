@@ -38,7 +38,7 @@ public class Server {
 
     public void registerItemListener(CorePlayer player, CoreItem item, Function<CoreItem, CoreItem> function){
         ItemUpdateClickListener listener = new ItemUpdateClickListener(item, function);
-        player.addListener(listener);
+        player.inventories().addListener(listener);
         Bukkit.getPluginManager().registerEvents(listener, Boots.getBoot(CoreBoot.class));
     }
 

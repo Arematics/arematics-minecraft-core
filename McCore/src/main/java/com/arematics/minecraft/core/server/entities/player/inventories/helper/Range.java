@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.inventories.helper;
+package com.arematics.minecraft.core.server.entities.player.inventories.helper;
 
 import com.arematics.minecraft.core.items.CoreItem;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +21,16 @@ public class Range implements IntegerBox {
                 .toArray());
     }
 
+    public static Range custom(int... integers){
+        return new Range(integers);
+    }
+
+    public static Range inRow(int row, int... indexes){
+        row--;
+        int startIndex = row * 9;
+        return new Range(Arrays.stream(indexes).map(index -> startIndex + index).toArray());
+    }
+
     public static Range allInRow(Inventory inv, int row, CoreItem... items){
         List<CoreItem> clones = Arrays.asList(items);
         ItemStack[] contents = inv.getContents();
@@ -30,7 +40,7 @@ public class Range implements IntegerBox {
     }
 
     public static Range allHardInRow(int rowStartIndex, int rowEndIndex, int row){
-        return new Range(IntStream.range(row * 9 + rowStartIndex, row * 9 + rowEndIndex)
+        return new Range(IntStream.range(row * 9 + rowStartIndex, row * 9 + rowEndIndex + 1)
                 .toArray());
     }
 

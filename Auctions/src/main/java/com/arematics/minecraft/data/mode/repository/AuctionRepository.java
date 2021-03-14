@@ -14,5 +14,6 @@ import java.util.UUID;
 
 public interface AuctionRepository extends PagingAndSortingRepository<Auction, Long> {
     List<Auction> findAllByCreator(UUID creator);
-    Page<Auction> findAllByAuctionCategoryAndEndTimeIsAfterAndAuctionTypeIsIn(AuctionCategory category, Timestamp timestamp, Set<AuctionType> type, Pageable pageable);
+    Page<Auction> findAllByAuctionCategoryAndEndTimeIsAfterAndAuctionTypeIsIn(AuctionCategory category, Timestamp timestamp,
+                                                                              Set<AuctionType> type, Pageable pageable);
 }

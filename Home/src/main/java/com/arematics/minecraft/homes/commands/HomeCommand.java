@@ -3,7 +3,7 @@ package com.arematics.minecraft.homes.commands;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
-import com.arematics.minecraft.core.inventories.helper.InventoryPlaceholder;
+import com.arematics.minecraft.core.command.supplier.standard.CommandSupplier;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.MSGBuilder;
@@ -12,14 +12,14 @@ import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
+import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
+import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
 import com.arematics.minecraft.core.utils.CommandUtils;
 import com.arematics.minecraft.data.mode.model.Home;
 import com.arematics.minecraft.data.mode.model.HomeId;
 import com.arematics.minecraft.data.service.HomeService;
-import org.bukkit.Bukkit;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
-import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Component
@@ -44,13 +45,19 @@ public class HomeCommand extends CoreCommand {
     }
 
     @Override
-    protected void onDefaultCLI(CorePlayer sender) {
-        queryHomes(sender, null, 0);
+    public void onDefaultExecute(CorePlayer sender) {
+        queryHomes(sender,  false);
     }
 
-    @Override
-    protected void onDefaultGUI(CorePlayer player) {
-        listInventoryPages(player, 0, false);
+    @SubCommand("{name}")
+    public void teleportToHome(CorePlayer sender, String name) {
+        HomeId id = new HomeId(sender.getUUID(), name);
+        try{
+            Home home = service.findByOwnerAndName(id);
+            sender.teleport(home.getLocation()).schedule();
+        }catch (RuntimeException re){
+            throw new CommandProcessException("Home with name: " + name + " not exists");
+        }
     }
 
     @SubCommand("set {name}")
@@ -81,24 +88,24 @@ public class HomeCommand extends CoreCommand {
         }
     }
 
-    @SubCommand("inventory {page} {deleteMode}")
-    public void listInventoryPages(CorePlayer sender, Integer page, Boolean deleteMode) {
-        listInventoryPagesQuery(sender, page, deleteMode, null);
+    @SubCommand("query {deleteMode}")
+    public void queryHomes(CorePlayer sender, Boolean deleteMode) {
+        queryHomes(sender, deleteMode, null);
     }
 
-    @SubCommand("inventory {page} {deleteMode} {contains}")
-    public void listInventoryPagesQuery(CorePlayer sender, Integer page, Boolean deleteMode, String query) {
-        Page<Home> homes = query == null ?
-                service.findAllByOwner(sender.getUUID(), page) :
-                service.findAllByOwnerAndSearch(sender.getUUID(), query, page);
-        openInventoryQuery(sender, homes, deleteMode, query);
+    @SubCommand("query {deleteMode} {contains}")
+    public void queryHomes(CorePlayer sender, Boolean deleteMode, String query) {
+        Supplier<Page<Home>> homes = () -> query == null ?
+                service.findAllByOwner(sender.getUUID(), sender.inventories().getPage()) :
+                service.findAllByOwnerAndSearch(sender.getUUID(), query, sender.inventories().getPage());
+        CommandSupplier.create()
+                .setCLI((player -> queryCli(player, homes, sender.inventories().getPage(), query)))
+                .setGUI((player) -> openInventoryQuery(player, homes, deleteMode, query))
+                .accept(sender);
     }
 
-    @SubCommand("query {query} {page}")
-    public void queryHomes(CorePlayer sender, String query, Integer page) {
-        Page<Home> homes = query == null ?
-                service.findAllByOwner(sender.getUUID(), page) :
-                service.findAllByOwnerAndSearch(sender.getUUID(), query, page);
+    private void queryCli(CorePlayer sender, Supplier<Page<Home>> paging, Integer page, String query){
+        Page<Home> homes = paging.get();
         List<MSG> msgs = homes.getContent().stream().map(this::homePart).collect(Collectors.toList());
         sender.info("listing")
                 .setInjector(AdvancedMessageInjector.class)
@@ -107,19 +114,8 @@ public class HomeCommand extends CoreCommand {
                 .handle();
         if(homes.hasNext() || homes.hasPrevious()){
             CommandUtils.sendPreviousAndNext(sender,
-                    "home query " + query + " " + (homes.hasPrevious() ? page - 1 : page),
-                    "home query " + query + " " + (homes.hasNext() ? page + 1 : page));
-        }
-    }
-
-    @SubCommand("{name}")
-    public void teleportToHome(CorePlayer sender, String name) {
-        HomeId id = new HomeId(sender.getUUID(), name);
-        try{
-            Home home = service.findByOwnerAndName(id);
-            sender.teleport(home.getLocation()).schedule();
-        }catch (RuntimeException re){
-            throw new CommandProcessException("Home with name: " + name + " not exists");
+                    "home query false" + (query == null ? "" : " " + query) + " " + (homes.hasPrevious() ? page - 1 : page),
+                    "home query false " + (query == null ? "" : " " + query) + " " + (homes.hasNext() ? page + 1 : page));
         }
     }
 
@@ -133,49 +129,40 @@ public class HomeCommand extends CoreCommand {
         return new MSG(teleport, delete);
     }
 
-    private void openInventoryQuery(CorePlayer sender, Page<Home> homes, Boolean deleteMode, String query){
-        Inventory inv = Bukkit.createInventory(null, 54, deleteMode ? "§cDelete Homes" : "§6Homes");
-        sender.inventories().openTotalBlockedInventory(inv);
-        InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLACK);
-        if(!deleteMode)
-            inv.setItem(1 + 5, CoreItem.generate(Material.REDSTONE_BLOCK)
-                    .bindCommand("home inventory " + homes.getNumber() + " true" + (query != null ? " " + query : ""))
-                    .setName("§cEnable Delete Mode"));
-        else
-            inv.setItem(1 + 5, CoreItem.generate(Material.ENDER_PORTAL_FRAME)
-                    .bindCommand("home inventory " + homes.getNumber() + " false" + (query != null ? " " + query : ""))
-                    .setName("§cEnable Teleport Mode"));
-        sender.setEmptySlotClick(clicked -> sender.dispatchCommand("sethome {name}"));
-        if(!deleteMode)
-            homes.getContent().forEach(home -> inv.addItem(CoreItem.generate(Material.BED)
-                    .bindCommand("home " + home.getName())
-                    .setName("§cHome: §7" + split(home.getName(), query))));
-        else
-            homes.getContent().forEach(home -> inv.addItem(CoreItem.generate(Material.BED)
-                    .bindCommand("delhome " + home.getName())
-                    .setName("§cRemove §7" + split(home.getName(), query))
-                    .register(server, sender, (item) -> null)));
-        inv.setItem(1 + 1, CoreItem.generate(Material.BOOK_AND_QUILL)
-                .bindCommand("home inventory 0 " + deleteMode + " {contains}")
+    private void openInventoryQuery(CorePlayer sender, Supplier<Page<Home>> paging, Boolean deleteMode, String query){
+        Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
+        PageBinder<Home> homes = PageBinder.of(paging, range, home -> fetchHomeItem(home, query, deleteMode));
+        CoreItem searchBook = CoreItem.generate(Material.BOOK_AND_QUILL)
+                .bindCommand("home query " + deleteMode + " {contains}")
                 .setName("§aSearch homes by query")
-                .addToLore("§7Current Query: §b" + (query != null ? query : "None")));
-        inv.setItem(1 + 2, CoreItem.generate(Material.BOOK)
-                .bindCommand("home inventory 0 " + deleteMode)
-                .setName("§eRemove search query"));
-        if(homes.hasNext())
-            inv.setItem(6*9 - 1, CoreItem.generate(Material.ARROW)
-                    .bindCommand("home inventory "
-                            + (homes.getNumber() + 1) + " "
-                            + (deleteMode ? "true":"false")
-                            + (query != null ? " " + query : ""))
-                    .setName("§cNext Page"));
-        if(homes.hasPrevious())
-            inv.setItem(5*9, CoreItem.generate(Material.ARROW)
-                    .bindCommand("home inventory "
-                            + (homes.getNumber() - 1) + " "
-                            + (deleteMode ? "true":"false")
-                            + (query != null ? " " + query : ""))
-                    .setName("§cPage Before"));
+                .addToLore("§7Current Query: §b" + (query != null ? query : "None"));
+        CoreItem searchClear = CoreItem.generate(Material.BOOK)
+                .bindCommand("home query " + deleteMode)
+                .setName("§eRemove search query");
+        CoreItem modeItem = deleteModeItem(deleteMode, query);
+        InventoryBuilder.create(deleteMode ? "§cDelete Homes" : "§6Homes", 6)
+                .openBlocked(!deleteMode ? "§cDelete Homes" : "§6Homes", sender)
+                .fillOuterLine()
+                .bindPaging(sender, homes, deleteMode)
+                .addItem(searchBook, 1, 3)
+                .addItem(searchClear, 1, 4)
+                .addItem(modeItem, 6, 5);
+        if(!deleteMode) sender.inventories().onEmptySlotClick(clicked -> sender.dispatchCommand("home set {name}"));
+    }
+
+    private CoreItem deleteModeItem(Boolean deleteMode, String query){
+        return CoreItem.generate(deleteMode ? Material.ENDER_PORTAL_FRAME : Material.REDSTONE_BLOCK)
+                .bindCommand("home query " + !deleteMode + (query != null ? " " + query : ""))
+                .setName("§cEnable " + (deleteMode ? "Teleport" : "Delete") + " Mode");
+    }
+
+    private CoreItem fetchHomeItem(Home home, String query, Boolean deleteMode){
+        if(!deleteMode) return CoreItem.generate(Material.BED)
+                .bindCommand("home " + home.getName())
+                .setName("§cHome: §7" + split(home.getName(), query));
+        else return CoreItem.generate(Material.BED)
+                .bindCommand("delhome " + home.getName())
+                .setName("§cRemove §7" + split(home.getName(), query));
     }
 
     private String split(String name, String query){

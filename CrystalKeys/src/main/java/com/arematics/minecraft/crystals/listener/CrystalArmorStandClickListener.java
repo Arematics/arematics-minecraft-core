@@ -73,7 +73,7 @@ public class CrystalArmorStandClickListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onHit(EntityDamageByEntityEvent event){
         if(event.getDamager() instanceof Player && event.getEntity() instanceof ArmorStand){
-            CorePlayer player = CorePlayer.get((Player) event.getDamager());
+            CorePlayer player = CorePlayer.get(event.getDamager());
             ArmorStand stand = (ArmorStand)event.getEntity();
             Optional<CrystalKey> key = parser.readFromArmorStand(stand);
             key.ifPresent(value -> openInventory(player, value));
@@ -107,7 +107,7 @@ public class CrystalArmorStandClickListener implements Listener {
             }
             try{
                 this.crystalMetaParser.parse(player, calculate(key), key);
-            }catch (CommandProcessException e){
+            }catch (RuntimeException e){
                 player.warn(e.getMessage()).handle();
                 if(player.getPlayer().getGameMode() != GameMode.CREATIVE)
                     player.getPlayer().getInventory().addItem(CrystalKeyItem.fromKey(key));

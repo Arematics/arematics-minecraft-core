@@ -235,8 +235,7 @@ public abstract class CoreCommand extends Command {
         Map<String, Object> dataPack = new Hashtable<>();
         dataPack.put("sender", sender);
         dataPack.put("classLevelPermission", this.classPermission);
-        if(sender instanceof Player) CorePlayer.get((Player) sender)
-                .addLastCommand(getName() + " " + StringUtils.join(arguments, " "));
+        sender.addLastCommand(getName() + " " + StringUtils.join(arguments, " "));
         try{
             if(isDefault)
                 Permissions.check(sender, this.classPermission).ifPermitted(this::onDefaultExecute).submit();

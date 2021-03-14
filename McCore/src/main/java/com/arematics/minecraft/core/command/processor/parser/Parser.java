@@ -3,11 +3,9 @@ package com.arematics.minecraft.core.command.processor.parser;
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.annotations.SkipEnum;
-import com.arematics.minecraft.core.inventories.anvil.AnvilGUI;
-import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.anvil.AnvilGUI;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +33,7 @@ public class Parser {
         if(!parsers.containsKey(parser.getType())) parsers.put(parser.getType(), parser);
     }
 
-    public Object[] fillParameters(CommandSender sender, String[] annotation, Parameter[] subParameters, String[] src)
+    public Object[] fillParameters(CorePlayer sender, String[] annotation, Parameter[] subParameters, String[] src)
             throws CommandProcessException, InterruptedException {
         List<Object> parameters = new ArrayList<>();
         parseSender(parameters, sender, subParameters[0]);
@@ -51,7 +49,7 @@ public class Parser {
         return parameters.toArray(new Object[]{});
     }
 
-    private void parseParameter(List<Object> parameters, CommandSender sender, String parameter, String source,
+    private void parseParameter(List<Object> parameters, CorePlayer sender, String parameter, String source,
                                 Parameter subParameter)
             throws CommandProcessException, InterruptedException {
         if(subParameter.getType().isEnum() && !subParameter.isAnnotationPresent(SkipEnum.class))
@@ -60,40 +58,40 @@ public class Parser {
             parseClass(parameters, sender, parameter, source, subParameter);
     }
 
-    private void parseEnum(List<Object> parameters, CommandSender sender, String parameter, String source,
+    private void parseEnum(List<Object> parameters, CorePlayer sender, String parameter, String source,
                            Parameter subParameter)
             throws CommandProcessException, InterruptedException {
         try{
             parameters.add(Enum.valueOf((Class)subParameter.getType(), source));
         }catch (Exception e){
-            if(source.equals(parameter) && sender instanceof Player){
+            if(source.equals(parameter)){
                 String result = awaitAnvilResult(parameter
                         .replace("{", "")
-                        .replace("}", ""), (Player)sender);
+                        .replace("}", ""), sender);
                 if(result == null) throw new CommandProcessException("Command input was interrupt by player");
-                Messages.create("Parameter " + parameter + " replaced with " + result).to(sender).handle();
+                sender.info("Parameter " + parameter + " replaced with " + result).handle();
                 parameters.add(Enum.valueOf((Class) subParameter.getType(), result));
             }else throw new CommandProcessException("Not valid parameter value type");
         }
     }
 
-    private void parseClass(List<Object> parameters, CommandSender sender, String parameter, String source,
+    private void parseClass(List<Object> parameters, CorePlayer sender, String parameter, String source,
                             Parameter subParameter)
             throws CommandProcessException, InterruptedException {
         CommandParameterParser<?> parser = parsers.get(subParameter.getType());
-        if(source.equals(parameter) && sender instanceof Player){
+        if(source.equals(parameter)){
             String result = awaitAnvilResult(parameter
                     .replace("{", "")
-                    .replace("}", ""), (Player)sender);
+                    .replace("}", ""), sender);
             if(result == null) throw new CommandProcessException("Command input was interrupt by player");
-            Messages.create("Parameter " + parameter + " replaced with " + result).to(sender).handle();
+            sender.info("Parameter " + parameter + " replaced with " + result).handle();
             parameters.add(parser.processParse(result, subParameter, parameters));
         }else {
             parameters.add(parser.processParse(source, subParameter, parameters));
         }
     }
 
-    private void parseSender(List<Object> parameters, CommandSender sender, Parameter subParameter)
+    private void parseSender(List<Object> parameters, CorePlayer sender, Parameter subParameter)
             throws CommandProcessException{
         CommandParameterParser<?> parser = parsers.get(subParameter.getType());
         if(!(parser instanceof CommandSenderParser))
@@ -102,9 +100,9 @@ public class Parser {
         parameters.add(senderParser.processParse(sender, subParameter, parameters));
     }
 
-    private String awaitAnvilResult(String key, Player player) throws InterruptedException {
+    private String awaitAnvilResult(String key, CorePlayer player) throws InterruptedException {
         return ArematicsExecutor.awaitResult((res, latch) ->
-                new AnvilGUI(Boots.getBoot(CoreBoot.class), player, key + ": ", (p, result) -> {
+                new AnvilGUI(Boots.getBoot(CoreBoot.class), player.getPlayer(), key + ": ", (p, result) -> {
                     res.set(result);
                     latch.countDown();
                     return null;

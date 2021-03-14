@@ -4,12 +4,10 @@ import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSet;
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.items.ItemUpdateClickListener;
 import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.permissions.Permissions;
-import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.CurrencyEntity;
 import com.arematics.minecraft.core.server.entities.player.protocols.ActionBar;
 import com.arematics.minecraft.core.server.entities.player.protocols.Packets;
@@ -32,7 +30,6 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -95,9 +92,6 @@ public class CorePlayer implements CurrencyEntity {
     private LocalDateTime lastAntiAFKEvent;
 
     private Duration lastAfk = null;
-
-    private final List<ItemUpdateClickListener> itemUpdateClickListeners = new ArrayList<>();
-    private Consumer<Inventory> emptySlotClick;
     private List<String> lastCommands = new ArrayList<>();
     private int page;
 
@@ -182,7 +176,6 @@ public class CorePlayer implements CurrencyEntity {
     public ZonedDateTime parseTime(LocalDateTime time){
         return ZonedDateTime.of(time, TimeZone.getTimeZone("Europe/Berlin").toZoneId());
     }
-
     private void unload() {
         this.updateOnlineTime();
         this.pager.unload();
@@ -234,16 +227,6 @@ public class CorePlayer implements CurrencyEntity {
         if(lastAfk.isNegative()) return;
         updateOnlineTimeData(false, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
         updateOnlineTimeData(true, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
-    }
-
-    public void addListener(ItemUpdateClickListener listener){
-        this.itemUpdateClickListeners.add(listener);
-    }
-
-    public void tearDownListeners(){
-        Server server = Boots.getBoot(CoreBoot.class).getContext().getBean(Server.class);
-        this.itemUpdateClickListeners.forEach(server::tearDownItemListener);
-        this.itemUpdateClickListeners.clear();
     }
 
 
@@ -320,7 +303,7 @@ public class CorePlayer implements CurrencyEntity {
     }
 
     public void dispatchCommand(String command){
-        this.getPlayer().performCommand(command.replaceFirst("/", ""));
+        ArematicsExecutor.syncRun(() -> this.getPlayer().performCommand(command.replaceFirst("/", "")));
     }
 
     @SuppressWarnings("unused")

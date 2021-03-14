@@ -1,15 +1,16 @@
-package com.arematics.minecraft.crystals.logic;
+package com.arematics.minecraft.core.items.parser;
 
+import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.events.CurrencyEvent;
 import com.arematics.minecraft.core.events.CurrencyEventType;
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.data.mode.model.CrystalKey;
 import org.bukkit.Bukkit;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CoinsCrystalType extends CrystalType {
+public class CoinsItemType extends ItemType {
 
     @Override
     public String propertyValue() {
@@ -17,18 +18,20 @@ public class CoinsCrystalType extends CrystalType {
     }
 
     @Override
-    public void execute(CorePlayer player, CoreItem item, CrystalKey key) {
+    public Part execute(CorePlayer player, CoreItem item) {
         try{
             double value = Double.parseDouble(item.getMeta().getString(propertyValue()));
-            CurrencyEvent event = new CurrencyEvent(player, value, CurrencyEventType.GENERATE, "crystal-key");
+            CurrencyEvent event = new CurrencyEvent(player, value, CurrencyEventType.GENERATE, "from-item");
             Bukkit.getServer().getPluginManager().callEvent(event);
             if(!event.isCancelled()) {
                 player.addMoney(value);
-                player.info("You received " + value + " Coins from §7Magic Crystal §8(" + key.getTotalName() + "§8)").handle();
+                return new Part(value + " Coins");
             }else
-                player.warn("Your withdrawal could not be processed. Learn more in our security policy (/security)").handle();
+                throw new CommandProcessException("Your withdrawal could not be processed. " +
+                        "Learn more in our security policy (/security)");
         }catch (RuntimeException re){
             player.failure("Coins amount not valid, please report").handle();
         }
+        throw new RuntimeException("Something went wrong");
     }
 }

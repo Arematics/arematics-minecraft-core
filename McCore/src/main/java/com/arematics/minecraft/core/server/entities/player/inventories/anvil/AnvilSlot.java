@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.inventories.anvil;
+package com.arematics.minecraft.core.server.entities.player.inventories.anvil;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -2,7 +2,7 @@ package com.arematics.minecraft.lobby.commands;
 
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.inventories.helper.InventoryPlaceholder;
+import com.arematics.minecraft.core.server.entities.player.inventories.helper.InventoryPlaceholder;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.proxy.MessagingUtils;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;

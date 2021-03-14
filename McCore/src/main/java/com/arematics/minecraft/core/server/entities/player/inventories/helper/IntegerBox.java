@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.inventories.helper;
+package com.arematics.minecraft.core.server.entities.player.inventories.helper;
 
 import java.util.List;
 

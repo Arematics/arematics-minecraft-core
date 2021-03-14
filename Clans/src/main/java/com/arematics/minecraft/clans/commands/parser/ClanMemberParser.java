@@ -3,10 +3,10 @@ package com.arematics.minecraft.clans.commands.parser;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.command.processor.parser.CommandSenderParser;
 import com.arematics.minecraft.core.command.processor.parser.UserParser;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.ClanMember;
 import com.arematics.minecraft.data.service.ClanMemberService;
-import org.bukkit.command.CommandSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +33,7 @@ public class ClanMemberParser extends CommandSenderParser<ClanMember> {
     }
 
     @Override
-    public ClanMember parse(CommandSender sender) throws CommandProcessException {
+    public ClanMember parse(CorePlayer sender) throws CommandProcessException {
         try{
             return parse(sender.getName());
         }catch (CommandProcessException cpe){

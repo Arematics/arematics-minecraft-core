@@ -2,11 +2,9 @@ package com.arematics.minecraft.core.command.processor;
 
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.ProcessorData;
-import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.command.CommandSender;
 
 import java.lang.reflect.Method;
 
@@ -15,7 +13,7 @@ public class PermissionAnnotationProcessor extends AnnotationProcessor<Perm> {
     @ProcessorData
     private String classLevelPermission;
     @ProcessorData
-    private CommandSender sender;
+    private CorePlayer sender;
 
     @Override
     public boolean supply(Method method) throws Exception {
@@ -25,11 +23,8 @@ public class PermissionAnnotationProcessor extends AnnotationProcessor<Perm> {
         String methodName = getSerializedPermission(method);
         String result = this.classLevelPermission;
         if(StringUtils.isNotBlank(methodName)) result += "." + methodName;
-        if(!Permissions.hasPermission(this.sender, result)){
-            Messages.create("cmd_noperms")
-                    .WARNING()
-                    .to(sender)
-                    .handle();
+        if(!sender.hasPermission(result)){
+            sender.warn("cmd_noperms").handle();
             return false;
         }
         return true;

@@ -6,7 +6,6 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.global.model.Configuration;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.UserService;
-import org.bukkit.entity.Player;
 
 import java.util.function.Consumer;
 
@@ -46,11 +45,11 @@ public class CommandSupplier implements CommandCLI, CommandUI, CommandAccept{
     }
 
     private boolean isGUIAccepted(CorePlayer sender){
-        return hasUserGUIEnabled((Player) sender);
+        return hasUserGUIEnabled(sender);
     }
 
-    private boolean hasUserGUIEnabled(Player player){
-        User user = this.userService.getOrCreateUser(player.getUniqueId(), player.getName());
+    private boolean hasUserGUIEnabled(CorePlayer player){
+        User user = player.getUser();
         return user.getConfigurations().getOrDefault("command-mode", new Configuration(""))
                 .getValue().equals("gui");
     }

@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.inventories.anvil;
+package com.arematics.minecraft.core.server.entities.player.inventories.anvil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

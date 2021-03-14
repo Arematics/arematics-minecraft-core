@@ -2,7 +2,6 @@ package com.arematics.minecraft.core.command.processor.parser;
 
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 
@@ -17,11 +16,7 @@ public class CorePlayerParser extends CommandSenderParser<CorePlayer> {
     }
 
     @Override
-    public CorePlayer parse(CommandSender sender) throws CommandProcessException {
-        try{
-            return parse(sender.getName());
-        }catch (CommandProcessException cpe){
-            throw new CommandProcessException("Only Players could perform this command");
-        }
+    public CorePlayer parse(CorePlayer sender) throws CommandProcessException {
+        return sender;
     }
 }

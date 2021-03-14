@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.listener;
 
-import com.arematics.minecraft.core.inventories.helper.InventoryPlaceholder;
+import com.arematics.minecraft.core.server.entities.player.inventories.helper.InventoryPlaceholder;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.bukkit.Bukkit;

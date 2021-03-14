@@ -3,14 +3,14 @@ package com.arematics.minecraft.auctions.commands;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
-import com.arematics.minecraft.core.inventories.helper.InventoryPlaceholder;
-import com.arematics.minecraft.core.inventories.helper.Range;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.items.Items;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
+import com.arematics.minecraft.core.server.entities.player.inventories.helper.InventoryPlaceholder;
+import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
 import com.arematics.minecraft.core.times.TimeUtils;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.mode.model.*;
 import com.arematics.minecraft.data.service.AuctionCategoryService;
 import com.arematics.minecraft.data.service.AuctionService;
@@ -25,7 +25,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class AuctionCommand extends CoreCommand {
@@ -54,40 +53,40 @@ public class AuctionCommand extends CoreCommand {
 
     @Override
     public void onDefaultExecute(CorePlayer sender) {
-        Inventory inv = Bukkit.createInventory(null, 3*9, "§8Auctions");
-        sender.inventories().openTotalBlockedInventory(inv);
-        InventoryPlaceholder.fillInventory(inv, DyeColor.BLACK);
-        inv.setItem(8 + 3, CoreItem.generate(Material.DIAMOND_BLOCK)
-                .bindCommand("auction search")
-                .setName("§bView All Auctions"));
-        inv.setItem(8 + 5, CoreItem.generate(Material.BOOK)
-                .bindCommand("auction bids")
-                .setName("§bYour Bids"));
-        inv.setItem(8 + 7, CoreItem.generate(Material.CHEST)
-                .bindCommand("auction sells")
-                .setName("§bManage your auctions"));
+        InventoryBuilder.create("§8Auctions", 3)
+                .openBlocked(sender)
+                .fillAll()
+                .addItem(CoreItem.generate(Material.DIAMOND_BLOCK)
+                        .bindCommand("auction search")
+                        .setName("§bView All Auctions"), 2,3)
+                .addItem(CoreItem.generate(Material.BOOK)
+                        .bindCommand("auction bids")
+                        .setName("§bYour Bids"), 2,5)
+                .addItem(CoreItem.generate(Material.CHEST)
+                        .bindCommand("auction sells")
+                        .setName("§bManage your auctions"), 2,7);
     }
 
     @SubCommand("search")
     public void searchMarket(CorePlayer player) {
         PlayerAuctionSettings settings = playerAuctionSettingsService.findOrCreateDefault(player.getUUID());
-        Inventory inv = Bukkit.createInventory(null, 6*9, "§8Auction Search");
-        player.inventories().openTotalBlockedInventory(inv);
-        InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLACK);
-        inv.setItem(5 * 9 + 4, CoreItem.create(Items.BACK.clone()));
+        InventoryBuilder builder = InventoryBuilder.create("§8Auction Search", 6)
+                .openBlocked(player)
+                .fillOuterLine()
+                .backItem(6, 5);
         CoreItem type = CoreItem.generate(Material.PAPER)
                 .bindCommand("auction next type")
                 .setName("§bAuction Type")
-                .bindEnumLore(settings.getAuctionType())
-                .register(server, player, eventItem -> eventItem.bindEnumLore(updateContent(player).getAuctionType()));
-        inv.setItem(5 * 9 + 5, type);
+                .bindEnumLore(settings.getAuctionType());
+        player.inventories().registerItemClick(type, item -> item.bindEnumLore(updateContent(player).getAuctionType()));
+        builder.addItem(type, 6, 6);
         CoreItem sort = CoreItem.generate(Material.DROPPER)
                 .bindCommand("auction next sort")
                 .setName("§bAuction Sort")
-                .bindEnumLore(settings.getAuctionSort())
-                .register(server, player, eventItem -> eventItem.bindEnumLore(updateContent(player).getAuctionSort()));
-        inv.setItem(5 * 9 + 6, sort);
-        updateItems(inv, settings);
+                .bindEnumLore(settings.getAuctionSort());
+        player.inventories().registerItemClick(sort, item -> item.bindEnumLore(updateContent(player).getAuctionSort()));
+        builder.addItem(sort, 6, 7);
+        updateItems(builder.fetchInventory(), settings);
     }
     
     @SubCommand("bids")
@@ -101,9 +100,7 @@ public class AuctionCommand extends CoreCommand {
         player.inventories().openTotalBlockedInventory(inv);
         InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLACK);
         inv.setItem(4 * 9 + 4, CoreItem.create(Items.BACK.clone()));
-        ArematicsExecutor.asyncDelayed(() -> player.setEmptySlotClick(clicked -> player.dispatchCommand("auction sells createNew")),
-                100,
-                TimeUnit.MILLISECONDS);
+        player.inventories().onEmptySlotClick(clicked -> player.dispatchCommand("auction sells createNew"));
     }
 
     @SubCommand("sells createNew")
@@ -150,9 +147,9 @@ public class AuctionCommand extends CoreCommand {
         CoreItem item = CoreItem.generate(Material.REDSTONE_BLOCK)
                 .disableClick()
                 .setName("§cError")
-                .addToLore("    §8> Could not find items for this filter");
+                .addToLore("    §8> Could not find items for this search");
         Page<Auction> auctions = auctionService.findAllByFilter(settings, 0);
-        Range range = Range.allHardInRows(1, 8, 1, 2, 3, 4);
+        Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
         InventoryPlaceholder.clear(inv, range);
         if(auctions.getContent().isEmpty()) InventoryPlaceholder.fillFree(inv, item);
         auctions.forEach(auction -> inv.addItem(auction.getSell()[0]

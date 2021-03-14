@@ -3,6 +3,7 @@ package com.arematics.minecraft.core.items;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -12,6 +13,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+@Getter
 @AllArgsConstructor
 public class ItemUpdateClickListener implements Listener {
 
