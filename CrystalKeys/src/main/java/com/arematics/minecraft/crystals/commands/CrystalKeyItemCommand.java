@@ -7,7 +7,6 @@ import com.arematics.minecraft.core.command.processor.parser.CommandProcessExcep
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.crystals.logic.CrystalMetaParser;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,23 +36,12 @@ public class CrystalKeyItemCommand extends CoreCommand {
 
     @SubCommand("list metas")
     public void listCrystalItemMeta(CorePlayer sender) {
-        sender.info("listing")
-                .DEFAULT()
-                .replace("list_type", "Crystal Meta")
-                .replace("list_value", "§c" + StringUtils.join(parser.getTypes().keySet(), ", "))
-                .handle();
+        sender.warn("Moved to /imodify list metas").handle();
     }
 
     @SubCommand("set meta {key} {value}")
     public void setCrystalItemMeta(CorePlayer sender, String key, String value) {
-        if(!parser.getTypes().containsKey(key))
-            throw new CommandProcessException("Not a valid crystal item meta key");
-        CoreItem hand = sender.getItemInHand();
-        if(hand == null)
-            throw new CommandProcessException("no_item_in_hand");
-        hand.setString(key, value);
-        sender.setItemInHand(hand);
-        sender.info("Crystal Item Meta set").handle();
+        sender.warn("Moved to /imodify set meta {key} {value}").handle();
     }
 
     @SubCommand("check")

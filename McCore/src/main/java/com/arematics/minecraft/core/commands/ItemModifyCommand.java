@@ -3,19 +3,27 @@ package com.arematics.minecraft.core.commands;
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.items.Items;
+import com.arematics.minecraft.core.items.parser.ItemMetaParser;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 @Perm(permission = "itemmodifier", description = "Allows full permission to item modification command")
 public class ItemModifyCommand extends CoreCommand {
 
-    public ItemModifyCommand(){
+    private final ItemMetaParser itemMetaParser;
+
+    @Autowired
+    public ItemModifyCommand(ItemMetaParser itemMetaParser){
         super("imodify", "im", "itemmod");
         registerLongArgument("lore");
         registerLongArgument("command");
+        this.itemMetaParser = itemMetaParser;
     }
 
     @SubCommand("name {name}")
@@ -89,5 +97,28 @@ public class ItemModifyCommand extends CoreCommand {
     public void getBackItem(CorePlayer sender) {
         sender.getPlayer().getInventory().addItem(CoreItem.create(Items.BACK.clone()));
         sender.info("Received back item").handle();
+    }
+
+
+
+    @SubCommand("list metas")
+    public void listCrystalItemMeta(CorePlayer sender) {
+        sender.info("listing")
+                .DEFAULT()
+                .replace("list_type", "Item Meta")
+                .replace("list_value", "§c" + StringUtils.join(itemMetaParser.getTypes().keySet(), ", "))
+                .handle();
+    }
+
+    @SubCommand("set meta {key} {value}")
+    public void setCrystalItemMeta(CorePlayer sender, String key, String value) {
+        if(!itemMetaParser.getTypes().containsKey(key))
+            throw new CommandProcessException("Not a valid item meta key");
+        CoreItem hand = sender.getItemInHand();
+        if(hand == null)
+            throw new CommandProcessException("no_item_in_hand");
+        hand.setString(key, value);
+        sender.setItemInHand(hand);
+        sender.info("Item Meta set").handle();
     }
 }

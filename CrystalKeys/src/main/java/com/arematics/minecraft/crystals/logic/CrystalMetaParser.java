@@ -23,7 +23,7 @@ public class CrystalMetaParser {
         Part part = this.itemMetaParser.parse(player, coreItem);
         player.info("You received %value% from §7Magic Crystal §8(" + crystalKey.getTotalName() + "§8)")
                 .setInjector(AdvancedMessageInjector.class)
-                .replace("items", part)
+                .replace("value", part)
                 .handle();
     }
 }

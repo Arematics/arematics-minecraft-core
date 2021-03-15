@@ -5,7 +5,6 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
-import com.arematics.minecraft.core.pages.Pageable;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.springframework.stereotype.Component;
 
@@ -20,28 +19,16 @@ public class PageCommand extends CoreCommand {
     public void onDefaultExecute(CorePlayer sender){
         sender.info("cmd_not_valid")
                 .setInjector(AdvancedMessageInjector.class)
-                .replace("cmd_usage", new Part("\n/page before\n/page next"))
+                .replace("cmd_usage", new Part("\n/page BEFORE\n/page NEXT"))
                 .handle();
     }
 
-    @SubCommand("{type}")
-    public boolean page(CorePlayer player, PageType type){
-        return pageFor(player, type, null);
-    }
-
-    @SubCommand("{type} {key}")
-    public boolean pageFor(CorePlayer player, PageType type, String key){
-        Pageable pageable = key == null ? player.getPager().last() : player.getPager().fetch(key);
-        if(pageable == null) return true;
-        switch (type){
-            case BEFORE:
-                if(pageable.hasBefore()) pageable.before();
-                break;
-            case NEXT:
-                if(pageable.hasNext()) pageable.next();
-                break;
-        }
-        return true;
+    @SubCommand("{type} {message}")
+    public void page(CorePlayer player, PageType type, String message){
+        if (type == PageType.BEFORE) {
+            player.inventories().pageBefore();
+        }else player.inventories().nextPage();
+        player.dispatchCommand(message);
     }
 
     public enum PageType{

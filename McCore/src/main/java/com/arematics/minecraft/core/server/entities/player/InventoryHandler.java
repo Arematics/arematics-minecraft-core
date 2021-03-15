@@ -79,6 +79,7 @@ public class InventoryHandler {
 
     public void pageBefore(){
         this.page--;
+        if(page <= 0) this.page = 0;
     }
 
     public void resetPages(){

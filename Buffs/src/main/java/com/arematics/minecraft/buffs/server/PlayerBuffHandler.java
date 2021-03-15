@@ -21,6 +21,24 @@ import java.util.concurrent.TimeUnit;
 @Component
 @RequiredArgsConstructor(onConstructor_=@Autowired)
 public class PlayerBuffHandler {
+    public static PotionEffectType[] POSITIVE_BUFFS = new PotionEffectType[]{
+            PotionEffectType.SPEED,
+            PotionEffectType.FAST_DIGGING,
+            PotionEffectType.INCREASE_DAMAGE,
+            PotionEffectType.HEAL,
+            PotionEffectType.HARM,
+            PotionEffectType.JUMP,
+            PotionEffectType.REGENERATION,
+            PotionEffectType.DAMAGE_RESISTANCE,
+            PotionEffectType.FIRE_RESISTANCE,
+            PotionEffectType.WATER_BREATHING,
+            PotionEffectType.INVISIBILITY,
+            PotionEffectType.NIGHT_VISION,
+            PotionEffectType.HEALTH_BOOST,
+            PotionEffectType.ABSORPTION,
+            PotionEffectType.SATURATION
+    };
+
     private final Server server;
     private final PlayerBuffService playerBuffService;
 

@@ -6,10 +6,8 @@ import com.arematics.minecraft.core.command.processor.parser.CommandProcessExcep
 import com.arematics.minecraft.core.command.supplier.standard.CommandSupplier;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
-import com.arematics.minecraft.core.messaging.advanced.MSGBuilder;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
-import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
@@ -26,9 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 @Component
 public class HomeCommand extends CoreCommand {
@@ -99,24 +95,14 @@ public class HomeCommand extends CoreCommand {
                 service.findAllByOwner(sender.getUUID(), sender.inventories().getPage()) :
                 service.findAllByOwnerAndSearch(sender.getUUID(), query, sender.inventories().getPage());
         CommandSupplier.create()
-                .setCLI((player -> queryCli(player, homes, sender.inventories().getPage(), query)))
+                .setCLI((player -> queryCli(player, homes, query)))
                 .setGUI((player) -> openInventoryQuery(player, homes, deleteMode, query))
                 .accept(sender);
     }
 
-    private void queryCli(CorePlayer sender, Supplier<Page<Home>> paging, Integer page, String query){
-        Page<Home> homes = paging.get();
-        List<MSG> msgs = homes.getContent().stream().map(this::homePart).collect(Collectors.toList());
-        sender.info("listing")
-                .setInjector(AdvancedMessageInjector.class)
-                .replace("list_type", new Part("Home"))
-                .replace("list_value", MSGBuilder.joinMessages(msgs, ','))
-                .handle();
-        if(homes.hasNext() || homes.hasPrevious()){
-            CommandUtils.sendPreviousAndNext(sender,
-                    "home query false" + (query == null ? "" : " " + query) + " " + (homes.hasPrevious() ? page - 1 : page),
-                    "home query false " + (query == null ? "" : " " + query) + " " + (homes.hasNext() ? page + 1 : page));
-        }
+    private void queryCli(CorePlayer sender, Supplier<Page<Home>> paging, String query){
+        CommandUtils.sendPagingList(sender, paging, this::homePart, "Home",
+                "buffs fetch " + "home query false " + (query == null ? "" : " " + query));
     }
 
     private MSG homePart(Home home){

@@ -3,12 +3,15 @@ package com.arematics.minecraft.buffs.commands;
 import com.arematics.minecraft.buffs.server.PlayerBuffHandler;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.command.supplier.standard.CommandSupplier;
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.messaging.advanced.MSG;
+import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
 import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
+import com.arematics.minecraft.core.server.entities.player.inventories.paging.Paging;
 import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.data.BuffListMode;
 import com.arematics.minecraft.data.mode.model.PlayerBuff;
@@ -45,10 +48,10 @@ public class BuffManagerCommand extends CoreCommand {
                 .findBuffsByPlayer(sender.getUUID(),
                         sender.inventories().getPage(),
                         () -> sender.inventories().getEnumOrDefault(mode));
-        CommandSupplier.create()
-                .setCLI(player -> cliQuery())
-                .setGUI(player -> createInventory(player, paging, mode))
-                .accept(sender);
+        Paging.create(sender, paging)
+                .onCLI(this::buffPart, "Buff", "buffs fetch " + mode)
+                .onGUI((player, pager) -> createInventory(player, pager, mode))
+                .execute();
     }
 
     @SubCommand("activate {type}")
@@ -77,8 +80,13 @@ public class BuffManagerCommand extends CoreCommand {
         }
     }
 
-    private void cliQuery(){
-        System.out.println("Coming soon");
+    private MSG buffPart(PlayerBuff buff){
+        String subCommand = buff.isActive() ? "deActivate" : "activate";
+        Part base = new Part(buff.getPotionEffectType()).setHoverActionShowItem(mapPlayerBuff(buff));
+        Part mode = PartBuilder.createHoverAndRun("§8[" + (buff.isActive() ? "§cD" : "§aE") + "§8]",
+                buff.isActive() ? "§cDisable buff" : "§aEnable buff",
+                "/buffs " + subCommand + " " + buff.getPotionEffectType());
+        return new MSG(base, mode);
     }
 
     private void createInventory(CorePlayer sender, Supplier<Page<PlayerBuff>> paging, BuffListMode mode){
