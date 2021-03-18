@@ -1,8 +1,11 @@
 package com.arematics.minecraft.data.mode.model;
 
 
-
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.messaging.advanced.MSG;
+import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
+import com.arematics.minecraft.data.global.model.BukkitItemMapper;
+import com.arematics.minecraft.data.global.model.BukkitMessageMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +19,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "kit")
-public class Kit implements Serializable {
+public class Kit implements Serializable, BukkitMessageMapper, BukkitItemMapper {
 
     private static final long serialVersionUID = 1L;
 
@@ -42,4 +45,19 @@ public class Kit implements Serializable {
     private CoreItem[] displayItem;
 
 
+    @Override
+    public CoreItem mapToItem() {
+        return this.getDisplayItem()[0]
+                .bindCommand("kit " + this.getName())
+                .closeInventoryOnClick()
+                .setName("§8Kit: §c" + this.getName())
+                .addToLore("§cClick to get kit");
+    }
+
+    @Override
+    public MSG mapToMessage() {
+        return new MSG(PartBuilder.createHoverAndSuggest(this.getName(),
+                "Get kit " + this.getName(),
+                "/kit " + this.getName()));
+    }
 }

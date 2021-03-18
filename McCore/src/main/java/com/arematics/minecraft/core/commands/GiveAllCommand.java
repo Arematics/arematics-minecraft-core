@@ -37,14 +37,16 @@ public class GiveAllCommand extends CoreCommand {
             if(!sender.getPlayer().equals(target)) {
                 CorePlayer targetPlayer = CorePlayer.get(target);
                 Items.giveItem(targetPlayer, givenItem);
-                targetPlayer.info("You have received the item %itemName% " + givenItem.getAmount() + " times")
+                targetPlayer.info("player_item_give_all_received")
                         .setInjector(AdvancedMessageInjector.class)
                         .replace("itemName", part)
+                        .replace("amount", new Part(String.valueOf(givenItem.getAmount())))
                         .handle();
             } else {
-                sender.info("You distributed the item %itemName% " + givenItem.getAmount() + " times")
+                sender.info("player_item_give_all_send")
                         .setInjector(AdvancedMessageInjector.class)
                         .replace("itemName", part)
+                        .replace("amount", new Part(String.valueOf(givenItem.getAmount())))
                         .handle();
             }
         }

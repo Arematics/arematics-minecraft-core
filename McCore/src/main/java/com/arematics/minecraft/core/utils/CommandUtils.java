@@ -40,13 +40,13 @@ public class CommandUtils {
     }
 
     public static <T> void sendPagingList(CorePlayer sender,
-                                          Supplier<Page<T>> paging,
-                                          Function<T, MSG> mapper,
-                                          String type,
-                                          String cmd){
+                                                                      Supplier<Page<T>> paging,
+                                                                      Function<T, MSG> messageMapper,
+                                                                      String type,
+                                                                      String cmd){
         Page<T> result = paging.get();
         if(result.isEmpty() && result.isLast() && result.hasPrevious()) sender.inventories().resetPages();
-        List<MSG> msgs = result.getContent().stream().map(mapper).collect(Collectors.toList());
+        List<MSG> msgs = result.getContent().stream().map(messageMapper).collect(Collectors.toList());
         sender.info("listing")
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("list_type", new Part(type))

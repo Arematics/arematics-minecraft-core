@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Supplier;
 
 @Service
 @CacheConfig(cacheNames = "auctions")
@@ -30,7 +31,8 @@ public class AuctionService {
         return auctionRepository.findAllByCreator(creator);
     }
 
-    public Page<Auction> findAllByFilter(PlayerAuctionSettings settings, int page){
+    public Page<Auction> findAllByFilter(Supplier<PlayerAuctionSettings> supplier, int page){
+        PlayerAuctionSettings settings = supplier.get();
         Sort sort = settings.getAuctionSort().getSort();
         Pageable pageable = PageRequest.of(page, 28, sort);
         Set<AuctionType> types = new HashSet<>();

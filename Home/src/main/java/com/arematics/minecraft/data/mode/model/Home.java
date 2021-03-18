@@ -1,5 +1,9 @@
 package com.arematics.minecraft.data.mode.model;
 
+import com.arematics.minecraft.core.messaging.advanced.MSG;
+import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
+import com.arematics.minecraft.data.global.model.BukkitMessageMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +24,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @IdClass(HomeId.class)
 @Table(name = "homes")
-public class Home implements Serializable {
+public class Home implements Serializable, BukkitMessageMapper {
     @Id
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID owner;
@@ -29,4 +33,15 @@ public class Home implements Serializable {
     @Type(type = "com.arematics.minecraft.data.types.LocationType")
     private Location location;
     private Timestamp created;
+
+    @Override
+    public MSG mapToMessage() {
+        Part teleport = PartBuilder.createHoverAndRun("§a" + this.getName(),
+                "§aTeleport to home " + this.getName(),
+                "/home " + this.getName());
+        Part delete = PartBuilder.createHoverAndSuggest(" §8[§cX§8]",
+                "§cDelete home " + this.getName(),
+                "/delhome "+ this.getName());
+        return new MSG(teleport, delete);
+    }
 }

@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -52,7 +51,7 @@ public class UserService {
     @CachePut(key = "#result.uuid")
     public User createUser(UUID uuid, String name){
         User user = new User(UUID.randomUUID(), uuid, name, new Timestamp(System.currentTimeMillis()),
-                rankService.getDefaultRank(), null, 0, new HashMap<>(), new HashSet<>());
+                rankService.getDefaultRank(), null, 0, new HashMap<>());
         return repository.save(user);
     }
 

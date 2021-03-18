@@ -101,7 +101,7 @@ public class HomeCommand extends CoreCommand {
     }
 
     private void queryCli(CorePlayer sender, Supplier<Page<Home>> paging, String query){
-        CommandUtils.sendPagingList(sender, paging, this::homePart, "Home",
+        CommandUtils.sendPagingList(sender, paging,  Home::mapToMessage,"Home",
                 "buffs fetch " + "home query false " + (query == null ? "" : " " + query));
     }
 
@@ -126,8 +126,8 @@ public class HomeCommand extends CoreCommand {
                 .bindCommand("home query " + deleteMode)
                 .setName("§eRemove search query");
         CoreItem modeItem = deleteModeItem(deleteMode, query);
-        InventoryBuilder.create(deleteMode ? "§cDelete Homes" : "§6Homes", 6)
-                .openBlocked(!deleteMode ? "§cDelete Homes" : "§6Homes", sender)
+        InventoryBuilder.create(deleteMode ? "§cDelete Homes" : "Homes", 6)
+                .openBlocked(!deleteMode ? "§cDelete Homes" : "Homes", sender)
                 .fillOuterLine()
                 .bindPaging(sender, homes, deleteMode)
                 .addItem(searchBook, 1, 3)

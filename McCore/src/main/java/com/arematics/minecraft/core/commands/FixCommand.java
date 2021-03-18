@@ -57,7 +57,7 @@ public class FixCommand extends CoreCommand {
                 current.setDurability((short) 0);
 
 
-        sender.info("You have repaired your items").handle();
+        sender.info("player_items_repaired").handle();
     }
 
 }

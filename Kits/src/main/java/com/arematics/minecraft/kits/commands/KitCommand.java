@@ -2,33 +2,27 @@ package com.arematics.minecraft.kits.commands;
 
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.command.supplier.page.PageCommandSupplier;
 import com.arematics.minecraft.core.items.Items;
-import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.messaging.advanced.JsonColor;
-import com.arematics.minecraft.core.messaging.advanced.MSG;
-import com.arematics.minecraft.core.messaging.advanced.MSGBuilder;
-import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
-import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
-import com.arematics.minecraft.core.pages.Page;
-import com.arematics.minecraft.core.pages.Pageable;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
+import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
+import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
+import com.arematics.minecraft.core.server.entities.player.inventories.paging.Paging;
 import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.KitService;
 import com.arematics.minecraft.data.service.UserService;
 import com.arematics.minecraft.data.share.model.Cooldown;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
 @Component
 public class KitCommand extends CoreCommand {
@@ -48,47 +42,21 @@ public class KitCommand extends CoreCommand {
 
     @Override
     public void onDefaultExecute(CorePlayer sender) {
-        Pageable pageable = sender.getPager().fetchOrCreate(KitCommand.PAGER_KEY, (p) -> service.findKitNames());
-        PageCommandSupplier.create(pageable.current()).setCLI(this::onCLI).setGUI(this::onUI).accept(sender);
+        Supplier<Page<Kit>> paging =
+                () -> service.findKitNames(sender.inventories().getPage());
+        Paging.createWithMapper(sender, paging)
+                .onCLI("Ignored", "ignore list")
+                .onGUI(this::createInventory)
+                .execute();
     }
 
-    private boolean onCLI(CorePlayer player, Page page){
-        String msg = "§a\n\n§7Kits" + " » " + "%kits%";
-        MSG result = page == null ? new MSG("-") : MSGBuilder.join(page.getContent().stream()
-                .map(kit -> PartBuilder.createHoverAndSuggest(kit, "Get kit " + kit, "/kit " + kit))
-                .collect(Collectors.toList()), ',');
-        result.PARTS.forEach(part -> part.setBaseColor(JsonColor.RED));
-        Messages.create(msg)
-                .to(player.getPlayer())
-                .setInjector(AdvancedMessageInjector.class)
-                .replace("kits", result)
-                .disableServerPrefix()
-                .handle();
-        return true;
-    }
-
-    private boolean onUI(CorePlayer player, Page page){
-        if(page == null) page = new Page(new ArrayList<>());
-        Inventory inventory = page.getInventory();
-        if(inventory == null) {
-            inventory = Bukkit.createInventory(null, 54, "§cKits");
-            for (int i = 0; i <= 8; i++) inventory.setItem(i, Items.PLAYERHOLDER);
-            for (int i = 45; i <= 53; i++) inventory.setItem(i, Items.PLAYERHOLDER);
-            if (player.getPager().fetch(KitCommand.PAGER_KEY).hasBefore()) inventory.setItem(45, Items.BEFORE_PAGE);
-            if (player.getPager().fetch(KitCommand.PAGER_KEY).hasNext()) inventory.setItem(53, Items.NEXT_PAGE);
-            int slot = 9;
-            for (String kitName : page.getContent())
-                inventory.setItem(slot++, this.service.findKit(kitName)
-                        .getDisplayItem()[0]
-                        .bindCommand("kit " + kitName)
-                        .closeInventoryOnClick()
-                        .setName("§8Kit: §c" + kitName)
-                        .addToLore("§cClick to get kit"));
-            page.setInventory(inventory);
-        }
-        Inventory finalInventory = inventory;
-        player.inventories().openInventory(finalInventory);
-        return true;
+    private void createInventory(CorePlayer sender, Supplier<Page<Kit>> paging){
+        Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
+        PageBinder<Kit> binder = PageBinder.of(paging, range);
+        InventoryBuilder.create("Kits", 6)
+                .openBlocked(sender)
+                .fillOuterLine()
+                .bindPaging(sender, binder, true);
     }
 
     @SubCommand("{kit}")

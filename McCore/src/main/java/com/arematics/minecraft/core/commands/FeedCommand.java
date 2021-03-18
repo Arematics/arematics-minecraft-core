@@ -16,6 +16,6 @@ public class FeedCommand extends CoreCommand {
     @Override
     public void onDefaultExecute(CorePlayer sender) {
         sender.getPlayer().setFoodLevel(25);
-        sender.info("Your hunger was satisfied").handle();
+        sender.info("player_hunger_satisfied").handle();
     }
 }

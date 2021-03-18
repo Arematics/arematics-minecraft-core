@@ -6,7 +6,6 @@ import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSet;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.server.entities.CurrencyEntity;
 import com.arematics.minecraft.core.server.entities.player.protocols.ActionBar;
@@ -70,7 +69,6 @@ public class CorePlayer implements CurrencyEntity {
     }
 
     private final Player player;
-    private final Pager pager;
     private final BoardSet boardSet;
     private final PlayerRequestSettings requestSettings;
     private final InventoryHandler inventoryHandler;
@@ -110,7 +108,6 @@ public class CorePlayer implements CurrencyEntity {
         this.player = player;
         this.joined = LocalDateTime.now();
         this.lastAntiAFKEvent = this.joined;
-        this.pager = new Pager(this);
         this.boardSet = new BoardSet(player);
         this.userService = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
         this.onlineTimeService = Boots.getBoot(CoreBoot.class).getContext().getBean(OnlineTimeService.class);
@@ -178,7 +175,6 @@ public class CorePlayer implements CurrencyEntity {
     }
     private void unload() {
         this.updateOnlineTime();
-        this.pager.unload();
         this.boardSet.remove();
     }
 

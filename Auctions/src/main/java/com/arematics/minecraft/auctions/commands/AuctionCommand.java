@@ -8,10 +8,13 @@ import com.arematics.minecraft.core.items.Items;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
+import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.InventoryPlaceholder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
 import com.arematics.minecraft.core.times.TimeUtils;
-import com.arematics.minecraft.data.mode.model.*;
+import com.arematics.minecraft.core.utils.EnumUtils;
+import com.arematics.minecraft.data.mode.model.Auction;
+import com.arematics.minecraft.data.mode.model.PlayerAuctionSettings;
 import com.arematics.minecraft.data.service.AuctionCategoryService;
 import com.arematics.minecraft.data.service.AuctionService;
 import com.arematics.minecraft.data.service.PlayerAuctionSettingsService;
@@ -19,12 +22,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @Component
 public class AuctionCommand extends CoreCommand {
@@ -70,23 +74,28 @@ public class AuctionCommand extends CoreCommand {
     @SubCommand("search")
     public void searchMarket(CorePlayer player) {
         PlayerAuctionSettings settings = playerAuctionSettingsService.findOrCreateDefault(player.getUUID());
+        Supplier<Page<Auction>> auctions = () -> auctionService.findAllByFilter(() ->
+                playerAuctionSettingsService.findOrCreateDefault(player.getUUID()), 0);
+        Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
+        PageBinder<Auction> binder = PageBinder.of(auctions, range, this::itemMapper);
+        CoreItem type = CoreItem.generate(Material.PAPER)
+                .setName("§bAuction Type")
+                .bindEnumLore(settings.getAuctionType());
+        CoreItem sort = CoreItem.generate(Material.DROPPER)
+                .setName("§bAuction Sort")
+                .bindEnumLore(settings.getAuctionSort());
         InventoryBuilder builder = InventoryBuilder.create("§8Auction Search", 6)
                 .openBlocked(player)
                 .fillOuterLine()
-                .backItem(6, 5);
-        CoreItem type = CoreItem.generate(Material.PAPER)
-                .bindCommand("auction next type")
-                .setName("§bAuction Type")
-                .bindEnumLore(settings.getAuctionType());
-        player.inventories().registerItemClick(type, item -> item.bindEnumLore(updateContent(player).getAuctionType()));
-        builder.addItem(type, 6, 6);
-        CoreItem sort = CoreItem.generate(Material.DROPPER)
-                .bindCommand("auction next sort")
-                .setName("§bAuction Sort")
-                .bindEnumLore(settings.getAuctionSort());
-        player.inventories().registerItemClick(sort, item -> item.bindEnumLore(updateContent(player).getAuctionSort()));
-        builder.addItem(sort, 6, 7);
-        updateItems(builder.fetchInventory(), settings);
+                .bindPaging(player, binder, false)
+                .backItem(6, 5)
+                .addItem(type, 6, 6)
+                .addItem(sort,6,7);
+        Runnable run = () -> builder.bindPaging(player, binder, false);
+        player.inventories().registerItemClick(type, item -> item.bindEnumLore(updateContent(player, ps ->
+                ps.setAuctionType(EnumUtils.getNext(ps.getAuctionType())), run).getAuctionType()));
+        player.inventories().registerItemClick(sort, item -> item.bindEnumLore(updateContent(player, ps ->
+                ps.setAuctionSort(EnumUtils.getNext(ps.getAuctionSort())), run).getAuctionSort()));
     }
     
     @SubCommand("bids")
@@ -105,57 +114,29 @@ public class AuctionCommand extends CoreCommand {
 
     @SubCommand("sells createNew")
     public void createNewSell(CorePlayer player) {
+        InventoryBuilder.create("New Auction", 3)
+                .openLowerEnabled(player)
+                .fillOuterLine()
+                .backItem(3, 5);
         Inventory inv = Bukkit.createInventory(null, 3*9, "§8New Auction");
         player.inventories().openLowerEnabledInventory(inv);
         InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLACK);
         inv.setItem(3 * 9 + 4, CoreItem.create(Items.BACK.clone()));
     }
 
-    @SubCommand("next type")
-    public void selectNextType(CorePlayer player) {
+    private PlayerAuctionSettings updateContent(CorePlayer player, Consumer<PlayerAuctionSettings> update, Runnable runnable){
         PlayerAuctionSettings settings = playerAuctionSettingsService.findOrCreateDefault(player.getUUID());
-        AuctionType[] types = AuctionType.values();
-        int index = settings.getAuctionType().ordinal();
-        if(index == types.length - 1) index = 0;
-        else index += 1;
-        settings.setAuctionType(types[index]);
-        playerAuctionSettingsService.save(settings);
-    }
-
-    @SubCommand("next sort")
-    public void selectNextSort(CorePlayer player) {
-        PlayerAuctionSettings settings = playerAuctionSettingsService.findOrCreateDefault(player.getUUID());
-        AuctionSort[] types = AuctionSort.values();
-        int index = settings.getAuctionSort().ordinal();
-        if(index == types.length - 1) index = 0;
-        else index += 1;
-        settings.setAuctionSort(types[index]);
-        playerAuctionSettingsService.save(settings);
-    }
-
-    private PlayerAuctionSettings updateContent(CorePlayer player){
-        InventoryView view = player.inventories().getView();
-        AuctionCategory category = auctionCategoryService.findById("stone");
-        PlayerAuctionSettings settings = playerAuctionSettingsService.findOrCreateDefault(player.getUUID());
-        settings.setCategory(category);
+        update.accept(settings);
         settings = playerAuctionSettingsService.save(settings);
-        updateItems(view.getTopInventory(), settings);
+        runnable.run();
         return settings;
     }
 
-    private void updateItems(Inventory inv, PlayerAuctionSettings settings){
-        CoreItem item = CoreItem.generate(Material.REDSTONE_BLOCK)
-                .disableClick()
-                .setName("§cError")
-                .addToLore("    §8> Could not find items for this search");
-        Page<Auction> auctions = auctionService.findAllByFilter(settings, 0);
-        Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
-        InventoryPlaceholder.clear(inv, range);
-        if(auctions.getContent().isEmpty()) InventoryPlaceholder.fillFree(inv, item);
-        auctions.forEach(auction -> inv.addItem(auction.getSell()[0]
+    private CoreItem itemMapper(Auction auction){
+        return auction.getSell()[0]
                 .addToLore("§7Auction ID: §c" + auction.getAuctionId())
                 .addToLore("§7Start Bid Price: §c" + auction.getStartPrice())
                 .addToLore("§7Highest Bid Price: §c" + Collections.max(auction.getBids()).getAmount())
-                .addToLore("§7Ending in: §c" + TimeUtils.fetchEndDate(auction.getEndTime()))));
+                .addToLore("§7Ending in: §c" + TimeUtils.fetchEndDate(auction.getEndTime()));
     }
 }

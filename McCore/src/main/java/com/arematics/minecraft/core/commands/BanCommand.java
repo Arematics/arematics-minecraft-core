@@ -36,14 +36,20 @@ public class BanCommand extends CoreCommand {
     @SubCommand("{player} {reason}")
     public void banPlayer(CorePlayer player, User target, String reason) {
         if(!player.getUser().getRank().isOver(target.getRank())){
-            player.warn("Player " + target.getLastName() + " could not be banned").handle();
+            player.warn("punishment_banning_not_working")
+                    .DEFAULT()
+                    .replace("name", target.getLastName())
+                    .handle();
             return;
         }
         Ban ban;
         try{
             ban = service.getBan(target.getUuid());
             if(ban.getBannedUntil() == null || ban.getBannedUntil().after(Timestamp.valueOf(LocalDateTime.now()))) {
-                player.warn("Player " + target.getLastName() + " is currently banned").handle();
+                player.warn("punishment_is_banned_at_the_moment")
+                        .DEFAULT()
+                        .replace("name", target.getLastName())
+                        .handle();
                 return;
             }
             ban.setBannedUntil(null);
@@ -55,7 +61,7 @@ public class BanCommand extends CoreCommand {
         ArematicsExecutor.syncRun(() -> {
             if(targetPlayer != null) targetPlayer.kickPlayer("§cYou have been banned permanent \n§b" + finalBan.getReason());
         });
-        player.info("Player " + target.getLastName() + " has been banned").handle();
+        player.info("punishment_player_got_banned").DEFAULT().replace("name", target.getLastName()).handle();
         service.save(ban);
         target.setKarma(target.getKarma() - BanCommand.KARMA_POINTS);
         userService.update(target);

@@ -31,7 +31,7 @@ public class InventoryBuilder {
     private DyeColor dyeColor = DyeColor.BLACK;
 
     private InventoryBuilder(String title, int rows){
-        this.title = title;
+        this.title = "§8" + title;
         this.size = rows * 9;
         this.inv = Bukkit.createInventory(null, size, title);
     }
@@ -50,6 +50,11 @@ public class InventoryBuilder {
 
     public InventoryBuilder open(CorePlayer... players){
         Arrays.stream(players).forEach(player -> player.inventories().openInventory(inv));
+        return this;
+    }
+
+    public InventoryBuilder openLowerEnabled(CorePlayer... players){
+        Arrays.stream(players).forEach(player -> player.inventories().openLowerEnabledInventory(inv));
         return this;
     }
 

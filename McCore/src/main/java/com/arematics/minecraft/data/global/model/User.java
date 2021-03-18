@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -49,11 +48,6 @@ public class User implements Serializable {
     @CollectionTable(name = "user_configurations", joinColumns = @JoinColumn(name = "uuid"))
     @MapKeyColumn(name = "name")
     private Map<String, Configuration> configurations;
-    @NotAudited
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_friends", joinColumns = {@JoinColumn(name = "uuid")},
-            inverseJoinColumns = { @JoinColumn(name = "target_uuid")})
-    private Set<User> friends;
 
     @Override
     public boolean equals(Object o) {
@@ -64,7 +58,7 @@ public class User implements Serializable {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode(){
         return Objects.hash(uuid);
     }
 }

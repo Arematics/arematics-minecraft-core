@@ -2,26 +2,22 @@ package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.command.supplier.page.PageCommandSupplier;
-import com.arematics.minecraft.core.items.Items;
+import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.messaging.advanced.*;
-import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
-import com.arematics.minecraft.core.pages.Page;
-import com.arematics.minecraft.core.pages.Pageable;
-import com.arematics.minecraft.core.pages.Pager;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
+import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
+import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
+import com.arematics.minecraft.core.server.entities.player.inventories.paging.Paging;
+import com.arematics.minecraft.data.global.model.Ignored;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.IgnoredService;
 import com.arematics.minecraft.data.service.UserService;
-import org.bukkit.Bukkit;
-import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
 @Component
 public class IgnoreCommand extends CoreCommand {
@@ -38,84 +34,34 @@ public class IgnoreCommand extends CoreCommand {
     }
 
     @SubCommand("add {target}")
-    public boolean addIgnoredUser(CorePlayer player, User target) {
-        if(target.getRank().isInTeam()){
-            Messages.create("You can't ignore team members").WARNING().to(player.getPlayer()).handle();
-            return true;
-        }
-        if(!service.hasIgnored(player.getUUID(), target.getUuid()))
-            service.ignore(player.getUUID(), target.getUuid());
+    public void addIgnoredUser(CorePlayer player, User target) {
+        if(target.getRank().isInTeam()) throw new CommandProcessException("player_ignore_team_members");
+        if(!service.hasIgnored(player.getUUID(), target.getUuid())) service.ignore(player.getUUID(), target.getUuid());
         Messages.create("Successful ignored player: " + target.getLastName()).to(player.getPlayer()).handle();
-        Pageable pageable = player.getPager().fetch(IgnoreCommand.PAGER_KEY);
-        if(pageable != null){
-            pageable.add(target.getLastName());
-        }
-        return true;
     }
 
     @SubCommand("rem {target}")
-    public boolean remIgnoredUser(CorePlayer player, User target) {
-        if(service.hasIgnored(player.getUUID(), target.getUuid()))
-            service.unIgnore(player.getUUID(), target.getUuid());
-        Messages.create("Successful unignored player: " + target.getLastName()).to(player.getPlayer()).handle();
-        Pageable pageable = player.getPager().fetch(IgnoreCommand.PAGER_KEY);
-        if(pageable != null)
-            pageable.remove(target.getLastName());
-        return true;
+    public void remIgnoredUser(CorePlayer player, User target) {
+        if(service.hasIgnored(player.getUUID(), target.getUuid())) service.unIgnore(player.getUUID(), target.getUuid());
+        player.info("Successful unignored player: " + target.getLastName()).handle();
     }
 
     @SubCommand("list")
-    public void listIgnored(CorePlayer player) {
-        Pageable pageable = player.getPager().fetchOrCreate(IgnoreCommand.PAGER_KEY, this::getIgnoredNames);
-        PageCommandSupplier.create(pageable.current()).setCLI(this::onCLI).setGUI(this::onUI).accept(player);
+    public void listIgnored(CorePlayer sender) {
+        Supplier<Page<Ignored>> paging =
+                () -> service.fetchAllIgnored(sender.getUUID(), sender.inventories().getPage());
+        Paging.createWithMapper(sender, paging)
+                .onCLI("Ignored", "ignore list")
+                .onGUI(this::createInventory)
+                .execute();
     }
 
-    private List<String> getIgnoredNames(CorePlayer player){
-        return service.fetchAllIgnored(player.getUUID()).stream()
-                .map(uuid -> this.userService.getUserByUUID(uuid).getLastName())
-                .collect(Collectors.toList());
-    }
-
-    private boolean onCLI(CorePlayer player, Page page){
-        MSG result = page == null ? new MSG("-") : MSGBuilder.join(page.getContent().stream()
-                        .map(this::toPart)
-                        .collect(Collectors.toList()), ',');
-        result.PARTS.forEach(part -> part.setBaseColor(JsonColor.RED));
-        Messages.create("ignored_player_list")
-                .to(player.getPlayer())
-                .setInjector(AdvancedMessageInjector.class)
-                .replace("playerNames", result)
-                .handle();
-        if(page != null) Pager.sendDefaultPageMessage(player, IgnoreCommand.PAGER_KEY);
-        return true;
-    }
-
-    private boolean onUI(CorePlayer player, Page page){
-        if(page == null) page = new Page(new ArrayList<>());
-        Inventory inventory = page.getInventory();
-        if(inventory == null) {
-            inventory = Bukkit.createInventory(null, 54, "§cIgnored Players");
-            for (int i = 0; i <= 8; i++) inventory.setItem(i, Items.PLAYERHOLDER);
-            for (int i = 45; i <= 53; i++) inventory.setItem(i, Items.PLAYERHOLDER);
-            if (player.getPager().fetch(IgnoreCommand.PAGER_KEY).hasBefore()) inventory.setItem(45, Items.BEFORE_PAGE);
-            if (player.getPager().fetch(IgnoreCommand.PAGER_KEY).hasNext()) inventory.setItem(53, Items.NEXT_PAGE);
-            int slot = 9;
-            for (String ignored : page.getContent())
-                inventory.setItem(slot++, Items.fetchPlayerSkull(ignored)
-                        .bindCommand("ignore rem " + ignored)
-                        .setName("§8Player: §c" + ignored)
-                        .addToLore("§cClick to unignore player"));
-            page.setInventory(inventory);
-        }
-        Inventory finalInventory = inventory;
-        player.inventories().openInventory(finalInventory);
-        return true;
-    }
-
-    //TODO Remove plain text
-    private Part toPart(String name){
-        return new Part(name)
-                .setHoverAction(HoverAction.SHOW_TEXT, "§7Unignore §c" + name)
-                .setClickAction(ClickAction.SUGGEST_COMMAND, "/ignore rem " + name);
+    private void createInventory(CorePlayer sender, Supplier<Page<Ignored>> paging){
+        Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
+        PageBinder<Ignored> binder = PageBinder.of(paging, range);
+        InventoryBuilder.create("Ignored", 6)
+                .openBlocked(sender)
+                .fillOuterLine()
+                .bindPaging(sender, binder, true);
     }
 }

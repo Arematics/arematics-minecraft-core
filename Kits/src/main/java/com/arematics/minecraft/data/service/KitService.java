@@ -10,9 +10,10 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -67,8 +68,8 @@ public class KitService {
         cooldownService.ofMode(cooldown);
     }
 
-    public List<String> findKitNames(){
-        return repository.findNames();
+    public Page<Kit> findKitNames(int page){
+        return repository.findAll(PageRequest.of(page, 28));
     }
 
     private CooldownKey from(UUID uuid, Kit kit){
