@@ -5,9 +5,6 @@ import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.command.supplier.standard.CommandSupplier;
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.messaging.advanced.MSG;
-import com.arematics.minecraft.core.messaging.advanced.Part;
-import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
@@ -103,16 +100,6 @@ public class HomeCommand extends CoreCommand {
     private void queryCli(CorePlayer sender, Supplier<Page<Home>> paging, String query){
         CommandUtils.sendPagingList(sender, paging,  Home::mapToMessage,"Home",
                 "buffs fetch " + "home query false " + (query == null ? "" : " " + query));
-    }
-
-    private MSG homePart(Home home){
-        Part teleport = PartBuilder.createHoverAndRun("§a" + home.getName(),
-                "§aTeleport to home " + home.getName(),
-                "/home " + home.getName());
-        Part delete = PartBuilder.createHoverAndSuggest(" §8[§cX§8]",
-                "§cDelete home " + home.getName(),
-                "/delhome "+ home.getName());
-        return new MSG(teleport, delete);
     }
 
     private void openInventoryQuery(CorePlayer sender, Supplier<Page<Home>> paging, Boolean deleteMode, String query){

@@ -34,8 +34,6 @@ import java.util.function.Supplier;
 
 @Component
 public class FriendCommand extends CoreCommand {
-    public static final String PAGER_KEY = "friends";
-
     private final Map<User, User> friendInvites = new HashMap<>();
 
     private final FriendService friendService;

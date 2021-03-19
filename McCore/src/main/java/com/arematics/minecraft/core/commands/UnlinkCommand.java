@@ -21,7 +21,7 @@ public class UnlinkCommand extends CoreCommand {
     }
 
     @SubCommand("{first} {second}")
-    public void unlinkAccounts(CorePlayer sender, User one, User two) {
+    public void unlinkAccounts(CorePlayer sender, User one, User two) throws InterruptedException {
         this.linkCommand.unlinkAccounts(sender, one, two);
     }
 }

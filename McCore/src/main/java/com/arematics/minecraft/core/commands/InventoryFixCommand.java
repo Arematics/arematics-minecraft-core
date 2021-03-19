@@ -49,6 +49,6 @@ public class InventoryFixCommand extends CoreCommand {
                 current.setDurability((short) 0);
 
 
-        sender.info("You have repaired your inventory items").handle();
+        sender.info("player_items_repaired_inventory").handle();
     }
 }

@@ -14,6 +14,7 @@ public class InventoryCloseEnableLowerView implements Listener {
         CorePlayer player = CorePlayer.get(event.getPlayer());
         player.inventories().setEmptySlotClick(null);
         player.inventories().setSlotClick(null);
+        player.inventories().setOwnInvClick(null);
         player.inventories().setSlots(null);
         player.inventories().getCurrentEnums().clear();
         player.inventories().tearDownListeners();

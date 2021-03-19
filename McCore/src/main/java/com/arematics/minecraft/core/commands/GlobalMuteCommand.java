@@ -3,9 +3,11 @@ package com.arematics.minecraft.core.commands;
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,13 +31,14 @@ public class GlobalMuteCommand extends CoreCommand {
 
     private void enableGlobalMute(CorePlayer sender) {
         isGlobalMuteActive = !isGlobalMuteActive;
-        String globalMuteStatus = isGlobalMuteActive ? "muted" : "demuted";
+        String globalMuteStatus = isGlobalMuteActive ? "muted" : "unmuted";
 
-        Bukkit.getOnlinePlayers().stream()
-                .map(CorePlayer::get)
-                .forEach(player -> player
-                        .info("The chat was " + globalMuteStatus +" by " + (sender.getPlayer().getDisplayName())).handle());
-
+        Messages.create("chat_mute")
+                .to(Bukkit.getOnlinePlayers().toArray(new CommandSender[]{}))
+                .DEFAULT()
+                .replace("name", sender.getName())
+                .replace("value", globalMuteStatus)
+                .handle();
     }
 
     public boolean getGlobalMuteStatus() {

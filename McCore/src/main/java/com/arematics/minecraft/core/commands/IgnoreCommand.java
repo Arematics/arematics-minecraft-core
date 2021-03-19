@@ -3,7 +3,6 @@ package com.arematics.minecraft.core.commands;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
-import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
 import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
@@ -12,7 +11,6 @@ import com.arematics.minecraft.core.server.entities.player.inventories.paging.Pa
 import com.arematics.minecraft.data.global.model.Ignored;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.IgnoredService;
-import com.arematics.minecraft.data.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -21,29 +19,31 @@ import java.util.function.Supplier;
 
 @Component
 public class IgnoreCommand extends CoreCommand {
-    private static final String PAGER_KEY = "ignore list";
-
     private final IgnoredService service;
-    private final UserService userService;
 
     @Autowired
-    public IgnoreCommand(IgnoredService ignoredService, UserService userService){
+    public IgnoreCommand(IgnoredService ignoredService){
         super("ignore");
         this.service = ignoredService;
-        this.userService = userService;
     }
 
     @SubCommand("add {target}")
     public void addIgnoredUser(CorePlayer player, User target) {
         if(target.getRank().isInTeam()) throw new CommandProcessException("player_ignore_team_members");
         if(!service.hasIgnored(player.getUUID(), target.getUuid())) service.ignore(player.getUUID(), target.getUuid());
-        Messages.create("Successful ignored player: " + target.getLastName()).to(player.getPlayer()).handle();
+        player.info("player_ignore_success")
+                .DEFAULT()
+                .replace("name", target.getLastName())
+                .handle();
     }
 
     @SubCommand("rem {target}")
     public void remIgnoredUser(CorePlayer player, User target) {
         if(service.hasIgnored(player.getUUID(), target.getUuid())) service.unIgnore(player.getUUID(), target.getUuid());
-        player.info("Successful unignored player: " + target.getLastName()).handle();
+        player.info("player_ignore_remove_success")
+                .DEFAULT()
+                .replace("name", target.getLastName())
+                .handle();
     }
 
     @SubCommand("list")

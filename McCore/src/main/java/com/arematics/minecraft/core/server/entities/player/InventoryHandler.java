@@ -40,6 +40,7 @@ public class InventoryHandler {
     private final List<ItemUpdateClickListener> itemUpdateClickListeners = new ArrayList<>();
     private Consumer<Inventory> emptySlotClick;
     private Consumer<Inventory> slotClick;
+    private Consumer<CoreItem> ownInvClick;
     private IntegerBox slots;
 
     private Map<Class<?>, Enum<?>> currentEnums = new HashMap<>();
@@ -177,6 +178,10 @@ public class InventoryHandler {
 
     public void onEmptySlotClick(Consumer<Inventory> click){
         ArematicsExecutor.asyncDelayed(() -> this.emptySlotClick = click, 200, TimeUnit.MILLISECONDS);
+    }
+
+    public void onItemInOwnInvClick(Consumer<CoreItem> click){
+        ArematicsExecutor.asyncDelayed(() -> this.ownInvClick = click, 200, TimeUnit.MILLISECONDS);
     }
 
     public void onSlotClick(Consumer<Inventory> click, IntegerBox slots){

@@ -26,10 +26,10 @@ public class LinkCommand extends CoreCommand {
     @SubCommand("{first} {second}")
     public void linkAccounts(CorePlayer sender, User one, User two) {
         if(service.isLinkExistsBoth(one.getUuid(), two.getUuid()))
-            throw new CommandProcessException("Accounts already linked");
+            throw new CommandProcessException("player_account_link_exists");
         AccountLink link = new AccountLink(one.getUuid(), two.getUuid(), "Command", null);
         service.save(link);
-        sender.info("Accounts have been linked").handle();
+        sender.info("player_account_link_created").handle();
     }
 
     @SubCommand("info {user}")
@@ -38,15 +38,15 @@ public class LinkCommand extends CoreCommand {
     }
 
     @SubCommand("unlink {first} {second}")
-    public void unlinkAccounts(CorePlayer sender, User one, User two) {
+    public void unlinkAccounts(CorePlayer sender, User one, User two) throws InterruptedException {
         if(!service.isLinkExistsBoth(one.getUuid(), two.getUuid()))
-            throw new CommandProcessException("Accounts not linked");
+            throw new CommandProcessException("player_account_link_not_exists");
         try{
             AccountLink link = service.findOneOfBoth(one.getUuid(), two.getUuid());
             service.remove(link);
-            sender.info("Removed link for accounts");
+            sender.info("player_account_link_removed").handle();
         }catch (RuntimeException re){
-            sender.warn("Account link could not be found");
+            throw new InterruptedException();
         }
     }
 }
