@@ -153,6 +153,11 @@ public class CoreItem extends ItemStack {
         this.getMeta().applyNBT(this);
     }
 
+    public CoreItem removeMeta(String key) {
+        this.getMeta().removeKey(key);
+        return this;
+    }
+
     public CoreItem setName(String name){
         name = name.replaceAll("&", "§");
         ItemMeta meta = this.getItemMeta();
@@ -291,6 +296,4 @@ public class CoreItem extends ItemStack {
     public static CoreItem deserialize(Map<String, Object> args){
         return new CoreItem(ItemStack.deserialize(args));
     }
-
-
 }

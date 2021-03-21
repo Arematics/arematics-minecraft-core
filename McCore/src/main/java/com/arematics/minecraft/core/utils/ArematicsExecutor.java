@@ -2,6 +2,8 @@ package com.arematics.minecraft.core.utils;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.anvil.AnvilGUI;
 import com.arematics.minecraft.core.times.TimeUtils;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -21,6 +23,19 @@ public class ArematicsExecutor {
                 runnable.run();
             }
         }.runTaskLaterAsynchronously(Boots.getBoot(CoreBoot.class), 1);
+    }
+
+    public static String awaitAnvilResult(String key, CorePlayer player) throws InterruptedException {
+        return awaitAnvilResult(key, "", player);
+    }
+
+    public static String awaitAnvilResult(String key, String startValue, CorePlayer player) throws InterruptedException {
+        return ArematicsExecutor.awaitResult((res, latch) ->
+                new AnvilGUI(Boots.getBoot(CoreBoot.class), player.getPlayer(), key + ": ", startValue, (p, result) -> {
+                    res.set(result);
+                    latch.countDown();
+                    return null;
+                }));
     }
 
     public static String awaitResult(BiConsumer<AtomicReference<String>, CountDownLatch> consumer) throws InterruptedException {

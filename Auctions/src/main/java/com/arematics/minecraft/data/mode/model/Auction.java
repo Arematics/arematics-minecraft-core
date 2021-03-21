@@ -31,7 +31,7 @@ public class Auction implements Serializable, BukkitItemMapper {
     @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     private CoreItem[] sell;
     @OneToOne
-    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    @JoinColumn(name = "categoryId", referencedColumnName = "categoryId")
     private AuctionCategory auctionCategory;
     @Enumerated(EnumType.STRING)
     private AuctionType auctionType;
@@ -42,10 +42,11 @@ public class Auction implements Serializable, BukkitItemMapper {
 
     @Override
     public CoreItem mapToItem() {
+        double bits = this.getBids().isEmpty() ? 0 : Collections.max(this.getBids()).getAmount();
         return this.getSell()[0]
                 .addToLore("§7Auction ID: §c" + this.getAuctionId())
                 .addToLore("§7Start Bid Price: §c" + this.getStartPrice())
-                .addToLore("§7Highest Bid Price: §c" + Collections.max(this.getBids()).getAmount())
+                .addToLore("§7Highest Bid Price: §c" + bits)
                 .addToLore("§7Ending in: §c" + TimeUtils.fetchEndDate(this.getEndTime()));
     }
 }

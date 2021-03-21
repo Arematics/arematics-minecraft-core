@@ -255,6 +255,10 @@ public abstract class CoreCommand extends Command {
         }catch (InvocationTargetException pe){
             if(pe.getCause() instanceof CommandProcessException)
                 handleProcessorException(sender, (CommandProcessException) pe.getCause());
+            else{
+                pe.printStackTrace();
+                sender.failure(CMD_FAILURE).handle();
+            }
         }catch (CommandProcessException pe){
             handleProcessorException(sender, pe);
         } catch (Throwable exception){
@@ -264,7 +268,7 @@ public abstract class CoreCommand extends Command {
     }
 
     private void handleProcessorException(CorePlayer sender, CommandProcessException pe){
-        if(pe.getInjector() != null) pe.getInjector().handle();
+        if(pe.getInjector() != null) pe.getInjector().apply(sender.warn(pe.getMessage())).handle();
         else sender.warn(pe.getMessage()).handle();
     }
 

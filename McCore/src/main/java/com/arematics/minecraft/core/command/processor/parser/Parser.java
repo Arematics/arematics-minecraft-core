@@ -4,7 +4,6 @@ import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.annotations.SkipEnum;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.server.entities.player.inventories.anvil.AnvilGUI;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -65,7 +64,7 @@ public class Parser {
             parameters.add(Enum.valueOf((Class)subParameter.getType(), source));
         }catch (Exception e){
             if(source.equals(parameter)){
-                String result = awaitAnvilResult(parameter
+                String result = ArematicsExecutor.awaitAnvilResult(parameter
                         .replace("{", "")
                         .replace("}", ""), sender);
                 if(result == null) throw new CommandProcessException("Command input was interrupt by player");
@@ -80,7 +79,7 @@ public class Parser {
             throws CommandProcessException, InterruptedException {
         CommandParameterParser<?> parser = parsers.get(subParameter.getType());
         if(source.equals(parameter)){
-            String result = awaitAnvilResult(parameter
+            String result = ArematicsExecutor.awaitAnvilResult(parameter
                     .replace("{", "")
                     .replace("}", ""), sender);
             if(result == null) throw new CommandProcessException("Command input was interrupt by player");
@@ -98,14 +97,5 @@ public class Parser {
             throw new CommandProcessException("No correct sender parser could be found");
         CommandSenderParser<?> senderParser = (CommandSenderParser<?>) parser;
         parameters.add(senderParser.processParse(sender, subParameter, parameters));
-    }
-
-    private String awaitAnvilResult(String key, CorePlayer player) throws InterruptedException {
-        return ArematicsExecutor.awaitResult((res, latch) ->
-                new AnvilGUI(Boots.getBoot(CoreBoot.class), player.getPlayer(), key + ": ", (p, result) -> {
-                    res.set(result);
-                    latch.countDown();
-                    return null;
-                }));
     }
 }

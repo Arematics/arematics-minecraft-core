@@ -20,7 +20,7 @@ public class PlayerAuctionSettings implements Serializable {
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID uuid;
     @OneToOne
-    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    @JoinColumn(name = "categoryId", referencedColumnName = "categoryId")
     private AuctionCategory category;
     @Enumerated(EnumType.STRING)
     private AuctionType auctionType;

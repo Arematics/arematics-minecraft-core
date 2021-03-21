@@ -4,7 +4,6 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.items.Items;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
@@ -99,21 +98,17 @@ public class AuctionCommand extends CoreCommand {
 
     @SubCommand("sells")
     public void shopOwnSells(CorePlayer player) {
+        CoreItem newAuction = CoreItem.generate(Material.WORKBENCH)
+                .setName("§aCreate new auction")
+                .addToLore("§8Create a new auction")
+                .addToLore("§8Or click a item in your inventory \nto create a new auction for this item");
         InventoryBuilder.create("Your Auctions", 4)
                 .openBlocked(player)
                 .fillOuterLine()
+                .addItem(newAuction, 2, 1)
                 .backItem(4, 5);
-        player.inventories().onItemInOwnInvClick(clicked -> createNewSell(player, clicked));
-    }
-
-    public void createNewSell(CorePlayer player, CoreItem item) {
-        CoreItem back = CoreItem.create(Items.BACK.clone())
-                .bindCommand("auction sells");
-        InventoryBuilder.create("New Auction", 6)
-                .openBlocked(player)
-                .fillAll()
-                .addItem(back, 6, 5)
-                .addItem(item, 2, 5);
+        player.inventories().onItemInOwnInvClick(clicked -> new AuctionCreator(player, clicked));
+        player.inventories().registerItemClick(newAuction, () -> new AuctionCreator(player, null));
     }
 
     private PlayerAuctionSettings updateContent(CorePlayer player, Consumer<PlayerAuctionSettings> update, Runnable runnable){

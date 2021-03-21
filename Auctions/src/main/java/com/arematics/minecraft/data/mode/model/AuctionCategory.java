@@ -18,7 +18,7 @@ import java.io.Serializable;
 @Table(name = "auction_category")
 public class AuctionCategory implements Serializable {
     @Id
-    private String id;
+    private String categoryId;
     @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     private CoreItem[] displayItem;
     @Type(type = "com.arematics.minecraft.data.types.CoreItemType")

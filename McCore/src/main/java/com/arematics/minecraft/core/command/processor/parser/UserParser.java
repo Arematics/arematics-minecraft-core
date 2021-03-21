@@ -25,7 +25,9 @@ public class UserParser extends CommandParameterParser<User> {
             try{
                 return this.service.getUserByUUID(UUID.fromString(value));
             }catch (RuntimeException re2){
-                throw new CommandProcessException("User with value: " + value + " never played here");
+                throw new CommandProcessException("user_never_played_here", injector -> injector
+                        .DEFAULT()
+                        .replace("name", value));
             }
         }
     }

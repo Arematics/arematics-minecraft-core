@@ -32,13 +32,17 @@ public class AnvilGUI {
     private boolean open;
 
     public AnvilGUI(Bootstrap bootstrap, Player holder, String insert, ClickHandler clickHandler) {
+        this(bootstrap, holder, insert, "", clickHandler);
+    }
+
+    public AnvilGUI(Bootstrap bootstrap, Player holder, String insert, String startValue, ClickHandler clickHandler) {
         this.bootstrap = bootstrap;
         this.holder = holder;
         this.clickHandler = clickHandler;
 
         final CoreItem paper = CoreItem.create(new ItemStack(Material.PAPER));
         final ItemMeta paperMeta = paper.getItemMeta();
-        paperMeta.setDisplayName(insert);
+        paperMeta.setDisplayName(insert + startValue);
         paper.setItemMeta(paperMeta);
         this.insert = paper;
         this.insertString = insert;
