@@ -6,7 +6,7 @@ import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.validator.FriendValidator;
 import com.arematics.minecraft.core.command.processor.validator.RequestValidator;
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.items.Items;
+import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.Part;

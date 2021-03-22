@@ -1,5 +1,6 @@
-package com.arematics.minecraft.core.items;
+package com.arematics.minecraft.core.server.items;
 
+import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import org.bukkit.DyeColor;

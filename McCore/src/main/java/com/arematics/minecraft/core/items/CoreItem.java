@@ -1,12 +1,18 @@
 package com.arematics.minecraft.core.items;
 
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.items.ItemCategory;
 import de.tr7zw.nbtapi.NBTItem;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import net.minecraft.server.v1_8_R3.ItemArmor;
+import net.minecraft.server.v1_8_R3.ItemBow;
+import net.minecraft.server.v1_8_R3.ItemSword;
 import org.apache.commons.lang3.EnumUtils;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -48,11 +54,24 @@ public class CoreItem extends ItemStack {
         return bytesOut;
     }
 
+    /**
+     * Use {@link Server#create(ItemStack item)} instead
+     * @param item
+     * @return
+     */
+    @Deprecated
     public static CoreItem create(ItemStack item){
         if(item == null || item.getType() == Material.AIR) return null;
         return new CoreItem(item);
     }
 
+
+    /**
+     * Use {@link Server#generate(Material)} instead
+     * @param material
+     * @return
+     */
+    @Deprecated
     public static CoreItem generate(Material material){
         return CoreItem.create(new ItemStack(material));
     }
@@ -72,7 +91,7 @@ public class CoreItem extends ItemStack {
 
     private final NBTItem meta;
 
-    private CoreItem(ItemStack item){
+    public CoreItem(ItemStack item){
         super(item);
         this.meta = new NBTItem(this, true);
     }
@@ -262,7 +281,20 @@ public class CoreItem extends ItemStack {
     }
 
     public boolean isArmor(){
-        return this.getMeta() != null;
+        return (CraftItemStack.asNMSCopy(this).getItem() instanceof ItemArmor);
+    }
+
+    public boolean isWeapon() {
+        return (CraftItemStack.asNMSCopy(this).getItem() instanceof ItemSword) ||
+                (CraftItemStack.asNMSCopy(this).getItem() instanceof ItemBow);
+    }
+
+    public ItemCategory readCategory(){
+        return ItemCategory.valueOf(this.readMetaValue("category"));
+    }
+
+    public boolean hasCategory(){
+        return this.getMeta().hasKey("category");
     }
 
     public void updateTo(Player player){

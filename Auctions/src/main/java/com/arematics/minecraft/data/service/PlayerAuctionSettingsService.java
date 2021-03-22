@@ -1,5 +1,6 @@
 package com.arematics.minecraft.data.service;
 
+import com.arematics.minecraft.core.server.items.ItemCategory;
 import com.arematics.minecraft.data.mode.model.AuctionSort;
 import com.arematics.minecraft.data.mode.model.AuctionType;
 import com.arematics.minecraft.data.mode.model.PlayerAuctionSettings;
@@ -26,7 +27,11 @@ public class PlayerAuctionSettingsService {
         try{
             return findById(uuid);
         }catch (RuntimeException re) {
-            return save(new PlayerAuctionSettings(uuid, null, AuctionType.ALL, AuctionSort.HIGHEST_BID, ""));
+            return save(new PlayerAuctionSettings(uuid,
+                    ItemCategory.ARMOR_AND_WEAPONS,
+                    AuctionType.ALL,
+                    AuctionSort.HIGHEST_BID,
+                    ""));
         }
     }
 

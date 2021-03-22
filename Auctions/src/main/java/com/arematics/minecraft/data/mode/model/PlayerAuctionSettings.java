@@ -1,5 +1,6 @@
 package com.arematics.minecraft.data.mode.model;
 
+import com.arematics.minecraft.core.server.items.ItemCategory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,9 +20,8 @@ public class PlayerAuctionSettings implements Serializable {
     @Id
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID uuid;
-    @OneToOne
-    @JoinColumn(name = "categoryId", referencedColumnName = "categoryId")
-    private AuctionCategory category;
+    @Enumerated(EnumType.STRING)
+    private ItemCategory itemCategory;
     @Enumerated(EnumType.STRING)
     private AuctionType auctionType;
     @Enumerated(EnumType.STRING)

@@ -12,7 +12,6 @@ import com.arematics.minecraft.core.server.entities.player.inventories.helper.Ra
 import com.arematics.minecraft.core.utils.EnumUtils;
 import com.arematics.minecraft.data.mode.model.Auction;
 import com.arematics.minecraft.data.mode.model.PlayerAuctionSettings;
-import com.arematics.minecraft.data.service.AuctionCategoryService;
 import com.arematics.minecraft.data.service.AuctionService;
 import com.arematics.minecraft.data.service.PlayerAuctionSettingsService;
 import org.bukkit.Material;
@@ -28,7 +27,6 @@ public class AuctionCommand extends CoreCommand {
 
     private final Server server;
     private final AuctionService auctionService;
-    private final AuctionCategoryService auctionCategoryService;
     private final PlayerAuctionSettingsService playerAuctionSettingsService;
 
     private final CoreItem backToMenu;
@@ -36,12 +34,10 @@ public class AuctionCommand extends CoreCommand {
     @Autowired
     public AuctionCommand(Server server,
                           AuctionService auctionService,
-                          AuctionCategoryService auctionCategoryService,
                           PlayerAuctionSettingsService playerAuctionSettingsService){
         super("auction", "market", "markt");
         this.server = server;
         this.auctionService = auctionService;
-        this.auctionCategoryService = auctionCategoryService;
         this.playerAuctionSettingsService = playerAuctionSettingsService;
         this.backToMenu = CoreItem.generate(Material.COMPASS)
                 .bindCommand("auction")
@@ -71,6 +67,9 @@ public class AuctionCommand extends CoreCommand {
                 playerAuctionSettingsService.findOrCreateDefault(player.getUUID()), 0);
         Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
         PageBinder<Auction> binder = PageBinder.of(auctions, range);
+        CoreItem categories = server.generateNoModifier(Material.DIAMOND)
+                .setName("§bAuction Categories")
+                .bindEnumLore(settings.getItemCategory());
         CoreItem type = CoreItem.generate(Material.PAPER)
                 .setName("§bAuction Type")
                 .bindEnumLore(settings.getAuctionType());
@@ -82,9 +81,12 @@ public class AuctionCommand extends CoreCommand {
                 .fillOuterLine()
                 .bindPaging(player, binder, false)
                 .backItem(6, 5)
+                .addItem(categories, 2, 1)
                 .addItem(type, 6, 6)
                 .addItem(sort,6,7);
         Runnable run = () -> builder.bindPaging(player, binder, false);
+        player.inventories().registerItemClick(categories, item -> item.bindEnumLore(updateContent(player, ps ->
+                ps.setItemCategory(EnumUtils.getNext(ps.getItemCategory())), run).getItemCategory()));
         player.inventories().registerItemClick(type, item -> item.bindEnumLore(updateContent(player, ps ->
                 ps.setAuctionType(EnumUtils.getNext(ps.getAuctionType())), run).getAuctionType()));
         player.inventories().registerItemClick(sort, item -> item.bindEnumLore(updateContent(player, ps ->
@@ -107,8 +109,8 @@ public class AuctionCommand extends CoreCommand {
                 .fillOuterLine()
                 .addItem(newAuction, 2, 1)
                 .backItem(4, 5);
-        player.inventories().onItemInOwnInvClick(clicked -> new AuctionCreator(player, clicked));
-        player.inventories().registerItemClick(newAuction, () -> new AuctionCreator(player, null));
+        player.inventories().onItemInOwnInvClick(clicked -> new AuctionCreator(player, clicked, server));
+        player.inventories().registerItemClick(newAuction, () -> new AuctionCreator(player, null, server));
     }
 
     private PlayerAuctionSettings updateContent(CorePlayer player, Consumer<PlayerAuctionSettings> update, Runnable runnable){

@@ -5,7 +5,7 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.items.Items;
+import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.items.parser.ItemMetaParser;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.apache.commons.lang3.StringUtils;

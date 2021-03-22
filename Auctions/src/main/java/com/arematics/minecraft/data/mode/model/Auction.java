@@ -1,6 +1,7 @@
 package com.arematics.minecraft.data.mode.model;
 
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.server.items.ItemCategory;
 import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.data.global.model.BukkitItemMapper;
 import lombok.AllArgsConstructor;
@@ -30,9 +31,8 @@ public class Auction implements Serializable, BukkitItemMapper {
     private double instantSell;
     @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     private CoreItem[] sell;
-    @OneToOne
-    @JoinColumn(name = "categoryId", referencedColumnName = "categoryId")
-    private AuctionCategory auctionCategory;
+    @Enumerated(EnumType.STRING)
+    private ItemCategory itemCategory;
     @Enumerated(EnumType.STRING)
     private AuctionType auctionType;
     private Timestamp endTime;

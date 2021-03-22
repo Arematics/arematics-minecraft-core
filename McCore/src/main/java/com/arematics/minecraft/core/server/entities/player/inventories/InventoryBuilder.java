@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.server.entities.player.inventories;
 
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.items.Items;
+import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Box;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.IntegerBox;

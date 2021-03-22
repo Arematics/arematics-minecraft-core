@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.items;
+package com.arematics.minecraft.core.server.items;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;

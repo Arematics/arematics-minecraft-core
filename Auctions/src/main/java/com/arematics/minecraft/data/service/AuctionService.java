@@ -27,10 +27,6 @@ import java.util.function.Supplier;
 public class AuctionService {
     private final AuctionRepository auctionRepository;
 
-    public List<Auction> findAllByCreator(UUID creator){
-        return auctionRepository.findAllByCreator(creator);
-    }
-
     public Page<Auction> findAllByFilter(Supplier<PlayerAuctionSettings> supplier, int page){
         PlayerAuctionSettings settings = supplier.get();
         Sort sort = settings.getAuctionSort().getSort();
@@ -42,7 +38,7 @@ public class AuctionService {
             types.add(AuctionType.INSTANT_BUY);
         }
         types.add(AuctionType.ALL);
-        return auctionRepository.findAllByAuctionCategoryAndEndTimeIsAfterAndAuctionTypeIsIn(settings.getCategory(),
+        return auctionRepository.findAllByItemCategoryAndEndTimeIsAfterAndAuctionTypeIsIn(settings.getItemCategory(),
                 Timestamp.valueOf(LocalDateTime.now()),
                 types,
                 pageable);
