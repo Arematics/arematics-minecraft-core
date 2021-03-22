@@ -12,7 +12,6 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.service.BroadcastService;
 import com.arematics.minecraft.data.service.InventoryService;
-import com.arematics.minecraft.data.service.RankService;
 import com.arematics.minecraft.data.share.model.BroadcastMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -34,7 +33,6 @@ public class SpringInitializedListener implements Listener {
         Tablist tablist = boot.getContext().getBean(Tablist.class);
         createAsyncTasks(tablist);
         tablist.flushOnlines();
-        RankService service = boot.getContext().getBean(RankService.class);
     }
 
     private void scanPermissions(CoreBoot boot){
