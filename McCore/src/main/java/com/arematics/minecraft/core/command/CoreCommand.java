@@ -17,6 +17,7 @@ import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageI
 import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.ClassUtils;
@@ -40,6 +41,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -66,6 +68,7 @@ public abstract class CoreCommand extends Command {
     private final byte uiSlots;
 
     private final List<AnnotationProcessor<?>> processors = new ArrayList<>();
+    protected Server server;
 
     public CoreCommand(String name, String... aliases){
         this(name, new AnnotationProcessor<?>[]{}, aliases);
@@ -88,6 +91,8 @@ public abstract class CoreCommand extends Command {
         this.commandInformationString = CommandUtils.prettyReplace("Command", "/" + this.getName());
         this.registerStandards(processors);
         this.uiSlots = calculateSlots();
+        ArematicsExecutor.asyncDelayed(() ->
+                this.server = Boots.getBoot(CoreBoot.class).getContext().getBean(Server.class), 1, TimeUnit.SECONDS);
     }
 
     private void registerStandards(AnnotationProcessor<?>[] processors){
@@ -243,7 +248,7 @@ public abstract class CoreCommand extends Command {
                 MethodProcessorEnvironment environment = MethodProcessorEnvironment
                         .newEnvironment(this, dataPack, this.processors);
                 AtomicBoolean matchFound = new AtomicBoolean(false);
-                boolean success = Methods.of(this.sortedMethods).apply((method) -> {
+                Methods.of(this.sortedMethods).apply((method) -> {
                     String[] annotation = fetchSubCommand(method);
                     dataPack.put("arguments", getSetupMessageArray(annotation, arguments.clone()));
                     matchFound.set(isMatch(annotation, arguments));

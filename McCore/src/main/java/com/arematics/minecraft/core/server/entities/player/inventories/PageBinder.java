@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.server.entities.player.inventories;
 
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.IntegerBox;
 import com.arematics.minecraft.data.global.model.BukkitItemMapper;
 import lombok.Data;
@@ -16,8 +17,8 @@ public class PageBinder<T> {
         return new PageBinder<>(box, fetch, mapper);
     }
 
-    public static <T extends BukkitItemMapper> PageBinder<T> of(Supplier<Page<T>> fetch, IntegerBox box){
-        return new PageBinder<>(box, fetch, T::mapToItem);
+    public static <T extends BukkitItemMapper> PageBinder<T> of(Supplier<Page<T>> fetch, IntegerBox box, Server server){
+        return new PageBinder<>(box, fetch, (t) -> t.mapToItem(server));
     }
 
     private final IntegerBox boxing;

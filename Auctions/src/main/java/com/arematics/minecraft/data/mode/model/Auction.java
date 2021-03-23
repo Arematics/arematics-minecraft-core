@@ -1,6 +1,7 @@
 package com.arematics.minecraft.data.mode.model;
 
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.items.ItemCategory;
 import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.data.global.model.BukkitItemMapper;
@@ -41,7 +42,7 @@ public class Auction implements Serializable, BukkitItemMapper {
     private Set<Bid> bids;
 
     @Override
-    public CoreItem mapToItem() {
+    public CoreItem mapToItem(Server server) {
         double bits = this.getBids().isEmpty() ? 0 : Collections.max(this.getBids()).getAmount();
         return this.getSell()[0]
                 .addToLore("§7Auction ID: §c" + this.getAuctionId())

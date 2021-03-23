@@ -1,6 +1,7 @@
 package com.arematics.minecraft.data.global.model;
 
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
@@ -31,7 +32,7 @@ public class Ignored implements Serializable, BukkitMessageMapper, BukkitItemMap
     private UUID ignored;
 
     @Override
-    public CoreItem mapToItem() {
+    public CoreItem mapToItem(Server server) {
         String name = Bukkit.getOfflinePlayer(this.getIgnored()).getName();
         return Items.fetchPlayerSkull(name)
                 .bindCommand("ignore rem " + name)

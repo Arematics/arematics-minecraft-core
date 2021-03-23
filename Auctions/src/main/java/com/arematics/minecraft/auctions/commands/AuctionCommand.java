@@ -4,7 +4,6 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
 import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
@@ -27,16 +26,13 @@ import java.util.function.Supplier;
 @Component
 public class AuctionCommand extends CoreCommand {
 
-    private final Server server;
     private final AuctionService auctionService;
     private final PlayerAuctionSettingsService playerAuctionSettingsService;
 
     @Autowired
-    public AuctionCommand(Server server,
-                          AuctionService auctionService,
+    public AuctionCommand(AuctionService auctionService,
                           PlayerAuctionSettingsService playerAuctionSettingsService){
         super("auction", "market", "markt");
-        this.server = server;
         this.auctionService = auctionService;
         this.playerAuctionSettingsService = playerAuctionSettingsService;
     }
@@ -63,7 +59,7 @@ public class AuctionCommand extends CoreCommand {
         Supplier<Page<Auction>> auctions = () -> auctionService.findAllByFilter(() ->
                 playerAuctionSettingsService.findOrCreateDefault(player.getUUID()), 0);
         Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
-        PageBinder<Auction> binder = PageBinder.of(auctions, range);
+        PageBinder<Auction> binder = PageBinder.of(auctions, range, server);
         CoreItem categories = server.generateNoModifier(Material.DIAMOND)
                 .setName("§bAuction Categories")
                 .bindEnumLore(settings.getItemCategory());
@@ -114,7 +110,7 @@ public class AuctionCommand extends CoreCommand {
                 () -> player.inventories().getEnumOrDefault(auctionFilter),
                 0);
         Range range = Range.allHardInRows(1, 7, 1, 2);
-        PageBinder<Auction> binder = PageBinder.of(auctions, range);
+        PageBinder<Auction> binder = PageBinder.of(auctions, range, server);
         InventoryBuilder builder = InventoryBuilder.create("Your Auctions", 4)
                 .openBlocked(player)
                 .fillOuterLine()
@@ -123,11 +119,13 @@ public class AuctionCommand extends CoreCommand {
                 .addItem(endingFilter, 1, 4)
                 .addItem(endingSort,1,5)
                 .backItem(4, 5);
-        player.inventories().registerRefreshTask(() -> builder.bindPaging(player, binder, false));
-        player.inventories().onItemInOwnInvClick(clicked -> new AuctionCreator(player, clicked, server));
-        player.inventories().registerItemClick(newAuction, () -> new AuctionCreator(player, null, server));
-        player.inventories().registerEnumItemClickWithRefresh(endingFilter, auctionFilter, builder, binder);
-        player.inventories().registerEnumItemClickWithRefresh(endingSort, endTimeFilter, builder, binder);
+        player.inventories()
+                .addRefresher(() -> builder.bindPaging(player, binder, false))
+                .enableRefreshTask()
+                .onItemInOwnInvClick(clicked -> new AuctionCreator(player, clicked, server))
+                .registerItemClick(newAuction, () -> new AuctionCreator(player, null, server))
+                .registerEnumItemClickWithRefresh(endingFilter, auctionFilter)
+                .registerEnumItemClickWithRefresh(endingSort, endTimeFilter);
     }
 
     private PlayerAuctionSettings updateContent(CorePlayer player, Consumer<PlayerAuctionSettings> update, Runnable runnable){

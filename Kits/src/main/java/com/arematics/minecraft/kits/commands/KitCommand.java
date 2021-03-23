@@ -2,18 +2,16 @@ package com.arematics.minecraft.kits.commands;
 
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
 import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
 import com.arematics.minecraft.core.server.entities.player.inventories.paging.Paging;
+import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.KitService;
-import com.arematics.minecraft.data.service.UserService;
-import com.arematics.minecraft.data.share.model.Cooldown;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -26,17 +24,13 @@ import java.util.function.Supplier;
 
 @Component
 public class KitCommand extends CoreCommand {
-    public static final String PAGER_KEY = "kits";
-
     private final KitService service;
-    private final UserService userService;
     private final InventoryService inventoryService;
 
     @Autowired
-    public KitCommand(KitService kitService, UserService userService, InventoryService inventoryService) {
+    public KitCommand(KitService kitService, InventoryService inventoryService) {
         super("kit", "kits");
         this.service = kitService;
-        this.userService = userService;
         this.inventoryService = inventoryService;
     }
 
@@ -52,7 +46,7 @@ public class KitCommand extends CoreCommand {
 
     private void createInventory(CorePlayer sender, Supplier<Page<Kit>> paging){
         Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
-        PageBinder<Kit> binder = PageBinder.of(paging, range);
+        PageBinder<Kit> binder = PageBinder.of(paging, range, server);
         InventoryBuilder.create("Kits", 6)
                 .openBlocked(sender)
                 .fillOuterLine()
@@ -74,8 +68,10 @@ public class KitCommand extends CoreCommand {
             return;
         }
         if(!force && service.hasCooldownOnKit(player.getUUID(), kit)){
-            Cooldown cooldown = service.getCooldownOnKit(player.getUUID(), kit).orElse(null);
-            player.warn("You need to wait until " + TimeUtils.toString(cooldown.getEndTime()) + " to collect this kit again").handle();
+            service.getCooldownOnKit(player.getUUID(), kit)
+                    .ifPresent(cooldown -> player.warn("You need to wait until " +
+                            TimeUtils.toString(cooldown.getEndTime()) +
+                            " to collect this kit again").handle());
             return;
         }
         Inventory inv = inventoryService.getOrCreate("kit.inventory." + kit.getName(), "§6Kit " + kit.getName(),

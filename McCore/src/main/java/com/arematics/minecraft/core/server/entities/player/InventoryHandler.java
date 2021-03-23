@@ -5,8 +5,6 @@ import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.items.ItemUpdateClickListener;
 import com.arematics.minecraft.core.server.Server;
-import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
-import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.IntegerBox;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.EnumUtils;
@@ -45,6 +43,8 @@ public class InventoryHandler {
     private IntegerBox slots;
 
     private BukkitTask updateTask;
+
+    private Runnable refresher;
 
     private Map<Class<?>, Enum<?>> currentEnums = new HashMap<>();
 
@@ -86,11 +86,12 @@ public class InventoryHandler {
         if(page <= 0) this.page = 0;
     }
 
-    public void resetPages(){
+    public InventoryHandler resetPages(){
         if(resetOnClose)
             this.page = 0;
         else
             setResetOnClose(true);
+        return this;
     }
 
     public InventoryView getView(){
@@ -130,21 +131,19 @@ public class InventoryHandler {
     }
 
     public <E extends Enum<E>> InventoryHandler registerEnumItemClickWithRefresh(CoreItem item,
-                                                                                  E enumValue,
-                                                                                  InventoryBuilder builder,
-                                                                                  PageBinder<?> binder){
+                                                                                  E enumValue){
         Class<E> result = enumValue.getDeclaringClass();
         player.inventories().addEnum(enumValue);
         player.inventories().registerItemClick(item, clicked ->
-                onEnumItemRefresh(clicked, result, () -> builder.bindPaging(player, binder, true)));
+                onEnumItemRefresh(clicked, result));
         return this;
     }
 
 
-    private <E extends Enum<E>> CoreItem onEnumItemRefresh(CoreItem item, Class<E> enumClass, Runnable run){
+    private <E extends Enum<E>> CoreItem onEnumItemRefresh(CoreItem item, Class<E> enumClass){
         E current = player.inventories().getEnum(enumClass);
         player.inventories().addEnumInstant(EnumUtils.getNext(current));
-        run.run();
+        if(this.refresher != null) this.refresher.run();
         return item.bindEnumLore(player.inventories().getEnum(enumClass));
     }
 
@@ -169,15 +168,13 @@ public class InventoryHandler {
         });
     }
 
-    public InventoryHandler registerRefreshTask(Runnable runnable){
-        ArematicsExecutor.asyncDelayed(() -> this.updateTask = ArematicsExecutor.asyncRepeat(runnable,
-                1, 1, TimeUnit.SECONDS),
+    public InventoryHandler enableRefreshTask(){
+        ArematicsExecutor.asyncDelayed(() -> this.updateTask = refresher != null ? ArematicsExecutor.asyncRepeat(this.refresher, 1, 1, TimeUnit.SECONDS) : null,
                 200, TimeUnit.MILLISECONDS);
         return this;
     }
 
     public InventoryHandler stopRefreshTask(){
-        System.out.println("CLOSE TASK");
         if(this.updateTask != null){
             this.updateTask.cancel();
             this.updateTask = null;
@@ -195,29 +192,39 @@ public class InventoryHandler {
         return registerItemClick(clone, action);
     }
 
-    public void onEmptySlotClick(Consumer<Inventory> click){
+    public InventoryHandler addRefresher(Runnable runnable){
+        ArematicsExecutor.asyncDelayed(() -> this.refresher = runnable, 150, TimeUnit.MILLISECONDS);
+        return this;
+    }
+
+    public InventoryHandler onEmptySlotClick(Consumer<Inventory> click){
         ArematicsExecutor.asyncDelayed(() -> this.emptySlotClick = click, 200, TimeUnit.MILLISECONDS);
+        return this;
     }
 
-    public void onItemInOwnInvClick(Consumer<CoreItem> click){
+    public InventoryHandler onItemInOwnInvClick(Consumer<CoreItem> click){
         ArematicsExecutor.asyncDelayed(() -> this.ownInvClick = click, 200, TimeUnit.MILLISECONDS);
+        return this;
     }
 
-    public void onSlotClick(Consumer<Inventory> click, IntegerBox slots){
+    public InventoryHandler onSlotClick(Consumer<Inventory> click, IntegerBox slots){
         ArematicsExecutor.asyncDelayed(() -> {
             this.slotClick = click;
             this.slots = slots;
         }, 200, TimeUnit.MILLISECONDS);
+        return this;
     }
 
-    public void addListener(ItemUpdateClickListener listener){
+    public InventoryHandler addListener(ItemUpdateClickListener listener){
         this.itemUpdateClickListeners.add(listener);
+        return this;
     }
 
-    public void tearDownListeners(){
+    public InventoryHandler tearDownListeners(){
         Server server = Boots.getBoot(CoreBoot.class).getContext().getBean(Server.class);
         this.itemUpdateClickListeners.forEach(server::tearDownItemListener);
         this.itemUpdateClickListeners.clear();
+        return this;
     }
 
 }

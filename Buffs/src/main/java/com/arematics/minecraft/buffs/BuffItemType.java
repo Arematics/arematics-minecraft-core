@@ -6,13 +6,12 @@ import com.arematics.minecraft.core.command.processor.parser.PeriodParser;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.items.parser.ItemType;
 import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.data.mode.model.PlayerBuff;
 import com.arematics.minecraft.data.service.PlayerBuffService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Material;
 import org.bukkit.potion.PotionEffectType;
 import org.joda.time.Period;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +27,7 @@ public class BuffItemType extends ItemType {
 
     private final Random random = new Random();
     private final PlayerBuffService service;
+    private final Server server;
     private final PeriodParser periodParser;
 
     @Override
@@ -70,27 +70,12 @@ public class BuffItemType extends ItemType {
             }
             service.update(buff);
             return new Part(effectType.getName() + " Buff")
-                    .setHoverActionShowItem(mapPlayerBuff(buff));
+                    .setHoverActionShowItem(buff.mapToItem(server));
         }catch (Exception ignore){ }
         throw new RuntimeException("Something went wrong");
     }
 
     private PotionEffectType getRandom(){
         return PlayerBuffHandler.POSITIVE_BUFFS[random.nextInt(PlayerBuffHandler.POSITIVE_BUFFS.length)];
-    }
-
-    private CoreItem mapPlayerBuff(PlayerBuff playerBuff){
-        String subCommand = playerBuff.isActive() ? "deActivate" : "activate";
-        String active = playerBuff.isActive() ? "§aYes" : "§cNo";
-        String perm = playerBuff.getEndTime() == null ? "§aYes" : "§cNo";
-        String endTime = playerBuff.getEndTime() == null ? "§cNever" :
-                "§a" + TimeUtils.fetchEndDate(playerBuff.getEndTime());
-        return CoreItem.generate(Material.POTION)
-                .bindCommand("buffs " + subCommand + " " + playerBuff.getPotionEffectType())
-                .setName("§cBuff: " + playerBuff.getPotionEffectType())
-                .addToLore("§8Strength: " + (playerBuff.getStrength() + 1))
-                .addToLore("§8Active: " + active)
-                .addToLore("§8Permanent: " + perm)
-                .addToLore("§8Ending: " + endTime);
     }
 }

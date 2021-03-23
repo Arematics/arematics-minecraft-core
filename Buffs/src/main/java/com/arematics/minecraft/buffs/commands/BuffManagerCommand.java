@@ -12,7 +12,6 @@ import com.arematics.minecraft.core.server.entities.player.inventories.Inventory
 import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
 import com.arematics.minecraft.core.server.entities.player.inventories.paging.Paging;
-import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.data.BuffListMode;
 import com.arematics.minecraft.data.mode.model.PlayerBuff;
 import com.arematics.minecraft.data.service.PlayerBuffService;
@@ -82,7 +81,7 @@ public class BuffManagerCommand extends CoreCommand {
 
     private MSG buffPart(PlayerBuff buff){
         String subCommand = buff.isActive() ? "deActivate" : "activate";
-        Part base = new Part(buff.getPotionEffectType()).setHoverActionShowItem(mapPlayerBuff(buff));
+        Part base = new Part(buff.getPotionEffectType()).setHoverActionShowItem(buff.mapToItem(server));
         Part mode = PartBuilder.createHoverAndRun("§8[" + (buff.isActive() ? "§cD" : "§aE") + "§8]",
                 buff.isActive() ? "§cDisable buff" : "§aEnable buff",
                 "/buffs " + subCommand + " " + buff.getPotionEffectType());
@@ -91,8 +90,8 @@ public class BuffManagerCommand extends CoreCommand {
 
     private void createInventory(CorePlayer sender, Supplier<Page<PlayerBuff>> paging, BuffListMode mode){
         Range range = Range.allHardInRows(1, 7, 1);
-        PageBinder<PlayerBuff> binder = PageBinder.of(paging, range, this::mapPlayerBuff);
-        CoreItem modeItem = CoreItem.generate(Material.HOPPER)
+        PageBinder<PlayerBuff> binder = PageBinder.of(paging, range, server);
+        CoreItem modeItem = server.generateNoModifier(Material.HOPPER)
                 .setName("§cQuery Mode")
                 .bindEnumLore(mode);
         InventoryBuilder builder = InventoryBuilder.create("Buffs", 3)
@@ -100,21 +99,9 @@ public class BuffManagerCommand extends CoreCommand {
                 .fillOuterLine()
                 .bindPaging(sender, binder, true)
                 .addItem(modeItem, 1, 5);
-        sender.inventories().registerEnumItemClickWithRefresh(modeItem, mode, builder, binder);
-    }
-
-    private CoreItem mapPlayerBuff(PlayerBuff playerBuff){
-        String subCommand = playerBuff.isActive() ? "deActivate" : "activate";
-        String active = playerBuff.isActive() ? "§aYes" : "§cNo";
-        String perm = playerBuff.getEndTime() == null ? "§aYes" : "§cNo";
-        String endTime = playerBuff.getEndTime() == null ? "§cNever" :
-                "§a" + TimeUtils.fetchEndDate(playerBuff.getEndTime());
-        return CoreItem.generate(Material.POTION)
-                .bindCommand("buffs " + subCommand + " " + playerBuff.getPotionEffectType())
-                .setName("§cBuff: " + playerBuff.getPotionEffectType())
-                .addToLore("§8Strength: " + (playerBuff.getStrength() + 1))
-                .addToLore("§8Active: " + active)
-                .addToLore("§8Permanent: " + perm)
-                .addToLore("§8Ending: " + endTime);
+        sender.inventories()
+                .addRefresher(() -> builder.bindPaging(sender, binder, true))
+                .enableRefreshTask()
+                .registerEnumItemClickWithRefresh(modeItem, mode);
     }
 }

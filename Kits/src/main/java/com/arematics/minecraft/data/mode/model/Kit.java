@@ -4,6 +4,7 @@ package com.arematics.minecraft.data.mode.model;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.data.global.model.BukkitItemMapper;
 import com.arematics.minecraft.data.global.model.BukkitMessageMapper;
 import lombok.AllArgsConstructor;
@@ -31,7 +32,7 @@ public class Kit implements Serializable, BukkitMessageMapper, BukkitItemMapper 
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "permission", nullable = true)
+    @Column(name = "permission")
     private String permission;
 
     @Column(name = "cooldown", nullable = false)
@@ -46,7 +47,7 @@ public class Kit implements Serializable, BukkitMessageMapper, BukkitItemMapper 
 
 
     @Override
-    public CoreItem mapToItem() {
+    public CoreItem mapToItem(Server server) {
         return this.getDisplayItem()[0]
                 .bindCommand("kit " + this.getName())
                 .closeInventoryOnClick()
