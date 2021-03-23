@@ -1,7 +1,9 @@
 package com.arematics.minecraft.data.service;
 
+import com.arematics.minecraft.data.global.model.EndTimeFilter;
 import com.arematics.minecraft.data.mode.model.Auction;
 import com.arematics.minecraft.data.mode.model.AuctionType;
+import com.arematics.minecraft.data.mode.model.OwnAuctionFilter;
 import com.arematics.minecraft.data.mode.model.PlayerAuctionSettings;
 import com.arematics.minecraft.data.mode.repository.AuctionRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,29 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor(onConstructor_=@Autowired)
 public class AuctionService {
     private final AuctionRepository auctionRepository;
+
+    public Page<Auction> findAllOwnByFilter(UUID creator,
+                                            Supplier<EndTimeFilter> sortSupplier,
+                                            Supplier<OwnAuctionFilter> typeSupplier,
+                                            int page){
+        Sort sort = sortSupplier.get().getSort();
+        Pageable pageable = PageRequest.of(page, 14, sort);
+        OwnAuctionFilter filter = typeSupplier.get();
+        switch (filter) {
+            case NOT_ENDED:
+                return auctionRepository.findAllByCreatorAndEndTimeIsAfter(creator,
+                        Timestamp.valueOf(LocalDateTime.now()),
+                        pageable);
+            case ENDED:
+                return auctionRepository.findAllByCreatorAndEndTimeIsBefore(creator,
+                        Timestamp.valueOf(LocalDateTime.now()),
+                        pageable);
+            default:
+                return auctionRepository.findAllByCreatorAndEndTimeIsAfter(creator,
+                        Timestamp.valueOf(LocalDateTime.of(2000, 1, 1, 1, 1, 1)),
+                        pageable);
+        }
+    }
 
     public Page<Auction> findAllByFilter(Supplier<PlayerAuctionSettings> supplier, int page){
         PlayerAuctionSettings settings = supplier.get();

@@ -15,6 +15,7 @@ import com.arematics.minecraft.data.service.InventoryService;
 import lombok.Data;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +43,8 @@ public class InventoryHandler {
     private Consumer<Inventory> slotClick;
     private Consumer<CoreItem> ownInvClick;
     private IntegerBox slots;
+
+    private BukkitTask updateTask;
 
     private Map<Class<?>, Enum<?>> currentEnums = new HashMap<>();
 
@@ -164,6 +167,22 @@ public class InventoryHandler {
             run.run();
             return click;
         });
+    }
+
+    public InventoryHandler registerRefreshTask(Runnable runnable){
+        ArematicsExecutor.asyncDelayed(() -> this.updateTask = ArematicsExecutor.asyncRepeat(runnable,
+                1, 1, TimeUnit.SECONDS),
+                200, TimeUnit.MILLISECONDS);
+        return this;
+    }
+
+    public InventoryHandler stopRefreshTask(){
+        System.out.println("CLOSE TASK");
+        if(this.updateTask != null){
+            this.updateTask.cancel();
+            this.updateTask = null;
+        }
+        return this;
     }
 
     public <E extends Enum<E>> InventoryHandler registerEnumItemClick(CoreItem item, Supplier<E> action){
