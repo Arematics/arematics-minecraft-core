@@ -216,6 +216,12 @@ public class CoreItem extends ItemStack {
         return this;
     }
 
+    public CoreItem addToLore(String... messages){
+        CoreItem item = this;
+        for(String message : messages) item = item.addToLore(message);
+        return item;
+    }
+
     public CoreItem addToLore(String message){
         message = message.replaceAll("&", "§");
         ItemMeta meta = this.getItemMeta();

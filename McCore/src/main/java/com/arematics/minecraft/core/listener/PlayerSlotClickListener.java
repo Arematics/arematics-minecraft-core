@@ -1,17 +1,23 @@
 package com.arematics.minecraft.core.listener;
 
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
 @Component
+@RequiredArgsConstructor(onConstructor_=@Autowired)
 public class PlayerSlotClickListener implements Listener {
+
+    private final Server server;
 
     @EventHandler
     public void onClick(InventoryClickEvent event){
@@ -23,7 +29,8 @@ public class PlayerSlotClickListener implements Listener {
                 && event.getCurrentItem().getType() != Material.AIR
                 && player.inventories().getView().getTopInventory().equals(event.getClickedInventory())
                 && player.inventories().getSlots().toList().contains(event.getSlot())){
-            ArematicsExecutor.syncDelayed(() -> player.inventories().getSlotClick().accept(event.getClickedInventory()),
+            ArematicsExecutor.syncDelayed(() -> player.inventories().getSlotClick().accept(event.getClickedInventory(),
+                    server.createNoModifier(event.getCurrentItem())),
                     250,
                     TimeUnit.MILLISECONDS);
         }

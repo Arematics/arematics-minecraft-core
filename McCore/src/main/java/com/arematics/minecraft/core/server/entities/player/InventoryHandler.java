@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -38,7 +39,7 @@ public class InventoryHandler {
 
     private final List<ItemUpdateClickListener> itemUpdateClickListeners = new ArrayList<>();
     private Consumer<Inventory> emptySlotClick;
-    private Consumer<Inventory> slotClick;
+    private BiConsumer<Inventory, CoreItem> slotClick;
     private Consumer<CoreItem> ownInvClick;
     private IntegerBox slots;
 
@@ -207,7 +208,7 @@ public class InventoryHandler {
         return this;
     }
 
-    public InventoryHandler onSlotClick(Consumer<Inventory> click, IntegerBox slots){
+    public InventoryHandler onSlotClick(BiConsumer<Inventory, CoreItem> click, IntegerBox slots){
         ArematicsExecutor.asyncDelayed(() -> {
             this.slotClick = click;
             this.slots = slots;

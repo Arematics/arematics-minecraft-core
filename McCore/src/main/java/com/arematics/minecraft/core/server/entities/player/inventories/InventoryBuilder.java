@@ -117,7 +117,7 @@ public class InventoryBuilder {
         if(current.hasNext()) nextPageItem(sender, () -> bindPaging(sender, binder, enableClicker));
         if(current.hasPrevious()) previousPageItem(sender, () -> bindPaging(sender, binder, enableClicker));
         if(enableClicker)
-            sender.inventories().onSlotClick(inv -> bindPaging(sender, binder, true), binder.getBoxing());
+            sender.inventories().onSlotClick((inv, item) -> bindPaging(sender, binder, true), binder.getBoxing());
 
         Page<T> finalCurrent = current;
         ArematicsExecutor.syncDelayed(() -> {

@@ -22,7 +22,10 @@ public class TimeUtils {
 
     public static String toString(Period period){
         PeriodFormatter formatter = new PeriodFormatterBuilder()
+                .appendMonths().appendSuffix(" Months ")
+                .appendWeeks().appendSuffix(" Weeks ")
                 .appendDays().appendSuffix(" Days ")
+                .minimumPrintedDigits(2)
                 .appendHours().appendSuffix(" Hours ")
                 .appendMinutes().appendSuffix(" Minutes ")
                 .appendSeconds().appendSuffix(" Seconds ")
@@ -41,7 +44,10 @@ public class TimeUtils {
 
     public static String toShortString(Period period){
         PeriodFormatter formatter = new PeriodFormatterBuilder()
+                .appendMonths().appendSuffix(" MO ")
+                .appendWeeks().appendSuffix(" W ")
                 .appendDays().appendSuffix(" D ")
+                .minimumPrintedDigits(2)
                 .appendHours().appendSuffix(" H ")
                 .appendMinutes().appendSuffix(" M ")
                 .appendSeconds().appendSuffix(" S ")

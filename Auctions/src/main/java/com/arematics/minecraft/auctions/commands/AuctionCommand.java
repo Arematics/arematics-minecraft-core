@@ -3,11 +3,13 @@ package com.arematics.minecraft.auctions.commands;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
+import com.arematics.minecraft.core.events.CurrencyEventType;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
 import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
+import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.utils.EnumUtils;
 import com.arematics.minecraft.data.global.model.EndTimeFilter;
 import com.arematics.minecraft.data.mode.model.Auction;
@@ -20,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -60,15 +63,9 @@ public class AuctionCommand extends CoreCommand {
                 playerAuctionSettingsService.findOrCreateDefault(player.getUUID()), 0);
         Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
         PageBinder<Auction> binder = PageBinder.of(auctions, range, server);
-        CoreItem categories = server.generateNoModifier(Material.DIAMOND)
-                .setName("§bAuction Categories")
-                .bindEnumLore(settings.getItemCategory());
-        CoreItem type = server.generateNoModifier(Material.PAPER)
-                .setName("§bAuction Type")
-                .bindEnumLore(settings.getAuctionType());
-        CoreItem sort = server.generateNoModifier(Material.DROPPER)
-                .setName("§bAuction Sort")
-                .bindEnumLore(settings.getAuctionSort());
+        CoreItem categories = server.generateNoModifier(Material.DIAMOND).setName("§bAuction Categories").bindEnumLore(settings.getItemCategory());
+        CoreItem type = server.generateNoModifier(Material.PAPER).setName("§bAuction Type").bindEnumLore(settings.getAuctionType());
+        CoreItem sort = server.generateNoModifier(Material.DROPPER).setName("§bAuction Sort").bindEnumLore(settings.getAuctionSort());
         InventoryBuilder builder = InventoryBuilder.create("Auction Search", 6)
                 .openBlocked(player)
                 .fillOuterLine()
@@ -78,6 +75,9 @@ public class AuctionCommand extends CoreCommand {
                 .addItem(type, 6, 6)
                 .addItem(sort,6,7);
         Runnable run = () -> builder.bindPaging(player, binder, false);
+        player.inventories()
+                .addRefresher(run)
+                .enableRefreshTask();
         player.inventories().registerItemClick(categories, item -> item.bindEnumLore(updateContent(player, ps ->
                 ps.setItemCategory(EnumUtils.getNext(ps.getItemCategory())), run).getItemCategory()));
         player.inventories().registerItemClick(type, item -> item.bindEnumLore(updateContent(player, ps ->
@@ -98,13 +98,9 @@ public class AuctionCommand extends CoreCommand {
         CoreItem newAuction = server.generateNoModifier(Material.WORKBENCH)
                 .setName("§aCreate new auction")
                 .addToLore("§8Create a new auction")
-                .addToLore("§8Or click a item in your inventory \nto create a new auction for this item");
-        CoreItem endingFilter = server.generateNoModifier(Material.PAPER)
-                .setName("§bAuction Ending Filter")
-                .bindEnumLore(auctionFilter);
-        CoreItem endingSort = server.generateNoModifier(Material.DROPPER)
-                .setName("§bEnd Time Sort")
-                .bindEnumLore(endTimeFilter);
+                .addToLore("§8Or click a item in your inventory", "§8to create a new auction for this item");
+        CoreItem endingFilter = server.generateNoModifier(Material.PAPER).setName("§bAuction Ending Filter").bindEnumLore(auctionFilter);
+        CoreItem endingSort = server.generateNoModifier(Material.DROPPER).setName("§bEnd Time Sort").bindEnumLore(endTimeFilter);
         Supplier<Page<Auction>> auctions = () -> auctionService.findAllOwnByFilter(player.getUUID(),
                 () -> player.inventories().getEnumOrDefault(endTimeFilter),
                 () -> player.inventories().getEnumOrDefault(auctionFilter),
@@ -124,8 +120,62 @@ public class AuctionCommand extends CoreCommand {
                 .enableRefreshTask()
                 .onItemInOwnInvClick(clicked -> new AuctionCreator(player, clicked, server))
                 .registerItemClick(newAuction, () -> new AuctionCreator(player, null, server))
+                .onSlotClick((inv, item) -> {
+                    try{
+                        Auction auction = auctionService.findById(Auction.readAuctionIdFromItem(item));
+                        if(auction.ended() && !auction.isSold() && auction.getBids().isEmpty()) {
+                            Items.giveItem(player, auction.getSell()[0]);
+                            auctionService.delete(auction);
+                            player.info("Received not sold item back").handle();
+                            builder.bindPaging(player, binder, false);
+                        }else if(auction.isSold() || !auction.getBids().isEmpty()){
+                            double amount = auction.isSold() ? auction.getInstantSell() :
+                                    Collections.max(auction.getBids()).getAmount();
+                            boolean success = server.getCurrencyController()
+                                    .createEvent(player)
+                                    .setAmount(amount)
+                                    .setEventType(CurrencyEventType.TRANSFER)
+                                    .setTarget("auction-sell")
+                                    .onSuccess(() -> player.addMoney(amount));
+                            if(success){
+                                auctionService.delete(auction);
+                                player.info("Auction collected successful");
+                            }else
+                                player.failure("Auction could not be collected").handle();
+                            builder.bindPaging(player, binder, false);
+                        }else
+                            openAuctionRemove(player, item, auction);
+                    }catch (Exception ignore){}
+                }, range)
                 .registerEnumItemClickWithRefresh(endingFilter, auctionFilter)
                 .registerEnumItemClickWithRefresh(endingSort, endTimeFilter);
+    }
+
+    private void openAuctionRemove(CorePlayer player, CoreItem item, Auction auction){
+        CoreItem cancel = server.generateNoModifier(Material.EMERALD_BLOCK)
+                .setName("§aKeep auction")
+                .addToLore("§8Keep auction and do not stop it");
+        CoreItem remove = server.generateNoModifier(Material.REDSTONE_BLOCK)
+                .setName("§cRemove auction")
+                .addToLore("§8Remove auction earlier", " ", "§cYou do not get back your auction creation costs");
+        InventoryBuilder.create("Remove Auction", 3)
+                .openBlocked(player)
+                .fillAll()
+                .addItem(cancel, 2, 2)
+                .addItem(item, 2, 5)
+                .addItem(remove, 2, 8);
+        Runnable run = () -> shopOwnSells(player);
+        player.inventories().registerItemClick(cancel, run);
+        player.inventories().registerItemClick(remove, () -> {
+            try{
+                Items.giveItem(player, auction.getSell()[0]);
+                auctionService.delete(auction);
+                player.info("Received not sold item back").handle();
+            }catch (Exception ignore){
+                player.failure("Auction could not be removed").handle();
+            }
+            run.run();
+        });
     }
 
     private PlayerAuctionSettings updateContent(CorePlayer player, Consumer<PlayerAuctionSettings> update, Runnable runnable){

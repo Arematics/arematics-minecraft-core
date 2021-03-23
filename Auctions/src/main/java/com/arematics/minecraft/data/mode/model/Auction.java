@@ -13,6 +13,7 @@ import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
@@ -23,6 +24,14 @@ import java.util.UUID;
 @AllArgsConstructor
 @Table(name = "auction")
 public class Auction implements Serializable, BukkitItemMapper {
+
+    private static final long serialVersionUID = 3235234525L;
+
+    public static Long readAuctionIdFromItem(CoreItem item){
+        if(!item.getMeta().hasKey("auctionId")) return -1L;
+        return Long.parseLong(item.getMeta().getString("auctionId"));
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long auctionId;
@@ -37,17 +46,25 @@ public class Auction implements Serializable, BukkitItemMapper {
     @Enumerated(EnumType.STRING)
     private AuctionType auctionType;
     private Timestamp endTime;
+    private boolean sold;
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "auctionId", referencedColumnName = "auctionId")
     private Set<Bid> bids;
 
+    public boolean ended(){
+        return this.getEndTime().before(Timestamp.valueOf(LocalDateTime.now()));
+    }
+
     @Override
     public CoreItem mapToItem(Server server) {
-        double bits = this.getBids().isEmpty() ? 0 : Collections.max(this.getBids()).getAmount();
+        double bits = this.getBids().isEmpty() ? this.getStartPrice() : Collections.max(this.getBids()).getAmount();
+        String ending = ended() ? "§aEnded" : "§8Ending in: §e" + TimeUtils.fetchEndDate(this.getEndTime());
         return this.getSell()[0]
-                .addToLore("§7Auction ID: §c" + this.getAuctionId())
-                .addToLore("§7Start Bid Price: §c" + this.getStartPrice())
-                .addToLore("§7Highest Bid Price: §c" + bits)
-                .addToLore("§7Ending in: §c" + TimeUtils.fetchEndDate(this.getEndTime()));
+                .setString("auctionId", String.valueOf(this.getAuctionId()))
+                .addToLore(" ", " ")
+                .addToLore("§8Current Bid Price: §e" + bits + " Coins")
+                .addToLore("§8Instant Buy Price: §e" + this.getInstantSell() + " Coins")
+                .addToLore(" ")
+                .addToLore(ending);
     }
 }
