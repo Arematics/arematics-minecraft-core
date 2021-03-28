@@ -8,6 +8,7 @@ import com.arematics.minecraft.data.global.model.BukkitItemMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -47,24 +48,39 @@ public class Auction implements Serializable, BukkitItemMapper {
     private AuctionType auctionType;
     private Timestamp endTime;
     private boolean sold;
+    private boolean ownerCollected;
+    private boolean bidCollected;
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "auctionId", referencedColumnName = "auctionId")
     private Set<Bid> bids;
 
+    public double highestBidPrice(){
+        return this.getBids().isEmpty() ? this.getStartPrice() : Collections.max(this.getBids()).getAmount();
+    }
+
     public boolean ended(){
-        return this.getEndTime().before(Timestamp.valueOf(LocalDateTime.now()));
+        return this.isSold() || this.getEndTime().before(Timestamp.valueOf(LocalDateTime.now()));
+    }
+
+    public String topBid(){
+        if(!this.getBids().isEmpty()){
+            Bid bid = Collections.max(this.getBids());
+            return Bukkit.getOfflinePlayer(bid.getBidder()).getName();
+        }
+        return "Nobody";
     }
 
     @Override
     public CoreItem mapToItem(Server server) {
         double bits = this.getBids().isEmpty() ? this.getStartPrice() : Collections.max(this.getBids()).getAmount();
         String ending = ended() ? "§aEnded" : "§8Ending in: §e" + TimeUtils.fetchEndDate(this.getEndTime());
-        return this.getSell()[0]
+        CoreItem item = this.getSell()[0]
                 .setString("auctionId", String.valueOf(this.getAuctionId()))
-                .addToLore(" ", " ")
-                .addToLore("§8Current Bid Price: §e" + bits + " Coins")
-                .addToLore("§8Instant Buy Price: §e" + this.getInstantSell() + " Coins")
-                .addToLore(" ")
-                .addToLore(ending);
+                .addToLore(" ");
+        if(bits != 0)
+            item.addToLore(" ", "§8Top Bid: §a" + topBid()).addToLore("§8Current Bid Price: §e" + bits + " Coins");
+        if(instantSell != 0) item.addToLore("", "§8Instant Buy Price: §e" + this.getInstantSell() + " Coins");
+        item.addToLore(" ", ending);
+        return item;
     }
 }

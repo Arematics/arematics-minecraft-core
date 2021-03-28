@@ -22,6 +22,7 @@ public class InventoryData implements Serializable {
     private String dataKey;
     private String title;
     private int slots;
+    private boolean editBlocked;
     @Type(type = "com.arematics.minecraft.data.types.CoreItemType")
     private CoreItem[] items;
 }

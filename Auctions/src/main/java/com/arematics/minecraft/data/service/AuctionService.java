@@ -63,7 +63,9 @@ public class AuctionService {
             types.add(AuctionType.INSTANT_BUY);
         }
         types.add(AuctionType.ALL);
-        return auctionRepository.findAllByItemCategoryAndEndTimeIsAfterAndAuctionTypeIsIn(settings.getItemCategory(),
+        return auctionRepository.findAllByCreatorNotAndItemCategoryAndEndTimeIsAfterAndAuctionTypeIsInAndSoldIsFalse(
+                settings.getUuid(),
+                settings.getItemCategory(),
                 Timestamp.valueOf(LocalDateTime.now()),
                 types,
                 pageable);

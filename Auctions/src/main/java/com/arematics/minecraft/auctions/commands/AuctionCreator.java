@@ -187,7 +187,7 @@ public class AuctionCreator {
             AuctionType type = bitStart == 0 ? AuctionType.INSTANT_BUY : instantBuy == 0 ? AuctionType.BID : AuctionType.ALL;
             Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now().plusHours(time.toStandardHours().getHours()));
             Auction auction = new Auction(null, player.getUUID(), bitStart, instantBuy, new CoreItem[]{item},
-                    item.readCategory(), type, timestamp, false, new HashSet<>());
+                    item.readCategory(), type, timestamp, false, false, false, new HashSet<>());
             ArematicsExecutor.runAsync(() -> auctionService.save(auction));
             player.getPlayer().closeInventory();
             player.getPlayer().getInventory().remove(item);

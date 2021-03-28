@@ -16,8 +16,9 @@ public interface AuctionRepository extends PagingAndSortingRepository<Auction, L
     List<Auction> findAllByCreator(UUID creator);
     Page<Auction> findAllByCreatorAndEndTimeIsAfter(UUID creator, Timestamp date, Pageable pageable);
     Page<Auction> findAllByCreatorAndEndTimeIsBefore(UUID creator, Timestamp date, Pageable pageable);
-    Page<Auction> findAllByItemCategoryAndEndTimeIsAfterAndAuctionTypeIsIn(ItemCategory category,
-                                                                           Timestamp timestamp,
-                                                                           Set<AuctionType> type,
-                                                                           Pageable pageable);
+    Page<Auction> findAllByCreatorNotAndItemCategoryAndEndTimeIsAfterAndAuctionTypeIsInAndSoldIsFalse(UUID creator,
+                                                                                                   ItemCategory category,
+                                                                                                   Timestamp timestamp,
+                                                                                                   Set<AuctionType> type,
+                                                                                                   Pageable pageable);
 }

@@ -66,7 +66,7 @@ public class InventoryService {
     }
 
     public InventoryData saveNew(String key, String title, int slots){
-        return repository.save(new InventoryData(null, key, title, slots, new CoreItem[]{}));
+        return repository.save(new InventoryData(null, key, title, slots, false, new CoreItem[]{}));
     }
 
     private void saveRaw(InventoryData data){

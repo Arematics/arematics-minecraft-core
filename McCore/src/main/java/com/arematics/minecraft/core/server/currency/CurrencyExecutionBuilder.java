@@ -40,6 +40,16 @@ public class CurrencyExecutionBuilder implements ExecutionAmount, ExecutionType,
     }
 
     @Override
+    public boolean removeMoney() {
+        return onSuccess(() -> executor.removeMoney(amount));
+    }
+
+    @Override
+    public boolean addMoney() {
+        return onSuccess(() -> executor.addMoney(amount));
+    }
+
+    @Override
     public ExecutionSuccess setTarget(String target) {
         this.target = target;
         return this;
