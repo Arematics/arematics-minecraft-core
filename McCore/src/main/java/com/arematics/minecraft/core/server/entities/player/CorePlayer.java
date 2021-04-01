@@ -29,6 +29,7 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -103,6 +104,7 @@ public class CorePlayer implements CurrencyEntity {
     private Rank cachedDisplayRank;
 
     private String chatMessage;
+    private Inventory enderChest;
 
     public CorePlayer(Player player){
         this.player = player;
@@ -122,6 +124,9 @@ public class CorePlayer implements CurrencyEntity {
         User user = this.getUser();
         this.cachedRank = user.getRank();
         this.cachedDisplayRank = user.getDisplayRank();
+
+        this.enderChest = inventoryHandler.getOrCreateInventory("enderchest", "§c"
+                + player.getName() + "'s Enderchest", (byte)36);
 
         Configuration configuration = getUser().getConfigurations().get("locale");
         if(configuration != null) this.selectedLocale = Locale.forLanguageTag(configuration.getValue());

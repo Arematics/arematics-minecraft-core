@@ -24,6 +24,7 @@ public class EnderChestCommand extends CoreCommand {
 
     @Override
     public void onDefaultExecute(CorePlayer sender) {
+        sender.inventories().openLowerEnabledInventory(sender.getEnderChest());
         sender.inventories().openLowerEnabledInventory(sender.inventories().getOrCreateInventory("enderchest", "§c"
                 + sender.getName() + "'s Enderchest", (byte)36));
     }
@@ -31,7 +32,10 @@ public class EnderChestCommand extends CoreCommand {
     @SubCommand("{target}")
     @Perm(permission = "other", description = "Allows to open enderchest from other players")
     public void openOtherPlayerInventory(CorePlayer player, User target) {
-        Inventory ec = service.getOrCreate(target.getUuid().toString() + ".enderchest", "§c"
+        CorePlayer online = target.online();
+        Inventory ec;
+        if(online != null) ec = online.getEnderChest();
+        else ec = service.getOrCreate(target.getUuid().toString() + ".enderchest", "§c"
                 + target.getLastName() + "'s Enderchest", (byte)36);
         boolean edit = player.hasPermission("player.inventory.enderchest.other.edit");
         if(edit) openEnabledInventory(player, ec);

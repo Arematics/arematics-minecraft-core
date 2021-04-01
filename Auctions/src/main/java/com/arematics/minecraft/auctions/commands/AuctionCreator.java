@@ -89,8 +89,7 @@ public class AuctionCreator {
                 .addItem(back, 6, 5);
         player.inventories().registerItemClick(timeNext, this::openAuctionTimeChoose);
         if(!item.isSimilar(noItem))
-            player.inventories().registerItemClick(createAuction.get(), () ->
-                    ArematicsExecutor.runAsync(this::createAuction));
+            player.inventories().registerItemClick(createAuction.get(), () -> ArematicsExecutor.runAsync(this::createAuction));
         player.inventories().onItemInOwnInvClick(clicked -> {
             this.item = server.create(clicked);
             builder.addItem(item, 2, 5);

@@ -10,7 +10,8 @@ import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.EnumUtils;
 import com.arematics.minecraft.core.utils.Inventories;
 import com.arematics.minecraft.data.service.InventoryService;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.scheduler.BukkitTask;
@@ -26,7 +27,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-@Data
+@Setter
+@Getter
 public class InventoryHandler {
 
     private static InventoryService inventoryService;
@@ -128,7 +130,7 @@ public class InventoryHandler {
     }
 
     public Inventory getOrCreateInventory(String key, String title, byte slots){
-        return InventoryHandler.inventoryService.getOrCreate(player.getUUID() + "." + key, title, slots);
+        return InventoryHandler.inventoryService.getOrCreate(player.getUUID().toString() + "." + key, title, slots);
     }
 
     public <E extends Enum<E>> InventoryHandler registerEnumItemClickWithRefresh(CoreItem item,
@@ -154,19 +156,19 @@ public class InventoryHandler {
         return this;
     }
 
+    public InventoryHandler registerItemClick(CoreItem item, Runnable run){
+        return registerItemClick(item, (click) -> {
+            run.run();
+            return click;
+        });
+    }
+
     public InventoryHandler unregisterItemListeners(CoreItem item){
         List<ItemUpdateClickListener> listeners = itemUpdateClickListeners.stream()
                 .filter(listener -> item.isSimilar(listener.getItem()))
                 .collect(Collectors.toList());
         listeners.forEach(listener -> ArematicsExecutor.syncRun(() -> server.tearDownItemListener(listener)));
         return this;
-    }
-
-    public InventoryHandler registerItemClick(CoreItem item, Runnable run){
-        return registerItemClick(item, (click) -> {
-            run.run();
-            return click;
-        });
     }
 
     public InventoryHandler enableRefreshTask(){

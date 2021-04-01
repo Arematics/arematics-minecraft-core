@@ -22,7 +22,7 @@ public class ClanMemberService {
         this.repository = clanMemberRepository;
     }
 
-    @Cacheable(cacheNames = "clanMembers")
+    @Cacheable(cacheNames = "clanMembers", key = "#uuid")
     public ClanMember getMember(UUID uuid){
         Optional<ClanMember> clanMember = repository.findById(uuid);
         if(!clanMember.isPresent())
@@ -34,12 +34,12 @@ public class ClanMemberService {
         return getMember(player.getUUID());
     }
 
-    @CachePut(cacheNames = "clanMembers")
+    @CachePut(cacheNames = "clanMembers", key = "#result.uuid")
     public ClanMember update(ClanMember member){
         return repository.save(member);
     }
 
-    @CacheEvict(cacheNames = "clanMembers")
+    @CacheEvict(cacheNames = "clanMembers", key = "#member.uuid")
     public void delete(ClanMember member){
         repository.delete(member);
     }

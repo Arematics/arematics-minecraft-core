@@ -28,6 +28,7 @@ import com.arematics.minecraft.data.service.ClanService;
 import com.arematics.minecraft.data.service.UserService;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Component
 public class ClanCommand extends CoreCommand {
 
     private final Map<ClanInvite, CorePlayer> clanInvites = new HashMap<>();
@@ -224,9 +226,7 @@ public class ClanCommand extends CoreCommand {
                 return rank.getClanRankId().getName().equals(rawRank);
             }
         }).findFirst().orElseThrow(() -> new CommandProcessException("Rank could not be found"));
-        if(member.getRank().getRankLevel() == 0){
-            member.setRank(target.getRank());
-        }
+        if(member.getRank().getRankLevel() == 0) member.setRank(target.getRank());
         target.setRank(result);
         clanMemberService.update(member);
         clanMemberService.update(target);

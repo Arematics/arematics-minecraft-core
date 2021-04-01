@@ -6,6 +6,8 @@ import com.arematics.minecraft.data.mode.repository.InventoryDataRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -13,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
+@CacheConfig(cacheNames = "inventories")
 public class InventoryService {
 
     private final InventoryDataRepository repository;
@@ -22,6 +25,14 @@ public class InventoryService {
     @Autowired
     public InventoryService(InventoryDataRepository inventoryDataRepository){
         this.repository = inventoryDataRepository;
+    }
+
+    @Cacheable(key = "#key")
+    public InventoryData findData(String key){
+        Optional<InventoryData> data = repository.findByDataKey(key);
+        if(!data.isPresent())
+            throw new RuntimeException("Inventory with key: " + key + " could not be found");
+        return data.get();
     }
 
     public Inventory getInventory(String key){

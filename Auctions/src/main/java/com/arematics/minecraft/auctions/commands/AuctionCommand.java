@@ -132,35 +132,31 @@ public class AuctionCommand extends CoreCommand {
                 .enableRefreshTask()
                 .onItemInOwnInvClick(clicked -> new AuctionCreator(player, clicked, server))
                 .registerItemClick(newAuction, () -> new AuctionCreator(player, null, server))
-                .onSlotClick((inv, item) -> {
-                    ArematicsExecutor.runAsync(() -> {
-                        try{
-                            Auction auction = auctionService.findById(Auction.readAuctionIdFromItem(item));
-                            if(auction.ended() && !auction.isSold() && auction.getBids().isEmpty()) {
-                                Items.giveItem(player, auction.getSell()[0]);
-                                auctionService.delete(auction);
-                                player.info("Received not sold item back").handle();
-                                builder.bindPaging(player, binder, false);
-                            }else if(auction.isSold() || !auction.getBids().isEmpty()){
-                                double amount = auction.isSold() ? auction.getInstantSell() : auction.highestBidPrice();
-                                boolean success = server.getCurrencyController()
-                                        .createEvent(player)
-                                        .setAmount(amount)
-                                        .setEventType(CurrencyEventType.TRANSFER)
-                                        .setTarget("auction-sell")
-                                        .addMoney();
-                                if(success){
-                                    if(auction.isSold() || auction.isBidCollected()) auctionService.delete(auction);
-                                    else auction.setOwnerCollected(true);
-                                    player.info("Auction collected successful").handle();
-                                }else
-                                    player.failure("Auction could not be collected").handle();
-                                builder.bindPaging(player, binder, false);
-                            }else
-                                openAuctionRemove(player, item, auction);
-                        }catch (Exception ignore){}
-                    });
-                }, range)
+                .onSlotClick((inv, item) -> ArematicsExecutor.runAsync(() -> {
+                    try{
+                        Auction auction = auctionService.findById(Auction.readAuctionIdFromItem(item));
+                        if(auction.ended() && !auction.isSold() && auction.getBids().isEmpty()) {
+                            Items.giveItem(player, auction.getSell()[0]);
+                            auctionService.delete(auction);
+                            player.info("Received not sold item back").handle();
+                            builder.bindPaging(player, binder, false);
+                        }else if(auction.isSold() || !auction.getBids().isEmpty()){
+                            double amount = auction.isSold() ? auction.getInstantSell() : auction.highestBidPrice();
+                            boolean success = server.getCurrencyController()
+                                    .createEvent(player)
+                                    .setAmount(amount)
+                                    .setEventType(CurrencyEventType.TRANSFER)
+                                    .setTarget("auction-sell")
+                                    .addMoney();
+                            if(success){
+                                if(auction.isSold() || auction.isBidCollected()) auctionService.delete(auction);
+                                else auction.setOwnerCollected(true);
+                                player.info("Auction collected successful").handle();
+                            }else player.failure("Auction could not be collected").handle();
+                            builder.bindPaging(player, binder, false);
+                        }else openAuctionRemove(player, item, auction);
+                    }catch (Exception ignore){}
+                }), range)
                 .registerEnumItemClickWithRefresh(endingFilter, auctionFilter)
                 .registerEnumItemClickWithRefresh(endingSort, endTimeFilter);
     }

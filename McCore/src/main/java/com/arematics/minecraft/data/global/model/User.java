@@ -1,6 +1,8 @@
 package com.arematics.minecraft.data.global.model;
 
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import lombok.*;
+import org.bukkit.Bukkit;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -43,11 +45,16 @@ public class User implements Serializable {
     private Rank displayRank;
     @Column(name = "user_karma", nullable = false)
     private int karma;
+    private String currentServer;
     @NotAudited
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_configurations", joinColumns = @JoinColumn(name = "uuid"))
     @MapKeyColumn(name = "name")
     private Map<String, Configuration> configurations;
+
+    public CorePlayer online(){
+        return CorePlayer.get(Bukkit.getPlayer(uuid));
+    }
 
     @Override
     public boolean equals(Object o) {
