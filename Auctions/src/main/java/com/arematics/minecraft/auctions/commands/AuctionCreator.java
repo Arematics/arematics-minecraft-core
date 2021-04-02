@@ -40,12 +40,12 @@ public class AuctionCreator {
     public AuctionCreator(CorePlayer player, CoreItem item, Server server){
         this.player = player;
         this.server = server;
-        this.moneyExists = server.getMoneyStatistics().getMoneyExists();
-        this.noItem = server.generateNoModifier(Material.WOOD_BUTTON)
+        this.moneyExists = server.moneyStatistics().getMoneyExists();
+        this.noItem = server.items().generateNoModifier(Material.WOOD_BUTTON)
                 .setName("§cNo Item selected")
                 .addToLore("§8Select a item in your inventory");
         if(item == null) this.item = noItem;
-        else this.item = server.create(item);
+        else this.item = server.items().create(item);
         openBaseInventory();
     }
 
@@ -54,27 +54,27 @@ public class AuctionCreator {
         double instantPricing = getDynamicBalance(this.instantBuy, 300, 50);
         double timePrice = (time.toStandardHours().getHours() * 100);
         this.sellPrice = bitPricing + instantPricing + timePrice;
-        CoreItem back = server.create(Items.BACK.clone())
+        CoreItem back = server.items().create(Items.BACK.clone())
                 .bindCommand("auction sells");
-        CoreItem timeNext = server.generateNoModifier(Material.WATCH)
+        CoreItem timeNext = server.items().generateNoModifier(Material.WATCH)
                 .setName("§aChoose Auction Time")
                 .addToLore("§8Current Time: §e" + TimeUtils.toString(time))
                 .addToLore("§8Current Costs: §e" + timePrice + " Coins")
                 .addToLore("§8Click to choose auction time")
                 .addToLore("§8Higher time costs more");
-        CoreItem coinsNext = server.generateNoModifier(Material.GOLD_INGOT)
+        CoreItem coinsNext = server.items().generateNoModifier(Material.GOLD_INGOT)
                 .setName("§aChoose Start Price")
                 .addToLore("§8Current Bit Start: §e" + (bitStart == 0 ? "Not Enabled" : bitStart + " Coins"))
                 .addToLore("§8Current Costs: §e" + bitPricing + " Coins")
                 .addToLore("§8Click to choose start price")
                 .addToLore("§8Higher start price costs more");
-        CoreItem instant = server.generateNoModifier(Material.GOLD_BLOCK)
+        CoreItem instant = server.items().generateNoModifier(Material.GOLD_BLOCK)
                 .setName("§aChoose Instant Buy Price")
                 .addToLore("§8Current Price: §e" + (instantBuy == 0 ? "Not Enabled" : instantBuy + " Coins"))
                 .addToLore("§8Current Costs: §e" + instantPricing + " Coins")
                 .addToLore("§8Click to choose instant buy price")
                 .addToLore("§8Higher instant buy price costs more");
-        AtomicReference<CoreItem> createAuction = new AtomicReference<>(server.generateNoModifier(Material.DIAMOND)
+        AtomicReference<CoreItem> createAuction = new AtomicReference<>(server.items().generateNoModifier(Material.DIAMOND)
                 .setName(item.isSimilar(noItem) ? "§cNo item selected" : "§aCreate auction")
                 .addToLore("§8Current Costs: §e" + sellPrice + " Coins")
                 .addToLore(item.isSimilar(noItem) ? "§cPublish auction not possible" : "§aPublish auction"));
@@ -91,10 +91,10 @@ public class AuctionCreator {
         if(!item.isSimilar(noItem))
             player.inventories().registerItemClick(createAuction.get(), () -> ArematicsExecutor.runAsync(this::createAuction));
         player.inventories().onItemInOwnInvClick(clicked -> {
-            this.item = server.create(clicked);
+            this.item = server.items().create(clicked);
             builder.addItem(item, 2, 5);
             player.inventories().unregisterItemListeners(createAuction.get());
-            createAuction.set(server.generateNoModifier(Material.DIAMOND)
+            createAuction.set(server.items().generateNoModifier(Material.DIAMOND)
                     .setName(item.isSimilar(noItem) ? "§cNo item selected" : "§aCreate auction")
                     .addToLore("§8Current Costs: §e" + sellPrice + " Coins")
                     .addToLore("§aPublish auction"));
@@ -119,14 +119,14 @@ public class AuctionCreator {
     }
 
     public void openAuctionTimeChoose(){
-        CoreItem back = server.create(Items.BACK.clone())
+        CoreItem back = server.items().create(Items.BACK.clone())
                 .removeMeta(CoreItem.BINDED_COMMAND);
         CoreItem timeOneHour = timeItem(Period.hours(1));
         CoreItem timeSixHour = timeItem(Period.hours(6));
         CoreItem timeTwelveHour = timeItem(Period.hours(12));
         CoreItem timeOneDay = timeItem(Period.days(1));
         CoreItem timeThreeDays = timeItem(Period.days(3));
-        CoreItem custom = server.generateNoModifier(Material.SIGN)
+        CoreItem custom = server.items().generateNoModifier(Material.SIGN)
                 .setName("§aSet Custom Auction Time");
         InventoryBuilder.create("Auction Time", 3)
                 .openBlocked(player)
@@ -169,7 +169,7 @@ public class AuctionCreator {
             return;
         }
         Server server = Boots.getBoot(CoreBoot.class).getContext().getBean(Server.class);
-        boolean success = server.getCurrencyController()
+        boolean success = server.currencyController()
                 .createEvent(player)
                 .setAmount(this.sellPrice)
                 .setEventType(CurrencyEventType.WASTE)
@@ -195,7 +195,7 @@ public class AuctionCreator {
     }
 
     private CoreItem timeItem(Period period){
-        CoreItem item = server.generateNoModifier(Material.WATCH)
+        CoreItem item = server.items().generateNoModifier(Material.WATCH)
                 .setName("§aTime: " + TimeUtils.toString(period))
                 .addToLore("§8Set Auction time to §e" + TimeUtils.toString(period))
                 .addToLore("§8Costs: §e" + (period.toStandardHours().getHours() * 100) + " Coins");

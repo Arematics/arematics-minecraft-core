@@ -30,7 +30,7 @@ public class PlayerSlotClickListener implements Listener {
                 && player.inventories().getView().getTopInventory().equals(event.getClickedInventory())
                 && player.inventories().getSlots().toList().contains(event.getSlot())){
             ArematicsExecutor.syncDelayed(() -> player.inventories().getSlotClick().accept(event.getClickedInventory(),
-                    server.createNoModifier(event.getCurrentItem())),
+                    server.items().createNoModifier(event.getCurrentItem())),
                     250,
                     TimeUnit.MILLISECONDS);
         }

@@ -1,7 +1,7 @@
 package com.arematics.minecraft.crystals.logic;
 
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.items.parser.ItemMetaParser;
+import com.arematics.minecraft.core.server.items.parser.ItemMetaParser;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;

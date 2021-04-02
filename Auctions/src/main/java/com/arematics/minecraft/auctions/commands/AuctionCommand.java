@@ -51,13 +51,13 @@ public class AuctionCommand extends CoreCommand {
         InventoryBuilder.create("Auctions", 3)
                 .openBlocked(sender)
                 .fillAll()
-                .addItem(server.generateNoModifier(Material.DIAMOND_BLOCK)
+                .addItem(server.items().generateNoModifier(Material.DIAMOND_BLOCK)
                         .bindCommand("auction search")
                         .setName("§bView All Auctions"), 2,3)
-                .addItem(server.generateNoModifier(Material.BOOK)
+                .addItem(server.items().generateNoModifier(Material.BOOK)
                         .bindCommand("auction bids")
                         .setName("§bYour Bids"), 2,5)
-                .addItem(server.generateNoModifier(Material.CHEST)
+                .addItem(server.items().generateNoModifier(Material.CHEST)
                         .bindCommand("auction sells")
                         .setName("§bManage your auctions"), 2,7);
     }
@@ -69,9 +69,18 @@ public class AuctionCommand extends CoreCommand {
                 playerAuctionSettingsService.findOrCreateDefault(player.getUUID()), 0);
         Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
         PageBinder<Auction> binder = PageBinder.of(auctions, range, server);
-        CoreItem categories = server.generateNoModifier(Material.DIAMOND).setName("§bAuction Categories").bindEnumLore(settings.getItemCategory());
-        CoreItem type = server.generateNoModifier(Material.PAPER).setName("§bAuction Type").bindEnumLore(settings.getAuctionType());
-        CoreItem sort = server.generateNoModifier(Material.DROPPER).setName("§bAuction Sort").bindEnumLore(settings.getAuctionSort());
+        CoreItem categories = server.items()
+                .generateNoModifier(Material.DIAMOND)
+                .setName("§bAuction Categories")
+                .bindEnumLore(settings.getItemCategory());
+        CoreItem type = server.items()
+                .generateNoModifier(Material.PAPER)
+                .setName("§bAuction Type")
+                .bindEnumLore(settings.getAuctionType());
+        CoreItem sort = server.items()
+                .generateNoModifier(Material.DROPPER)
+                .setName("§bAuction Sort")
+                .bindEnumLore(settings.getAuctionSort());
         InventoryBuilder builder = InventoryBuilder.create("Auction Search", 6)
                 .openBlocked(player)
                 .fillOuterLine()
@@ -107,12 +116,12 @@ public class AuctionCommand extends CoreCommand {
     public void shopOwnSells(CorePlayer player) {
         OwnAuctionFilter auctionFilter = OwnAuctionFilter.ALL;
         EndTimeFilter endTimeFilter = EndTimeFilter.ENDING_SOON;
-        CoreItem newAuction = server.generateNoModifier(Material.WORKBENCH)
+        CoreItem newAuction = server.items().generateNoModifier(Material.WORKBENCH)
                 .setName("§aCreate new auction")
                 .addToLore("§8Create a new auction")
                 .addToLore("§8Or click a item in your inventory", "§8to create a new auction for this item");
-        CoreItem endingFilter = server.generateNoModifier(Material.PAPER).setName("§bAuction Ending Filter").bindEnumLore(auctionFilter);
-        CoreItem endingSort = server.generateNoModifier(Material.DROPPER).setName("§bEnd Time Sort").bindEnumLore(endTimeFilter);
+        CoreItem endingFilter = server.items().generateNoModifier(Material.PAPER).setName("§bAuction Ending Filter").bindEnumLore(auctionFilter);
+        CoreItem endingSort = server.items().generateNoModifier(Material.DROPPER).setName("§bEnd Time Sort").bindEnumLore(endTimeFilter);
         Supplier<Page<Auction>> auctions = () -> auctionService.findAllOwnByFilter(player.getUUID(),
                 () -> player.inventories().getEnumOrDefault(endTimeFilter),
                 () -> player.inventories().getEnumOrDefault(auctionFilter),
@@ -136,13 +145,13 @@ public class AuctionCommand extends CoreCommand {
                     try{
                         Auction auction = auctionService.findById(Auction.readAuctionIdFromItem(item));
                         if(auction.ended() && !auction.isSold() && auction.getBids().isEmpty()) {
-                            Items.giveItem(player, auction.getSell()[0]);
+                            server.items().giveItemTo(player, auction.getSell()[0]);
                             auctionService.delete(auction);
                             player.info("Received not sold item back").handle();
                             builder.bindPaging(player, binder, false);
                         }else if(auction.isSold() || !auction.getBids().isEmpty()){
                             double amount = auction.isSold() ? auction.getInstantSell() : auction.highestBidPrice();
-                            boolean success = server.getCurrencyController()
+                            boolean success = server.currencyController()
                                     .createEvent(player)
                                     .setAmount(amount)
                                     .setEventType(CurrencyEventType.TRANSFER)
@@ -162,12 +171,12 @@ public class AuctionCommand extends CoreCommand {
     }
 
     private void openAuctionBuyInventory(CorePlayer player, CoreItem item, Auction auction){
-        CoreItem back = server.create(Items.BACK.clone())
+        CoreItem back = server.items().create(Items.BACK.clone())
                 .removeMeta(CoreItem.BINDED_COMMAND);
-        CoreItem bid = server.generateNoModifier(Material.SIGN)
+        CoreItem bid = server.items().generateNoModifier(Material.SIGN)
                 .setName("§aPlace a bid")
                 .addToLore("§8Keep auction and do not stop it");
-        CoreItem instantBuy = server.generateNoModifier(Material.GOLD_INGOT)
+        CoreItem instantBuy = server.items().generateNoModifier(Material.GOLD_INGOT)
                 .setName("§aInstant Buy Auction")
                 .addToLore("§8Instant Buy Price: §e" + auction.getInstantSell() + " Coins")
                 .addToLore("§8Directly buy this auction for the given price");
@@ -194,7 +203,7 @@ public class AuctionCommand extends CoreCommand {
                             else if(value < min)
                                 player.warn("Minimum 5% higher price then last bid or start price").handle();
                             else{
-                                boolean success = server.getCurrencyController()
+                                boolean success = server.currencyController()
                                         .createEvent(player)
                                         .setAmount(value)
                                         .setEventType(CurrencyEventType.TRANSFER)
@@ -231,14 +240,14 @@ public class AuctionCommand extends CoreCommand {
                             player.warn("Not enough coins to effort this").handle();
                             searchMarket(player);
                         }else{
-                            boolean success = server.getCurrencyController()
+                            boolean success = server.currencyController()
                                     .createEvent(player)
                                     .setAmount(amount)
                                     .setEventType(CurrencyEventType.TRANSFER)
                                     .setTarget("auction-instant-buy")
                                     .onSuccess(() -> player.removeMoney(amount));
                             if(success){
-                                Items.giveItem(player, item);
+                                server.items().giveItemTo(player, item);
                                 auction.setSold(true);
                                 auctionService.save(auction);
                                 player.info("Auction bought").handle();
@@ -256,10 +265,10 @@ public class AuctionCommand extends CoreCommand {
     }
 
     private void openAuctionRemove(CorePlayer player, CoreItem item, Auction auction){
-        CoreItem cancel = server.generateNoModifier(Material.EMERALD_BLOCK)
+        CoreItem cancel = server.items().generateNoModifier(Material.EMERALD_BLOCK)
                 .setName("§aKeep auction")
                 .addToLore("§8Keep auction and do not stop it");
-        CoreItem remove = server.generateNoModifier(Material.REDSTONE_BLOCK)
+        CoreItem remove = server.items().generateNoModifier(Material.REDSTONE_BLOCK)
                 .setName("§cRemove auction")
                 .addToLore("§8Remove auction earlier", " ", "§cYou do not get back your auction creation costs");
         InventoryBuilder.create("Remove Auction", 3)
@@ -272,7 +281,7 @@ public class AuctionCommand extends CoreCommand {
         player.inventories().registerItemClick(cancel, run);
         player.inventories().registerItemClick(remove, () -> {
             try{
-                Items.giveItem(player, auction.getSell()[0]);
+                server.items().giveItemTo(player, auction.getSell()[0]);
                 auctionService.delete(auction);
                 player.info("Received not sold item back").handle();
             }catch (Exception ignore){

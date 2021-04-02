@@ -3,6 +3,7 @@ package com.arematics.minecraft.core.server.items;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
@@ -10,10 +11,15 @@ import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.util.Vector;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Component
+@RequiredArgsConstructor(onConstructor_=@Autowired)
 public class Items {
 
     public static final CoreItem PLAYERHOLDER;
@@ -27,6 +33,38 @@ public class Items {
         NEXT_PAGE = nextPage().bindCommand("page NEXT");
         BEFORE_PAGE = pageBefore().bindCommand("page BEFORE");
         BACK = CoreItem.generate(Material.NETHER_STAR).bindCommand("cmdback").setName("§fBack");
+    }
+
+    private final List<CoreItemCreationModifier> coreItemCreationModifiers;
+
+    public CoreItem generate(Material material){
+        return create(new ItemStack(material));
+    }
+
+    public CoreItem create(ItemStack item){
+        if(item == null || item.getType() == Material.AIR) return null;
+        CoreItem source = new CoreItem(item);
+        for(CoreItemCreationModifier modifier : coreItemCreationModifiers) source = modifier.modify(source);
+        return source;
+    }
+
+    public CoreItem generateNoModifier(Material material){
+        return createNoModifier(new ItemStack(material));
+    }
+
+    public CoreItem createNoModifier(ItemStack item){
+        if(item == null || item.getType() == Material.AIR) return null;
+        return new CoreItem(item);
+    }
+
+    public void giveItemTo(CorePlayer player, ItemStack itemStack){
+        Items.giveItem(player, create(itemStack));
+    }
+
+    public void giveItemsTo(CorePlayer player, ItemStack... contents){
+        Arrays.stream(contents)
+                .filter(item -> item != null && item.getType() != Material.AIR)
+                .forEach(item -> giveItemTo(player, item));
     }
 
     private static CoreItem pageBefore(){
@@ -60,6 +98,12 @@ public class Items {
         return CoreItem.create(Skull.getCustomSkull(path, lore));
     }
 
+    /**
+     *
+     * @param player
+     * @param item
+     */
+    @Deprecated
     public static void giveItem(CorePlayer player, ItemStack... item){
         AtomicInteger integer = new AtomicInteger();
         for(ItemStack ite : item){

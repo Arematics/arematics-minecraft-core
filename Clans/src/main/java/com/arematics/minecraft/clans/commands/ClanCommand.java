@@ -83,7 +83,7 @@ public class ClanCommand extends CoreCommand {
                         .replace("value", tag)
                         .handle();
             }catch (RuntimeException re2){
-                boolean success = server.getCurrencyController()
+                boolean success = server.currencyController()
                         .createEvent(player)
                         .setAmount(25000)
                         .setEventType(CurrencyEventType.WASTE)
@@ -257,7 +257,7 @@ public class ClanCommand extends CoreCommand {
                              @Validator(validators = BalanceValidator.class) Double amount) {
         if(member.getMoney() < amount)
             throw new CommandProcessException("You dont have enough money to afford this");
-        boolean success = this.server.getCurrencyController()
+        boolean success = this.server.currencyController()
                 .createEvent(member.online())
                 .setAmount(amount)
                 .setEventType(CurrencyEventType.TRANSFER)
@@ -286,7 +286,7 @@ public class ClanCommand extends CoreCommand {
     public void removeClanMoney(ClanMember member, Double amount) {
         if(!ClanPermissions.isAdmin(member)) throw new CommandProcessException("Not allowed to perform this");
         if(member.getClan(clanService).getCoins() < amount) throw new CommandProcessException("Clan does not have enough coins");
-        boolean success = this.server.getCurrencyController()
+        boolean success = this.server.currencyController()
                 .createEvent(member.online())
                 .setAmount(amount)
                 .setEventType(CurrencyEventType.TRANSFER)

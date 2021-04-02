@@ -30,7 +30,7 @@ public class MoneyCommand extends CoreCommand {
                                   Double amount) {
         if(sender.getMoney() < amount)
             throw new CommandProcessException("You dont have enough money to afford this");
-        boolean success = this.server.getCurrencyController()
+        boolean success = this.server.currencyController()
                 .createEvent(sender)
                 .setAmount(amount)
                 .setEventType(CurrencyEventType.TRANSFER)
@@ -48,7 +48,7 @@ public class MoneyCommand extends CoreCommand {
     public void addMoneyToPlayer(CorePlayer sender,
                                  CorePlayer target,
                                  Double amount) {
-        boolean success = this.server.getCurrencyController()
+        boolean success = this.server.currencyController()
                 .createEvent(sender)
                 .setAmount(amount)
                 .setEventType(CurrencyEventType.GENERATE)
@@ -67,7 +67,7 @@ public class MoneyCommand extends CoreCommand {
                                  Double amount) {
         if(target.getMoney() < amount)
             throw new CommandProcessException("Player dont have enough money for this");
-        boolean success = this.server.getCurrencyController()
+        boolean success = this.server.currencyController()
                 .createEvent(sender)
                 .setAmount(amount)
                 .setEventType(CurrencyEventType.WASTE)

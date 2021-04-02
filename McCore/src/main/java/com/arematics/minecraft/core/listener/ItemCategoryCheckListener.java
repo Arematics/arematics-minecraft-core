@@ -18,13 +18,13 @@ public class ItemCategoryCheckListener implements Listener {
 
     @EventHandler
     public void onPickup(PlayerPickupItemEvent pickupItemEvent){
-        CoreItem item = server.create(pickupItemEvent.getItem().getItemStack());
+        CoreItem item = server.items().create(pickupItemEvent.getItem().getItemStack());
         pickupItemEvent.getItem().setItemStack(item);
     }
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent dropItemEvent){
-        CoreItem item = server.create(dropItemEvent.getItemDrop().getItemStack());
+        CoreItem item = server.items().create(dropItemEvent.getItemDrop().getItemStack());
         dropItemEvent.getItemDrop().setItemStack(item);
     }
 }

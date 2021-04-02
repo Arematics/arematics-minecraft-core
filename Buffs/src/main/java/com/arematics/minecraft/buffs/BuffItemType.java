@@ -4,7 +4,7 @@ import com.arematics.minecraft.buffs.server.PlayerBuffHandler;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.command.processor.parser.PeriodParser;
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.items.parser.ItemType;
+import com.arematics.minecraft.core.server.items.parser.ItemType;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;

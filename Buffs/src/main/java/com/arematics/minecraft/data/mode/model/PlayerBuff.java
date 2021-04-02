@@ -41,7 +41,7 @@ public class PlayerBuff implements Serializable, BukkitItemMapper {
         String perm = this.getEndTime() == null ? "§aYes" : "§cNo";
         String endTime = this.getEndTime() == null ? "§cNever" :
                 "§a" + TimeUtils.fetchEndDate(this.getEndTime());
-        return server.generateNoModifier(Material.POTION)
+        return server.items().generateNoModifier(Material.POTION)
                 .bindCommand("buffs " + subCommand + " " + this.getPotionEffectType())
                 .setName("§cBuff: " + this.getPotionEffectType())
                 .addToLore("§8Strength: " + (this.getStrength() + 1))

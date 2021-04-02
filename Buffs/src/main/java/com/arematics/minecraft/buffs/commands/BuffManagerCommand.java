@@ -91,7 +91,7 @@ public class BuffManagerCommand extends CoreCommand {
     private void createInventory(CorePlayer sender, Supplier<Page<PlayerBuff>> paging, BuffListMode mode){
         Range range = Range.allHardInRows(1, 7, 1);
         PageBinder<PlayerBuff> binder = PageBinder.of(paging, range, server);
-        CoreItem modeItem = server.generateNoModifier(Material.HOPPER)
+        CoreItem modeItem = server.items().generateNoModifier(Material.HOPPER)
                 .setName("§cQuery Mode")
                 .bindEnumLore(mode);
         InventoryBuilder builder = InventoryBuilder.create("Buffs", 3)

@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.items.parser;
+package com.arematics.minecraft.core.server.items.parser;
 
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.events.CurrencyEvent;

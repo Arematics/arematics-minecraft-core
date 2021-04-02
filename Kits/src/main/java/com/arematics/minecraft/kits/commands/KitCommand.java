@@ -2,24 +2,21 @@ package com.arematics.minecraft.kits.commands;
 
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
 import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
 import com.arematics.minecraft.core.server.entities.player.inventories.paging.Paging;
-import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.KitService;
-import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.function.Supplier;
 
 @Component
@@ -36,10 +33,9 @@ public class KitCommand extends CoreCommand {
 
     @Override
     public void onDefaultExecute(CorePlayer sender) {
-        Supplier<Page<Kit>> paging =
-                () -> service.findKitNames(sender.inventories().getPage());
+        Supplier<Page<Kit>> paging = () -> service.findKitNames(sender.inventories().getPage());
         Paging.createWithMapper(sender, paging)
-                .onCLI("Ignored", "ignore list")
+                .onCLI("Kit", "kit")
                 .onGUI(this::createInventory)
                 .execute();
     }
@@ -55,18 +51,11 @@ public class KitCommand extends CoreCommand {
 
     @SubCommand("{kit}")
     public void giveKit(CorePlayer player, Kit kit) {
-        try{
-            giveToPlayer(kit, player, player.hasPermission("kit.force"));
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        giveToPlayer(kit, player, player.hasPermission("kit.force"));
     }
 
-    private void giveToPlayer(Kit kit, CorePlayer player, boolean force){
-        if(!force && !service.isPermitted(player.getPlayer(), kit)){
-            player.warn("cmd_noperms").handle();
-            return;
-        }
+    private void giveToPlayer(Kit kit, CorePlayer player, boolean force) throws CommandProcessException {
+        if(!force && !service.isPermitted(player.getPlayer(), kit)) throw new CommandProcessException("cmd_noperms");
         if(!force && service.hasCooldownOnKit(player.getUUID(), kit)){
             service.getCooldownOnKit(player.getUUID(), kit)
                     .ifPresent(cooldown -> player.warn("You need to wait until " +
@@ -76,10 +65,7 @@ public class KitCommand extends CoreCommand {
         }
         Inventory inv = inventoryService.getOrCreate("kit.inventory." + kit.getName(), "§6Kit " + kit.getName(),
                 (byte)27);
-        ItemStack[] items = Arrays.stream(inv.getContents())
-                .filter(item -> item != null && item.getType() != Material.AIR)
-                .toArray(ItemStack[]::new);
         service.setCooldownOnKit(player.getUUID(), kit);
-        Items.giveItem(player, items);
+        server.items().giveItemsTo(player, inv.getContents());
     }
 }
