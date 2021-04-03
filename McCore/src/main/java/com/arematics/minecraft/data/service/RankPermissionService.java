@@ -4,6 +4,7 @@ import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.mode.repository.ModeRankPermissionRepository;
 import com.arematics.minecraft.data.share.repository.RanksPermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -22,6 +23,8 @@ public class RankPermissionService {
         this.modeRankPermissionRepository = modeRankPermissionRepository;
     }
 
+
+    @Cacheable(cacheNames = "rankPermissions", key = "#rank + #permission")
     public boolean hasPermission(Rank rank, String permission){
         return checkWildcardsAndPerm(rank, permission);
     }

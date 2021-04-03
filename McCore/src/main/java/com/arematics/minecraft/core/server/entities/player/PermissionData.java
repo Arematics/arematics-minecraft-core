@@ -1,6 +1,5 @@
-package com.arematics.minecraft.core.permissions;
+package com.arematics.minecraft.core.server.entities.player;
 
-import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

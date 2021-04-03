@@ -14,7 +14,6 @@ import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
-import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment;
 import com.arematics.minecraft.core.server.Server;
@@ -243,7 +242,7 @@ public abstract class CoreCommand extends Command {
         sender.addLastCommand(getName() + " " + StringUtils.join(arguments, " "));
         try{
             if(isDefault)
-                Permissions.check(sender, this.classPermission).ifPermitted(this::onDefaultExecute).submit();
+                sender.check(this.classPermission).ifPermitted(this::onDefaultExecute).submit();
             else {
                 MethodProcessorEnvironment environment = MethodProcessorEnvironment
                         .newEnvironment(this, dataPack, this.processors);
@@ -255,7 +254,7 @@ public abstract class CoreCommand extends Command {
                     return matchFound.get() && environment.supply(method);
                 });
                 if(!matchFound.get())
-                    Permissions.check(sender, this.classPermission).ifPermitted(this::onDefaultExecute).submit();
+                    sender.check(this.classPermission).ifPermitted(this::onDefaultExecute).submit();
             }
         }catch (InvocationTargetException pe){
             if(pe.getCause() instanceof CommandProcessException)

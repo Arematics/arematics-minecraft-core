@@ -3,6 +3,7 @@ package com.arematics.minecraft.data.service;
 import com.arematics.minecraft.data.mode.repository.ModeUserPermissionRepository;
 import com.arematics.minecraft.data.share.repository.UserPermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -22,6 +23,7 @@ public class UserPermissionService {
         this.modeUserPermissionRepository = modeUserPermissionRepository;
     }
 
+    @Cacheable(cacheNames = "userPermissions", key = "#uuid + #permission")
     public boolean hasPermission(UUID uuid, String permission){
         return checkWildcardsAndPerm(uuid, permission);
     }

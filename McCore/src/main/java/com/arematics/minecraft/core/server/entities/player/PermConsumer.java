@@ -1,6 +1,4 @@
-package com.arematics.minecraft.core.permissions;
-
-import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+package com.arematics.minecraft.core.server.entities.player;
 
 import java.util.function.Consumer;
 

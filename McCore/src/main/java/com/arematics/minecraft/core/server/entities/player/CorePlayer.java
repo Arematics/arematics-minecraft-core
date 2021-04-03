@@ -6,7 +6,6 @@ import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSet;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
-import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.server.entities.CurrencyEntity;
 import com.arematics.minecraft.core.server.entities.player.protocols.ActionBar;
 import com.arematics.minecraft.core.server.entities.player.protocols.Packets;
@@ -497,6 +496,15 @@ public class CorePlayer implements CurrencyEntity {
     }
 
     public boolean hasPermission(String permission){
-        return Permissions.hasPermission(getUUID(), permission);
+        return userService.hasPermission(getUUID(), permission);
+    }
+
+    /**
+     * Permission Check Consumer executing method if permission is given or other method if permission is not given.
+     * @param permission Permission searching for
+     * @return Class with ifPermitted Consumer and orElse Consumer
+     */
+    public PermConsumer check(String permission){
+        return new PermissionData(this, permission);
     }
 }

@@ -8,8 +8,8 @@ dependencies {
 
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.4.27.Final'
     compile group: 'org.hibernate', name: 'hibernate-envers', version: '5.4.27.Final'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.4.2'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '2.4.2'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.4.4'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '2.4.4'
     compile group: 'org.springframework', name: 'spring-aspects', version: '5.3.3'
 
     compile group: 'redis.clients', name: 'jedis', version: '3.5.1'

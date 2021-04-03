@@ -3,7 +3,6 @@ package com.arematics.minecraft.core.commands;
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.permissions.Permissions;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +15,7 @@ public class InvseeCommand extends CoreCommand {
 
     @SubCommand("{player}")
     public void seeInventory(CorePlayer player, CorePlayer target) {
-        Permissions.check(player,"invsee-change")
+        player.check("invsee-change")
                 .ifPermitted(sender -> player.inventories().openLowerEnabledInventory(target.getPlayer().getInventory()))
                 .orElse(sender -> player.inventories().openTotalBlockedInventory(target.getPlayer().getInventory()));
     }
