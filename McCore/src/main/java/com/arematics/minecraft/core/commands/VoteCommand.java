@@ -5,14 +5,16 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
 import com.arematics.minecraft.core.utils.CommandUtils;
 import com.arematics.minecraft.data.global.model.PlayerVotes;
 import com.arematics.minecraft.data.mode.model.VoteReward;
 import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.PlayerVotesService;
 import com.arematics.minecraft.data.service.VoteRewardService;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Component
@@ -45,31 +48,42 @@ public class VoteCommand extends CoreCommand {
     public void onDefaultExecute(CorePlayer sender) {
         String header = CommandUtils.prettyHeader("Votes", "Information");
         sender.info(header).DEFAULT().disableServerPrefix().handle();
+        Part part = PartBuilder.createHoverAndLink("    §7> Vote Seite 1",
+                "§8Click to open vote page",
+                "http://mcsl.name/55690/" + sender.getName());
+        sender.send(part).disableServerPrefix().handle();
     }
 
     @SubCommand("data")
     @Perm(permission = "data", description = "See your vote data")
     public void listOwnVoteData(CorePlayer sender) {
         List<VoteReward> rewards = this.voteRewardService.findAll();
-        PlayerVotes votes = this.votesService.getOrCreate(sender.getUUID());
-        int size = 18 + 18;
-        Inventory inv = Bukkit.createInventory(null, size, "§aVotes");
-        inv.setItem(3, generatePlayerInfo(votes));
-        sender.inventories().openTotalBlockedInventory(inv);
-        int index = 17 + 2;
+        Supplier<PlayerVotes> votes = () -> this.votesService.getOrCreate(sender.getUUID());
+        CoreItem info = generatePlayerInfo(votes.get());
+        InventoryBuilder builder = InventoryBuilder.create("Votes", 4)
+                .openBlocked(sender)
+                .addItem(info, 1, 5);
+        sender.inventories().registerItemClick(info, (item) -> generatePlayerInfo(votes.get()));
+        int row = 3;
+        int slot = 2;
         for(VoteReward reward : rewards){
-            inv.setItem(index, reward.getDisplayItem()[0]);
-            index += 2;
+            CoreItem item = reward.getDisplayItem()[0];
+            builder.addItem(item, row, slot);
+            slot += 2;
+            if(slot > 9){
+                row++;
+                slot = 2;
+            }
         }
     }
 
     private CoreItem generatePlayerInfo(PlayerVotes playerVotes){
-        return CoreItem.generate(Material.BOOK)
+        return server.items().generateNoModifier(Material.BOOK)
                 .disableClick()
-                .addToLore("    §7> Your Vote Points: §c" + playerVotes.getCurrentVotePoints())
-                .addToLore("    §7> Your Streak: §c" + playerVotes.getStreak() + " Days")
-                .addToLore("    §7> Total Votes: §c" + playerVotes.getTotalVotes())
-                .addToLore("    §7> Free Streak Skips: §c" + playerVotes.getFreeVoteSkips() + " Days")
+                .addToLore("    §8> Your Vote Points: §e" + playerVotes.getCurrentVotePoints())
+                .addToLore("    §8> Your Streak: §e" + playerVotes.getStreak() + " Days")
+                .addToLore("    §8> Total Votes: §e" + playerVotes.getTotalVotes())
+                .addToLore("    §8> Free Streak Skips: §e" + playerVotes.getFreeVoteSkips() + " Days")
                 .setName("§7Your Vote Data");
     }
 
@@ -93,9 +107,9 @@ public class VoteCommand extends CoreCommand {
         }
         List<CoreItem> itemList = Arrays.stream(inv.getContents())
                 .filter(Objects::nonNull)
-                .map(CoreItem::create)
+                .map(server.items()::create)
                 .collect(Collectors.toList());
-        player.getPlayer().getInventory().addItem(itemList.toArray(new CoreItem[]{}));
+        server.items().giveItemsTo(player, itemList);
         votes.setCurrentVotePoints(votes.getCurrentVotePoints() - reward.getCosts());
         this.votesService.updatePlayerVotes(votes);
         player.info("You have received your vote reward").handle();

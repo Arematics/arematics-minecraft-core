@@ -6,6 +6,9 @@ import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSet;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
+import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageReplace;
 import com.arematics.minecraft.core.server.entities.CurrencyEntity;
 import com.arematics.minecraft.core.server.entities.player.protocols.ActionBar;
 import com.arematics.minecraft.core.server.entities.player.protocols.Packets;
@@ -377,6 +380,12 @@ public class CorePlayer implements CurrencyEntity {
 
     public PlayerRequestSettings getRequestSettings(){
         return this.requestSettings;
+    }
+
+    public AdvancedMessageReplace send(Part part){
+        return info("%value%")
+                .setInjector(AdvancedMessageInjector.class)
+                .replace("value", part);
     }
 
     public MessageInjector info(String msg){

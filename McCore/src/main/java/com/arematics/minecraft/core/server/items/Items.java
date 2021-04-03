@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
@@ -58,13 +59,17 @@ public class Items {
     }
 
     public void giveItemTo(CorePlayer player, ItemStack itemStack){
-        Items.giveItem(player, create(itemStack));
+        giveItem(player, create(itemStack));
     }
 
     public void giveItemsTo(CorePlayer player, ItemStack... contents){
         Arrays.stream(contents)
                 .filter(item -> item != null && item.getType() != Material.AIR)
                 .forEach(item -> giveItemTo(player, item));
+    }
+
+    public void giveItemsTo(CorePlayer player, List<CoreItem> items){
+        items.stream().filter(Objects::nonNull).forEach(item -> giveItemTo(player, item));
     }
 
     private static CoreItem pageBefore(){

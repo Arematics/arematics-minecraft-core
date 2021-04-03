@@ -1,13 +1,18 @@
 package com.arematics.minecraft.core.server.items.parser;
 
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor(onConstructor_=@Autowired)
 public class DefaultItemType extends ItemType {
+
+    private final Server server;
 
     @Override
     public String propertyValue() {
@@ -17,10 +22,10 @@ public class DefaultItemType extends ItemType {
     @Override
     public Part execute(CorePlayer player, CoreItem item) {
         try{
-            CoreItem clone = CoreItem.create(item.clone());
+            CoreItem clone = server.items().create(item.clone());
             clone.getMeta().clearCustomNBT();
             clone.clearLore().clearName();
-            Items.giveItem(player, clone);
+            server.items().giveItemTo(player, clone);
             return new Part(clone.getItemMeta().getDisplayName() != null ? clone.getItemMeta().getDisplayName() :
                     clone.getType().name())
                     .setHoverActionShowItem(clone);

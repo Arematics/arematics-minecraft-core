@@ -14,6 +14,12 @@ public class PartBuilder {
                 .setClickAction(ClickAction.RUN_COMMAND, runCommand);
     }
 
+    public static Part createHoverAndLink(String text, String hover, String link) {
+        return new Part(text)
+                .setHoverAction(HoverAction.SHOW_TEXT, hover)
+                .setClickAction(ClickAction.OPEN_URL, link);
+    }
+
     public static Part createAcceptMessage(String acceptMessage, String cmd){
         return PartBuilder.createHoverAndRun("ACCEPT", "§aAccept " + acceptMessage,
                 "/" + cmd).setBaseColor(JsonColor.GREEN);
