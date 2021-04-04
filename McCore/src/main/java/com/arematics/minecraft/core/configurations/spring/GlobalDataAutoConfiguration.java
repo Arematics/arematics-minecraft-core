@@ -1,6 +1,5 @@
-package com.arematics.minecraft.core;
+package com.arematics.minecraft.core.configurations.spring;
 
-import com.arematics.minecraft.core.annotations.IgnoreInAppScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -19,7 +18,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.util.HashMap;
 
-@IgnoreInAppScan
 @Configuration
 @EnableJpaRepositories(basePackages = {"com.arematics.minecraft.data.global", "com.arematics.minecraft.data.share"})
 public class GlobalDataAutoConfiguration {

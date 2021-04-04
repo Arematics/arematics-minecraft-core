@@ -13,10 +13,7 @@ import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.EnumUtils;
 import com.arematics.minecraft.data.global.model.EndTimeFilter;
-import com.arematics.minecraft.data.mode.model.Auction;
-import com.arematics.minecraft.data.mode.model.Bid;
-import com.arematics.minecraft.data.mode.model.OwnAuctionFilter;
-import com.arematics.minecraft.data.mode.model.PlayerAuctionSettings;
+import com.arematics.minecraft.data.mode.model.*;
 import com.arematics.minecraft.data.service.AuctionService;
 import com.arematics.minecraft.data.service.BidService;
 import com.arematics.minecraft.data.service.PlayerAuctionSettingsService;
@@ -26,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -95,7 +93,7 @@ public class AuctionCommand extends CoreCommand {
                 .onSlotClick((inv, item) -> {
                     try{
                         Auction auction = auctionService.findById(Auction.readAuctionIdFromItem(item));
-                        openAuctionBuyInventory(player, item, auction);
+                        player.dispatchCommand("auction " + auction.getAuctionId());
                     }catch (Exception ignore){}
                 }, range)
                 .enableRefreshTask();
@@ -144,39 +142,141 @@ public class AuctionCommand extends CoreCommand {
                 .onSlotClick((inv, item) -> ArematicsExecutor.runAsync(() -> {
                     try{
                         Auction auction = auctionService.findById(Auction.readAuctionIdFromItem(item));
-                        if(auction.ended() && !auction.isSold() && auction.getBids().isEmpty()) {
-                            server.items().giveItemTo(player, auction.getSell()[0]);
-                            auctionService.delete(auction);
-                            player.info("Received not sold item back").handle();
-                            builder.bindPaging(player, binder, false);
-                        }else if(auction.isSold() || !auction.getBids().isEmpty()){
-                            double amount = auction.isSold() ? auction.getInstantSell() : auction.highestBidPrice();
-                            boolean success = server.currencyController()
-                                    .createEvent(player)
-                                    .setAmount(amount)
-                                    .setEventType(CurrencyEventType.TRANSFER)
-                                    .setTarget("auction-sell")
-                                    .addMoney();
-                            if(success){
-                                if(auction.isSold() || auction.isBidCollected()) auctionService.delete(auction);
-                                else auction.setOwnerCollected(true);
-                                player.info("Auction collected successful").handle();
-                            }else player.failure("Auction could not be collected").handle();
-                            builder.bindPaging(player, binder, false);
-                        }else openAuctionRemove(player, item, auction);
+                        player.dispatchCommand("auction collect " + auction.getAuctionId());
                     }catch (Exception ignore){}
                 }), range)
                 .registerEnumItemClickWithRefresh(endingFilter, auctionFilter)
                 .registerEnumItemClickWithRefresh(endingSort, endTimeFilter);
     }
 
-    private void openAuctionBuyInventory(CorePlayer player, CoreItem item, Auction auction){
+    @SubCommand("{auction}")
+    public void openAuctionToBuyOrEdit(CorePlayer sender, Auction auction) {
+        if(sender.getUUID().equals(auction.getCreator())) openAuctionRemove(sender, auction);
+        else openAuctionBuyInventory(sender, auction);
+    }
+
+    @SubCommand("buy {auction}")
+    public void instantBuyAuction(CorePlayer sender, Auction auction) {
+        if(sender.getUUID().equals(auction.getCreator()))
+            throw new CommandProcessException("You are not allowed to buy your own auction");
+        if(auction.getInstantSell() == 0)
+            throw new CommandProcessException("Auction is not for instant sell");
+
+        if(auction.ended()) {
+            sender.warn("Auction arleady ended or sold").handle();
+            searchMarket(sender);
+        }else {
+            double amount = auction.getInstantSell();
+            if(sender.getMoney() < amount){
+                sender.warn("Not enough coins to effort this").handle();
+                searchMarket(sender);
+            }else{
+                CoreItem item = auction.getSell()[0];
+                boolean success = server.currencyController()
+                        .createEvent(sender)
+                        .setAmount(amount)
+                        .setEventType(CurrencyEventType.TRANSFER)
+                        .setTarget("auction-instant-buy")
+                        .onSuccess(() -> sender.removeMoney(amount));
+                if(success){
+                    server.items().giveItemTo(sender, item);
+                    auction.setSold(true);
+                    auctionService.save(auction);
+                    sender.info("Auction bought").handle();
+                    sender.getPlayer().closeInventory();
+                }else
+                    sender.failure("Auction could not be bought").handle();
+            }
+        }
+    }
+
+    @SubCommand("bid {auction}")
+    public void bidOnAuction(CorePlayer sender, Auction auction) {
+        if(auction.getStartPrice() == 0)
+            throw new CommandProcessException("Auction is not for bid");
+        if(sender.getUUID().equals(auction.getCreator()))
+            throw new CommandProcessException("You are not allowed to bid on your own auction");
+        if(auction.ended()) {
+            sender.warn("Auction already ended or sold").handle();
+            searchMarket(sender);
+        }else {
+            BidId id = new BidId(auction.getAuctionId(), sender.getUUID());
+            Bid bid = null;
+            try{
+                bid = bidService.findById(id);
+                auction.getBids().remove(bid);
+            }catch (Exception ignore){}
+            double min = Math.max(auction.getStartPrice(), auction.highestBidPrice())
+                    * 1.05 - (bid != null ? bid.getAmount() : 0);
+            try {
+                String result = ArematicsExecutor.awaitAnvilResult("bid: ", new DecimalFormat("#0").format(min), sender);
+                double value = Double.parseDouble(result);
+                if(sender.getMoney() < value)
+                    sender.warn("Not enough money").handle();
+                else if(value < min)
+                    sender.warn("Minimum 5% higher price then current highest bid or start price").handle();
+                else{
+                    boolean success = server.currencyController()
+                            .createEvent(sender)
+                            .setAmount(value)
+                            .setEventType(CurrencyEventType.TRANSFER)
+                            .setTarget("auction-bid")
+                            .onSuccess(() -> sender.removeMoney(value));
+                    if(success){
+                        if(bid == null) bid = new Bid(auction.getAuctionId(), sender.getUUID(), value);
+                        else bid.setAmount(value);
+                        bidService.save(bid);
+                        auction.setEndTime(Timestamp.valueOf(auction.getEndTime().toLocalDateTime()
+                                .plusSeconds(20)));
+                        sender.info("Bid placed").handle();
+                    }else sender.failure("Bid could not be placed").handle();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                sender.failure("Auction bid could not be place").handle();
+            }
+            auction.getBids().add(bid);
+            auctionService.save(auction);
+        }
+    }
+
+    @SubCommand("collect {auction}")
+    public void collectOwnAuction(CorePlayer sender, Auction auction) {
+        if(!sender.getUUID().equals(auction.getCreator()))
+            throw new CommandProcessException("Not your own auction");
+        if(!auction.ended()) {
+            sender.dispatchCommand("auction " + auction.getAuctionId());
+            return;
+        }
+        double amount = auction.isSold() ? auction.getInstantSell() : auction.highestBidPrice();
+        if(amount == auction.getStartPrice()){
+            server.items().giveItemTo(sender, auction.getSell()[0]);
+            sender.info("Received not sold item back").handle();
+        }else{
+            boolean success = server.currencyController()
+                    .createEvent(sender)
+                    .setAmount(amount)
+                    .setEventType(CurrencyEventType.TRANSFER)
+                    .setTarget("auction-sell")
+                    .addMoney();
+            if(success)
+                sender.info("Auction collected successful").handle();
+            else
+                throw new CommandProcessException("Auction could not be collected");
+        }
+        auctionService.delete(auction);
+    }
+
+    private void openAuctionBuyInventory(CorePlayer player, Auction auction){
+        CoreItem item = auction.getSell()[0];
         CoreItem back = server.items().create(Items.BACK.clone())
                 .removeMeta(CoreItem.BINDED_COMMAND);
-        CoreItem bid = server.items().generateNoModifier(Material.SIGN)
+        CoreItem bidItem = server.items().generateNoModifier(Material.SIGN)
+                .bindCommand("auction bid " + auction.getAuctionId())
                 .setName("§aPlace a bid")
                 .addToLore("§8Keep auction and do not stop it");
         CoreItem instantBuy = server.items().generateNoModifier(Material.GOLD_INGOT)
+                .bindCommand("auction buy " + auction.getAuctionId())
                 .setName("§aInstant Buy Auction")
                 .addToLore("§8Instant Buy Price: §e" + auction.getInstantSell() + " Coins")
                 .addToLore("§8Directly buy this auction for the given price");
@@ -185,86 +285,17 @@ public class AuctionCommand extends CoreCommand {
                 .fillAll()
                 .addItem(item, 2, 5)
                 .addItem(back, 6, 5);
-        if(auction.getStartPrice() != 0) {
-            builder.addItem(bid, 4, 3);
-            player.inventories().registerItemClick(bid, () -> {
-                ArematicsExecutor.runAsync(() -> {
-                    if(auction.ended()) {
-                        player.warn("Auction arleady ended or sold").handle();
-                        searchMarket(player);
-                    }else {
-                        double min = Math.max(auction.getStartPrice(), auction.highestBidPrice())
-                                * 1.05;
-                        try {
-                            String result = ArematicsExecutor.awaitAnvilResult("bid: ", String.valueOf(min), player);
-                            double value = Double.parseDouble(result);
-                            if(player.getMoney() < value)
-                                player.warn("Not enough money").handle();
-                            else if(value < min)
-                                player.warn("Minimum 5% higher price then last bid or start price").handle();
-                            else{
-                                boolean success = server.currencyController()
-                                        .createEvent(player)
-                                        .setAmount(value)
-                                        .setEventType(CurrencyEventType.TRANSFER)
-                                        .setTarget("auction-bid")
-                                        .onSuccess(() -> player.removeMoney(value));
-                                if(success){
-                                    Bid newBid = new Bid(auction.getAuctionId(), player.getUUID(), value);
-                                    newBid = bidService.save(newBid);
-                                    auction.getBids().add(newBid);
-                                    auction.setEndTime(Timestamp.valueOf(auction.getEndTime().toLocalDateTime()
-                                            .plusSeconds(20)));
-                                    auctionService.save(auction);
-                                    player.info("Bid placed").handle();
-                                }else player.failure("Bid could not be placed").handle();
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            player.failure("Auction bid could not be place").handle();
-                        }
-                    }
-                });
-            });
-        }
-        if(auction.getInstantSell() != 0) {
+        if(auction.getStartPrice() != 0)
+            builder.addItem(bidItem, 4, 3);
+        if(auction.getInstantSell() != 0)
             builder.addItem(instantBuy, 4, 7);
-            player.inventories().registerItemClick(instantBuy, () -> {
-                ArematicsExecutor.runAsync(() -> {
-                    if(auction.ended()) {
-                        player.warn("Auction arleady ended or sold").handle();
-                        searchMarket(player);
-                    }else {
-                        double amount = auction.getInstantSell();
-                        if(player.getMoney() < amount){
-                            player.warn("Not enough coins to effort this").handle();
-                            searchMarket(player);
-                        }else{
-                            boolean success = server.currencyController()
-                                    .createEvent(player)
-                                    .setAmount(amount)
-                                    .setEventType(CurrencyEventType.TRANSFER)
-                                    .setTarget("auction-instant-buy")
-                                    .onSuccess(() -> player.removeMoney(amount));
-                            if(success){
-                                server.items().giveItemTo(player, item);
-                                auction.setSold(true);
-                                auctionService.save(auction);
-                                player.info("Auction bought").handle();
-                                player.getPlayer().closeInventory();
-                            }else
-                                player.failure("Auction could bought").handle();
-                        }
-                    }
-                });
-            });
-        }
         player.inventories().registerItemClick(back, () -> this.searchMarket(player));
 
 
     }
 
-    private void openAuctionRemove(CorePlayer player, CoreItem item, Auction auction){
+    private void openAuctionRemove(CorePlayer player, Auction auction){
+        CoreItem item = auction.getSell()[0];
         CoreItem cancel = server.items().generateNoModifier(Material.EMERALD_BLOCK)
                 .setName("§aKeep auction")
                 .addToLore("§8Keep auction and do not stop it");

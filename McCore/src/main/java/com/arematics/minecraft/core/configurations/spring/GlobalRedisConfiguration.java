@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core;
+package com.arematics.minecraft.core.configurations.spring;
 
 import com.arematics.minecraft.data.redis.GlobalRedisMessageSubscriber;
 import org.springframework.beans.factory.annotation.Qualifier;

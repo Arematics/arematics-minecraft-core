@@ -38,15 +38,15 @@ public class AuctionService {
         OwnAuctionFilter filter = typeSupplier.get();
         switch (filter) {
             case NOT_ENDED:
-                return auctionRepository.findAllByCreatorAndEndTimeIsAfter(creator,
+                return auctionRepository.findAllByCreatorAndEndTimeIsAfterAndOwnerCollectedIsFalse(creator,
                         Timestamp.valueOf(LocalDateTime.now()),
                         pageable);
             case ENDED:
-                return auctionRepository.findAllByCreatorAndEndTimeIsBefore(creator,
+                return auctionRepository.findAllByCreatorAndEndTimeIsBeforeAndOwnerCollectedIsFalse(creator,
                         Timestamp.valueOf(LocalDateTime.now()),
                         pageable);
             default:
-                return auctionRepository.findAllByCreatorAndEndTimeIsAfter(creator,
+                return auctionRepository.findAllByCreatorAndEndTimeIsAfterAndOwnerCollectedIsFalse(creator,
                         Timestamp.valueOf(LocalDateTime.of(2000, 1, 1, 1, 1, 1)),
                         pageable);
         }

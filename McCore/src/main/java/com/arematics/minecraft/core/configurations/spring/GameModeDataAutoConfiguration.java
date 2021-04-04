@@ -1,6 +1,5 @@
-package com.arematics.minecraft.core;
+package com.arematics.minecraft.core.configurations.spring;
 
-import com.arematics.minecraft.core.annotations.IgnoreInAppScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -14,7 +13,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
-@IgnoreInAppScan
 @Configuration
 @EnableJpaRepositories(basePackages = {"com.arematics.minecraft.data.mode"},
         entityManagerFactoryRef = "gameModeEntityManager",

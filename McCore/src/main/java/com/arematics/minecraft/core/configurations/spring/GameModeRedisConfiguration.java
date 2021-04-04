@@ -1,5 +1,6 @@
-package com.arematics.minecraft.core;
+package com.arematics.minecraft.core.configurations.spring;
 
+import com.arematics.minecraft.core.BukkitSerializer;
 import com.arematics.minecraft.data.redis.ModeRedisMessageSubscriber;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
