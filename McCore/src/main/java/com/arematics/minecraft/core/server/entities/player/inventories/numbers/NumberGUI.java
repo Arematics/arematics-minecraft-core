@@ -8,7 +8,6 @@ import com.arematics.minecraft.core.server.entities.player.inventories.Inventory
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
 import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -28,7 +27,7 @@ public class NumberGUI {
     private final String key;
     private final boolean allowDouble;
     private final CorePlayer player;
-    private final List<PositionItem> codex = new ArrayList<>();
+    private final List<CoreItem> codex = new ArrayList<>();
     private final CloseHandler closeHandler;
     private final double min;
     private final double max;
@@ -57,12 +56,20 @@ public class NumberGUI {
         this.max = max.doubleValue();
         this.player = player;
         this.value = startValue.doubleValue();
+        if(value == 0) value = 1;
+        CoreItem info = CoreItem.generate(Material.SIGN)
+                .setName("§a" + key)
+                .addToLore("§8Select a number value")
+                .addToLore("§8Use §eLEFT Click §8to count up")
+                .addToLore("§8Use §eRIGHT Click §8to count down")
+                .addToLore("§cClose inventory or click on 'send' to end number input");
         CoreItem close = CoreItem.generate(Material.EMERALD_BLOCK)
                 .setName("§aSend number")
                 .addToLore("§8Value: §e" + value);
         this.builder = InventoryBuilder.create("Select Number", 3)
                 .openBlocked(player)
                 .fillOuterLine()
+                .addItem(info, 1, 5)
                 .addItem(close, 3, 5);
         player.inventories().onSlotClick((inv, item) ->
                 ArematicsExecutor.asyncDelayed(this::refreshInventory, 100, TimeUnit.MILLISECONDS), Range.allInRow(2));
@@ -89,8 +96,7 @@ public class NumberGUI {
         int clone = (int) value;
         while(clone > 0){
             int val = clone % 10;
-            PositionItem item = new PositionItem((float) val, Items.NUMBERS.get(val));
-            this.codex.add(0, item);
+            this.codex.add(0, Items.NUMBERS.get(val));
             clone = clone / 10;
         }
     }
@@ -102,40 +108,20 @@ public class NumberGUI {
                 .forEach(index -> builder.addItem(null, 2, index));
         IntStream.range(currentStart, end)
                 .forEach(index -> builder.addItem(prepareItem(index), 2, pos.getAndIncrement()));
-        CoreItem moveLeft = CoreItem.generate(Material.ARROW)
-                .setName("Move Left");
-        CoreItem moveRight = CoreItem.generate(Material.ARROW)
-                .setName("Move Right");
-        if(codex.size() - 1 > end){
-            builder.addItem(moveRight, 3, 9);
-            player.inventories().registerItemClick(moveRight, () -> {
-                this.currentStart += 1;
-                this.refreshInventory();
-            });
-        }else builder.fillWithPlaceholder(Range.custom(9*2 + 8));
-        if(currentStart > 0){
-            builder.addItem(moveLeft, 3, 1);
-            player.inventories().registerItemClick(moveLeft, () -> {
-                this.currentStart -= 1;
-                this.refreshInventory();
-            });
-        }else builder.fillWithPlaceholder(Range.custom(9*2));
     }
 
     private CoreItem prepareItem(int index){
-        PositionItem positionItem = codex.get(index);
+        CoreItem item = CoreItem.create(codex.get(index)).setString("index", "a" + index);
         double changeVal = Math.pow(10, ((codex.size() - 1) - index));
-        CoreItem item = CoreItem.create(positionItem.item).addToLore("Index: " + index);
-        player.inventories().registerItemClick(item, ClickType.RIGHT, (i) -> {
-            if(value - changeVal < min) return i;
-            value -= changeVal;
-            return i;
-        });
-        player.inventories().registerItemClick(item, ClickType.LEFT, (i) -> {
-            if(value + changeVal > max) return i;
-            value += changeVal;
-            return i;
-        });
+        player.inventories().registerItemClick(item, ClickType.RIGHT, (i) -> upOrDown(i, true, changeVal));
+        player.inventories().registerItemClick(item, ClickType.LEFT, (i) -> upOrDown(i, false, changeVal));
+        return item;
+    }
+
+    private CoreItem upOrDown(CoreItem item, boolean down, double changeVal){
+        if(value + changeVal > max || value - changeVal < min) return item;
+        if(down) value -= changeVal;
+        else value += changeVal;
         return item;
     }
 
@@ -145,12 +131,6 @@ public class NumberGUI {
             player.getPlayer().closeInventory();
         this.closeHandler.onClose(player, value);
         HandlerList.unregisterAll(guiListener);
-    }
-
-    @RequiredArgsConstructor
-    private static class PositionItem{
-        private final float number;
-        private final CoreItem item;
     }
 
     private class GUIListener implements Listener {
@@ -163,7 +143,6 @@ public class NumberGUI {
             }
         }
     }
-
 
     public interface CloseHandler{
         void onClose(CorePlayer player, Number result);

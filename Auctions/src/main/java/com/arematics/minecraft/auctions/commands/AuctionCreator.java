@@ -103,17 +103,19 @@ public class AuctionCreator {
                     ArematicsExecutor.runAsync(this::createAuction));
         });
         player.inventories().registerItemClick(coinsNext, () -> ArematicsExecutor.runAsync(() -> {
-            try {
-                String result = ArematicsExecutor.awaitAnvilResult("startPrice", String.valueOf(this.bitStart), player);
-                this.bitStart = Double.parseDouble(result);
-            } catch (Exception ignore) {}
+            try{
+                this.bitStart = ArematicsExecutor
+                        .awaitNumberResult("Set Start Price ", 1, bitStart, player)
+                        .doubleValue();
+            }catch (Exception ignore){}
             this.openBaseInventory();
         }));
         player.inventories().registerItemClick(instant, () -> ArematicsExecutor.runAsync(() -> {
-            try {
-                String result = ArematicsExecutor.awaitAnvilResult("buyPrice", String.valueOf(this.instantBuy), player);
-                this.instantBuy = Double.parseDouble(result);
-            } catch (Exception ignore) {}
+            try{
+                this.instantBuy = ArematicsExecutor
+                        .awaitNumberResult("Set Instant Buy Price ", 1, instantBuy, player)
+                        .doubleValue();
+            }catch (Exception ignore){}
             this.openBaseInventory();
         }));
     }
@@ -146,13 +148,12 @@ public class AuctionCreator {
         player.inventories().registerItemClick(timeThreeDays, () -> onItemClick(Period.days(3)));
         player.inventories().registerItemClick(custom, () -> ArematicsExecutor.runAsync(() -> {
             try {
-                String result = ArematicsExecutor.awaitAnvilResult("hours", player);
-                int hours = Integer.parseInt(result);
+                int hours = ArematicsExecutor.awaitNumberResult("Choose hours ", 1, 7*24, 1, player).intValue();
                 if(hours > (7*24)) {
                     player.warn("Maximum of " + (7*24) + " hours").handle();
                     throw new Exception("Not okay");
                 }
-                this.time = Period.hours(Integer.parseInt(result)).normalizedStandard();
+                this.time = Period.hours(hours).normalizedStandard();
             } catch (Exception ignore) {}
             this.openBaseInventory();
         }));

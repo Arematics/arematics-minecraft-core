@@ -48,6 +48,15 @@ public class ArematicsExecutor {
                 }));
     }
 
+    public static Number awaitNumberResult(String key, Number min, Number max, Number startValue, CorePlayer player)
+            throws InterruptedException {
+        return ArematicsExecutor.awaitNumberResult((res, latch) ->
+                new NumberGUI(key, min, max, startValue, true, player, (p, result) -> {
+                    res.set(result);
+                    latch.countDown();
+                }));
+    }
+
     public static String awaitResult(BiConsumer<AtomicReference<String>, CountDownLatch> consumer) throws InterruptedException {
         AtomicReference<String> res = new AtomicReference<>("");
         CountDownLatch countDownLatch = new CountDownLatch(1);
