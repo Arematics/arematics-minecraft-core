@@ -31,6 +31,10 @@ public class Range implements IntegerBox {
         return new Range(Arrays.stream(indexes).map(index -> startIndex + index).toArray());
     }
 
+    public static Range allInRow(int row){
+        return inRow(row, 0, 1, 2, 3, 4, 5, 6, 7, 8);
+    }
+
     public static Range allInRow(Inventory inv, int row, CoreItem... items){
         List<CoreItem> clones = Arrays.asList(items);
         ItemStack[] contents = inv.getContents();

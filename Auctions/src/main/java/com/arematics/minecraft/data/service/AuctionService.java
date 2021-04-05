@@ -79,6 +79,7 @@ public class AuctionService {
         return result.get();
     }
 
+    @CacheEvict(key = "#result.auctionId")
     @CachePut(key = "#result.auctionId")
     public Auction save(Auction auction){
         return auctionRepository.save(auction);

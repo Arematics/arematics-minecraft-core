@@ -24,7 +24,7 @@ public class RankPermissionService {
     }
 
 
-    @Cacheable(cacheNames = "rankPermissions", key = "#rank + #permission")
+    @Cacheable(cacheNames = "rankPermissions", key = "#rank.id + #permission")
     public boolean hasPermission(Rank rank, String permission){
         return checkWildcardsAndPerm(rank, permission);
     }

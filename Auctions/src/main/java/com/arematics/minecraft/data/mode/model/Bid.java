@@ -5,10 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -17,6 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @IdClass(BidId.class)
+@Embeddable
 @Table(name = "auction_bid")
 public class Bid implements Serializable, Comparable<Bid> {
     @Id

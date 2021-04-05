@@ -12,6 +12,7 @@ import com.arematics.minecraft.core.utils.Inventories;
 import com.arematics.minecraft.data.service.InventoryService;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.scheduler.BukkitTask;
@@ -156,6 +157,12 @@ public class InventoryHandler {
         return this;
     }
 
+    public InventoryHandler registerItemClick(CoreItem item, ClickType type, Function<CoreItem, CoreItem> action){
+        ArematicsExecutor.syncDelayed(() -> server.registerItemListener(player, item, type, action), 250,
+                TimeUnit.MILLISECONDS);
+        return this;
+    }
+
     public InventoryHandler registerItemClick(CoreItem item, Runnable run){
         return registerItemClick(item, (click) -> {
             run.run();
@@ -168,6 +175,11 @@ public class InventoryHandler {
                 .filter(listener -> item.isSimilar(listener.getItem()))
                 .collect(Collectors.toList());
         listeners.forEach(listener -> ArematicsExecutor.syncRun(() -> server.tearDownItemListener(listener)));
+        return this;
+    }
+
+    public InventoryHandler unregisterAllItemListeners(){
+        itemUpdateClickListeners.forEach(listener -> ArematicsExecutor.syncRun(() -> server.tearDownItemListener(listener)));
         return this;
     }
 

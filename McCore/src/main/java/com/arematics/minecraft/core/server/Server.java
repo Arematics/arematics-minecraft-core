@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.inventory.ClickType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +43,13 @@ public class Server {
     }
 
     public void registerItemListener(CorePlayer player, CoreItem item, Function<CoreItem, CoreItem> function){
-        ItemUpdateClickListener listener = new ItemUpdateClickListener(item, function);
+        ItemUpdateClickListener listener = new ItemUpdateClickListener(item, null, function);
+        player.inventories().addListener(listener);
+        Bukkit.getPluginManager().registerEvents(listener, Boots.getBoot(CoreBoot.class));
+    }
+
+    public void registerItemListener(CorePlayer player, CoreItem item, ClickType type, Function<CoreItem, CoreItem> function){
+        ItemUpdateClickListener listener = new ItemUpdateClickListener(item, type, function);
         player.inventories().addListener(listener);
         Bukkit.getPluginManager().registerEvents(listener, Boots.getBoot(CoreBoot.class));
     }

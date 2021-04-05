@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.anvil.AnvilGUI;
+import com.arematics.minecraft.core.server.entities.player.inventories.numbers.NumberGUI;
 import com.arematics.minecraft.core.times.TimeUtils;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -38,8 +39,25 @@ public class ArematicsExecutor {
                 }));
     }
 
+    public static Number awaitNumberResult(String key, Number min, Number startValue, CorePlayer player)
+            throws InterruptedException {
+        return ArematicsExecutor.awaitNumberResult((res, latch) ->
+                new NumberGUI(key, min, startValue, player, (p, result) -> {
+                    res.set(result);
+                    latch.countDown();
+                }));
+    }
+
     public static String awaitResult(BiConsumer<AtomicReference<String>, CountDownLatch> consumer) throws InterruptedException {
         AtomicReference<String> res = new AtomicReference<>("");
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        consumer.accept(res, countDownLatch);
+        countDownLatch.await();
+        return res.get();
+    }
+
+    public static Number awaitNumberResult(BiConsumer<AtomicReference<Number>, CountDownLatch> consumer) throws InterruptedException {
+        AtomicReference<Number> res = new AtomicReference<>(0);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         consumer.accept(res, countDownLatch);
         countDownLatch.await();
