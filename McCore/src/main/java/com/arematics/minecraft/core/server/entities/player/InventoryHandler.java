@@ -43,7 +43,7 @@ public class InventoryHandler {
     private final List<ItemUpdateClickListener> itemUpdateClickListeners = new ArrayList<>();
     private Consumer<Inventory> emptySlotClick;
     private BiConsumer<Inventory, CoreItem> slotClick;
-    private Consumer<CoreItem> ownInvClick;
+    private Function<CoreItem, CoreItem> ownInvClick;
     private IntegerBox slots;
 
     private BukkitTask updateTask;
@@ -217,7 +217,7 @@ public class InventoryHandler {
         return this;
     }
 
-    public InventoryHandler onItemInOwnInvClick(Consumer<CoreItem> click){
+    public InventoryHandler onItemInOwnInvClick(Function<CoreItem, CoreItem> click){
         ArematicsExecutor.asyncDelayed(() -> this.ownInvClick = click, 200, TimeUnit.MILLISECONDS);
         return this;
     }

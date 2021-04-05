@@ -91,6 +91,9 @@ public class AuctionCreator {
         if(!item.isSimilar(noItem))
             player.inventories().registerItemClick(createAuction.get(), () -> ArematicsExecutor.runAsync(this::createAuction));
         player.inventories().onItemInOwnInvClick(clicked -> {
+            if(!this.item.isSimilar(noItem)){
+                server.items().giveItemTo(player, item);
+            }
             this.item = server.items().create(clicked);
             builder.addItem(item, 2, 5);
             player.inventories().unregisterItemListeners(createAuction.get());
@@ -101,6 +104,7 @@ public class AuctionCreator {
             builder.addItem(createAuction.get(), 4, 2);
             player.inventories().registerItemClick(createAuction.get(), () ->
                     ArematicsExecutor.runAsync(this::createAuction));
+            return null;
         });
         player.inventories().registerItemClick(coinsNext, () -> ArematicsExecutor.runAsync(() -> {
             try{

@@ -57,7 +57,7 @@ public class NumberGUI {
         this.player = player;
         this.value = startValue.doubleValue();
         if(value == 0) value = 1;
-        CoreItem info = CoreItem.generate(Material.SIGN)
+        CoreItem info = CoreItem.generate(Material.BOOK)
                 .setName("§a" + key)
                 .addToLore("§8Select a number value")
                 .addToLore("§8Use §eLEFT Click §8to count up")

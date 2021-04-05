@@ -19,7 +19,7 @@ public class PlayerOwnInventoryItemClickListener implements Listener {
                 && event.getClickedInventory().equals(player.getPlayer().getInventory())
                 && event.getCurrentItem() != null
                 && event.getCurrentItem().getType() != Material.AIR){
-            player.inventories().getOwnInvClick().accept(CoreItem.create(event.getCurrentItem()));
+            event.setCurrentItem(player.inventories().getOwnInvClick().apply(CoreItem.create(event.getCurrentItem())));
         }
     }
 }

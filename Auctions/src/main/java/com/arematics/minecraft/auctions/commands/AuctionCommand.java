@@ -196,7 +196,10 @@ public class AuctionCommand extends CoreCommand {
         sender.inventories()
                 .addRefresher(() -> builder.bindPaging(sender, binder, false))
                 .enableRefreshTask()
-                .onItemInOwnInvClick(clicked -> new AuctionCreator(sender, clicked, server))
+                .onItemInOwnInvClick(clicked -> {
+                    new AuctionCreator(sender, clicked, server);
+                    return null;
+                })
                 .registerItemClick(newAuction, () -> new AuctionCreator(sender, null, server))
                 .onSlotClick((inv, item) -> ArematicsExecutor.runAsync(() -> {
                     try{
@@ -328,9 +331,10 @@ public class AuctionCommand extends CoreCommand {
                 throw new CommandProcessException("Auction could not be collected");
         }
         if(!auction.getBids().isEmpty()){
+            boolean sold = !auction.ended();
             auction.setEndTime(Timestamp.valueOf(LocalDateTime.now()));
             auction.setOwnerCollected(true);
-            auction.setSold(true);
+            auction.setSold(sold);
             auctionService.save(auction);
         }else
             auctionService.delete(auction);

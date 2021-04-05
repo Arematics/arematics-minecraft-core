@@ -1,0 +1,7 @@
+name: SellSystem
+author: Enrico
+description: SellSystem by Arematics
+version: 1.0
+depend: [McCore]
+
+main: com.arematics.minecraft.sells.SellBoot
