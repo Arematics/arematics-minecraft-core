@@ -35,6 +35,12 @@ public class Server {
         return Bukkit.getOnlinePlayers().stream().map(CorePlayer::get).collect(Collectors.toList());
     }
 
+    public List<CorePlayer> onlineWithRank(Long id){
+        return getOnline().stream()
+                .filter(player -> player.getCachedRank().getId().equals(id) || player.getCachedDisplayRank().getId().equals(id))
+                .collect(Collectors.toList());
+    }
+
     public List<CorePlayer> getOnlineTeam(){
         return Bukkit.getOnlinePlayers().stream()
                 .map(CorePlayer::get)
@@ -60,5 +66,8 @@ public class Server {
 
     public CorePlayer findOnline(UUID uuid){
         return CorePlayer.get(Bukkit.getPlayer(uuid));
+    }
+
+    public void onStop(){
     }
 }

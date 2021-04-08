@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.listener.BlockWithoutSpringListener;
 import com.arematics.minecraft.core.listener.SpringInitializedListener;
 import com.arematics.minecraft.core.messaging.injector.LanguageInjector;
 import com.arematics.minecraft.core.messaging.injector.StringInjector;
+import com.arematics.minecraft.core.server.Server;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -39,6 +40,7 @@ public class CoreBoot extends Bootstrap{
 
     @Override
     public void shutdown() {
-
+        Server server = this.getContext().getBean(Server.class);
+        server.onStop();
     }
 }

@@ -12,6 +12,7 @@ import com.arematics.minecraft.crystals.logic.CrystalKeyItem;
 import com.arematics.minecraft.data.mode.model.CrystalKey;
 import com.arematics.minecraft.data.service.CrystalKeyService;
 import com.arematics.minecraft.data.service.InventoryService;
+import com.arematics.minecraft.data.service.ItemCollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,12 +24,16 @@ public class CrystalKeyCommand extends CoreCommand {
 
     private final CrystalKeyService service;
     private final InventoryService inventoryService;
+    private final ItemCollectionService itemCollectionService;
 
     @Autowired
-    public CrystalKeyCommand(CrystalKeyService crystalKeyService, InventoryService inventoryService) {
+    public CrystalKeyCommand(CrystalKeyService crystalKeyService,
+                             InventoryService inventoryService,
+                             ItemCollectionService itemCollectionService) {
         super("crystal-key", "ckey", "ck");
         this.service = crystalKeyService;
         this.inventoryService = inventoryService;
+        this.itemCollectionService = itemCollectionService;
     }
     
     @SubCommand("{crystal}")
@@ -73,7 +78,8 @@ public class CrystalKeyCommand extends CoreCommand {
     public void deleteCrystalKey(CorePlayer player, CrystalKey key) {
         try{
             service.delete(key);
-            inventoryService.delete("crystal.inventory." + key.getName());
+            inventoryService.remove("crystal.inventory." + key.getName());
+            itemCollectionService.remove(itemCollectionService.findOrCreate("crystal.inventory." + key.getName()));
             player.info("Crystal Key: " + key.getName() + " has been deleted").handle();
         }catch (Exception e){
             player.failure("Crystal Key: " + key.getName() + " could not be deleted").handle();

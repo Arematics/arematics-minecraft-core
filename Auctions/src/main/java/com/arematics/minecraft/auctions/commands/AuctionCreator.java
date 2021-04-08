@@ -4,16 +4,21 @@ import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.events.CurrencyEventType;
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
+import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.mode.model.Auction;
 import com.arematics.minecraft.data.mode.model.AuctionType;
 import com.arematics.minecraft.data.service.AuctionService;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.joda.time.Period;
 
 import java.sql.Timestamp;
@@ -37,10 +42,15 @@ public class AuctionCreator {
 
     private final Server server;
 
+    private InventoryBuilder current;
+    private final CloseListener closeListener;
+
     public AuctionCreator(CorePlayer player, CoreItem item, Server server){
         this.player = player;
         this.server = server;
         this.moneyExists = server.moneyStatistics().getMoneyExists();
+        this.closeListener = new CloseListener();
+        Bukkit.getPluginManager().registerEvents(closeListener, Boots.getBoot(CoreBoot.class));
         this.noItem = server.items().generateNoModifier(Material.WOOD_BUTTON)
                 .setName("§cNo Item selected")
                 .addToLore("§8Select a item in your inventory");
@@ -78,7 +88,7 @@ public class AuctionCreator {
                 .setName(item.isSimilar(noItem) ? "§cNo item selected" : "§aCreate auction")
                 .addToLore("§8Current Costs: §e" + sellPrice + " Coins")
                 .addToLore(item.isSimilar(noItem) ? "§cPublish auction not possible" : "§aPublish auction"));
-        InventoryBuilder builder = InventoryBuilder.create("New Auction", 6)
+        current = InventoryBuilder.create("New Auction", 6)
                 .openBlocked(player)
                 .fillAll()
                 .addItem(item, 2, 5)
@@ -95,13 +105,13 @@ public class AuctionCreator {
                 server.items().giveItemTo(player, item);
             }
             this.item = server.items().create(clicked);
-            builder.addItem(item, 2, 5);
+            current.addItem(item, 2, 5);
             player.inventories().unregisterItemListeners(createAuction.get());
             createAuction.set(server.items().generateNoModifier(Material.DIAMOND)
                     .setName(item.isSimilar(noItem) ? "§cNo item selected" : "§aCreate auction")
                     .addToLore("§8Current Costs: §e" + sellPrice + " Coins")
                     .addToLore("§aPublish auction"));
-            builder.addItem(createAuction.get(), 4, 2);
+            current.addItem(createAuction.get(), 4, 2);
             player.inventories().registerItemClick(createAuction.get(), () ->
                     ArematicsExecutor.runAsync(this::createAuction));
             return null;
@@ -134,7 +144,7 @@ public class AuctionCreator {
         CoreItem timeThreeDays = timeItem(Period.days(3));
         CoreItem custom = server.items().generateNoModifier(Material.SIGN)
                 .setName("§aSet Custom Auction Time");
-        InventoryBuilder.create("Auction Time", 3)
+        current = InventoryBuilder.create("Auction Time", 3)
                 .openBlocked(player)
                 .fillAll()
                 .addItem(timeOneHour, 2, 2)
@@ -221,5 +231,23 @@ public class AuctionCreator {
             return 90000;
         }
         return 87000;
+    }
+
+    public void closeInventory(){
+        if(!this.item.isSimilar(noItem)){
+            server.items().giveItemTo(player, item);
+            this.item = noItem;
+        }
+        HandlerList.unregisterAll(closeListener);
+    }
+
+    private class CloseListener implements Listener {
+
+        @EventHandler
+        public void onClose(InventoryCloseEvent event){
+            if(event.getPlayer().equals(player.getPlayer()) &&
+                    event.getView().getTopInventory().equals(current.fetchInventory()))
+                closeInventory();
+        }
     }
 }

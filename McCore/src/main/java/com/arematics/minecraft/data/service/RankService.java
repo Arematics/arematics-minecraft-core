@@ -1,7 +1,13 @@
 package com.arematics.minecraft.data.service;
 
+import com.arematics.minecraft.core.Boots;
+import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.bukkit.Tablist;
+import com.arematics.minecraft.core.server.Server;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.repository.RankRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
@@ -14,17 +20,12 @@ import java.util.Optional;
 
 @Service
 @CacheConfig(cacheNames = "rankCache", cacheManager = "globalCache")
-public class RankService {
+@RequiredArgsConstructor(onConstructor_=@Autowired)
+public class RankService implements GlobalMessageReceiveService{
 
     private final RankRepository repository;
     private final RankPermissionService rankPermissionService;
-
-    @Autowired
-    public RankService(RankRepository rankRepository,
-                       RankPermissionService rankPermissionService){
-        this.repository = rankRepository;
-        this.rankPermissionService = rankPermissionService;
-    }
+    private final Server server;
 
     public List<Rank> findAll(){
         return repository.findAll();
@@ -52,5 +53,20 @@ public class RankService {
 
     public boolean hasPermission(Rank rank, String permission){
         return rankPermissionService.hasPermission(rank, permission);
+    }
+
+    @Override
+    public String messageKey() {
+        return "rank";
+    }
+
+    @Override
+    public void onReceive(String data) {
+        try{
+            Rank rank = getById(Long.parseLong(data));
+            server.onlineWithRank(rank.getId()).forEach(player -> ArematicsExecutor.runAsync(player::refreshCache));
+            Tablist tablist = Boots.getBoot(CoreBoot.class).getContext().getBean(Tablist.class);
+            tablist.patchTeam(rank);
+        }catch (Exception ignore){}
     }
 }

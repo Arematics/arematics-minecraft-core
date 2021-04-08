@@ -19,17 +19,17 @@ import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.GameStats;
 import com.arematics.minecraft.data.service.GameStatsService;
+import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.OnlineTimeService;
 import com.arematics.minecraft.data.service.UserService;
 import com.arematics.minecraft.data.share.model.OnlineTime;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.Data;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -52,7 +52,11 @@ public class CorePlayer implements CurrencyEntity {
     private static Locale defaultLocale = Locale.GERMAN;
     private static Map<UUID, CorePlayer> players = new HashMap<>();
 
-    public static CorePlayer get(CommandSender sender){
+    public static List<CorePlayer> getAll(List<HumanEntity> senders){
+        return senders.stream().map(CorePlayer::get).collect(Collectors.toList());
+    }
+
+    public static CorePlayer get(HumanEntity sender){
         if(!(sender instanceof Player)) return null;
         Player player = (Player) sender;
         if(!players.containsKey(player.getUniqueId()))
@@ -63,12 +67,6 @@ public class CorePlayer implements CurrencyEntity {
     public static void invalidate(Player player){
         if(players.containsKey(player.getUniqueId())) players.get(player.getUniqueId()).unload();
         players.remove(player.getUniqueId());
-    }
-
-    public static List<CorePlayer> inRegion(ProtectedRegion region){
-        return CorePlayer.players.values().stream()
-                .filter(player -> player.regions().getCurrentRegions().contains(region))
-                .collect(Collectors.toList());
     }
 
     private final Player player;
@@ -106,7 +104,6 @@ public class CorePlayer implements CurrencyEntity {
     private Rank cachedDisplayRank;
 
     private String chatMessage;
-    private Inventory enderChest;
 
     public CorePlayer(Player player){
         this.player = player;
@@ -127,20 +124,28 @@ public class CorePlayer implements CurrencyEntity {
         this.cachedRank = user.getRank();
         this.cachedDisplayRank = user.getDisplayRank();
 
-        this.enderChest = inventoryHandler.getOrCreateInventory("enderchest", "§c"
-                + player.getName() + "'s Enderchest", (byte)36);
-
         Configuration configuration = getUser().getConfigurations().get("locale");
         if(configuration != null) this.selectedLocale = Locale.forLanguageTag(configuration.getValue());
         else setLocale(CorePlayer.defaultLocale);
+        refreshChatMessage();
+
+        this.updateOnlineTimeData(true, OnlineTime::getTime);
+        this.updateOnlineTimeData(false, OnlineTime::getTime);
+    }
+
+    public void refreshCache(){
+        User user = this.getUser();
+        this.cachedRank = user.getRank();
+        this.cachedDisplayRank = user.getDisplayRank();
+        refreshChatMessage();
+    }
+
+    private void refreshChatMessage(){
         Rank topLevel = getTopLevel();
         this.chatMessage = "§8§l[" + topLevel.getColorCode() + topLevel.getName() + "§8§l] §7"
                 + player.getPlayer().getName()
                 + " §8» " + colorCode(topLevel)
                 + "%message%";
-
-        this.updateOnlineTimeData(true, OnlineTime::getTime);
-        this.updateOnlineTimeData(false, OnlineTime::getTime);
     }
 
     public Rank getTopLevel(){

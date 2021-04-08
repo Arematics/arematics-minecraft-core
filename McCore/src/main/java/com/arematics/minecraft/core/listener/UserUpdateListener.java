@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Component
 public class UserUpdateListener implements Listener {
@@ -55,7 +56,7 @@ public class UserUpdateListener implements Listener {
     }
 
     private void patchUser(CorePlayer player){
-        Timestamp current = new Timestamp(System.currentTimeMillis());
+        Timestamp current = Timestamp.valueOf(LocalDateTime.now());
         User user = this.userService.getOrCreateUser(player.getUUID(), player.getPlayer().getName());
         user.setLastName(player.getPlayer().getName());
         user.setLastJoin(current);

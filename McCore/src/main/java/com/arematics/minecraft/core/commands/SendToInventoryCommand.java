@@ -31,7 +31,7 @@ public class SendToInventoryCommand extends CoreCommand {
     @SubCommand("{inventory}")
     public void sendChestToInventory(CorePlayer player, String name) {
         try{
-            Inventory inv = service.getInventory(name);
+            Inventory inv = null;
             Block block = player.getPlayer().getTargetBlock((Set<Material>) null, 100);
 
             if (block.getType() == Material.CHEST || block.getType() == Material.TRAPPED_CHEST) {

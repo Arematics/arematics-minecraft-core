@@ -11,9 +11,11 @@ import com.arematics.minecraft.core.server.entities.player.inventories.Inventory
 import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
 import com.arematics.minecraft.core.utils.CommandUtils;
+import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.mode.model.Home;
 import com.arematics.minecraft.data.mode.model.HomeId;
 import com.arematics.minecraft.data.service.HomeService;
+import com.arematics.minecraft.data.service.RankService;
 import org.bukkit.Material;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,13 +30,16 @@ public class HomeCommand extends CoreCommand {
 
     private final Server server;
     private final HomeService service;
+    private final RankService rankService;
 
     @Autowired
     public HomeCommand(Server server,
-                       HomeService homeService){
+                       HomeService homeService,
+                       RankService rankService){
         super("home", "homes");
         this.server = server;
         this.service = homeService;
+        this.rankService = rankService;
     }
 
     @Override
@@ -62,6 +67,18 @@ public class HomeCommand extends CoreCommand {
             home = service.findByOwnerAndName(id);
             newHome = false;
         }catch (RuntimeException re){
+            int maxHomes = 40;
+
+            if(sender.getCachedRank().isInTeam()){
+                maxHomes = 250;
+            }else{
+                Rank vip = rankService.findByName("VIP");
+                if(sender.getCachedRank().isSameOrHigher(vip)){
+                    maxHomes = 80;
+                }
+            }
+            if(service.countHomesByOwner(sender.getUUID()) >= maxHomes)
+                throw new CommandProcessException("Max homes reached, delete one to create new home");
             home = new Home(sender.getUUID(), name, sender.getLocation(), Timestamp.valueOf(LocalDateTime.now()));
         }
         home.setLocation(sender.getLocation());

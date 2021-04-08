@@ -38,4 +38,8 @@ public class Rank implements Serializable {
     public boolean isOver(Rank target){
         return sortChar.compareToIgnoreCase(target.getSortChar()) < 0;
     }
+
+    public boolean isSameOrHigher(Rank target){
+        return sortChar.compareToIgnoreCase(target.getSortChar()) <= 0;
+    }
 }

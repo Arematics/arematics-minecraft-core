@@ -12,12 +12,13 @@ import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
 import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.service.InventoryService;
+import com.arematics.minecraft.data.service.ItemCollectionService;
 import com.arematics.minecraft.data.service.KitService;
 import org.bukkit.command.CommandSender;
-import org.bukkit.inventory.Inventory;
 import org.joda.time.Period;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,12 +37,16 @@ public class KitAdminCommand extends CoreCommand {
 
     private final KitService service;
     private final InventoryService inventoryService;
+    private final ItemCollectionService itemCollectionService;
 
     @Autowired
-    public KitAdminCommand(KitService kitService, InventoryService inventoryService){
+    public KitAdminCommand(KitService kitService,
+                           InventoryService inventoryService,
+                           ItemCollectionService itemCollectionService){
         super("kitadm", "kitmgr");
         this.service = kitService;
         this.inventoryService = inventoryService;
+        this.itemCollectionService = itemCollectionService;
     }
 
     @SubCommand("info {kit}")
@@ -110,7 +115,8 @@ public class KitAdminCommand extends CoreCommand {
     @SubCommand("delete {kit}")
     @Perm(permission = "delete", description = "Permission to delete kit")
     public boolean deleteKit(CorePlayer sender, Kit kit) {
-        inventoryService.delete("kit.inventory." + kit.getName());
+        inventoryService.remove("kit.inventory." + kit.getName());
+        itemCollectionService.remove(itemCollectionService.findOrCreate("kit.inventory." + kit.getName()));
         service.delete(kit);
         sender.info(KIT_DELETED)
                 .DEFAULT()
@@ -123,7 +129,7 @@ public class KitAdminCommand extends CoreCommand {
     public boolean editKit(CorePlayer player, String name) {
         try{
             Kit kit = service.findKit(name);
-            Inventory inv = inventoryService.getOrCreate("kit.inventory." + kit.getName(), "§6Kit " + name,
+            WrappedInventory inv = inventoryService.findOrCreate("kit.inventory." + kit.getName(), "§6Kit " + name,
                     (byte)27);
             player.inventories().openLowerEnabledInventory(inv);
             return true;

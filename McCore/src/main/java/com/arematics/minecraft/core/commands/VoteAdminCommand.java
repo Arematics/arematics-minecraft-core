@@ -5,10 +5,11 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
 import com.arematics.minecraft.data.mode.model.VoteReward;
 import com.arematics.minecraft.data.service.InventoryService;
+import com.arematics.minecraft.data.service.ItemCollectionService;
 import com.arematics.minecraft.data.service.VoteRewardService;
-import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,13 +19,16 @@ public class VoteAdminCommand extends CoreCommand {
 
     private final VoteRewardService service;
     private final InventoryService inventoryService;
+    private final ItemCollectionService itemCollectionService;
 
     @Autowired
     public VoteAdminCommand(VoteRewardService voteRewardService,
-                            InventoryService inventoryService){
+                            InventoryService inventoryService,
+                            ItemCollectionService itemCollectionService){
         super("vadmin", "votes-admin");
         this.service = voteRewardService;
         this.inventoryService = inventoryService;
+        this.itemCollectionService = itemCollectionService;
     }
 
     @SubCommand("create reward {id} {costs}")
@@ -86,7 +90,8 @@ public class VoteAdminCommand extends CoreCommand {
         try{
             VoteReward reward = this.service.findVoteReward(id);
             this.service.deleteReward(reward);
-            this.inventoryService.delete("inventory_vote_reward_" + id);
+            inventoryService.remove("inventory_vote_reward_" + id);
+            itemCollectionService.remove(itemCollectionService.findOrCreate("inventory_vote_reward_" + id));
             player.info("Vote Reward with id: " + id + " has been deleted").handle();
         }catch (RuntimeException re){
             player.warn("Vote Reward with id: " + id + " not exists").handle();
@@ -97,7 +102,7 @@ public class VoteAdminCommand extends CoreCommand {
     public void editRewardsForVoteReward(CorePlayer player, String id) {
         try{
             this.service.findVoteReward(id);
-            Inventory inv = this.inventoryService.getOrCreate("inventory_vote_reward_" + id, "§aReward: " + id, (byte) 18);
+            WrappedInventory inv = this.inventoryService.findOrCreate("inventory_vote_reward_" + id, "§aReward: " + id, (byte) 18);
             player.inventories().openLowerEnabledInventory(inv);
         }catch (RuntimeException re){
             player.warn("Vote Reward with id: " + id + " not exists").handle();

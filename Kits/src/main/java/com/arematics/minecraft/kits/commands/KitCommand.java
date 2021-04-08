@@ -6,13 +6,13 @@ import com.arematics.minecraft.core.command.processor.parser.CommandProcessExcep
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
 import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
+import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
 import com.arematics.minecraft.core.server.entities.player.inventories.paging.Paging;
 import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.KitService;
-import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -63,9 +63,9 @@ public class KitCommand extends CoreCommand {
                             " to collect this kit again").handle());
             return;
         }
-        Inventory inv = inventoryService.getOrCreate("kit.inventory." + kit.getName(), "§6Kit " + kit.getName(),
+        WrappedInventory inv = inventoryService.findOrCreate("kit.inventory." + kit.getName(), "§6Kit " + kit.getName(),
                 (byte)27);
         service.setCooldownOnKit(player.getUUID(), kit);
-        server.items().giveItemsTo(player, inv.getContents());
+        server.items().giveItemsTo(player, inv.getOpen().getContents());
     }
 }

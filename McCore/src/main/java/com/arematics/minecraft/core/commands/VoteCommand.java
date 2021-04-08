@@ -12,11 +12,10 @@ import com.arematics.minecraft.core.server.entities.player.inventories.Inventory
 import com.arematics.minecraft.core.utils.CommandUtils;
 import com.arematics.minecraft.data.global.model.PlayerVotes;
 import com.arematics.minecraft.data.mode.model.VoteReward;
-import com.arematics.minecraft.data.service.InventoryService;
+import com.arematics.minecraft.data.service.ItemCollectionService;
 import com.arematics.minecraft.data.service.PlayerVotesService;
 import com.arematics.minecraft.data.service.VoteRewardService;
 import org.bukkit.Material;
-import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,16 +31,16 @@ public class VoteCommand extends CoreCommand {
 
     private final PlayerVotesService votesService;
     private final VoteRewardService voteRewardService;
-    private final InventoryService inventoryService;
+    private final ItemCollectionService itemCollectionService;
 
     @Autowired
     public VoteCommand(PlayerVotesService playerVotesService,
                        VoteRewardService voteRewardService,
-                       InventoryService inventoryService){
+                       ItemCollectionService itemCollectionService){
         super("vote", "votes");
         this.votesService = playerVotesService;
         this.voteRewardService = voteRewardService;
-        this.inventoryService = inventoryService;
+        this.itemCollectionService = itemCollectionService;
     }
 
     @Override
@@ -98,14 +97,14 @@ public class VoteCommand extends CoreCommand {
         PlayerVotes votes = this.votesService.getOrCreate(player.getUUID());
         if(reward.getCosts() > votes.getCurrentVotePoints())
             throw new CommandProcessException("You dont have enough vote points");
-        Inventory inv;
+        CoreItem[] contents;
         try{
-            inv = this.inventoryService.getInventory("inventory_vote_reward_" + reward.getId());
+            contents = this.itemCollectionService.findItemCollection("inventory_vote_reward_" + rewardId).getItems();
         }catch (RuntimeException re){
             player.failure("No reward items found. Please report this").handle();
             return;
         }
-        List<CoreItem> itemList = Arrays.stream(inv.getContents())
+        List<CoreItem> itemList = Arrays.stream(contents)
                 .filter(Objects::nonNull)
                 .map(server.items()::create)
                 .collect(Collectors.toList());

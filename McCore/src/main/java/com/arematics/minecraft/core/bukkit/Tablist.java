@@ -23,7 +23,7 @@ public class Tablist {
         flushOnlines();
     }
 
-    private void patchTeam(Rank rank){
+    public void patchTeam(Rank rank){
         Team team = Bukkit.getScoreboardManager().getMainScoreboard().getTeam(rank.getSortChar());
         if(team == null) team = Bukkit.getScoreboardManager().getMainScoreboard().registerNewTeam(rank.getSortChar());
         if(rank.isInTeam()) team.setPrefix(rank.getColorCode() + "§l" + rank.getName() + " | ");
@@ -50,15 +50,11 @@ public class Tablist {
 
     private void addToBoard(CorePlayer player) {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
-        scoreboard.getTeam(showRank(player).getSortChar()).addEntry(player.getPlayer().getDisplayName());
+        scoreboard.getTeam(player.getTopLevel().getSortChar()).addEntry(player.getPlayer().getDisplayName());
     }
 
     private void remFromBoard(CorePlayer player){
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
-        scoreboard.getTeam(showRank(player).getSortChar()).removeEntry(player.getPlayer().getDisplayName());
-    }
-
-    private Rank showRank(CorePlayer player){
-        return player.getUser().getDisplayRank() != null ? player.getUser().getDisplayRank() : player.getUser().getRank();
+        scoreboard.getTeam(player.getTopLevel().getSortChar()).removeEntry(player.getPlayer().getDisplayName());
     }
 }

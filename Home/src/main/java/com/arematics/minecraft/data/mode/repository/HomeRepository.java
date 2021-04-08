@@ -11,4 +11,5 @@ import java.util.UUID;
 public interface HomeRepository extends PagingAndSortingRepository<Home, HomeId> {
     Page<Home> findAllByOwnerAndNameContainsOrderByName(UUID owner, String startsWith, Pageable pageable);
     Page<Home> findAllByOwnerOrderByName(UUID owner, Pageable pageable);
+    int countAllByOwner(UUID owner);
 }

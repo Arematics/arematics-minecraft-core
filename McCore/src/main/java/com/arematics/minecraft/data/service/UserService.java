@@ -3,8 +3,8 @@ package com.arematics.minecraft.data.service;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.global.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,33 +17,22 @@ import java.util.UUID;
 
 @Service
 @CacheConfig(cacheNames = "userCache", cacheManager = "globalCache")
-public class UserService {
+@RequiredArgsConstructor(onConstructor_=@Autowired)
+public class UserService implements GlobalMessageReceiveService {
 
-    @Value("${mode.name}")
-    private String modeName;
-
-    private final UserRepository repository;
+    private final UserRepository userRepository;
     private final RankService rankService;
     private final UserPermissionService userPermissionService;
 
-    @Autowired
-    public UserService(UserRepository userRepository,
-                       RankService rankService,
-                       UserPermissionService userPermissionService){
-        this.repository = userRepository;
-        this.rankService = rankService;
-        this.userPermissionService = userPermissionService;
-    }
-
     @Cacheable(key = "#uuid")
     public User getUserByUUID(UUID uuid){
-        Optional<User> user = repository.findById(uuid);
+        Optional<User> user = userRepository.findById(uuid);
         if(!user.isPresent()) throw new RuntimeException("User with uuid: " + uuid + " could not be found");
         return user.get();
     }
 
     public User findByName(String name){
-        Optional<User> user = repository.findByLastName(name);
+        Optional<User> user = userRepository.findByLastName(name);
         if(!user.isPresent()) throw new RuntimeException("User with lastName: " + name + " could not be found");
         return user.get();
     }
@@ -52,12 +41,12 @@ public class UserService {
     public User createUser(UUID uuid, String name){
         User user = new User(UUID.randomUUID(), uuid, name, new Timestamp(System.currentTimeMillis()),
                 rankService.getDefaultRank(), null, 0, "", new HashMap<>());
-        return repository.save(user);
+        return userRepository.save(user);
     }
 
     @CachePut(key = "#result.uuid")
     public User update(User user){
-        return repository.save(user);
+        return userRepository.save(user);
     }
 
     public User getOrCreateUser(UUID uuid, String name){
@@ -80,5 +69,21 @@ public class UserService {
         }catch (RuntimeException exception){
             return createUser(player.getUUID(), player.getPlayer().getName());
         }
+    }
+
+    @Override
+    public String messageKey() {
+        return "user";
+    }
+
+    @Override
+    public void onReceive(final String data) {
+        try{
+            UUID uuid = UUID.fromString(data);
+            User user = getUserByUUID(uuid);
+            CorePlayer online = user.online();
+            if(online != null)
+                online.refreshCache();
+        }catch (Exception ignore){}
     }
 }

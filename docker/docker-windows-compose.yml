@@ -16,9 +16,20 @@ services:
     volumes:
       - H:\Network\Git\arematics_mc_plugins\Server\PvP\:/home/minecraft
     environment:
-      XMX: 6G
+      XMX: 3G
       VIEW_DISTANCE: 8
     container_name: pvp
+    networks:
+      - pvp_network
+      - default
+  farmworld:
+    build: spigot
+    volumes:
+      - H:\Network\Git\arematics_mc_plugins\Server\Farmwelt\:/home/minecraft
+    environment:
+       XMX: 3G
+       VIEW_DISTANCE: 8
+    container_name: farmworld
     networks:
       - pvp_network
       - default
@@ -27,7 +38,7 @@ services:
     volumes:
       - H:\Network\Git\arematics_mc_plugins\Server\Guns\:/home/minecraft
     environment:
-      XMX: 5G
+      XMX: 3G
       VIEW_DISTANCE: 10
     container_name: guns
     networks:
@@ -38,7 +49,7 @@ services:
     volumes:
       - H:\Network\Git\arematics_mc_plugins\Server\Lobby-01\:/home/minecraft
     environment:
-      XMX: 4G
+      XMX: 1G
       VIEW_DISTANCE: 12
     container_name: lobbyone
     networks:
@@ -49,7 +60,7 @@ services:
     volumes:
       - H:\Network\Git\arematics_mc_plugins\Server\Lobby-02\:/home/minecraft
     environment:
-      XMX: 4G
+      XMX: 1G
       VIEW_DISTANCE: 12
     container_name: lobbytwo
     networks:

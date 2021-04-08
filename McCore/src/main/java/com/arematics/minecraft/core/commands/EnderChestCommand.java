@@ -4,9 +4,9 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.InventoryService;
-import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +24,6 @@ public class EnderChestCommand extends CoreCommand {
 
     @Override
     public void onDefaultExecute(CorePlayer sender) {
-        sender.inventories().openLowerEnabledInventory(sender.getEnderChest());
         sender.inventories().openLowerEnabledInventory(sender.inventories().getOrCreateInventory("enderchest", "§c"
                 + sender.getName() + "'s Enderchest", (byte)36));
     }
@@ -33,20 +32,13 @@ public class EnderChestCommand extends CoreCommand {
     @Perm(permission = "other", description = "Allows to open enderchest from other players")
     public void openOtherPlayerInventory(CorePlayer player, User target) {
         CorePlayer online = target.online();
-        Inventory ec;
-        if(online != null) ec = online.getEnderChest();
-        else ec = service.getOrCreate(target.getUuid().toString() + ".enderchest", "§c"
+        WrappedInventory ec;
+        if(online != null) ec = online.inventories().getOrCreateInventory("enderchest", "§c"
+                + online.getName() + "'s Enderchest", (byte)36);
+        else ec = service.findOrCreate(target.getUuid().toString() + ".enderchest", "§c"
                 + target.getLastName() + "'s Enderchest", (byte)36);
         boolean edit = player.hasPermission("player.inventory.enderchest.other.edit");
-        if(edit) openEnabledInventory(player, ec);
-        else openBlocked(player, ec);
-    }
-
-    private void openEnabledInventory(CorePlayer player, Inventory inventory){
-        player.inventories().openLowerEnabledInventory(inventory);
-    }
-
-    private void openBlocked(CorePlayer player, Inventory inventory){
-        player.inventories().openTotalBlockedInventory(inventory);
+        if(edit) player.inventories().openLowerEnabledInventory(ec);
+        else player.inventories().openTotalBlockedInventory(ec);
     }
 }

@@ -30,7 +30,7 @@ public class SellGUI {
     private final Server server;
     private final CorePlayer sender;
     private final ItemPriceService itemPriceService;
-    private Map<CoreItem, Double> items = new HashMap<>();
+    private final Map<CoreItem, Double> items = new HashMap<>();
 
     private CoreItem sellItems;
 
@@ -73,6 +73,10 @@ public class SellGUI {
     }
 
     public CoreItem addItem(CoreItem item){
+        if(item.getItemMeta() != null && item.getItemMeta().getLore() != null){
+            sender.warn("Item couldn't be sold").handle();
+            return item;
+        }
         if(items.size() >= 36)
             return item;
         int id = item.getData().getItemTypeId();
@@ -85,7 +89,7 @@ public class SellGUI {
             finalPrice = price.getPrice() * item.getAmount();
             result = result.addToLore(" ", "§8Sell Price: §e" + finalPrice + " Coins");
         }catch (Exception e){
-            sender.warn("Item has no sell price and couldn't be sold");
+            sender.warn("Item has no sell price and couldn't be sold").handle();
             return item;
         }
         items.put(result, finalPrice);
@@ -95,7 +99,7 @@ public class SellGUI {
 
     public CoreItem removeItem(CoreItem item){
         items.remove(item);
-        item = item.removeMeta("randomKey");
+        item = item.removeMeta("randomKey").clearLore();
         server.items().giveItemTo(sender, item);
         ArematicsExecutor.asyncDelayed(this::refreshInventory, 50, TimeUnit.MILLISECONDS);
         return null;
@@ -118,6 +122,7 @@ public class SellGUI {
                 sender.info("Items sold successfully").handle();
                 items.clear();
                 sender.getPlayer().closeInventory();
+                HandlerList.unregisterAll(closeListener);
             }else{
                 sender.warn("Could not sell items").handle();
                 closeInventory(false);
@@ -126,7 +131,11 @@ public class SellGUI {
     }
 
     public void closeInventory(boolean fromEvent){
-        server.items().giveItemsTo(sender, items.keySet().toArray(new CoreItem[]{}));
+        server.items().giveItemsTo(sender, items.keySet()
+                .stream()
+                .map(item -> item.removeMeta("randomKey").clearLore())
+                .toArray(CoreItem[]::new));
+        items.clear();
         if(!fromEvent) sender.getPlayer().closeInventory();
         HandlerList.unregisterAll(closeListener);
     }
@@ -137,6 +146,7 @@ public class SellGUI {
         public void onClose(InventoryCloseEvent event){
             if(event.getPlayer().equals(sender.getPlayer()) &&
                     event.getView().getTopInventory().equals(builder.fetchInventory())){
+                System.out.println("Give back items");
                 closeInventory(true);
             }
         }

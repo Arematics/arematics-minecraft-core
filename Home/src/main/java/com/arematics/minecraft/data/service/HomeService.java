@@ -32,6 +32,10 @@ public class HomeService {
         return homeRepository.findAllByOwnerOrderByName(owner, pageable);
     }
 
+    public int countHomesByOwner(UUID owner){
+        return homeRepository.countAllByOwner(owner);
+    }
+
     @Cacheable(key = "#id.owner + #id.name")
     public Home findByOwnerAndName(HomeId id){
         Optional<Home> result = homeRepository.findById(id);

@@ -7,12 +7,15 @@ import com.arematics.minecraft.core.bukkit.Tablist;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.events.SpringInitializedEvent;
 import com.arematics.minecraft.core.hooks.PermissionCreationHook;
+import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.service.BroadcastService;
-import com.arematics.minecraft.data.service.InventoryService;
+import com.arematics.minecraft.data.service.ItemCollectionService;
 import com.arematics.minecraft.data.share.model.BroadcastMessage;
+import com.arematics.minecraft.data.share.model.ItemCollection;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
@@ -76,7 +79,15 @@ public class SpringInitializedListener implements Listener {
     }
 
     private void saveInventories(){
-        InventoryService service = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
-        service.getInventories().keySet().forEach(service::save);
+        Server server = Boots.getBoot(CoreBoot.class).getContext().getBean(Server.class);
+        ItemCollectionService collectionService = Boots.getBoot(CoreBoot.class).getContext()
+                .getBean(ItemCollectionService.class);
+        server.getOnline().forEach(player ->
+                ArematicsExecutor.runAsync(() -> savePlayerInventory(collectionService, player)));
+    }
+
+    private void savePlayerInventory(ItemCollectionService itemCollectionService, CorePlayer player){
+        ItemCollection collection = itemCollectionService.findOrCreate(player.getUUID() + ".playerInv");
+        collection.setItems(CoreItem.create(player.getPlayer().getInventory().getContents()));
     }
 }

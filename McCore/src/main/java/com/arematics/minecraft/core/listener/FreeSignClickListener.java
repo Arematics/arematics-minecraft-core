@@ -38,7 +38,7 @@ public class FreeSignClickListener implements Listener {
                     CoreItem item = CoreItem.create(frame.getItem());
                     item.setAmount(item.getMaxStackSize());
                     Inventory inv = Bukkit.createInventory(null, 5*9, "§6Free");
-                    player.inventories().openLowerEnabledInventory(inv);
+                    player.inventories().openInventory(inv);
                     InventoryPlaceholder.fillOuterLine(inv, DyeColor.BLACK);
                     InventoryPlaceholder.fillFree(inv, item);
                 }

@@ -1,122 +1,101 @@
 package com.arematics.minecraft.data.service;
 
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.data.mode.model.InventoryData;
-import com.arematics.minecraft.data.mode.repository.InventoryDataRepository;
+import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
+import com.arematics.minecraft.data.redis.GlobalRedisMessagePublisher;
+import com.arematics.minecraft.data.redis.MessagePublisher;
+import com.arematics.minecraft.data.redis.ModeRedisMessagePublisher;
+import com.arematics.minecraft.data.share.model.ItemCollection;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @CacheConfig(cacheNames = "inventories")
-public class InventoryService {
+@RequiredArgsConstructor(onConstructor_=@Autowired)
+public class InventoryService implements GlobalMessageReceiveService, ModeMessageReceiveService {
 
-    private final InventoryDataRepository repository;
-    private final Map<String, Long> idMap = new HashMap<>();
-    private final Map<String, Inventory> inventories = new HashMap<>();
+    private final ModeRedisMessagePublisher modeRedisMessagePublisher;
+    private final GlobalRedisMessagePublisher globalRedisMessagePublisher;
+    private final GenericItemCollectionService genericItemCollectionService;
+    private final Map<String, WrappedInventory> wrappedInventoryMap;
 
-    @Autowired
-    public InventoryService(InventoryDataRepository inventoryDataRepository){
-        this.repository = inventoryDataRepository;
-    }
-
-    @Cacheable(key = "#key")
-    public InventoryData findData(String key){
-        Optional<InventoryData> data = repository.findByDataKey(key);
-        if(!data.isPresent())
-            throw new RuntimeException("Inventory with key: " + key + " could not be found");
-        return data.get();
-    }
-
-    public Inventory getInventory(String key){
-        if(inventories.containsKey(key))
-            return inventories.get(key);
-        Optional<InventoryData> data = repository.findByDataKey(key);
-        if(!data.isPresent()) throw new RuntimeException("Inventory with key: " + key + " could not be found");
-        return fromData(data.get());
-    }
-
-    public Inventory getOrCreate(String key, String title, byte slots){
+    public WrappedInventory findOrCreate(String key, String title, byte slots){
         try{
-            return getPipeOrCreate(key, title, slots);
+            if(wrappedInventoryMap.containsKey(key)) return wrappedInventoryMap.get(key);
+            return deserialize(false, key, title, slots);
         }catch (Exception e){
             e.printStackTrace();
         }
         return null;
     }
 
-    public Inventory getPipeOrCreate(String key, String title, byte slots){
-        if(inventories.containsKey(key))
-            return patchSlotsOrTitle(key, title, slots);
-        Optional<InventoryData> data = repository.findByDataKey(key);
-        if(!data.isPresent())
-            data = Optional.of(saveNew(key, title, slots));
-        InventoryData d = data.get();
-        d.setTitle(title);
-        d.setSlots(slots);
-        saveRaw(d);
-        return fromData(d);
-    }
-
-    private Inventory patchSlotsOrTitle(String key, String title, byte slots){
-        Inventory inv = inventories.get(key);
-        if(!inv.getTitle().equals(title) || inv.getSize() != slots) {
-            Inventory newInv = Bukkit.createInventory(null, slots, title);
-            newInv.setContents(inv.getContents());
-            inventories.replace(key, newInv);
+    public WrappedInventory findOrCreateGlobal(String key, String title, byte slots){
+        try{
+            if(wrappedInventoryMap.containsKey(key)) return wrappedInventoryMap.get(key);
+            return deserialize(true, key, title, slots);
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
-        return inventories.get(key);
+        return null;
     }
 
-    public InventoryData saveNew(String key, String title, int slots){
-        return repository.save(new InventoryData(null, key, title, slots, false, new CoreItem[]{}));
+    public void remove(String key){
+        if(wrappedInventoryMap.containsKey(key))
+            wrappedInventoryMap.get(key).closeForAll();
+        wrappedInventoryMap.remove(key);
     }
 
-    private void saveRaw(InventoryData data){
-        repository.save(data);
+    public void save(WrappedInventory wrappedInventory){
+        genericItemCollectionService.save(wrappedInventory.isGlobal(), serialize(wrappedInventory));
+        MessagePublisher publisher = wrappedInventory.isGlobal() ? globalRedisMessagePublisher : modeRedisMessagePublisher;
+        publisher.publish(messageKey(), wrappedInventory.getKey());
     }
 
-    public void save(String key){
-        repository.save(mapToData(key));
+    private ItemCollection serialize(WrappedInventory wrappedInventory){
+        return new ItemCollection("inventory." + wrappedInventory.getKey(),
+                CoreItem.create(wrappedInventory.getOpen().getContents()));
     }
 
-    public void delete(String key){
-        Optional<InventoryData> data = repository.findByDataKey(key);
-        if(data.isPresent()) {
-            repository.delete(data.get());
-            idMap.remove(key);
-            inventories.remove(key);
+    private ItemCollection findCollectionFor(boolean global, String key){
+        ItemCollection collection;
+        try{
+            collection = genericItemCollectionService.findItemCollection("inventory." + key);
+        }catch (Exception exception){
+            ItemCollection newCollection = new ItemCollection("inventory." + key, new CoreItem[]{});
+            collection = genericItemCollectionService.save(global, newCollection);
         }
+        return collection;
     }
 
-    private Inventory fromData(InventoryData data){
-        idMap.put(data.getDataKey(), data.getId());
-        Inventory inv = Bukkit.createInventory(null, data.getSlots(), data.getTitle());
-        inv.setContents(data.getItems());
-        inventories.put(data.getDataKey(), inv);
-        return inv;
+    private WrappedInventory deserialize(boolean global, String key, String title, byte slots){
+        ItemCollection collection = findCollectionFor(global, key);
+        Inventory inv = Bukkit.createInventory(null, slots, title);
+        inv.setContents(collection.getItems());
+        WrappedInventory wrappedInventory = new WrappedInventory(this, inv, key, global);
+        wrappedInventoryMap.put(key, wrappedInventory);
+        return wrappedInventory;
     }
 
-    private InventoryData mapToData(String key){
-        InventoryData data = new InventoryData();
-        data.setDataKey(key);
-        data.setId(idMap.getOrDefault(key, null));
-        Inventory inv = inventories.get(key);
-        data.setSlots((byte) inv.getSize());
-        data.setTitle(inv.getTitle());
-        data.setItems(CoreItem.create(inv.getContents()));
-        return data;
+    @Override
+    public String messageKey() {
+        return "inventory";
     }
 
-    public Map<String, Inventory> getInventories() {
-        return inventories;
+    @Override
+    public void onReceive(final String data) {
+        boolean contains = wrappedInventoryMap.containsKey(data);
+        if(contains){
+            try{
+                WrappedInventory inv = wrappedInventoryMap.get(data);
+                ItemCollection collection = findCollectionFor(inv.isGlobal(), inv.getKey());
+                inv.setContents(collection.getItems());
+            }catch (Exception ignore){}
+        }
     }
 }

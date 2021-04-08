@@ -16,7 +16,7 @@ public class RequestSettingsCommand extends CoreCommand {
 
     @Autowired
     public RequestSettingsCommand(UserService userService){
-        super("requests");
+        super("requests", true);
         this.service = userService;
     }
     

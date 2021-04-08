@@ -5,6 +5,8 @@ import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.items.ItemUpdateClickListener;
 import com.arematics.minecraft.core.server.Server;
+import com.arematics.minecraft.core.server.entities.player.inventories.OpenStrategy;
+import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.IntegerBox;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.EnumUtils;
@@ -51,6 +53,7 @@ public class InventoryHandler {
     private Runnable refresher;
 
     private Map<Class<?>, Enum<?>> currentEnums = new HashMap<>();
+    private List<WrappedInventory> currentInventories = new ArrayList<>();
 
     InventoryHandler(CorePlayer player){
         this.player = player;
@@ -106,6 +109,32 @@ public class InventoryHandler {
      * Open inventory for player. Own inventory is disabled. Opened inventory is enabled
      * @param inventory Inventory to open
      */
+    public void openInventory(WrappedInventory inventory){
+        inventory.openFor(player, OpenStrategy.DEFAULT);
+        this.currentInventories.add(inventory);
+    }
+
+    /**
+     * Open inventory for player. Both inventories are blocked
+     * @param inventory Inventory to open
+     */
+    public void openTotalBlockedInventory(WrappedInventory inventory){
+        inventory.openFor(player, OpenStrategy.TOTAL_BLOCKED);
+        this.currentInventories.add(inventory);
+    }
+    /**
+     * Open inventory for player. Both inventories are enabled
+     * @param inventory Inventory to open
+     */
+    public void openLowerEnabledInventory(WrappedInventory inventory){
+        inventory.openFor(player, OpenStrategy.FULL_EDIT);
+        this.currentInventories.add(inventory);
+    }
+
+    /**
+     * Open inventory for player. Own inventory is disabled. Opened inventory is enabled
+     * @param inventory Inventory to open
+     */
     public void openInventory(Inventory inventory){
         Inventories.openLowerDisabledInventory(inventory, player);
     }
@@ -125,13 +154,8 @@ public class InventoryHandler {
         Inventories.openInventory(inventory, player);
     }
 
-
-    public Inventory getInventory(String key) throws RuntimeException{
-        return InventoryHandler.inventoryService.getInventory(player.getUUID() + "." + key);
-    }
-
-    public Inventory getOrCreateInventory(String key, String title, byte slots){
-        return InventoryHandler.inventoryService.getOrCreate(player.getUUID().toString() + "." + key, title, slots);
+    public WrappedInventory getOrCreateInventory(String key, String title, byte slots){
+        return InventoryHandler.inventoryService.findOrCreate(player.getUUID().toString() + "." + key, title, slots);
     }
 
     public <E extends Enum<E>> InventoryHandler registerEnumItemClickWithRefresh(CoreItem item,

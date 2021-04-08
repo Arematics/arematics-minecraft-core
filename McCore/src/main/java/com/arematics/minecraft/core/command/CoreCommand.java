@@ -18,6 +18,7 @@ import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.ClassUtils;
 import com.arematics.minecraft.core.utils.CommandUtils;
@@ -33,7 +34,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.SimplePluginManager;
 
 import java.lang.reflect.Field;
@@ -69,12 +69,19 @@ public abstract class CoreCommand extends Command {
     private final List<AnnotationProcessor<?>> processors = new ArrayList<>();
     protected Server server;
 
+    private final boolean global;
+
     public CoreCommand(String name, String... aliases){
-        this(name, new AnnotationProcessor<?>[]{}, aliases);
+        this(name, false, aliases);
     }
 
-    public CoreCommand(String name, AnnotationProcessor<?>[] processors, String... aliases) {
+    public CoreCommand(String name, boolean global, String... aliases){
+        this(name, new AnnotationProcessor<?>[]{}, global, aliases);
+    }
+
+    public CoreCommand(String name, AnnotationProcessor<?>[] processors, boolean global, String... aliases) {
         super(name);
+        this.global = global;
         setAliases(Arrays.asList(aliases));
         registerLongArgument("message");
         registerLongArgument("name");
@@ -153,8 +160,9 @@ public abstract class CoreCommand extends Command {
 
     protected void onDefaultGUI(CorePlayer player){
         InventoryService service = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
-        Inventory inv = service.getOrCreate("command.default.menu." + this.getName(),
-                "§8Command: §c" + this.getName(), this.uiSlots);
+        WrappedInventory inv = global ?
+                service.findOrCreateGlobal("command.default.menu." + this.getName(), "§8Command: §c" + this.getName(), this.uiSlots) :
+                service.findOrCreate("command.default.menu." + this.getName(), "§8Command: §c" + this.getName(), this.uiSlots);
         player.inventories().openInventory(inv);
     }
 
@@ -200,7 +208,7 @@ public abstract class CoreCommand extends Command {
     @Override
     public final boolean execute(final CommandSender commandSender, String labels, String[] arguments) {
         if(!(commandSender instanceof Player)) return true;
-        CorePlayer player = CorePlayer.get(commandSender);
+        CorePlayer player = CorePlayer.get((Player) commandSender);
         ArematicsExecutor.runAsync(() -> process(player, arguments));
         return true;
     }

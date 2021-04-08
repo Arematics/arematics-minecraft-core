@@ -14,6 +14,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
@@ -60,26 +61,34 @@ public class GameModeRedisConfiguration {
         return new ChannelTopic("modeQueue");
     }
 
-    @Bean
+    @Bean("modeMessageListener")
     @Primary
-    MessageListenerAdapter messageListener() {
-        return new MessageListenerAdapter(new ModeRedisMessageSubscriber());
+    MessageListenerAdapter messageListener(ModeRedisMessageSubscriber modeRedisMessageSubscriber) {
+        return new MessageListenerAdapter(modeRedisMessageSubscriber);
     }
 
     @Bean
     @Primary
-    RedisMessageListenerContainer redisContainer() {
+    RedisMessageListenerContainer redisContainer(@Qualifier("modeMessageListener") MessageListenerAdapter messageListenerAdapter) {
         RedisMessageListenerContainer container
                 = new RedisMessageListenerContainer();
         container.setConnectionFactory(jedisConnectionFactory());
-        container.addMessageListener(messageListener(), topic());
+        container.addMessageListener(messageListenerAdapter, topic());
         return container;
     }
 
     @Bean("modeRedisTemplate")
     @Primary
-    public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<Object, Object> template = new RedisTemplate<>();
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        return template;
+    }
+
+    @Bean("modeStringRedisTemplate")
+    @Primary
+    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        StringRedisTemplate template = new StringRedisTemplate();
         template.setConnectionFactory(redisConnectionFactory);
         return template;
     }

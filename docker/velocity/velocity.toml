@@ -56,6 +56,7 @@ ping-passthrough = "DISABLED"
 	# Configure your servers here. Each key represents the server's name, and the value
 	# represents the IP address of the server to connect to.
 	pvp = "pvp:25565"
+	farmworld = "farmworld:25565"
 	guns = "guns:25565"
 	lobby-01 = "lobby-01:25565"
 	lobby-02 = "lobby-01:25565"

@@ -23,7 +23,7 @@ public class IgnoreCommand extends CoreCommand {
 
     @Autowired
     public IgnoreCommand(IgnoredService ignoredService){
-        super("ignore");
+        super("ignore", true);
         this.service = ignoredService;
     }
 

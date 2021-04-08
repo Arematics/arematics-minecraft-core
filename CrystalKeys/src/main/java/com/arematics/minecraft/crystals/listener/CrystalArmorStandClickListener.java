@@ -5,6 +5,7 @@ import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.crystals.commands.parser.CrystalKeyParser;
 import com.arematics.minecraft.crystals.logic.CrystalKeyItem;
@@ -21,7 +22,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -73,7 +73,7 @@ public class CrystalArmorStandClickListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onHit(EntityDamageByEntityEvent event){
         if(event.getDamager() instanceof Player && event.getEntity() instanceof ArmorStand){
-            CorePlayer player = CorePlayer.get(event.getDamager());
+            CorePlayer player = CorePlayer.get((Player) event.getDamager());
             ArmorStand stand = (ArmorStand)event.getEntity();
             Optional<CrystalKey> key = parser.readFromArmorStand(stand);
             key.ifPresent(value -> openInventory(player, value));
@@ -83,7 +83,7 @@ public class CrystalArmorStandClickListener implements Listener {
 
     private void openInventory(CorePlayer player, CrystalKey key){
 
-        Inventory inv = service.getOrCreate("crystal.inventory." + key.getName(), "§7Crystal " +
+        WrappedInventory inv = service.findOrCreate("crystal.inventory." + key.getName(), "§7Crystal " +
                 key.getTotalName(), (byte)27);
         if(player.isIgnoreMeta()) player.inventories().openLowerEnabledInventory(inv);
         else player.inventories().openTotalBlockedInventory(inv);
@@ -97,9 +97,9 @@ public class CrystalArmorStandClickListener implements Listener {
         if(checkKeySame(key, player)){
             open.add(player);
             player.removeAmountFromHand(1);
-            CoreItem[] contents = CoreItem.create(service.getOrCreate("crystal.inventory." +
+            CoreItem[] contents = CoreItem.create(service.findOrCreate("crystal.inventory." +
                     key.getName(), "§7Crystal " +
-                    key.getTotalName(), (byte)27).getContents());
+                    key.getTotalName(), (byte)27).getOpen().getContents());
             if(Arrays.stream(contents).filter(content -> content != null && content.getType() != Material.AIR).count() <= 0){
                 player.warn("Key has no items to filter").handle();
                 open.remove(player);
@@ -118,9 +118,9 @@ public class CrystalArmorStandClickListener implements Listener {
     }
 
     private CoreItem calculate(CrystalKey key){
-        CoreItem[] contents = CoreItem.create(service.getOrCreate("crystal.inventory." +
+        CoreItem[] contents = CoreItem.create(service.findOrCreate("crystal.inventory." +
                 key.getName(), "§7Crystal " +
-                key.getTotalName(), (byte)27).getContents());
+                key.getTotalName(), (byte)27).getOpen().getContents());
         final ArrayList<CoreItem> itemStacks = new ArrayList<>();
         if(contents.length == 0) throw new CommandProcessException("No item found");
 

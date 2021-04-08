@@ -2,6 +2,7 @@ package com.arematics.minecraft.buffs.listener;
 
 import com.arematics.minecraft.buffs.server.PlayerBuffHandler;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,6 +18,6 @@ public class BuffsRegisterListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent event){
-        playerBuffHandler.enableBuffs(CorePlayer.get(event.getPlayer()));
+        ArematicsExecutor.runAsync(() -> playerBuffHandler.enableBuffs(CorePlayer.get(event.getPlayer())));
     }
 }

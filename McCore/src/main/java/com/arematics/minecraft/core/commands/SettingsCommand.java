@@ -2,8 +2,8 @@ package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
 import com.arematics.minecraft.data.service.InventoryService;
-import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,13 +14,13 @@ public class SettingsCommand extends CoreCommand {
 
     @Autowired
     public SettingsCommand(InventoryService inventoryService) {
-        super("settings");
+        super("settings", true);
         this.service = inventoryService;
     }
 
     @Override
     protected void onDefaultGUI(CorePlayer player) {
-        Inventory inv = service.getOrCreate("player.settings", "§6Settings", (byte) 45);
+        WrappedInventory inv = service.findOrCreateGlobal("player.settings", "§6Settings", (byte) 45);
         player.inventories().openInventory(inv);
     }
 }

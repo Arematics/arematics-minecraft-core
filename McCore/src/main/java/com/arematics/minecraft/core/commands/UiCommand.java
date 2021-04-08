@@ -9,11 +9,11 @@ import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
 import com.arematics.minecraft.data.global.model.Configuration;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.UserService;
-import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -49,7 +49,7 @@ public class UiCommand extends CoreCommand {
 
     @Override
     protected void onDefaultGUI(CorePlayer player) {
-        Inventory inv = inventoryService.getOrCreate("preferred.mode.default", "§9User Interface", (byte) 9);
+        WrappedInventory inv = inventoryService.findOrCreateGlobal("preferred.mode.default", "§9User Interface", (byte) 9);
         player.inventories().openInventory(inv);
     }
 

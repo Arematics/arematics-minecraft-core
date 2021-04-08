@@ -9,6 +9,7 @@ import com.arematics.minecraft.core.language.LanguageUser;
 import com.arematics.minecraft.core.messaging.advanced.*;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
 import com.arematics.minecraft.data.service.InventoryService;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -40,12 +41,12 @@ public class LanguageCommand extends CoreCommand {
 
     @Override
     protected void onDefaultGUI(CorePlayer player){
-        Inventory inv = service.getOrCreate("language.default.selection", "§9Language", (byte) 9);
+        WrappedInventory inv = service.findOrCreate("language.default.selection", "§9Language", (byte) 9);
         if(player.isIgnoreMeta()){
             player.inventories().openLowerEnabledInventory(inv);
             return;
         }
-        CoreItem[] items = Arrays.stream(CoreItem.create(inv.getContents()))
+        CoreItem[] items = Arrays.stream(CoreItem.create(inv.getOpen().getContents()))
                 .map(item -> process(player.getPlayer(), item))
                 .toArray(CoreItem[]::new);
         Inventory clone = Bukkit.createInventory(null, (byte) 9, "§9Language");

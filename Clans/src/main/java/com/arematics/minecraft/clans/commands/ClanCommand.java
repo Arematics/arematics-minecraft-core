@@ -53,7 +53,7 @@ public class ClanCommand extends CoreCommand {
                        ClanRankService clanRankService,
                        UserService userService,
                        Server server){
-        super("clan", "clans", "c");
+        super("clan", true, "clans", "c");
         this.clanService = clanService;
         this.clanMemberService = clanMemberService;
         this.clanRankService = clanRankService;

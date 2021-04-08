@@ -12,6 +12,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
@@ -47,22 +48,29 @@ public class GlobalRedisConfiguration {
     }
 
     @Bean("globalMessageListener")
-    MessageListenerAdapter messageListener() {
-        return new MessageListenerAdapter(new GlobalRedisMessageSubscriber());
+    MessageListenerAdapter messageListener(GlobalRedisMessageSubscriber globalRedisMessageSubscriber) {
+        return new MessageListenerAdapter(globalRedisMessageSubscriber);
     }
 
-    @Bean("globlRedisContainer")
-    RedisMessageListenerContainer redisContainer() {
+    @Bean("globalRedisContainer")
+    RedisMessageListenerContainer redisContainer(@Qualifier("globalMessageListener") MessageListenerAdapter messageListenerAdapter) {
         RedisMessageListenerContainer container
                 = new RedisMessageListenerContainer();
         container.setConnectionFactory(globalJedisConnectionFactory());
-        container.addMessageListener(messageListener(), topic());
+        container.addMessageListener(messageListenerAdapter, topic());
         return container;
     }
 
     @Bean("globalRedisTemplate")
-    public RedisTemplate<Object, Object> redisTemplate(@Qualifier("globalCacheFactory") RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<Object, Object> template = new RedisTemplate<>();
+    public RedisTemplate<String, Object> redisTemplate(@Qualifier("globalCacheFactory") RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        return template;
+    }
+
+    @Bean("globalStringRedisTemplate")
+    public StringRedisTemplate stringRedisTemplate(@Qualifier("globalCacheFactory") RedisConnectionFactory redisConnectionFactory) {
+        StringRedisTemplate template = new StringRedisTemplate();
         template.setConnectionFactory(redisConnectionFactory);
         return template;
     }
