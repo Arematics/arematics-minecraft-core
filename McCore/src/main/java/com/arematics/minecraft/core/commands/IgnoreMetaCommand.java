@@ -32,7 +32,7 @@ public class IgnoreMetaCommand extends CoreCommand {
     }
 
     public IgnoreMetaCommand(){
-        super("ignore-meta", "meta");
+        super("ignore-meta", true, "meta");
     }
 
     @SubCommand("toggle")

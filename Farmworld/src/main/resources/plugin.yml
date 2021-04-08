@@ -1,0 +1,7 @@
+name: Farmworld
+author: Enrico
+description: Farmworld by Arematics
+version: 1.0
+depend: [McCore]
+
+main: com.arematics.minecraft.farmworld.FarmBoot

@@ -18,7 +18,7 @@ public class CrystalKeyItemCommand extends CoreCommand {
 
     @Autowired
     public CrystalKeyItemCommand(CrystalMetaParser crystalMetaParser){
-        super("cki", "crystalitem");
+        super("cki", true, "crystalitem");
         this.parser = crystalMetaParser;
     }
     

@@ -27,7 +27,7 @@ public class UiCommand extends CoreCommand {
 
     @Autowired
     public UiCommand(UserService userService, InventoryService inventoryService){
-        super("ui");
+        super("ui", true);
         this.service = userService;
         this.inventoryService = inventoryService;
     }

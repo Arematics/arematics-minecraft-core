@@ -43,7 +43,7 @@ public class KitAdminCommand extends CoreCommand {
     public KitAdminCommand(KitService kitService,
                            InventoryService inventoryService,
                            ItemCollectionService itemCollectionService){
-        super("kitadm", "kitmgr");
+        super("kitadm", true, "kitmgr");
         this.service = kitService;
         this.inventoryService = inventoryService;
         this.itemCollectionService = itemCollectionService;

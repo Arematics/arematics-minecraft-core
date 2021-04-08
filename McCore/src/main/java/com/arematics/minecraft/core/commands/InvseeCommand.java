@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Perm(permission = "invsee", description = "See an other players inventory")
 public class InvseeCommand extends CoreCommand {
     public InvseeCommand() {
-        super("invsee");
+        super("invsee", true);
     }
 
     @SubCommand("{player}")

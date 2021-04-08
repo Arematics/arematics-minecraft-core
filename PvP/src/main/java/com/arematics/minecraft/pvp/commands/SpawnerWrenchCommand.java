@@ -19,11 +19,14 @@ public class SpawnerWrenchCommand extends CoreCommand {
 
     @Override
     public void onDefaultExecute(CorePlayer sender) {
-        CoreItem item = server.items().generate(Material.GOLD_HOE)
+        server.items().giveItemTo(sender, getWrench());
+        sender.info("Got spawner wrench").handle();
+    }
+
+    public CoreItem getWrench(){
+        return server.items().generate(Material.GOLD_HOE)
                 .setString("wrench", WRENCH_META_KEY)
                 .setName("§6Spawner Wrench")
                 .addToLore("§8Click on a spawner in the world to collect the spawner");
-        server.items().giveItemTo(sender, item);
-        sender.info("Got spawner wrench").handle();
     }
 }

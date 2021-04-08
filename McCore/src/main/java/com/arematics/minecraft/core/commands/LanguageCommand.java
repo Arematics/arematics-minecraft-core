@@ -26,7 +26,7 @@ public class LanguageCommand extends CoreCommand {
 
     @Autowired
     public LanguageCommand(InventoryService inventoryService){
-        super("language", "lang", "sprache");
+        super("language", true, "lang", "sprache");
         this.service = inventoryService;
     }
 

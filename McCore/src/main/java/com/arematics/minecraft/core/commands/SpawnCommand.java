@@ -5,9 +5,11 @@ import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.mode.model.Warp;
 import com.arematics.minecraft.data.service.WarpService;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+@Getter
 @Component
 @Perm(permission = "spawn", description = "teleports to spawn")
 public class SpawnCommand extends CoreCommand {
@@ -28,16 +30,8 @@ public class SpawnCommand extends CoreCommand {
             Warp warp = warpService.getWarp("spawn");
             this.warpCommand.teleport(sender, warp, false);
         } catch (Exception e) {
-            sender.warn("Warp was not set yet").handle();
+            sender.warn("Spawn was not set yet").handle();
         }
 
-    }
-
-    public WarpCommand getWarpCommand() {
-        return warpCommand;
-    }
-
-    public WarpService getWarpService() {
-        return warpService;
     }
 }

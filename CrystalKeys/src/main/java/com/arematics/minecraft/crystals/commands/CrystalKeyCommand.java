@@ -30,7 +30,7 @@ public class CrystalKeyCommand extends CoreCommand {
     public CrystalKeyCommand(CrystalKeyService crystalKeyService,
                              InventoryService inventoryService,
                              ItemCollectionService itemCollectionService) {
-        super("crystal-key", "ckey", "ck");
+        super("crystal-key", true,"ckey", "ck");
         this.service = crystalKeyService;
         this.inventoryService = inventoryService;
         this.itemCollectionService = itemCollectionService;

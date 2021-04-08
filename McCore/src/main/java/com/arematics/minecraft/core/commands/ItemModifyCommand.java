@@ -20,7 +20,7 @@ public class ItemModifyCommand extends CoreCommand {
 
     @Autowired
     public ItemModifyCommand(ItemMetaParser itemMetaParser){
-        super("imodify", "im", "itemmod");
+        super("imodify", true, "im", "itemmod");
         registerLongArgument("lore");
         registerLongArgument("command");
         this.itemMetaParser = itemMetaParser;

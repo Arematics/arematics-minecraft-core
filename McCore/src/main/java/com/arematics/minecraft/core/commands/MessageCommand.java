@@ -18,7 +18,7 @@ public class MessageCommand extends CoreCommand {
 
     @Autowired
     public MessageCommand(Messenger messenger) {
-        super("msg", "tell", "whisper", "w", "message");
+        super("msg", true, "tell", "whisper", "w", "message");
         this.messenger = messenger;
     }
 
