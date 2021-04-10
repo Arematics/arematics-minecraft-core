@@ -58,16 +58,16 @@ public class InventoryService implements GlobalMessageReceiveService, ModeMessag
     }
 
     private ItemCollection serialize(WrappedInventory wrappedInventory){
-        return new ItemCollection("inventory." + wrappedInventory.getKey(),
+        return new ItemCollection(wrappedInventory.getKey(),
                 CoreItem.create(wrappedInventory.getOpen().getContents()));
     }
 
     private ItemCollection findCollectionFor(boolean global, String key){
         ItemCollection collection;
         try{
-            collection = genericItemCollectionService.findItemCollection("inventory." + key);
+            collection = genericItemCollectionService.findItemCollection(key);
         }catch (Exception exception){
-            ItemCollection newCollection = new ItemCollection("inventory." + key, new CoreItem[]{});
+            ItemCollection newCollection = new ItemCollection(key, new CoreItem[]{});
             collection = genericItemCollectionService.save(global, newCollection);
         }
         return collection;

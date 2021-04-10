@@ -5,6 +5,6 @@ import com.arematics.minecraft.core.command.CoreCommand;
 public class MuteCommand extends CoreCommand {
 
     public MuteCommand(){
-        super("mute");
+        super("mute", true);
     }
 }

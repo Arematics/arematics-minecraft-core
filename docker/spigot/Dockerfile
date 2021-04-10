@@ -20,7 +20,7 @@ RUN sed -i "s/XMX=4G/XMX=$XMX/g" start.sh
 RUN sed -i "s/XMS=2G/XMS=$XMS/g" start.sh
 
 RUN sed -i "s/pvp=true/pvp=$PVP/g" server.properties
-RUN sed -i "s/difficulty=1/pvp=$DIFFICULTY/g" server.properties
+RUN sed -i "s/difficulty=1/difficulty=$DIFFICULTY/g" server.properties
 RUN sed -i "s/level-name=world/level-name=$LEVEL/g" server.properties
 RUN sed -i "s/view-distance=12/view-distance=$VIEW_DISTANCE/g" server.properties
 RUN sed -i "s/spawn-monsters=true/spawn-monsters=$SPAWN_MONSTERS/g" server.properties

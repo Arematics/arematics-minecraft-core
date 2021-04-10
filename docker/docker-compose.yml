@@ -1,0 +1,14 @@
+version: "3.3"
+services:
+  global:
+    image: global-rest:1.0-SNAPSHOT
+    container_name: global_rest
+    network_mode: host
+  pvp:
+    image: pvp-rest:1.0-SNAPSHOT
+    container_name: pvp_rest
+    network_mode: host
+  guns:
+    image: guns-rest:1.0-SNAPSHOT
+    container_name: guns_rest
+    network_mode: host

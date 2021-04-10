@@ -1,17 +1,21 @@
 package com.arematics.minecraft.data.share.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.UUID;
 
-@Entity
-@Table(name = "user_permission")
 @Data
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @IdClass(UserPermId.class)
+@Table(name = "user_permission")
 public class UserPermission implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -23,8 +27,6 @@ public class UserPermission implements Serializable {
     @Id
     @Column(name = "permission", nullable = false)
     private String permission;
-
     @Column(name = "until")
-    private Timestamp until;
-
+    private Date until;
 }

@@ -12,11 +12,9 @@ import org.bukkit.block.Chest;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.inventory.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-@Component
 @Perm(permission = "sendto", description = "Send Chest to other inventory")
 public class SendToInventoryCommand extends CoreCommand {
 
@@ -24,7 +22,7 @@ public class SendToInventoryCommand extends CoreCommand {
 
     @Autowired
     public SendToInventoryCommand(InventoryService inventoryService) {
-        super("isendto");
+        super("isendto", true);
         this.service = inventoryService;
     }
 

@@ -27,7 +27,7 @@ public class BanCommand extends CoreCommand {
 
     @Autowired
     public BanCommand(BanService banService, UserService userService){
-        super("ban");
+        super("ban", true);
         registerLongArgument("reason");
         this.service = banService;
         this.userService = userService;

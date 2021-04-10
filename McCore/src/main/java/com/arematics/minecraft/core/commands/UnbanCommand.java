@@ -3,11 +3,10 @@ package com.arematics.minecraft.core.commands;
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
-import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.global.model.Ban;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.BanService;
-import org.bukkit.command.CommandSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,17 +26,17 @@ public class UnbanCommand extends CoreCommand {
     }
 
     @SubCommand("{target}")
-    public void unbanPlayer(CommandSender sender, User target) {
+    public void unbanPlayer(CorePlayer sender, User target) {
         try{
             Ban ban = service.getBan(target.getUuid());
             if(ban.getBannedUntil() != null && ban.getBannedUntil().before(Timestamp.valueOf(LocalDateTime.now()))){
-                Messages.create("Player " + target.getLastName() + " is not banned at the moment").to(sender).handle();
+                sender.warn("Player " + target.getLastName() + " is not banned at the moment").handle();
                 return;
             }
             service.remove(ban);
-            Messages.create("Player " + target.getLastName() + " has been unbanned").to(sender).handle();
+            sender.info("Player " + target.getLastName() + " has been unbanned").handle();
         }catch (RuntimeException re){
-            Messages.create("Player " + target.getLastName() + " is not banned at the moment").to(sender).handle();
+            sender.warn("Player " + target.getLastName() + " is not banned at the moment").handle();
         }
     }
 }

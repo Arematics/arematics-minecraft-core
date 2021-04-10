@@ -2,13 +2,16 @@ package com.arematics.minecraft.data.service;
 
 import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.mode.repository.ModeRankPermissionRepository;
+import com.arematics.minecraft.data.share.model.RanksPermission;
 import com.arematics.minecraft.data.share.repository.RanksPermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class RankPermissionService {
@@ -21,6 +24,34 @@ public class RankPermissionService {
                                  ModeRankPermissionRepository modeRankPermissionRepository){
         this.ranksPermissionRepository = ranksPermissionRepository;
         this.modeRankPermissionRepository = modeRankPermissionRepository;
+    }
+
+    public List<String> listAllPermsForRank(Rank rank){
+        return ranksPermissionRepository.listAllPermsByRank(rank.getId());
+    }
+
+    public List<String> listAllModePermsForRank(Rank rank){
+        return modeRankPermissionRepository.listAllPermsByRank(rank.getId());
+    }
+
+    @CacheEvict(cacheNames = "rankPermissions", key = "#ranksPermission.id + #ranksPermission.permission")
+    public void updatePerm(RanksPermission ranksPermission){
+        ranksPermissionRepository.save(ranksPermission);
+    }
+
+    @CacheEvict(cacheNames = "rankPermissions", key = "#ranksPermission.id + #ranksPermission.permission")
+    public void delete(RanksPermission ranksPermission){
+        ranksPermissionRepository.delete(ranksPermission);
+    }
+
+    @CacheEvict(cacheNames = "rankPermissions", key = "#ranksPermission.id + #ranksPermission.permission")
+    public void updateModePerm(RanksPermission ranksPermission){
+        modeRankPermissionRepository.save(ranksPermission);
+    }
+
+    @CacheEvict(cacheNames = "rankPermissions", key = "#ranksPermission.id + #ranksPermission.permission")
+    public void deleteMode(RanksPermission ranksPermission){
+        modeRankPermissionRepository.delete(ranksPermission);
     }
 
 

@@ -19,6 +19,10 @@ public class InventoryDataService {
         return inventoryDataRepository.findDataKeys();
     }
 
+    public List<String> findDataKeys(String startsWith){
+        return inventoryDataRepository.findDataKeys(startsWith);
+    }
+
     public InventoryData findDataByKey(String key){
         Optional<InventoryData> result = inventoryDataRepository.findByDataKey(key);
         if(!result.isPresent())

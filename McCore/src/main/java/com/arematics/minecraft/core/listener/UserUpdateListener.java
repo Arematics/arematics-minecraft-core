@@ -5,7 +5,9 @@ import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardHandler;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.User;
+import com.arematics.minecraft.data.service.ServerPropertiesService;
 import com.arematics.minecraft.data.service.UserService;
+import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
@@ -19,16 +21,12 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Component
+@RequiredArgsConstructor(onConstructor_=@Autowired)
 public class UserUpdateListener implements Listener {
 
     private final UserService userService;
+    private final ServerPropertiesService serverPropertiesService;
     private final Tablist tablist;
-
-    @Autowired
-    public UserUpdateListener(UserService userService, Tablist tablist){
-        this.userService = userService;
-        this.tablist = tablist;
-    }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent joinEvent){
@@ -67,9 +65,15 @@ public class UserUpdateListener implements Listener {
         this.tablist.refresh(player);
         TextComponent header = new TextComponent("Arematics presents SoulPvP");
         header.setColor(ChatColor.AQUA);
+        try{
+            header = new TextComponent(serverPropertiesService.findServerProperties("motd_1").getValue());
+        }catch (Exception ignore){}
         header.setBold(true);
-        TextComponent footer = new TextComponent("CLOSED BETA");
+        TextComponent footer = new TextComponent("SOULPVP.DE");
         footer.setColor(ChatColor.DARK_GRAY);
+        try{
+            footer = new TextComponent(serverPropertiesService.findServerProperties("motd_2").getValue());
+        }catch (Exception ignore){}
         footer.setBold(true);
         player.getPlayer().setPlayerListHeaderFooter(header, footer);
     }

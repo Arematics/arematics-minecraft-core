@@ -1,8 +1,10 @@
 package com.arematics.minecraft.data.service;
 
 import com.arematics.minecraft.data.mode.repository.ModeUserPermissionRepository;
+import com.arematics.minecraft.data.share.model.UserPermission;
 import com.arematics.minecraft.data.share.repository.UserPermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,16 @@ public class UserPermissionService {
                                  ModeUserPermissionRepository modeUserPermissionRepository){
         this.userPermissionRepository = userPermissionRepository;
         this.modeUserPermissionRepository = modeUserPermissionRepository;
+    }
+
+    @CacheEvict(cacheNames = "userPermissions", key = "#userPermission.uuid + #userPermission.permission")
+    public void updatePerm(UserPermission userPermission){
+        userPermissionRepository.save(userPermission);
+    }
+
+    @CacheEvict(cacheNames = "userPermissions", key = "#userPermission.uuid + #userPermission.permission")
+    public void delete(UserPermission userPermission){
+        userPermissionRepository.delete(userPermission);
     }
 
     @Cacheable(cacheNames = "userPermissions", key = "#uuid + #permission")

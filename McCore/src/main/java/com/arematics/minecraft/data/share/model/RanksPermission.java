@@ -1,15 +1,19 @@
 package com.arematics.minecraft.data.share.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-@Entity
 @Data
-@Table(name = "ranks_permission")
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @IdClass(RankPermId.class)
+@Table(name = "ranks_permission")
 public class RanksPermission implements Serializable {
 
     private static final long serialVersionUID = 1L;

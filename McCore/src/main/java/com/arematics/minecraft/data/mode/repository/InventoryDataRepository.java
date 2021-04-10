@@ -14,4 +14,6 @@ public interface InventoryDataRepository extends JpaRepository<InventoryData, Lo
     boolean isEditBlocked(@Param("dataKey") String dataKey);
     @Query("SELECT data.dataKey FROM InventoryData data")
     List<String> findDataKeys();
+    @Query("SELECT data.dataKey FROM InventoryData data WHERE data.dataKey LIKE %?1%")
+    List<String> findDataKeys(String startsWith);
 }

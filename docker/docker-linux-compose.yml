@@ -17,7 +17,18 @@ services:
     volumes:
       - /home/minecraft/servers/pvp:/home/minecraft
     environment:
-      XMX: 4G
+      XMX: 16G
+      VIEW_DISTANCE: 8
+    networks:
+      - pvp_network
+      - default
+  farmworld:
+    build: spigot
+    container_name: farmworld
+    volumes:
+      - /home/minecraft/servers/farmworld:/home/minecraft
+    environment:
+      XMX: 10G
       VIEW_DISTANCE: 8
     networks:
       - pvp_network
@@ -28,7 +39,7 @@ services:
     volumes:
       - /home/minecraft/servers/guns:/home/minecraft
     environment:
-      XMX: 2G
+      XMX: 12G
       VIEW_DISTANCE: 10
     networks:
       - guns_network
@@ -39,7 +50,7 @@ services:
     volumes:
       - /home/minecraft/servers/lobby_01:/home/minecraft
     environment:
-      XMX: 1G
+      XMX: 4G
       VIEW_DISTANCE: 12
     networks:
       - lobby_network
@@ -50,7 +61,7 @@ services:
     volumes:
       - /home/minecraft/servers/lobby_02:/home/minecraft
     environment:
-      XMX: 1G
+      XMX: 4G
       VIEW_DISTANCE: 12
     networks:
       - lobby_network

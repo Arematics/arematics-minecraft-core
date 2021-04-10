@@ -17,6 +17,8 @@ import java.sql.Timestamp;
 @Table(name = "ranks")
 public class Rank implements Serializable {
 
+
+
     private static final long serialVersionUID = 1L;
 
     @Id
