@@ -2,6 +2,7 @@ package com.arematics.minecraft.clans.commands;
 
 import com.arematics.minecraft.clans.commands.validator.InClanValidator;
 import com.arematics.minecraft.clans.commands.validator.NoClanValidator;
+import com.arematics.minecraft.clans.commands.validator.SameClanValidator;
 import com.arematics.minecraft.clans.utils.ClanPermissionArray;
 import com.arematics.minecraft.clans.utils.ClanPermissions;
 import com.arematics.minecraft.core.annotations.SubCommand;
@@ -9,6 +10,7 @@ import com.arematics.minecraft.core.annotations.Validator;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.command.processor.validator.BalanceValidator;
+import com.arematics.minecraft.core.command.processor.validator.RequestValidator;
 import com.arematics.minecraft.core.events.CurrencyEventType;
 import com.arematics.minecraft.core.messaging.advanced.JsonColor;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
@@ -17,7 +19,6 @@ import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageI
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
-import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.Clan;
 import com.arematics.minecraft.data.mode.model.ClanMember;
 import com.arematics.minecraft.data.mode.model.ClanRank;
@@ -114,12 +115,11 @@ public class ClanCommand extends CoreCommand {
     @SubCommand("invite {name}")
     public void invitePlayer(@Validator(validators = InClanValidator.class)
                                          CorePlayer player,
-                             @Validator(validators = NoClanValidator.class)
+                             @Validator(validators = {NoClanValidator.class, RequestValidator.class})
                                      CorePlayer target) throws CommandProcessException {
         ClanMember member = clanMemberService.getMember(player);
         if(!ClanPermissions.canInvite(member))
             throw new CommandProcessException("Not permitted to perform this command for your clan");
-        target.getRequestSettings().checkAllowed(userService.getOrCreateUser(player));
         Clan clan = member.getClan(clanService);
         if(clan.getSlots() <= clan.getMembers().size()) throw new CommandProcessException("Your clan is full");
         String clanName = clan.getName();
@@ -178,26 +178,22 @@ public class ClanCommand extends CoreCommand {
     }
 
     @SubCommand("remove {user}")
-    public void removeClanMember(ClanMember member, User target) {
+    public void removeClanMember(ClanMember member,
+                                 @Validator(validators = SameClanValidator.class) ClanMember target) {
         if(!ClanPermissions.canKick(member)){
             member.online().warn("Not permitted to perform this command for your clan").handle();
             return;
         }
-        try{
-            ClanMember targetMember = clanMemberService.getMember(target.getUuid());
-            Clan clan = member.getClan(clanService);
-            if(!targetMember.getRank().getClanRankId().getClanId().equals(clan.getId()))
-                throw new CommandProcessException("Not same clan");
-            if(!ClanPermissions.rankLevelCorrect(member, targetMember))
-                throw new CommandProcessException("Not allowed to kick this player");
-            clan.getAllOnline().forEach(clanPlayer ->
-                    clanPlayer.info("Player " + target.getLastName() + " got kicked").handle());
-            clan.getMembers().remove(targetMember);
-            clanService.update(clan);
-            clanMemberService.delete(targetMember);
-        }catch (RuntimeException re){
-            throw new CommandProcessException("Player " + target.getLastName() + " is not in a clan");
-        }
+        ClanMember targetMember = clanMemberService.getMember(target.getUuid());
+        Clan clan = member.getClan(clanService);
+        if(!targetMember.getRank().getClanRankId().getClanId().equals(clan.getId()))
+            throw new CommandProcessException("Not same clan");
+        if(!ClanPermissions.rankLevelCorrect(member, targetMember))
+            throw new CommandProcessException("Not allowed to kick this player");
+        clan.getAllOnline().forEach(clanPlayer -> clanPlayer.info("Player got kicked").handle());
+        clan.getMembers().remove(targetMember);
+        clanService.update(clan);
+        clanMemberService.delete(targetMember);
     }
 
     @SubCommand("leave")
@@ -215,7 +211,9 @@ public class ClanCommand extends CoreCommand {
     }
 
     @SubCommand("rang {user} {rank}")
-    public void setClanRang(ClanMember member, ClanMember target, String rawRank) {
+    public void setClanRang(ClanMember member,
+                            @Validator(validators = SameClanValidator.class) ClanMember target,
+                            String rawRank) {
         if(!ClanPermissions.isAdmin(member))
             throw new CommandProcessException("This command could only be performed by an administrator");
         Clan clan = member.getClan(clanService);
@@ -226,7 +224,7 @@ public class ClanCommand extends CoreCommand {
                 return rank.getClanRankId().getName().equals(rawRank);
             }
         }).findFirst().orElseThrow(() -> new CommandProcessException("Rank could not be found"));
-        if(member.getRank().getRankLevel() == 0) member.setRank(target.getRank());
+        if(result.getRankLevel() == 0) member.setRank(target.getRank());
         target.setRank(result);
         clanMemberService.update(member);
         clanMemberService.update(target);

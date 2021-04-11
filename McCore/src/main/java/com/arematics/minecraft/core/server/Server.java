@@ -37,7 +37,7 @@ public class Server {
 
     public List<CorePlayer> onlineWithRank(Long id){
         return getOnline().stream()
-                .filter(player -> player.getCachedRank().getId().equals(id) || player.getCachedDisplayRank().getId().equals(id))
+                .filter(player -> player.getUser().getRank().getId().equals(id) || player.getUser().getDisplayRank().getId().equals(id))
                 .collect(Collectors.toList());
     }
 

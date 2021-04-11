@@ -23,6 +23,7 @@ import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -95,14 +96,19 @@ public class StrongholdCaptureController {
         Messages.create(msg)
                 .broadcast()
                 .handle();
-        capture.getInStronghold().forEach(player -> updateScoreboard(player, "§fNicht aktiv", null));
+        capture.getInStronghold().forEach(player -> updateScoreboard(player, "§fNot active", null));
         this.capture = null;
     }
 
     private void updateClanTimes(){
-        capture.getTimings().entrySet().stream()
-                .filter(entry -> checkClanOnlines(entry.getKey()))
-                .forEach(entry -> entry.setValue(entry.getValue() + 1000));
+        Set<Map.Entry<Clan, Long>> captures = capture.getTimings().entrySet();
+        for(Map.Entry<Clan, Long> entry : captures){
+            if(checkClanOnlines(entry.getKey())) {
+                long val = entry.getValue();
+                capture.getTimings().remove(entry.getKey());
+                capture.getTimings().put(entry.getKey(), val + 1000);
+            }
+        }
     }
 
     private boolean checkClanOnlines(Clan clan){
@@ -128,7 +134,7 @@ public class StrongholdCaptureController {
         BoardHandler handler = player.getBoard().getBoard(id);
         if(handler != null && handler.isShown()) {
             for(int i = 0; i < topList.size(); i++)
-                handler.setEntrySuffix("Platz " + (i + 1), "§a" + topList.get(i).getTag());
+                handler.setEntrySuffix("Place " + (i + 1), "§a" + topList.get(i).getTag());
         }
     }
 
@@ -143,7 +149,7 @@ public class StrongholdCaptureController {
     private List<Clan> getCaptureSortedBest(){
         return capture.getTimings().entrySet().stream()
                 .sorted(Map.Entry.comparingByValue())
-                .sorted(Collections.reverseOrder())
+                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
                 .limit(3)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());

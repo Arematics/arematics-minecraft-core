@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.events.AsyncChatMessageEvent;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import com.arematics.minecraft.data.service.IgnoredService;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -19,13 +20,16 @@ import java.util.List;
 public class AsyncChatListener implements Listener {
 
     private final Server server;
+    private final IgnoredService ignoredService;
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onChat(AsyncChatMessageEvent event){
         List<CorePlayer> players = server.getOnline();
         if(event.isCancelled()) players = server.getOnlineTeam();
         String msg = msg(event.getPlayer(), event.isCancelled(), event.getMessage());
-        players.forEach(user -> ArematicsExecutor.runAsync(() -> sendMessage(msg, user)));
+        players.stream()
+                .filter(player -> !player.hasIgnored(event.getPlayer().getUUID()))
+                .forEach(user -> ArematicsExecutor.runAsync(() -> sendMessage(msg, user)));
     }
 
     private void sendMessage(String msg, CorePlayer player){
@@ -40,6 +44,6 @@ public class AsyncChatListener implements Listener {
     }
 
     private String createChatMessage(CorePlayer player, String message){
-        return player.getCachedRank().isInTeam() ? ChatColor.translateAlternateColorCodes('&', message) : message;
+        return player.getUser().getRank().isInTeam() ? ChatColor.translateAlternateColorCodes('&', message) : message;
     }
 }

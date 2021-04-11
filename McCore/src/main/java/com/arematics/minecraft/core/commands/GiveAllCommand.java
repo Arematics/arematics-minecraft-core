@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "give-all", description = "All player get an item")
+@Perm(permission = "world.interact.giveall", description = "Give all players an item")
 public class GiveAllCommand extends CoreCommand {
 
     private final Server server;

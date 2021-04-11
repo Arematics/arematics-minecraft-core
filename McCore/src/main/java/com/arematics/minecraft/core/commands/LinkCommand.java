@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "player.management.linking", description = "Permission to manage links")
+@Perm(permission = "management.player.links", description = "Permission to manage account links")
 public class LinkCommand extends CoreCommand {
 
     private final AccountLinkService service;

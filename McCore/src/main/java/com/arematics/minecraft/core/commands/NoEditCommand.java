@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Component
-@Perm(permission = "player.interact.noedit", description = "Permission for no edit command")
+@Perm(permission = "team.noedit", description = "Permission for no edit command")
 public class NoEditCommand extends CoreCommand {
 
     private static Map<UUID, CoreItem> noEdit = new HashMap<>();

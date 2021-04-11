@@ -1,6 +1,8 @@
 package com.arematics.minecraft.lobby.listener;
 
+import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardHandler;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.service.WarpService;
 import com.arematics.minecraft.lobby.items.Items;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,13 @@ public class LobbyItemJoinListener implements Listener {
         CorePlayer player = CorePlayer.get(event.getPlayer());
         player.instantTeleport(warpService.getWarp("spawn").getLocation()).schedule();
         player.getPlayer().getInventory().setItem(4, Items.COMPASS);
+        player.getBoard().getBoard("main").hide();
+        ArematicsExecutor.runAsync(() -> {
+            final BoardHandler handler = player.getBoard().getOrAddBoard("lobby", "§b§lSOULPVP.DE");
+            handler.addEntryData("Welcome", "§c", "§bon SoulPvP.de");
+
+            ArematicsExecutor.syncRun(handler::show);
+        });
     }
 
     @EventHandler

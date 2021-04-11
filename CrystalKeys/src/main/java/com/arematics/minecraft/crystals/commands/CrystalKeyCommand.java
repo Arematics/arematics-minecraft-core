@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 import java.util.stream.Collectors;
 
 @Component
-@Perm(permission = "crystals.manage.keys", description = "Permission to get informations about crystal keys")
+@Perm(permission = "management.keys.existing", description = "Get information about keys")
 public class CrystalKeyCommand extends CoreCommand {
 
     private final CrystalKeyService service;
@@ -61,7 +61,7 @@ public class CrystalKeyCommand extends CoreCommand {
     }
 
     @SubCommand("create {name} {colorCode}")
-    @Perm(permission = "modify", description = "permission to modify a crystal key and see infos")
+    @Perm(permission = "modify", description = "Permission to modify a key")
     public void createCrystalKey(CorePlayer player, String name, String colorCode) {
         try{
             service.findById(name);
@@ -74,7 +74,7 @@ public class CrystalKeyCommand extends CoreCommand {
     }
 
     @SubCommand("delete {crystal}")
-    @Perm(permission = "modify", description = "permission to modify a crystal key and see infos")
+    @Perm(permission = "modify", description = "Permission to modify a key")
     public void deleteCrystalKey(CorePlayer player, CrystalKey key) {
         try{
             service.delete(key);
@@ -87,7 +87,7 @@ public class CrystalKeyCommand extends CoreCommand {
     }
 
     @SubCommand("setColorCode {crystal} {colorCode}")
-    @Perm(permission = "modify", description = "permission to modify a crystal key and see infos")
+    @Perm(permission = "modify", description = "Permission to modify a key")
     public void changeRGB(CorePlayer player, CrystalKey key, String colorCode) {
         key.setColorCode(colorCode);
         player.info("Color has been changed").handle();

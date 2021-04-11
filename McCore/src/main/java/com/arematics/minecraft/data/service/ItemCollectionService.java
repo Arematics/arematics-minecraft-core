@@ -61,7 +61,9 @@ public class ItemCollectionService implements ModeMessageReceiveService{
             Player player = Bukkit.getPlayer(uuid);
             if(player != null){
                 ItemCollection collection = findOrCreate(uuid + ".playerInv");
+                ItemCollection armor = findOrCreate(uuid + ".armor");
                 player.getInventory().setContents(collection.getItems());
+                player.getInventory().setArmorContents(armor.getItems());
             }
         }catch (Exception ignore){}
     }

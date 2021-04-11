@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 @Component
-@Perm(permission = "random", description = "get a random player")
+@Perm(permission = "team.random", description = "get a random player")
 public class RandomCommand extends CoreCommand {
     public RandomCommand() {
         super("random", "rnd");

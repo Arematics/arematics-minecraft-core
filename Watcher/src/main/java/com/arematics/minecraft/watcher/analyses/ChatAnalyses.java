@@ -23,11 +23,7 @@ public class ChatAnalyses {
     }
 
     private boolean possibleBlocking(String income){
-        return chatFilterService.getBlocked().stream().anyMatch(block -> analyse(income, block));
-    }
-
-    private boolean analyse(String income, String blocked){
-        return blocked.compareToIgnoreCase(income) == 0;
+        return chatFilterService.getBlocked().stream().anyMatch(block -> block.equalsIgnoreCase(income));
     }
 
     private boolean isMatchAfterReplaceHideChar(String income, String blocked){

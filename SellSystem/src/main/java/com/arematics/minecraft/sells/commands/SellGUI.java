@@ -146,7 +146,6 @@ public class SellGUI {
         public void onClose(InventoryCloseEvent event){
             if(event.getPlayer().equals(sender.getPlayer()) &&
                     event.getView().getTopInventory().equals(builder.fetchInventory())){
-                System.out.println("Give back items");
                 closeInventory(true);
             }
         }

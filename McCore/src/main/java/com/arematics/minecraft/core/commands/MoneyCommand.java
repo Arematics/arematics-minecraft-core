@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "player.money", description = "Money Command")
+@Perm(permission = "management.player.money", description = "Money Command")
 public class MoneyCommand extends CoreCommand {
 
     private final Server server;

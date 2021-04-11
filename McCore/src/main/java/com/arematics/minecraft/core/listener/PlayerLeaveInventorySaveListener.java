@@ -28,6 +28,8 @@ public class PlayerLeaveInventorySaveListener implements Listener {
         CorePlayer player = CorePlayer.get(event.getPlayer());
         player.getPlayer().getInventory().setContents(itemCollectionService.findOrCreate(player.getUUID() + ".playerInv")
                 .getItems());
+        player.getPlayer().getInventory().setArmorContents(itemCollectionService.findOrCreate(player.getUUID() + ".armor")
+                .getItems());
     }
 
     @EventHandler
@@ -47,6 +49,10 @@ public class PlayerLeaveInventorySaveListener implements Listener {
         collection.setItems(CoreItem.create(player.getPlayer().getInventory().getContents()));
         itemCollectionService.save(collection);
         this.modeRedisMessagePublisher.publish(itemCollectionService.messageKey(), player.getUUID().toString());
+        ItemCollection armor = itemCollectionService.findOrCreate(player.getUUID() + ".armor");
+        collection.setItems(CoreItem.create(player.getPlayer().getInventory().getArmorContents()));
+        itemCollectionService.save(armor);
+        this.modeRedisMessagePublisher.publish(itemCollectionService.messageKey(), player.getUUID().toString());
     }
 
     @EventHandler
@@ -56,6 +62,10 @@ public class PlayerLeaveInventorySaveListener implements Listener {
             ItemCollection collection = itemCollectionService.findOrCreate(player.getUUID() + ".playerInv");
             collection.setItems(new CoreItem[]{});
             itemCollectionService.save(collection);
+            this.modeRedisMessagePublisher.publish(itemCollectionService.messageKey(), player.getUUID().toString());
+            ItemCollection armor = itemCollectionService.findOrCreate(player.getUUID() + ".armor");
+            collection.setItems(CoreItem.create(player.getPlayer().getInventory().getArmorContents()));
+            itemCollectionService.save(armor);
             this.modeRedisMessagePublisher.publish(itemCollectionService.messageKey(), player.getUUID().toString());
         });
         player.getPlayer().getInventory().clear();

@@ -2,6 +2,7 @@ package com.arematics.minecraft.data.service;
 
 import com.arematics.minecraft.data.mode.model.Clan;
 import com.arematics.minecraft.data.mode.repository.ClanRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -14,14 +15,11 @@ import java.util.Optional;
 
 @Service
 @CacheConfig(cacheNames = "clanCache")
+@RequiredArgsConstructor(onConstructor_=@Autowired)
 public class ClanService {
 
     private final ClanRepository repository;
-
-    @Autowired
-    public ClanService(ClanRepository clanRepository){
-        this.repository = clanRepository;
-    }
+    private final ClanMemberService clanMemberService;
 
     @Cacheable(key = "#id")
     public Clan findClanById(long id){
@@ -57,6 +55,7 @@ public class ClanService {
 
     @CacheEvict(key = "#clan.id")
     public void delete(Clan clan){
+        clan.getMembers().forEach(clanMemberService::evictCache);
         repository.delete(clan);
     }
 }

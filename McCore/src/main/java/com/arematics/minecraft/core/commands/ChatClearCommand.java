@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "clear", description = "clear the Chat")
+@Perm(permission = "team.punishment.chat.clear", description = "Clear the Chat")
 public class ChatClearCommand extends CoreCommand  {
 
     @Autowired

@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Component
-@Perm(permission = "punishment-unban", description = "Unban a player")
+@Perm(permission = "team.punishment.unban", description = "Unban a player")
 public class UnbanCommand extends CoreCommand {
 
     private final BanService service;

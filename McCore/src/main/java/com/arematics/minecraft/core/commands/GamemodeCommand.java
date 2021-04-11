@@ -9,7 +9,7 @@ import org.bukkit.GameMode;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "gamemode", description = "Changing your game mode")
+@Perm(permission = "world.interact.player.gamemode", description = "Change gamemode")
 public class GamemodeCommand extends CoreCommand {
 
     public GamemodeCommand(){
@@ -18,22 +18,28 @@ public class GamemodeCommand extends CoreCommand {
 
     @SubCommand("{mode}")
     public boolean setMode(CorePlayer player, String mode) {
-        ArematicsExecutor.syncRun(() -> runSync(player, mode));
+        ArematicsExecutor.syncRun(() -> runSync(player, player, mode));
         return true;
     }
 
-    private void runSync(CorePlayer player, String mode){
+    @SubCommand("{mode} {forPlayer}")
+    @Perm(permission = "other", description = "Change gamemode for other player")
+    public void setModeFor(CorePlayer sender, String mode, CorePlayer forPlayer) {
+        ArematicsExecutor.syncRun(() -> runSync(sender, forPlayer, mode));
+    }
+
+    private void runSync(CorePlayer player, CorePlayer target, String mode){
         try{
             GameMode modeE = GameMode.getByValue(Integer.parseInt(mode));
-            player.getPlayer().setGameMode(modeE);
-            player.info("gamemode")
+            target.getPlayer().setGameMode(modeE);
+            target.info("gamemode")
                     .DEFAULT()
                     .replace("mode", modeE.name())
                     .handle();
         }catch (NumberFormatException nfe){
             GameMode modeE = GameMode.valueOf(mode.toUpperCase());
-            player.getPlayer().setGameMode(modeE);
-            player.info("gamemode")
+            target.getPlayer().setGameMode(modeE);
+            target.info("gamemode")
                     .DEFAULT()
                     .replace("mode", modeE.name())
                     .handle();

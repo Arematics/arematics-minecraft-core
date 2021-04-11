@@ -11,23 +11,25 @@ import org.springframework.stereotype.Component;
 
 @Getter
 @Component
-@Perm(permission = "spawn", description = "teleports to spawn")
+@Perm(permission = "world.interact.spawn", description = "teleports to spawn")
 public class SpawnCommand extends CoreCommand {
 
     private final WarpCommand warpCommand;
     private final WarpService warpService;
+    public String currentTeleport;
 
     @Autowired
     public SpawnCommand(WarpCommand warpCommand, WarpService warpService) {
         super("spawn");
         this.warpCommand = warpCommand;
         this.warpService = warpService;
+        this.currentTeleport = "spawn";
     }
 
     @Override
     public void onDefaultExecute(CorePlayer sender) {
         try {
-            Warp warp = warpService.getWarp("spawn");
+            Warp warp = warpService.getWarp(currentTeleport);
             this.warpCommand.teleport(sender, warp, false);
         } catch (Exception e) {
             sender.warn("Spawn was not set yet").handle();

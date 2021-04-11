@@ -16,4 +16,13 @@ public class MessagingUtils {
 
         player.getPlayer().sendPluginMessage(Boots.getBoot(CoreBoot.class), "BungeeCord", out.toByteArray());
     }
+
+    public static void kickPlayer(CorePlayer player, String message){
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("KickPlayer");
+        out.writeUTF(player.getName());
+        out.writeUTF(message);
+
+        player.getPlayer().sendPluginMessage(Boots.getBoot(CoreBoot.class), "BungeeCord", out.toByteArray());
+    }
 }

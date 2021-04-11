@@ -28,6 +28,7 @@ public class ClanMemberParser extends CommandSenderParser<ClanMember> {
             User user = this.userParser.parse(value);
             return service.getMember(user.getUuid());
         }catch (RuntimeException re){
+            re.printStackTrace();
             throw new CommandProcessException("Player: " + value + " has no clan");
         }
     }

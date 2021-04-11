@@ -9,7 +9,7 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "ignore-meta", description = "Allowed to ignore item meta actions")
+@Perm(permission = "world.interact.player.ignoremeta", description = "Allowed to ignore item meta actions")
 public class IgnoreMetaCommand extends CoreCommand {
 
     public static void setIgnoreMeta(CorePlayer player){

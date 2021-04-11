@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "sells.manage")
+@Perm(permission = "management.sells")
 public class ManageSellPriceCommand extends CoreCommand {
 
     private final ItemPriceService service;

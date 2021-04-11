@@ -28,10 +28,10 @@ public class StrongholdScoreboardListener implements Listener {
 
         final BoardHandler handler = player.getBoard().getOrAddBoard("stronghold", "§4§lSTRONGHOLD");
         handler.addEntryData("Name", "§c", "§7" + stronghold.getId())
-                .addEntryData("Platz 3", "§c", "§c" + "Not found")
-                .addEntryData("Platz 2", "§c", "§c" + "Not found")
-                .addEntryData("Platz 1", "§c", "§c" + "Not found")
-                .addEntryData("Time", "§c", "§a" + "§fNicht aktiv")
+                .addEntryData("Place 3", "§c", "§c" + "Not found")
+                .addEntryData("Place 2", "§c", "§c" + "Not found")
+                .addEntryData("Place 1", "§c", "§c" + "Not found")
+                .addEntryData("Time", "§c", "§a" + "§fNot active")
                 .show();
     }
 
@@ -44,10 +44,10 @@ public class StrongholdScoreboardListener implements Listener {
         String captureResult = capture == null ? "§cDisabled" : capture.getStronghold().equals(stronghold) ? "§aEnabled" : "§cDisabled";
         final BoardHandler handler = player.getBoard().getOrAddBoard("stronghold-capture", "§4§lSH CAPTURE");
         handler.addEntryData("Capture", "§c", "§a" + captureResult)
-                .addEntryData("Platz 3", "§c", "§c" + "Not found")
-                .addEntryData("Platz 2", "§c", "§c" + "Not found")
-                .addEntryData("Platz 1", "§c", "§c" + "Not found")
-                .addEntryData("Time", "§c", "§a" + "§fNicht aktiv")
+                .addEntryData("Place 3", "§c", "§c" + "Not found")
+                .addEntryData("Place 2", "§c", "§c" + "Not found")
+                .addEntryData("Place 1", "§c", "§c" + "Not found")
+                .addEntryData("Time", "§c", "§a" + "§fNot active")
                 .show();
     }
 

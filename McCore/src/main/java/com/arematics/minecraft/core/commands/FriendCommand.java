@@ -6,8 +6,7 @@ import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.validator.FriendValidator;
 import com.arematics.minecraft.core.command.processor.validator.RequestValidator;
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.server.items.Items;
-import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.messaging.advanced.JsonColor;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
@@ -17,6 +16,7 @@ import com.arematics.minecraft.core.server.entities.player.inventories.Inventory
 import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
 import com.arematics.minecraft.core.server.entities.player.inventories.paging.Paging;
+import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.Friend;
 import com.arematics.minecraft.data.global.model.User;
@@ -34,7 +34,7 @@ import java.util.function.Supplier;
 
 @Component
 public class FriendCommand extends CoreCommand {
-    private final Map<User, User> friendInvites = new HashMap<>();
+    private final Map<CorePlayer, CorePlayer> friendInvites = new HashMap<>();
 
     private final FriendService friendService;
 
@@ -57,27 +57,26 @@ public class FriendCommand extends CoreCommand {
     @SubCommand("add {name}")
     public void addFriend(CorePlayer player,
                           @Validator(validators = {FriendValidator.class, RequestValidator.class})
-                                  User target) {
-        User user = player.getUser();
-        CorePlayer invited = CorePlayer.get(Bukkit.getPlayer(target.getUuid()));
+                                  CorePlayer invited) {
         invited.info("player_friends_request")
                 .setInjector(AdvancedMessageInjector.class)
                 .replace("inviter", new Part(player.getPlayer().getName()))
                 .handle();
-        //TODO Clickable Accepting Fix
-        /*
-                .replace("accept", PartBuilder.createHoverAndRun("ACCEPT", "§aAccept friend request",
+        invited.info("&8« &a%previous% &8&l| &a%next% &8»")
+                .setInjector(AdvancedMessageInjector.class)
+                .disableServerPrefix()
+                .replace("previous", PartBuilder.createHoverAndRun("ACCEPT", "§aAccept friend request",
                         "/friend accept " + player.getPlayer().getName()).setBaseColor(JsonColor.GREEN))
-                .replace("deny", PartBuilder.createHoverAndRun("DENY", "§cDeny friend request",
+                .replace("next", PartBuilder.createHoverAndRun("DENY", "§cDeny friend request",
                         "/friend deny " + player.getPlayer().getName()).setBaseColor(JsonColor.RED))
-        */
+                .handle();
         player.info("player_friends_request_send")
                 .DEFAULT()
                 .replace("invited", invited.getPlayer().getName())
                 .handle();
         invited.getRequestSettings().addTimeout(player.getPlayer().getName());
-        friendInvites.put(user, target);
-        ArematicsExecutor.asyncDelayed(() -> friendInvites.remove(user, target), 2, TimeUnit.MINUTES);
+        friendInvites.put(player, invited);
+        ArematicsExecutor.asyncDelayed(() -> friendInvites.remove(player, invited), 2, TimeUnit.MINUTES);
     }
 
     @SubCommand("remove {name}")
@@ -98,21 +97,19 @@ public class FriendCommand extends CoreCommand {
     }
 
     @SubCommand("accept {name}")
-    public boolean acceptFriendRequest(CorePlayer player, User requester) {
-        User user = player.getUser();
+    public boolean acceptFriendRequest(CorePlayer player, CorePlayer requester) {
         if(friendInvites.containsKey(requester)){
-            User target = friendInvites.get(requester);
-            if(!target.getUuid().equals(user.getUuid())){
+            CorePlayer target = friendInvites.get(requester);
+            if(!target.equals(player)){
                 player.warn("player_friends_request_non").handle();
                 return true;
             }else{
-                friendService.friend(requester.getUuid(), player.getUUID());
+                friendService.friend(requester.getUUID(), player.getUUID());
                 player.info("player_friends_request_accept")
                         .DEFAULT()
-                        .replace("name", requester.getLastName())
+                        .replace("name", requester.getName())
                         .handle();
-                Messages.create("player_friends_request_has_accept")
-                        .to(Bukkit.getPlayer(requester.getUuid()))
+                requester.info("player_friends_request_has_accept")
                         .DEFAULT()
                         .replace("name", player.getName())
                         .handle();

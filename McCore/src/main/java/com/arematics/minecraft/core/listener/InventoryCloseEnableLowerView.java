@@ -12,6 +12,7 @@ public class InventoryCloseEnableLowerView implements Listener {
     @EventHandler
     public void onClose(InventoryCloseEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
+        player.inventories().getCurrentInventories().forEach(inv -> inv.closeFor(player));
         player.inventories()
                 .stopRefreshTask()
                 .resetPages()
@@ -24,7 +25,6 @@ public class InventoryCloseEnableLowerView implements Listener {
         player.inventories().setRefresher(null);
         player.setDisableLowerInventory(false);
         player.setDisableUpperInventory(false);
-        player.inventories().getCurrentInventories().forEach(inv -> inv.closeFor(player));
         player.inventories().getCurrentInventories().clear();
     }
 }

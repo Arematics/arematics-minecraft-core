@@ -7,7 +7,6 @@ import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.Configuration;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.FriendService;
-import com.arematics.minecraft.data.service.IgnoredService;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -45,16 +44,15 @@ public class PlayerRequestSettings {
         player.update(user);
     }
 
-    public void checkAllowed(User requester) throws CommandProcessException {
-        IgnoredService service = Boots.getBoot(CoreBoot.class).getContext().getBean(IgnoredService.class);
-        FriendService friendService = Boots.getBoot(CoreBoot.class).getContext().getBean(FriendService.class);
-        if(service.hasIgnored(player.getUUID(), requester.getUuid()))
+    public void checkAllowed(CorePlayer requester) throws CommandProcessException {
+        if(player.hasIgnored(requester.getUUID()))
             throw new CommandProcessException("This player does not accept requests");
-        if(hasTimeout(requester.getLastName()))
+        if(hasTimeout(requester.getName()))
             throw new CommandProcessException("You must wait to send this player an request again");
+        FriendService friendService = Boots.getBoot(CoreBoot.class).getContext().getBean(FriendService.class);
         switch(getRequestFilter()){
             case FRIENDS:
-                if(!friendService.isFriended(player.getUUID(), requester.getUuid()))
+                if(!friendService.isFriended(player.getUUID(), requester.getUUID()))
                     throw new CommandProcessException("This player is accepting requests from friends only");
                 else
                     break;

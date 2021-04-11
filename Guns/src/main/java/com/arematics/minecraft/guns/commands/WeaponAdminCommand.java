@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-@Perm(permission = "guns.weapons.administrate")
+@Perm(permission = "management.weapons", description = "Manage weapon data and create new one")
 public class WeaponAdminCommand extends CoreCommand {
 
     private final WeaponService weaponService;
@@ -123,7 +123,7 @@ public class WeaponAdminCommand extends CoreCommand {
             player.warn("Weapon with id: " + id + " already exists").handle();
         }catch (RuntimeException re){
             Weapon weapon = new Weapon(id, type, damage, bullets, durability, (short) 0, ammoPerLoading,
-                    new CoreItem[]{CoreItem.create(hand)
+                    new CoreItem[]{server.items().create(hand)
                     .setString("weapon", id)
                     .setShort("weapon-durability", durability)
                     .setName("§e" + id + " §7< 0 / " + ammoPerLoading + " >")});
@@ -193,7 +193,7 @@ public class WeaponAdminCommand extends CoreCommand {
     }
 
     private CoreItem createNewWeapon(WeaponType weaponType){
-        return CoreItem.generate(Material.EMERALD)
+        return server.items().generateNoModifier(Material.EMERALD)
                 .bindCommand("wadmin create weapon {id} " + weaponType.name() + " {durability} {damage} {bullets} {apl}")
                 .setName("§aCreate new Weapon")
                 .addToLore("    §8> Click to create new weapon for this type")
@@ -202,7 +202,7 @@ public class WeaponAdminCommand extends CoreCommand {
     }
 
     private CoreItem prepareWeapon(Weapon weapon){
-        return CoreItem.create(weapon.getWeaponItem()[0])
+        return server.items().createNoModifier(weapon.getWeaponItem()[0])
                 .bindCommand("wadmin get weapon " + weapon.getId())
                 .setName("§8Weapon: §e" + weapon.getId())
                 .addToLore("    §8> Total Damage: §e" + weapon.getTotalDamage())

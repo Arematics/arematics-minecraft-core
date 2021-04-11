@@ -9,6 +9,7 @@ import com.arematics.minecraft.core.times.TimeUtils;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -18,12 +19,7 @@ import java.util.function.Consumer;
 public class ArematicsExecutor {
 
     public static void runAsync(Runnable runnable){
-        new BukkitRunnable(){
-            @Override
-            public void run() {
-                runnable.run();
-            }
-        }.runTaskLaterAsynchronously(Boots.getBoot(CoreBoot.class), 1);
+        CompletableFuture.runAsync(runnable);
     }
 
     public static String awaitAnvilResult(String key, CorePlayer player) throws InterruptedException {

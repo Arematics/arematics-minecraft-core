@@ -69,11 +69,11 @@ public class HomeCommand extends CoreCommand {
         }catch (RuntimeException re){
             int maxHomes = 40;
 
-            if(sender.getCachedRank().isInTeam()){
+            if(sender.getUser().getRank().isInTeam()){
                 maxHomes = 250;
             }else{
                 Rank vip = rankService.findByName("VIP");
-                if(sender.getCachedRank().isSameOrHigher(vip)){
+                if(sender.getUser().getRank().isSameOrHigher(vip)){
                     maxHomes = 80;
                 }
             }
@@ -122,11 +122,11 @@ public class HomeCommand extends CoreCommand {
     private void openInventoryQuery(CorePlayer sender, Supplier<Page<Home>> paging, Boolean deleteMode, String query){
         Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
         PageBinder<Home> homes = PageBinder.of(paging, range, home -> fetchHomeItem(home, query, deleteMode));
-        CoreItem searchBook = CoreItem.generate(Material.BOOK_AND_QUILL)
+        CoreItem searchBook = server.items().generateNoModifier(Material.BOOK_AND_QUILL)
                 .bindCommand("home query " + deleteMode + " {contains}")
                 .setName("§aSearch homes by query")
                 .addToLore("§7Current Query: §b" + (query != null ? query : "None"));
-        CoreItem searchClear = CoreItem.generate(Material.BOOK)
+        CoreItem searchClear = server.items().generateNoModifier(Material.BOOK)
                 .bindCommand("home query " + deleteMode)
                 .setName("§eRemove search query");
         CoreItem modeItem = deleteModeItem(deleteMode, query);
@@ -141,16 +141,16 @@ public class HomeCommand extends CoreCommand {
     }
 
     private CoreItem deleteModeItem(Boolean deleteMode, String query){
-        return CoreItem.generate(deleteMode ? Material.ENDER_PORTAL_FRAME : Material.REDSTONE_BLOCK)
+        return server.items().generateNoModifier(deleteMode ? Material.ENDER_PORTAL_FRAME : Material.REDSTONE_BLOCK)
                 .bindCommand("home query " + !deleteMode + (query != null ? " " + query : ""))
                 .setName("§cEnable " + (deleteMode ? "Teleport" : "Delete") + " Mode");
     }
 
     private CoreItem fetchHomeItem(Home home, String query, Boolean deleteMode){
-        if(!deleteMode) return CoreItem.generate(Material.BED)
+        if(!deleteMode) return server.items().generateNoModifier(Material.BED)
                 .bindCommand("home " + home.getName())
                 .setName("§cHome: §7" + split(home.getName(), query));
-        else return CoreItem.generate(Material.BED)
+        else return server.items().generateNoModifier(Material.BED)
                 .bindCommand("delhome " + home.getName())
                 .setName("§cRemove §7" + split(home.getName(), query));
     }

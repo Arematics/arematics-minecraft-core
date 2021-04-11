@@ -6,7 +6,7 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "xp", description = "send xp to a player")
+@Perm(permission = "world.interact.player.xp", description = "send xp to a player")
 public class XpCommand extends CoreCommand {
     public XpCommand() {
         super("xp", "xppay","payxp");

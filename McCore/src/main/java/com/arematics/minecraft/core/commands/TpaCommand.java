@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Getter
-@Perm(permission = "tpa", description = "Teleport to a player")
+@Perm(permission = "world.interact.player.tpa", description = "Teleport to a player")
 public class TpaCommand extends CoreCommand {
 
     private final PlayerTeleportController teleportController;

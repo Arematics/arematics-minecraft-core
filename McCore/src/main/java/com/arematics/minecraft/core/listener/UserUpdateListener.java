@@ -55,7 +55,7 @@ public class UserUpdateListener implements Listener {
 
     private void patchUser(CorePlayer player){
         Timestamp current = Timestamp.valueOf(LocalDateTime.now());
-        User user = this.userService.getOrCreateUser(player.getUUID(), player.getPlayer().getName());
+        User user = player.getUser();
         user.setLastName(player.getPlayer().getName());
         user.setLastJoin(current);
         this.userService.update(user);

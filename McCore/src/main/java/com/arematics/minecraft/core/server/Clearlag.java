@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 @Data
@@ -43,7 +45,7 @@ public class Clearlag {
     }
 
     private void mentionClearLag(){
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH);
         server.getOnline().forEach(player -> player.info("clear_lag_time")
                 .DEFAULT()
                 .replace("time", dateTimeFormatter.format(player.parseTime(nextExecute)))
@@ -75,7 +77,7 @@ public class Clearlag {
     }
 
     private void clearEntity(Entity entity){
-        if(entity instanceof Item){
+        if(entity instanceof Item || entity instanceof Minecart){
             entity.remove();
         }
     }

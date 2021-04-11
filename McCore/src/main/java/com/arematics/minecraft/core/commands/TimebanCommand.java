@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Component
-@Perm(permission = "punishment-tban", description = "Permission to ban a player temporary")
+@Perm(permission = "team.punishment.tban", description = "Ban a player temporary")
 public class TimebanCommand extends CoreCommand {
     private final BanService service;
     private final UserService userService;

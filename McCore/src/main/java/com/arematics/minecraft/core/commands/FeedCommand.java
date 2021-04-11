@@ -6,7 +6,7 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "feed", description = "Feed yourself")
+@Perm(permission = "world.interact.player.feed", description = "Feed yourself")
 public class FeedCommand extends CoreCommand {
 
     public FeedCommand() {

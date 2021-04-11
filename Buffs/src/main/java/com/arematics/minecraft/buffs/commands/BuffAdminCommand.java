@@ -23,7 +23,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Component
-@Perm(permission = "player.buffs.admin", description = "Permission to manage player buffs")
+@Perm(permission = "management.buffs", description = "Manage player buffs")
 public class BuffAdminCommand extends CoreCommand {
 
     private final PlayerBuffHandler handler;

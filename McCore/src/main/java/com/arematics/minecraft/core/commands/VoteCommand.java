@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Component
-@Perm(permission = "utils.vote", description = "Vote Command Permission")
+@Perm(permission = "server.vote", description = "Vote Command Permission")
 public class VoteCommand extends CoreCommand {
 
     private final PlayerVotesService votesService;
@@ -54,7 +54,6 @@ public class VoteCommand extends CoreCommand {
     }
 
     @SubCommand("data")
-    @Perm(permission = "data", description = "See your vote data")
     public void listOwnVoteData(CorePlayer sender) {
         List<VoteReward> rewards = this.voteRewardService.findAll();
         Supplier<PlayerVotes> votes = () -> this.votesService.getOrCreate(sender.getUUID());

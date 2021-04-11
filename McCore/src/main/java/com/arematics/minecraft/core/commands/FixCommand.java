@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
-@Perm(permission = "fix", description = "fix your items")
+@Perm(permission = "world.interact.player.fix", description = "fix your items")
 @Component
 public class FixCommand extends CoreCommand {
 

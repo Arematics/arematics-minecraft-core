@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "warn", description = "")
+@Perm(permission = "team.punishment.warn", description = "Warn a player")
 public class WarnCommand extends CoreCommand {
 
     private final WarnService warnService;

@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@Perm(permission = "kitadm", description = "Permission to full Kit Administration Command")
+@Perm(permission = "management.kits", description = "Manage existing kits or create new one")
 public class KitAdminCommand extends CoreCommand {
     private final String KIT_NOT_FOUND = "kit_not_found";
     private final String KIT_DELETED = "kit_deleted";
@@ -93,7 +93,7 @@ public class KitAdminCommand extends CoreCommand {
                     .replace("kitName", name)
                     .handle();
         }catch (RuntimeException re){
-            CoreItem itemStack = CoreItem.create(player.getItemInHand());
+            CoreItem itemStack = server.items().createNoModifier(player.getItemInHand());
             if(itemStack != null) {
                 try{
                     Kit newKit = new Kit(null, name, permission, cooldown.toStandardDuration().getMillis(),
@@ -113,7 +113,7 @@ public class KitAdminCommand extends CoreCommand {
     }
 
     @SubCommand("delete {kit}")
-    @Perm(permission = "delete", description = "Permission to delete kit")
+    @Perm(permission = "delete", description = "Permission to delete a kit")
     public boolean deleteKit(CorePlayer sender, Kit kit) {
         inventoryService.remove("kit.inventory." + kit.getName());
         itemCollectionService.remove(itemCollectionService.findOrCreate("kit.inventory." + kit.getName()));

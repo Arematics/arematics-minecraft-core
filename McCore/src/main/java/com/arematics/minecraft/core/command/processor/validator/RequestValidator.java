@@ -16,7 +16,7 @@ import java.util.List;
  * This validator also contains the online validator
  */
 @Component
-public class RequestValidator extends ParameterValidator<User> {
+public class RequestValidator extends ParameterValidator<CorePlayer> {
 
     private final UserService service;
 
@@ -26,9 +26,7 @@ public class RequestValidator extends ParameterValidator<User> {
     }
 
     @Override
-    public void supply(User result, List<Object> data) throws CommandProcessException {
-        OnlineValidator validator = Boots.getBoot(CoreBoot.class).getContext().getBean(OnlineValidator.class);
-        validator.supply(result, data);
+    public void supply(CorePlayer result, List<Object> data) throws CommandProcessException {
         CorePlayer player = data.stream().filter(o -> o.getClass().equals(CorePlayer.class))
                 .map(o -> (CorePlayer)o)
                 .findFirst()
@@ -40,9 +38,7 @@ public class RequestValidator extends ParameterValidator<User> {
         }
     }
 
-    private void isValid(CorePlayer player, User target) throws RuntimeException{
-        User user = service.getOrCreateUser(player);
-        CorePlayer targetPlayer = CorePlayer.get(Bukkit.getPlayer(target.getUuid()));
-        targetPlayer.getRequestSettings().checkAllowed(user);
+    private void isValid(CorePlayer player, CorePlayer target) throws RuntimeException{
+        target.getRequestSettings().checkAllowed(player);
     }
 }

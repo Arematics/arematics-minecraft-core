@@ -3,7 +3,9 @@ package com.arematics.minecraft.data.service;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.mode.model.ClanMember;
 import com.arematics.minecraft.data.mode.repository.ClanMemberRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -13,18 +15,15 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@CacheConfig(cacheNames = "clanMembers")
+@RequiredArgsConstructor(onConstructor_=@Autowired)
 public class ClanMemberService {
 
-    private ClanMemberRepository repository;
+    private final ClanMemberRepository clanMemberRepository;
 
-    @Autowired
-    public ClanMemberService(ClanMemberRepository clanMemberRepository){
-        this.repository = clanMemberRepository;
-    }
-
-    @Cacheable(cacheNames = "clanMembers", key = "#uuid")
+    @Cacheable(key = "#uuid")
     public ClanMember getMember(UUID uuid){
-        Optional<ClanMember> clanMember = repository.findById(uuid);
+        Optional<ClanMember> clanMember = clanMemberRepository.findById(uuid);
         if(!clanMember.isPresent())
             throw new RuntimeException("ClanMember with uuid: " + uuid.toString() + " could not be found");
         return clanMember.get();
@@ -34,13 +33,16 @@ public class ClanMemberService {
         return getMember(player.getUUID());
     }
 
-    @CachePut(cacheNames = "clanMembers", key = "#result.uuid")
+    @CachePut(key = "#result.uuid")
     public ClanMember update(ClanMember member){
-        return repository.save(member);
+        return clanMemberRepository.save(member);
     }
 
-    @CacheEvict(cacheNames = "clanMembers", key = "#member.uuid")
+    @CacheEvict(key = "#member.uuid")
     public void delete(ClanMember member){
-        repository.delete(member);
+        clanMemberRepository.delete(member);
     }
+
+    @CacheEvict(key = "#member.uuid")
+    public void evictCache(ClanMember member){}
 }

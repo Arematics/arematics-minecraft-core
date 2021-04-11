@@ -7,7 +7,7 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "invsee", description = "See an other players inventory")
+@Perm(permission = "world.interact.player.invsee", description = "See an other players inventory")
 public class InvseeCommand extends CoreCommand {
     public InvseeCommand() {
         super("invsee", true);
@@ -15,7 +15,7 @@ public class InvseeCommand extends CoreCommand {
 
     @SubCommand("{player}")
     public void seeInventory(CorePlayer player, CorePlayer target) {
-        player.check("invsee-change")
+        player.check("world.interact.player.invsee.edit")
                 .ifPermitted(sender -> player.inventories().openLowerEnabledInventory(target.getPlayer().getInventory()))
                 .orElse(sender -> player.inventories().openTotalBlockedInventory(target.getPlayer().getInventory()));
     }

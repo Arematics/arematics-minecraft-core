@@ -39,7 +39,7 @@ public class TeleportScheduler {
         }
         ArematicsExecutor.syncRun(() -> location.getChunk().load());
         player.setInTeleport(ArematicsExecutor.asyncRepeat(this::teleport,
-                0, 1, TimeUnit.SECONDS, player.getCachedRank().isInTeam() ? 0 : 3));
+                0, 1, TimeUnit.SECONDS, player.hasPermission("world.interact.teleport") ? 0 : 3));
     }
 
     private void teleport(int count){

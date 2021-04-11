@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "player.inventory.enderchest", description = "Permission for watching own enderchest with command")
+@Perm(permission = "world.interact.player.enderchest", description = "Permission for watching own enderchest with command")
 public class EnderChestCommand extends CoreCommand {
 
     private final InventoryService service;
@@ -37,7 +37,7 @@ public class EnderChestCommand extends CoreCommand {
                 + online.getName() + "'s Enderchest", (byte)36);
         else ec = service.findOrCreate(target.getUuid().toString() + ".enderchest", "§c"
                 + target.getLastName() + "'s Enderchest", (byte)36);
-        boolean edit = player.hasPermission("player.inventory.enderchest.other.edit");
+        boolean edit = player.hasPermission("world.interact.player.enderchest.other.edit");
         if(edit) player.inventories().openLowerEnabledInventory(ec);
         else player.inventories().openTotalBlockedInventory(ec);
     }

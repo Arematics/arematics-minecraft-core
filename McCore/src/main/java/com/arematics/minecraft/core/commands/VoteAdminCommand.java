@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "votes.administration")
+@Perm(permission = "management.votes")
 public class VoteAdminCommand extends CoreCommand {
 
     private final VoteRewardService service;
@@ -78,7 +78,7 @@ public class VoteAdminCommand extends CoreCommand {
     }
 
     private CoreItem[] preparedItem(String rewardId, int costs, CoreItem hand){
-        CoreItem clone = CoreItem.create(hand.clone());
+        CoreItem clone = server.items().createNoModifier(hand.clone());
         clone.bindCommand("vote collect reward " + rewardId)
                 .setName("§7Reward: §e" + rewardId.replaceAll("_", " "))
                 .addToLore("   §7Costs: §c" + costs);

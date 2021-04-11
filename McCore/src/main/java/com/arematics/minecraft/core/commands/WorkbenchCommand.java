@@ -6,7 +6,7 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "workbench", description = "open a portable workbench")
+@Perm(permission = "world.interact.workbench", description = "open a portable workbench")
 public class WorkbenchCommand extends CoreCommand {
 
     public WorkbenchCommand() {

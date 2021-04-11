@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Getter
-@Perm(permission = "globalmute", description = "mute the global chat")
+@Perm(permission = "team.punishment.chat.globalmute", description = "mute the global chat")
 public class GlobalMuteCommand extends CoreCommand {
 
     private boolean isGlobalMuteActive = false;

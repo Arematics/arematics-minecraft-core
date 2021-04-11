@@ -8,7 +8,7 @@ import org.bukkit.Material;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "spawner.wrench", description = "Permission to get an spawner wrench")
+@Perm(permission = "management.spawnerwrench", description = "Permission to get an spawner wrench")
 public class SpawnerWrenchCommand extends CoreCommand {
 
     public static final String WRENCH_META_KEY = "SPAWNER_WRENCH_2241";

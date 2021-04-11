@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Component
 @Getter
-@Perm(permission = "warp", description = "warp to spot")
+@Perm(permission = "world.interact.warp", description = "warp to spot")
 public class WarpCommand extends CoreCommand {
 
     private final WarpService warpService;
@@ -46,7 +46,7 @@ public class WarpCommand extends CoreCommand {
     }
 
     @SubCommand("{warp}")
-    @Perm(permission = "to", description = "set Warp")
+    @Perm(permission = "to", description = "Warp to warp")
     public void warpTo(CorePlayer player, Warp warp) {
         teleport(player, warp, false);
         player.info("You were teleported to warp " + warp.getName()).handle();
@@ -57,13 +57,13 @@ public class WarpCommand extends CoreCommand {
     }
 
     @SubCommand("set {warp}")
-    @Perm(permission = "set", description = "set Warp")
+    @Perm(permission = "set", description = "Set Warp")
     public void setWarpTo(CorePlayer player, String warpName) {
         setWarp(player, warpName);
     }
 
     @SubCommand("del {warp}")
-    @Perm(permission = "del", description = "del Warp")
+    @Perm(permission = "del", description = "Delete Warp")
     public void delWarp(CorePlayer player, String warpName) {
         delWarpExecute(player, warpName);
     }

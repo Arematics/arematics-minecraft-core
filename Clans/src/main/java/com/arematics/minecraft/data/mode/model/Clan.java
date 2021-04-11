@@ -3,9 +3,7 @@ package com.arematics.minecraft.data.mode.model;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.CommandUtils;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.bukkit.Bukkit;
 
 import javax.persistence.*;
@@ -14,7 +12,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
-@Data
+@Getter
+@Setter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -80,5 +79,18 @@ public class Clan implements Serializable {
                 .map(member -> Bukkit.getPlayer(member.getUuid()))
                 .filter(Objects::nonNull)
                 .map(CorePlayer::get);
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Clan other = (Clan) o;
+        return other.getId().equals(this.getId());
+    }
+
+    @Override
+    public int hashCode(){
+        return this.getId().hashCode() + this.getName().hashCode();
     }
 }

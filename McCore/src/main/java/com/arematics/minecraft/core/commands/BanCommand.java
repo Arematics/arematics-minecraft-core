@@ -18,7 +18,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Component
-@Perm(permission = "punishment-ban", description = "Permission to ban a player permanent")
+@Perm(permission = "team.punishment.ban", description = "Ban a player permanent")
 public class BanCommand extends CoreCommand {
     private static final int KARMA_POINTS = 100;
 

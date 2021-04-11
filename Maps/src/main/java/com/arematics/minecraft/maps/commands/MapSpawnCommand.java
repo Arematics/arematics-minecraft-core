@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "spawn.map", description = "Permission for spawn command in map plugin")
+@Perm(permission = "world.interact.spawn", description = "Map plugin spawn command permission")
 public class MapSpawnCommand extends SpawnCommand {
 
     private final MapService mapService;

@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "player.management.linking.unlink", description = "Permission to unlink user accounts")
+@Perm(permission = "management.player.links", description = "Permission to unlink user accounts")
 public class UnlinkCommand extends CoreCommand {
 
     private final LinkCommand linkCommand;

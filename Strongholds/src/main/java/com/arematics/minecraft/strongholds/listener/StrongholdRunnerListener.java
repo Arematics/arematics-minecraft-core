@@ -67,7 +67,6 @@ public class StrongholdRunnerListener implements Listener {
             try{
                 ClanMember member = this.clanMemberService.getMember(player);
                 Clan clan = member.getClan(this.clanService);
-                capture.getInStrongholdCapture().add(player);
                 if(!capture.getTimings().containsKey(clan))
                     capture.getTimings().put(clan, 0L);
             }catch (RuntimeException re){

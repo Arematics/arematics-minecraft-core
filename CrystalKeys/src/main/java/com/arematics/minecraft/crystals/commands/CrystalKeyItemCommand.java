@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Perm(permission = "crystals.manage.item", description = "Permission to modify item for crystal keys")
+@Perm(permission = "management.keys.item", description = "Modify ItemStack meta to generate key items")
 public class CrystalKeyItemCommand extends CoreCommand {
 
     private final CrystalMetaParser parser;
