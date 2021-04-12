@@ -1,12 +1,9 @@
 package com.arematics.minecraft.core.bukkit;
 
 import com.arematics.minecraft.core.listener.Quitable;
-import com.arematics.minecraft.core.server.ArematicsComponent;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.utility.StreamSerializer;
@@ -29,7 +26,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class CustomPayloadFixer extends ArematicsComponent implements Quitable {
+public class CustomPayloadFixer extends ArematicsPacketAdapter implements Quitable {
     private final Map<Player, Long> PACKET_USAGE = new ConcurrentHashMap<>();
     private static final String kickMessage =
             "§8<==================== §cSoulPvP §8====================>\n" +
@@ -40,17 +37,12 @@ public class CustomPayloadFixer extends ArematicsComponent implements Quitable {
 
     @Autowired
     public CustomPayloadFixer(Server server){
-        super(server);
+        super(server, PacketType.Play.Client.CUSTOM_PAYLOAD);
     }
 
     @Override
     public void load() {
-        ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(plugin, PacketType.Play.Client.CUSTOM_PAYLOAD) {
-            public void onPacketReceiving(final PacketEvent event) {
-                checkPacket(event);
-            }
-        });
-
+        super.load();
         Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
             Iterator<Map.Entry<Player, Long>> iterator;
             Player player;
@@ -66,6 +58,11 @@ public class CustomPayloadFixer extends ArematicsComponent implements Quitable {
                 }
             }
         }, 20L, 20L);
+    }
+
+    @Override
+    protected void onReceive(PacketEvent event) {
+        checkPacket(event);
     }
 
     private void checkPacket(final PacketEvent event) {

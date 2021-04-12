@@ -19,7 +19,6 @@ public abstract class ArematicsComponent {
         this.server = server;
         this.plugin = Boots.getBoot(CoreBoot.class);
         this.protocolManager = ProtocolLibrary.getProtocolManager();
-        load();
         plugin.getLogger().info(this.getClass().getSimpleName() + " enabled");
     }
 

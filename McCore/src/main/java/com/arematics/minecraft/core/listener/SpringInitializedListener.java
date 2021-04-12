@@ -50,8 +50,14 @@ public class SpringInitializedListener implements Listener {
 
     private void registerBukkitWorkers(CoreBoot boot){
         boot.getContext().getBeansOfType(Listener.class)
-                .forEach((s, listener) -> Bukkit.getPluginManager().registerEvents(listener, boot));
-        boot.getContext().getBeansOfType(CoreCommand.class).forEach((s, cmd) -> cmd.register());
+                .forEach((s, listener) -> {
+                    boot.getLogger().config("Register Listener: " + listener.getClass().getSimpleName());
+                    Bukkit.getPluginManager().registerEvents(listener, boot);
+                });
+        boot.getContext().getBeansOfType(CoreCommand.class).forEach((s, cmd) -> {
+            boot.getLogger().config("Register Command: " + cmd.getClass().getSimpleName());
+            cmd.register();
+        });
     }
 
     private void createAsyncTasks(Tablist tablist){
