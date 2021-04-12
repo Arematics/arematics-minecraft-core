@@ -26,7 +26,7 @@ public class AfkCloseListener implements Listener {
     @EventHandler
     public void onEnchant(EnchantItemEvent event){
         CorePlayer player = CorePlayer.get(event.getEnchanter());
-        player.callAntiAfk();
+        player.onlineTime().callAntiAfk();
     }
 
     @EventHandler
@@ -38,8 +38,8 @@ public class AfkCloseListener implements Listener {
         CorePlayer player = CorePlayer.get(event.getPlayer());
         CoreItem hand = player.getItemInHand();
         if(isInteract(event) && hand != null && hand.getType() == Material.BOOK_AND_QUILL){
-            player.callAntiAfk();
-            ArematicsExecutor.asyncDelayed(player::callAntiAfk, 1, TimeUnit.MINUTES);
+            player.onlineTime().callAntiAfk();
+            ArematicsExecutor.asyncDelayed(player.onlineTime()::callAntiAfk, 1, TimeUnit.MINUTES);
             return true;
         }
         return false;
@@ -55,7 +55,7 @@ public class AfkCloseListener implements Listener {
         if(f.getBlockX() != t.getBlockX() || f.getBlockY() != t.getBlockY() || f.getBlockZ() != t.getBlockZ()){
             if(!t.getBlock().isLiquid() || t.clone().add(0, -1, 0).getBlock().isLiquid()){
                 CorePlayer player = CorePlayer.get(event.getPlayer());
-                player.callAntiAfk();
+                player.onlineTime().callAntiAfk();
             }
         }
     }

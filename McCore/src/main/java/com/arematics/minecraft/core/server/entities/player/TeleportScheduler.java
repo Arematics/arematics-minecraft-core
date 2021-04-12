@@ -33,19 +33,19 @@ public class TeleportScheduler {
     }
 
     private void teleport(){
-        if(player.getInTeleport() != null){
+        if(player.inTeleport() != null){
             player.warn("Your are in a teleport process right now").handle();
             return;
         }
         ArematicsExecutor.syncRun(() -> location.getChunk().load());
-        player.setInTeleport(ArematicsExecutor.asyncRepeat(this::teleport,
+        player.inTeleport(ArematicsExecutor.asyncRepeat(this::teleport,
                 0, 1, TimeUnit.SECONDS, player.hasPermission("world.interact.teleport") ? 0 : 3));
     }
 
     private void teleport(int count){
         if (count == 0) {
             ArematicsExecutor.syncRun(this::execute);
-            player.setInTeleport(null);
+            player.inTeleport(null);
         } else
             player.info("%prefix%Teleport in %seconds%§7...").DEFAULT()
                     .replace("prefix", "   §cTP » §7")

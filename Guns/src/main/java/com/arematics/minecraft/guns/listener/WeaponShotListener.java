@@ -37,7 +37,7 @@ public class WeaponShotListener implements Listener {
             if(player.regions().inRegionWithFlag(DefaultFlag.PVP)) return;
             String weaponId = hand.getMeta().getString("weapon");
             if(ammo.getReloading().contains(player)){
-                player.getActionBar().sendActionBar("§c§lWait until reload end");
+                player.actionBar().sendActionBar("§c§lWait until reload end");
                 return;
             }
             String cooldownKey = player.getUUID().toString() + weaponId;
@@ -55,7 +55,7 @@ public class WeaponShotListener implements Listener {
                         player.getPlayer().setItemInHand(gun.getItem());
                         ammo.getShootCooldown().put(cooldownKey, System.currentTimeMillis() + (long) (1000 * weapon.getType().getShootSpeed()));
                     }else
-                        player.getActionBar().sendActionBar("§eNo ammunition loaded");
+                        player.actionBar().sendActionBar("§eNo ammunition loaded");
                 }catch (RuntimeException ignore){}
             }
         }

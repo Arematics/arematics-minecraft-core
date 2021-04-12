@@ -18,7 +18,7 @@ public class UserQuitListener implements Listener {
     @EventHandler
     public void onUserQuit(PlayerQuitEvent event) {
         CorePlayer player = CorePlayer.get(event.getPlayer());
-        if(player.isInFight())
+        if(player.inFight())
             player.getPlayer().setHealth(0.0D);
         this.tablist.remove(player);
     }

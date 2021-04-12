@@ -15,6 +15,6 @@ public class ActionBar {
         PacketContainer init = new PacketContainer(PacketType.Play.Server.CHAT);
         init.getBytes().write(0, EnumWrappers.ChatType.GAME_INFO.getId());
         init.getChatComponents().write(0, WrappedChatComponent.fromText(message));
-        player.getPackets().sendServerPacket(init);
+        player.packets().sendServerPacket(init);
     }
 }

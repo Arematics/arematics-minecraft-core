@@ -74,7 +74,7 @@ public class FriendCommand extends CoreCommand {
                 .DEFAULT()
                 .replace("invited", invited.getPlayer().getName())
                 .handle();
-        invited.getRequestSettings().addTimeout(player.getPlayer().getName());
+        invited.requests().addTimeout(player.getPlayer().getName());
         friendInvites.put(player, invited);
         ArematicsExecutor.asyncDelayed(() -> friendInvites.remove(player, invited), 2, TimeUnit.MINUTES);
     }
@@ -132,7 +132,7 @@ public class FriendCommand extends CoreCommand {
         UUID other = getOther(sender, friend);
         String name = Bukkit.getOfflinePlayer(other).getName();
         return new MSG(PartBuilder.createHoverAndSuggest(name, "Remove friend " + name,
-                "/friend remove " + other.toString()));
+                "/friend remove " + name));
     }
 
     private CoreItem mapFriendToItem(CorePlayer sender, Friend friend){

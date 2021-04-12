@@ -24,6 +24,6 @@ public class Title {
         packet.getIntegers().write(1, stay);
         packet.getIntegers().write(2, fadeOut);
 
-        player.getPackets().sendServerPacket(packet);
+        player.packets().sendServerPacket(packet);
     }
 }

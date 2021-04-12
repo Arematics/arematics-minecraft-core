@@ -85,7 +85,7 @@ public class CrystalArmorStandClickListener implements Listener {
 
         WrappedInventory inv = service.findOrCreate("crystal.inventory." + key.getName(), "§7Crystal " +
                 key.getTotalName(), (byte)27);
-        if(player.isIgnoreMeta()) player.inventories().openLowerEnabledInventory(inv);
+        if(player.ignoreMeta()) player.inventories().openLowerEnabledInventory(inv);
         else player.inventories().openTotalBlockedInventory(inv);
     }
 

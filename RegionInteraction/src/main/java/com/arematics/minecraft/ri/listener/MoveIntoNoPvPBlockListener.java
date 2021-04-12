@@ -21,7 +21,7 @@ public class MoveIntoNoPvPBlockListener implements Listener {
     public void onEnter(RegionEnteredEvent enteredEvent){
         CorePlayer player = enteredEvent.getPlayer();
         ProtectedRegion region = enteredEvent.getRegion();
-        if(Objects.equals(region.getFlag(DefaultFlag.PVP), StateFlag.State.DENY) && player.isInFight()){
+        if(Objects.equals(region.getFlag(DefaultFlag.PVP), StateFlag.State.DENY) && player.inFight()){
             calc(player.getPlayer());
         }
     }

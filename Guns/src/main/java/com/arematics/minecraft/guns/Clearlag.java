@@ -1,6 +1,7 @@
-package com.arematics.minecraft.core.server;
+package com.arematics.minecraft.guns;
 
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.Data;
 import org.bukkit.Bukkit;

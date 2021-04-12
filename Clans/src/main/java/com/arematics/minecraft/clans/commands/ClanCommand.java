@@ -132,7 +132,7 @@ public class ClanCommand extends CoreCommand {
                         "/clan deny " + clanName).setBaseColor(JsonColor.RED))
                 .handle();
         player.info("Clan request send to " + target.getPlayer().getName()).handle();
-        target.getRequestSettings().addTimeout(player.getPlayer().getName());
+        target.requests().addTimeout(player.getPlayer().getName());
         ClanInvite inviteKey = new ClanInvite(player, clan);
         clanInvites.put(inviteKey, target);
         ArematicsExecutor.asyncDelayed(() -> clanInvites.remove(inviteKey, target), 2, TimeUnit.MINUTES);

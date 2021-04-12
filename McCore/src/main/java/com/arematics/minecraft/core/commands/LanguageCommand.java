@@ -42,7 +42,7 @@ public class LanguageCommand extends CoreCommand {
     @Override
     protected void onDefaultGUI(CorePlayer player){
         WrappedInventory inv = service.findOrCreate("language.default.selection", "§9Language", (byte) 9);
-        if(player.isIgnoreMeta()){
+        if(player.ignoreMeta()){
             player.inventories().openLowerEnabledInventory(inv);
             return;
         }

@@ -40,7 +40,7 @@ public class AsyncChatListener implements Listener {
     }
 
     private String msg(CorePlayer player, boolean blocked, String message){
-        return (blocked ? "§4§l! " : "") + player.getChatMessage().replace("%message%", createChatMessage(player, message));
+        return (blocked ? "§4§l! " : "") + player.chatMessage().replace("%message%", createChatMessage(player, message));
     }
 
     private String createChatMessage(CorePlayer player, String message){

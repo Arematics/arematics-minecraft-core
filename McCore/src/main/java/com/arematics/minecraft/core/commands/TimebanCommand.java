@@ -59,8 +59,10 @@ public class TimebanCommand extends CoreCommand {
             if(targetPlayer != null) targetPlayer.kickPlayer("§cYou have been banned until \n§c" +
                     formatter.format(finalBan.getBannedUntil().toLocalDateTime()) + "\n§b" + finalBan.getReason());
         });
-        player.info("Player " + target.getLastName() + " has been banned until " +
-                formatter.format(finalBan.getBannedUntil().toLocalDateTime())).handle();
+        String msg = "Player " + target.getLastName() + " has been banned until " +
+                formatter.format(finalBan.getBannedUntil().toLocalDateTime()) + " by " + player.getName() + " for " +
+                reason;
+        server.getOnlineTeam().forEach(team -> team.info(msg).handle());
         service.save(ban);
         int days = (int) period.toStandardDuration().getMillis() / 1000 / 60 / 60 / 24;
         target.setKarma(target.getKarma() - (days * 5));

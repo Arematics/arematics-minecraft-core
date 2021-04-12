@@ -37,7 +37,7 @@ public class Messenger {
     private void message(CorePlayer player, CorePlayer target, String message) {
         player.info("§8<§bMSG§8> §7Du §8» §b" + parseName(target) + "§7: §f" + message).DEFAULT().disableServerPrefix().handle();
         target.info("§8<§bMSG§8> " + parseName(player) + " §8» §7Dir: §f" + message).DEFAULT().disableServerPrefix().handle();
-        target.getRequestSettings().addTimeout(player.getPlayer().getName());
+        target.requests().addTimeout(player.getPlayer().getName());
     }
 
     private String parseName(CorePlayer target){

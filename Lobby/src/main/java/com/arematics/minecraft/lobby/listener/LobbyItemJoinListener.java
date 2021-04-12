@@ -25,13 +25,14 @@ public class LobbyItemJoinListener implements Listener {
         CorePlayer player = CorePlayer.get(event.getPlayer());
         player.instantTeleport(warpService.getWarp("spawn").getLocation()).schedule();
         player.getPlayer().getInventory().setItem(4, Items.COMPASS);
-        player.getBoard().getBoard("main").hide();
-        ArematicsExecutor.runAsync(() -> {
-            final BoardHandler handler = player.getBoard().getOrAddBoard("lobby", "§b§lSOULPVP.DE");
-            handler.addEntryData("Welcome", "§c", "§bon SoulPvP.de");
+        sendScoreboard(player);
+    }
 
-            ArematicsExecutor.syncRun(handler::show);
-        });
+    private void sendScoreboard(CorePlayer player){
+        final BoardHandler handler = player.getBoard().getOrAddBoard("main", "§b§lSOULPVP.DE");
+        handler.addEntryData("Welcome", "§c", "§bon SoulPvP.de");
+
+        ArematicsExecutor.syncRun(handler::show);
     }
 
     @EventHandler

@@ -27,7 +27,6 @@ public class CoreBoot extends Bootstrap{
      */
     public CoreBoot() {
         super(true);
-        System.out.println("Done");
         this.springInitialized = false;
     }
 

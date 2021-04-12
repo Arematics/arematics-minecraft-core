@@ -62,6 +62,11 @@ public class BanCommand extends CoreCommand {
             if(targetPlayer != null) targetPlayer.kickPlayer("§cYou have been banned permanent \n§b" + finalBan.getReason());
         });
         player.info("punishment_player_got_banned").DEFAULT().replace("name", target.getLastName()).handle();
+
+        server.getOnlineTeam().forEach(team -> team.info("punishment_player_got_banned")
+                .DEFAULT()
+                .replace("name", target.getLastName())
+                .handle());
         service.save(ban);
         target.setKarma(target.getKarma() - BanCommand.KARMA_POINTS);
         userService.update(target);

@@ -23,8 +23,8 @@ public class InventoryCloseEnableLowerView implements Listener {
         player.inventories().setSlots(null);
         player.inventories().getCurrentEnums().clear();
         player.inventories().setRefresher(null);
-        player.setDisableLowerInventory(false);
-        player.setDisableUpperInventory(false);
+        player.disableLowerInventory(false);
+        player.disableUpperInventory(false);
         player.inventories().getCurrentInventories().clear();
     }
 }

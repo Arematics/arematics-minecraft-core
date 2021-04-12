@@ -13,7 +13,7 @@ public class ItemDropDenyListener implements Listener {
     @EventHandler
     public void onDrop(PlayerDropItemEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
-        event.setCancelled(!player.isIgnoreMeta());
+        event.setCancelled(!player.ignoreMeta());
     }
 
     @EventHandler

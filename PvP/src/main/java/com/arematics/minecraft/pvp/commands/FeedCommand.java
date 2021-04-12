@@ -1,4 +1,4 @@
-package com.arematics.minecraft.core.commands;
+package com.arematics.minecraft.pvp.commands;
 
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.command.CoreCommand;

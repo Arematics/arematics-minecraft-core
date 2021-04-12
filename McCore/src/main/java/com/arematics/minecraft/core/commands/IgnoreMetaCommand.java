@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 public class IgnoreMetaCommand extends CoreCommand {
 
     public static void setIgnoreMeta(CorePlayer player){
-        player.setIgnoreMeta(true);
-        player.getTitle().sendTitle(
+        player.ignoreMeta(true);
+        player.title().sendTitle(
                 LanguageAPI.prepareRawMessage(player.getPlayer(), "ignore_item_meta_enabled"),
                 LanguageAPI.prepareRawMessage(player.getPlayer(), "ignore_item_meta_inventory_can_edit"),
                 10, 20*5, 10);
@@ -25,7 +25,7 @@ public class IgnoreMetaCommand extends CoreCommand {
     }
 
     public static void unsetIgnoreMeta(CorePlayer player){
-        player.setIgnoreMeta(false);
+        player.ignoreMeta(false);
         Messages.create("ignore_item_meta_disabled")
                 .to(player.getPlayer())
                 .handle();
@@ -37,7 +37,7 @@ public class IgnoreMetaCommand extends CoreCommand {
 
     @SubCommand("toggle")
     public boolean toggleIgnoreMeta(CorePlayer player) {
-        if(player.isIgnoreMeta()) disableIgnoreMeta(player);
+        if(player.ignoreMeta()) disableIgnoreMeta(player);
         else enableIgnoreMeta(player);
         return true;
     }

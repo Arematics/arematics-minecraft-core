@@ -21,6 +21,7 @@ import com.arematics.minecraft.data.mode.model.GameStats;
 import com.arematics.minecraft.data.service.GameStatsService;
 import com.arematics.minecraft.data.service.UserService;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -34,7 +35,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.text.DecimalFormat;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -43,6 +43,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Data
+@Accessors(fluent = true)
 public class CorePlayer implements CurrencyEntity {
 
     private static Locale defaultLocale = Locale.GERMAN;
@@ -67,9 +68,10 @@ public class CorePlayer implements CurrencyEntity {
 
     private final Player player;
     private final BoardSet boardSet;
-    private final PlayerRequestSettings requestSettings;
-    private final InventoryHandler inventoryHandler;
-    private final RegionHandler regionHandler;
+    private final PlayerRequestSettings requests;
+    private final InventoryHandler inventories;
+    private final RegionHandler regions;
+    private final OnlineTimeHandler onlineTime;
     private boolean ignoreMeta = false;
     private boolean disableLowerInventory = false;
     private boolean disableUpperInventory = false;
@@ -81,11 +83,6 @@ public class CorePlayer implements CurrencyEntity {
     private final GameStatsService service;
     private final UserService userService;
 
-    private final LocalDateTime joined;
-    private LocalDateTime lastPatch = null;
-    private LocalDateTime lastAntiAFKEvent;
-
-    private Duration lastAfk = null;
     private List<String> lastCommands = new ArrayList<>();
     private int page;
 
@@ -102,13 +99,12 @@ public class CorePlayer implements CurrencyEntity {
 
     public CorePlayer(Player player){
         this.player = player;
-        this.joined = LocalDateTime.now();
-        this.lastAntiAFKEvent = this.joined;
         this.boardSet = new BoardSet(player);
         this.userService = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
-        this.requestSettings = new PlayerRequestSettings(this);
-        this.inventoryHandler = new InventoryHandler(this);
-        this.regionHandler = new RegionHandler(this);
+        this.requests = new PlayerRequestSettings(this);
+        this.inventories = new InventoryHandler(this);
+        this.regions = new RegionHandler(this);
+        this.onlineTime = new OnlineTimeHandler(this);
         this.service = Boots.getBoot(CoreBoot.class).getContext().getBean(GameStatsService.class);
         this.packets = new Packets(player);
         this.actionBar = new ActionBar(this);
@@ -122,6 +118,10 @@ public class CorePlayer implements CurrencyEntity {
         if(configuration != null) this.selectedLocale = Locale.forLanguageTag(configuration.getValue());
         else setLocale(CorePlayer.defaultLocale);
         refreshChatMessage();
+    }
+
+    public Player getPlayer(){
+        return this.player();
     }
 
     public void refreshCache(){
@@ -145,14 +145,6 @@ public class CorePlayer implements CurrencyEntity {
 
     private String colorCode(Rank rank){
         return rank.isInTeam() ? "§c" : "§f";
-    }
-
-    public InventoryHandler inventories(){
-        return this.inventoryHandler;
-    }
-
-    public RegionHandler regions(){
-        return this.regionHandler;
     }
 
     public String getName(){
@@ -213,13 +205,6 @@ public class CorePlayer implements CurrencyEntity {
         this.inFight = false;
     }
 
-    /**
-     * Called if Anti AFK Event is executed updating lastAntiAfk Time
-     */
-    public void callAntiAfk(){
-        this.lastAntiAFKEvent = LocalDateTime.now();
-    }
-
     public Entity next(){
         return next(5);
     }
@@ -246,19 +231,19 @@ public class CorePlayer implements CurrencyEntity {
     }
 
     public void addPotionEffect(PotionEffect potionEffect) {
-        this.getPlayer().addPotionEffect(potionEffect);
+        this.player().addPotionEffect(potionEffect);
     }
 
     public boolean hasEffect(PotionEffectType type) {
-        return this.getPlayer().hasPotionEffect(type);
+        return this.player().hasPotionEffect(type);
     }
 
     public void removePotionEffect(PotionEffectType type) {
-        this.getPlayer().removePotionEffect(type);
+        this.player().removePotionEffect(type);
     }
 
     public void dispatchCommand(String command){
-        ArematicsExecutor.syncRun(() -> this.getPlayer().performCommand(command.replaceFirst("/", "")));
+        ArematicsExecutor.syncRun(() -> this.player().performCommand(command.replaceFirst("/", "")));
     }
 
     @SuppressWarnings("unused")
@@ -324,10 +309,6 @@ public class CorePlayer implements CurrencyEntity {
         User user = getUser();
         user.setKarma(user.getKarma() - amount);
         update(user);
-    }
-
-    public PlayerRequestSettings getRequestSettings(){
-        return this.requestSettings;
     }
 
     public AdvancedMessageReplace send(Part part){

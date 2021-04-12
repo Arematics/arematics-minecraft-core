@@ -22,8 +22,8 @@ public class RequestSettingsCommand extends CoreCommand {
     
     @SubCommand("timeout {seconds}")
     public boolean setRequestTimeout(CorePlayer player, Period period) {
-        player.getRequestSettings().setRequestTimeout(period.toStandardSeconds().getSeconds());
-        player.getRequestSettings().clearTimeouts();
+        player.requests().setRequestTimeout(period.toStandardSeconds().getSeconds());
+        player.requests().clearTimeouts();
         player.info("Request timeout set to %seconds% seconds. Timeouts were reset.")
                 .DEFAULT()
                 .replace("seconds", "" + period.normalizedStandard().getSeconds())
@@ -33,7 +33,7 @@ public class RequestSettingsCommand extends CoreCommand {
 
     @SubCommand("filter {filter}")
     public boolean setRequestScope(CorePlayer player, RequestFilter filter) {
-        player.getRequestSettings().setRequestFilter(filter);
+        player.requests().setRequestFilter(filter);
         player.info("Request filter set to scope " + filter.toString())
                 .handle();
         return true;

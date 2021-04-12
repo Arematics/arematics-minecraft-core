@@ -22,8 +22,8 @@ public class InFightLogicListener implements Listener {
             if(damagePlayer.regions().isFlagEnabled(query, DefaultFlag.PVP) &&
                     damagedPlayer.regions().isFlagEnabled(query, DefaultFlag.PVP)) {
                 if (!damagePlayer.equals(damagedPlayer)) {
-                    if (!damagePlayer.isInFight()) damagePlayer.warn("In fight, dont log out").handle();
-                    if (!damagedPlayer.isInFight()) damagedPlayer.warn("In fight, dont log out").handle();
+                    if (!damagePlayer.inFight()) damagePlayer.warn("In fight, dont log out").handle();
+                    if (!damagedPlayer.inFight()) damagedPlayer.warn("In fight, dont log out").handle();
                     damagePlayer.setInFight();
                     damagedPlayer.setInFight();
                 }

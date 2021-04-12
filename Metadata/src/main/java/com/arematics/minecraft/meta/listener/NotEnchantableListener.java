@@ -24,7 +24,7 @@ public class NotEnchantableListener implements Listener {
     public void onEnchant(EnchantItemEvent event){
         CorePlayer player = CorePlayer.get(event.getEnchanter());
         NBTItem item = new NBTItem(event.getItem());
-        if(!player.isIgnoreMeta() && item.hasKey(NbtProperties.NOT_ENCHTABLE_PREFIX))
+        if(!player.ignoreMeta() && item.hasKey(NbtProperties.NOT_ENCHTABLE_PREFIX))
             event.setCancelled(true);
     }
 
@@ -32,7 +32,7 @@ public class NotEnchantableListener implements Listener {
     public void onPrepareEnchant(PrepareItemEnchantEvent event){
         NBTItem item = new NBTItem(event.getItem());
         CorePlayer player = CorePlayer.get(event.getEnchanter());
-        if(!player.isIgnoreMeta() && item.hasKey(NbtProperties.NOT_ENCHTABLE_PREFIX))
+        if(!player.ignoreMeta() && item.hasKey(NbtProperties.NOT_ENCHTABLE_PREFIX))
             event.setCancelled(true);
     }
 
@@ -40,7 +40,7 @@ public class NotEnchantableListener implements Listener {
     public void onPrepareAnvil(PrepareAnvilEvent event){
         AnvilInventory inventory = event.getAnvil();
         CorePlayer player = CorePlayer.get(event.getEnchanter());
-        if(!player.isIgnoreMeta())
+        if(!player.ignoreMeta())
             event.setCancelled(!Arrays.stream(inventory.getContents())
                     .map(CoreItem::create)
                     .allMatch(item -> isMatch(item, event.getItem())));

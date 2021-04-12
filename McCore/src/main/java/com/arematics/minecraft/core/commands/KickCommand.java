@@ -23,6 +23,7 @@ public class KickCommand extends CoreCommand {
         if(target.getUser().getRank().isInTeam())
             throw new CommandProcessException("Can not kick team members");
         MessagingUtils.kickPlayer(target, "§cYou got kicked");
-        sender.info("Player " + target.getName() + " got kicked").handle();
+        String msg = "Player " + target.getName() + " got kicked by " + sender.getName();
+        server.getOnlineTeam().forEach(team -> team.info(msg).handle());
     }
 }

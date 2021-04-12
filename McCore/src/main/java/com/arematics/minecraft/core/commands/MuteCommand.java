@@ -33,7 +33,8 @@ public class MuteCommand extends CoreCommand {
             throw new CommandProcessException("Can't mute team members");
         Mute mute = new Mute(target.getUUID(), sender.getUUID(), reason, Timestamp.valueOf(TimeUtils.toLocalDateTime(period)));
         muteService.save(mute);
-        sender.info("Player " + target.getName() + " has been muted for " + TimeUtils.toString(period)).handle();
+        String msg = "Player " + target.getName() + " has been muted for " + TimeUtils.toString(period) + " by " + sender.getName() + " for " + reason;
+        server.getOnlineTeam().forEach(team -> team.info(msg).handle());
     }
 
     @SubCommand("unmute {player}")
@@ -42,6 +43,8 @@ public class MuteCommand extends CoreCommand {
             Mute mute = muteService.findMute(target.getUUID());
             muteService.remove(mute);
             sender.info("Unmute player " + target.getName()).handle();
+            String msg = "Player " + target.getName() + " has been unmuted by " + sender.getName();
+            server.getOnlineTeam().forEach(team -> team.info(msg).handle());
         }catch (Exception e){
             throw new CommandProcessException("Player is not muted");
         }
