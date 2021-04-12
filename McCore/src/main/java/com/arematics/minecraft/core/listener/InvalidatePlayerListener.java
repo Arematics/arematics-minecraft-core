@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class InvalidatePlayerListener implements Listener {
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event){
         ArematicsExecutor.runAsync(() -> CorePlayer.invalidate(event.getPlayer()));
     }

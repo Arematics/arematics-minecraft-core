@@ -28,7 +28,7 @@ public class AsyncChatListener implements Listener {
         if(event.isCancelled()) players = server.getOnlineTeam();
         String msg = msg(event.getPlayer(), event.isCancelled(), event.getMessage());
         players.stream()
-                .filter(player -> !player.hasIgnored(event.getPlayer().getUUID()))
+                .filter(player -> !ignoredService.hasIgnored(player.getUUID(), event.getPlayer().getUUID()))
                 .forEach(user -> ArematicsExecutor.runAsync(() -> sendMessage(msg, user)));
     }
 

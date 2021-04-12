@@ -30,7 +30,7 @@ public class UserUpdateListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent joinEvent){
-        this.asyncedJoin(joinEvent.getPlayer());
+        ArematicsExecutor.runAsync(() -> asyncedJoin(joinEvent.getPlayer()));
     }
 
     private void asyncedJoin(Player joinPlayer){

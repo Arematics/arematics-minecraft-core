@@ -30,10 +30,8 @@ public class IgnoreCommand extends CoreCommand {
     @SubCommand("add {target}")
     public void addIgnoredUser(CorePlayer player, User target) {
         if(target.getRank().isInTeam()) throw new CommandProcessException("player_ignore_team_members");
-        if(!player.hasIgnored(target.getUuid())){
-            player.ignore(target.getUuid());
+        if(!service.hasIgnored(player.getUUID(), target.getUuid()))
             service.ignore(player.getUUID(), target.getUuid());
-        }
         player.info("player_ignore_success")
                 .DEFAULT()
                 .replace("name", target.getLastName())
@@ -42,10 +40,8 @@ public class IgnoreCommand extends CoreCommand {
 
     @SubCommand("rem {target}")
     public void remIgnoredUser(CorePlayer player, User target) {
-        if(player.hasIgnored(target.getUuid())){
-            player.unignore(target.getUuid());
+        if(service.hasIgnored(player.getUUID(), target.getUuid()))
             service.unIgnore(player.getUUID(), target.getUuid());
-        }
         player.info("player_ignore_remove_success")
                 .DEFAULT()
                 .replace("name", target.getLastName())

@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.server.controller;
 
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @EqualsAndHashCode
@@ -18,7 +20,9 @@ public class PlayerTeleportController {
 
     public void sendTpaRequest(CorePlayer sender, CorePlayer receiver) {
         if(!teleports.contains(new PlayerTeleport(sender, receiver))) {
+            PlayerTeleport teleport = new PlayerTeleport(sender, receiver);
             teleports.add(new PlayerTeleport(sender, receiver));
+            ArematicsExecutor.asyncDelayed(() -> teleports.remove(teleport), 1, TimeUnit.MINUTES);
         } else {
             sender.warn("You have already sent the player a teleport request");
         }

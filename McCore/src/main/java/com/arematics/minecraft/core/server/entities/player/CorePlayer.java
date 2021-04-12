@@ -10,7 +10,6 @@ import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageReplace;
 import com.arematics.minecraft.core.server.entities.CurrencyEntity;
-import com.arematics.minecraft.core.server.entities.Ignorer;
 import com.arematics.minecraft.core.server.entities.player.protocols.ActionBar;
 import com.arematics.minecraft.core.server.entities.player.protocols.Packets;
 import com.arematics.minecraft.core.server.entities.player.protocols.Title;
@@ -20,12 +19,8 @@ import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.GameStats;
 import com.arematics.minecraft.data.service.GameStatsService;
-import com.arematics.minecraft.data.service.IgnoredService;
-import com.arematics.minecraft.data.service.OnlineTimeService;
 import com.arematics.minecraft.data.service.UserService;
-import com.arematics.minecraft.data.share.model.OnlineTime;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -47,9 +42,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-@Setter
-@Getter
-public class CorePlayer implements CurrencyEntity, Ignorer {
+@Data
+public class CorePlayer implements CurrencyEntity {
 
     private static Locale defaultLocale = Locale.GERMAN;
     private static Map<UUID, CorePlayer> players = new HashMap<>();
@@ -86,7 +80,6 @@ public class CorePlayer implements CurrencyEntity, Ignorer {
 
     private final GameStatsService service;
     private final UserService userService;
-    private final OnlineTimeService onlineTimeService;
 
     private final LocalDateTime joined;
     private LocalDateTime lastPatch = null;
@@ -102,10 +95,10 @@ public class CorePlayer implements CurrencyEntity, Ignorer {
 
     private Locale selectedLocale;
 
-    private User user;
+    private Rank cachedRank;
+    private Rank cachedDisplayRank;
 
     private String chatMessage;
-    private Set<UUID> ignored = new HashSet<>();
 
     public CorePlayer(Player player){
         this.player = player;
@@ -113,7 +106,6 @@ public class CorePlayer implements CurrencyEntity, Ignorer {
         this.lastAntiAFKEvent = this.joined;
         this.boardSet = new BoardSet(player);
         this.userService = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
-        this.onlineTimeService = Boots.getBoot(CoreBoot.class).getContext().getBean(OnlineTimeService.class);
         this.requestSettings = new PlayerRequestSettings(this);
         this.inventoryHandler = new InventoryHandler(this);
         this.regionHandler = new RegionHandler(this);
@@ -122,21 +114,20 @@ public class CorePlayer implements CurrencyEntity, Ignorer {
         this.actionBar = new ActionBar(this);
         this.title = new Title(this);
 
-        this.user = this.userService.getOrCreateUser(player.getUniqueId(), player.getName());
-        IgnoredService ignoredService = Boots.getBoot(CoreBoot.class).getContext().getBean(IgnoredService.class);
-        ArematicsExecutor.runAsync(() -> ignored = ignoredService.fromPlayer(this));
+        User user = this.getUser();
+        this.cachedRank = user.getRank();
+        this.cachedDisplayRank = user.getDisplayRank();
 
         Configuration configuration = getUser().getConfigurations().get("locale");
         if(configuration != null) this.selectedLocale = Locale.forLanguageTag(configuration.getValue());
         else setLocale(CorePlayer.defaultLocale);
         refreshChatMessage();
-
-        this.updateOnlineTimeData(true, OnlineTime::getTime);
-        this.updateOnlineTimeData(false, OnlineTime::getTime);
     }
 
     public void refreshCache(){
-        this.user = this.userService.getOrCreateUser(player.getUniqueId(), player.getName());
+        User user = this.getUser();
+        this.cachedRank = user.getRank();
+        this.cachedDisplayRank = user.getDisplayRank();
         refreshChatMessage();
     }
 
@@ -149,7 +140,7 @@ public class CorePlayer implements CurrencyEntity, Ignorer {
     }
 
     public Rank getTopLevel(){
-        return this.getUser().getDisplayRank() != null ? getUser().getDisplayRank() : getUser().getRank();
+        return cachedDisplayRank != null ? cachedDisplayRank : cachedRank;
     }
 
     private String colorCode(Rank rank){
@@ -186,9 +177,7 @@ public class CorePlayer implements CurrencyEntity, Ignorer {
         return ZonedDateTime.of(time, TimeZone.getTimeZone("Europe/Berlin").toZoneId());
     }
     private void unload() {
-        this.updateOnlineTime();
         this.boardSet.remove();
-        ArematicsExecutor.runAsync(() -> userService.update(user));
     }
 
     public void addLastCommand(String command){
@@ -203,6 +192,10 @@ public class CorePlayer implements CurrencyEntity, Ignorer {
         }catch (ArrayIndexOutOfBoundsException e){
             return "";
         }
+    }
+
+    public User getUser(){
+        return this.userService.getOrCreateUser(this);
     }
 
     public String getLastCommand(){
@@ -227,39 +220,6 @@ public class CorePlayer implements CurrencyEntity, Ignorer {
         this.lastAntiAFKEvent = LocalDateTime.now();
     }
 
-    /**
-     * Update Players Afk Time Data
-     */
-    private void updateAfkTime(){
-        this.lastAfk = Duration.between(this.lastAntiAFKEvent.plusMinutes(1), LocalDateTime.now());
-        this.lastAntiAFKEvent = LocalDateTime.now();
-        if(lastAfk.isNegative()) return;
-        updateOnlineTimeData(false, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
-        updateOnlineTimeData(true, (time) -> time.setAfk(time.getAfk() + lastAfk.toMillis()));
-    }
-
-
-    /**
-     * Update Players OnlineTime Data
-     */
-    public void updateOnlineTime(){
-        this.updateAfkTime();
-        if(lastPatch == null) lastPatch = getUser().getLastJoin().toLocalDateTime();
-        Duration online = Duration.between(this.lastPatch, LocalDateTime.now());
-        updateOnlineTimeData(false, (time) -> updatePlayedTime(time, online));
-        updateOnlineTimeData(true, (time) -> updatePlayedTime(time, online));
-        lastPatch = LocalDateTime.now();
-    }
-
-
-    /**
-     * Update Players Play Time Data
-     */
-    private void updatePlayedTime(OnlineTime time, Duration online){
-        long totalTime = time.getTime() + online.toMillis();
-        time.setTime(totalTime - (this.lastAfk.isNegative() ? 0 : this.lastAfk.toMillis()));
-    }
-
     public Entity next(){
         return next(5);
     }
@@ -268,20 +228,6 @@ public class CorePlayer implements CurrencyEntity, Ignorer {
         List<Entity> entities = player.getNearbyEntities(range, range, range);
         if(entities.isEmpty()) return null;
         return entities.get(0);
-    }
-
-    public void updateOnlineTimeData(boolean mode, Consumer<OnlineTime> update){
-        OnlineTime time;
-        try{
-            time = mode ? this.onlineTimeService.findByModeUUID(getUUID()) : this.onlineTimeService.findByGlobalUUID(getUUID());
-        }catch (RuntimeException re){
-            time = new OnlineTime(getUUID(), 0L, 0L);
-        }
-        update.accept(time);
-        if(mode)
-            this.onlineTimeService.putMode(time);
-        else
-            this.onlineTimeService.putGlobal(time);
     }
 
     public void removeAmountFromHand(int amount){
@@ -494,21 +440,6 @@ public class CorePlayer implements CurrencyEntity, Ignorer {
         return this.player.getUniqueId();
     }
 
-    @Override
-    public boolean hasIgnored(UUID uuid) {
-        return ignored.contains(uuid);
-    }
-
-    @Override
-    public boolean ignore(UUID uuid) {
-        return this.ignored.add(uuid);
-    }
-
-    @Override
-    public boolean unignore(UUID uuid) {
-        return this.ignored.remove(uuid);
-    }
-
     public CoreItem getItemInHand(){
         return CoreItem.create(player.getItemInHand());
     }
@@ -532,18 +463,5 @@ public class CorePlayer implements CurrencyEntity, Ignorer {
      */
     public PermConsumer check(String permission){
         return new PermissionData(this, permission);
-    }
-
-    @Override
-    public boolean equals(Object o){
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CorePlayer other = (CorePlayer) o;
-        return other.getUUID().equals(this.getUUID());
-    }
-
-    @Override
-    public int hashCode(){
-        return this.getUUID().hashCode();
     }
 }

@@ -2,7 +2,6 @@ package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.bukkit.Tablist;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,7 +20,6 @@ public class UserQuitListener implements Listener {
         CorePlayer player = CorePlayer.get(event.getPlayer());
         if(player.isInFight())
             player.getPlayer().setHealth(0.0D);
-        ArematicsExecutor.runAsync(player::updateOnlineTime);
         this.tablist.remove(player);
     }
 }

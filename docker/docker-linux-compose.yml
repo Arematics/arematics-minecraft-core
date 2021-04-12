@@ -1,9 +1,10 @@
-version: "3.9"
+version: "3.3"
 services:
   proxy:
     build: velocity
     ports:
       - "25565:25565"
+      - "8192:8192"
     volumes:
       - /home/minecraft/proxy:/home/proxy
     networks:

@@ -5,6 +5,7 @@ import com.arematics.minecraft.core.listener.SpringInitializedListener;
 import com.arematics.minecraft.core.messaging.injector.LanguageInjector;
 import com.arematics.minecraft.core.messaging.injector.StringInjector;
 import com.arematics.minecraft.core.server.Server;
+import com.comphenix.protocol.ProtocolLibrary;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -26,6 +27,7 @@ public class CoreBoot extends Bootstrap{
      */
     public CoreBoot() {
         super(true);
+        System.out.println("Done");
         this.springInitialized = false;
     }
 
@@ -42,5 +44,6 @@ public class CoreBoot extends Bootstrap{
     public void shutdown() {
         Server server = this.getContext().getBean(Server.class);
         server.onStop();
+        ProtocolLibrary.getProtocolManager().removePacketListeners(Boots.getBoot(CoreBoot.class));
     }
 }

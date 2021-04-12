@@ -35,7 +35,8 @@ public class TpaCommand extends CoreCommand {
            getTeleportController().sendTpaRequest(player, target);
            player.info("You have sent a teleport request to the player " + target.getPlayer().getDisplayName()).handle();
            target.info("You have received a teleport request from " + player.getPlayer().getDisplayName()
-                   + ". Use /tpa accept or deny").handle();
+                   + ". Use /tpa accept " + player.getPlayer().getDisplayName() + " or /tp deny " + player.getPlayer()
+                   .getDisplayName()).handle();
 
     }
 

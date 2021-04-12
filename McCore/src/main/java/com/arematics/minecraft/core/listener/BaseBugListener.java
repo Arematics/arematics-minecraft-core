@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 public class BaseBugListener implements Listener {
 
-    private static List<Material> NOT_ALLOWED = new ArrayList<Material>(){{
+    private static final List<Material> NOT_ALLOWED = new ArrayList<Material>(){{
         add(Material.RAILS);
         add(Material.ACTIVATOR_RAIL);
         add(Material.DETECTOR_RAIL);

@@ -21,7 +21,7 @@ public class CommandRedirectService {
     }
 
     public CommandRedirect findRedirect(String cmd){
-        return redirectMap.get(cmd);
+        return redirectMap.get(cmd.toLowerCase());
     }
 
     public Map<String, CommandRedirect> getRedirectMap() {

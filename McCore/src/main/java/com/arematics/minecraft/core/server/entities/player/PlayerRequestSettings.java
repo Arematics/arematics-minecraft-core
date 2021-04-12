@@ -7,6 +7,7 @@ import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.Configuration;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.FriendService;
+import com.arematics.minecraft.data.service.IgnoredService;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -45,7 +46,8 @@ public class PlayerRequestSettings {
     }
 
     public void checkAllowed(CorePlayer requester) throws CommandProcessException {
-        if(player.hasIgnored(requester.getUUID()))
+        IgnoredService service = Boots.getBoot(CoreBoot.class).getContext().getBean(IgnoredService.class);
+        if(service.hasIgnored(player.getUUID(), requester.getUUID()))
             throw new CommandProcessException("This player does not accept requests");
         if(hasTimeout(requester.getName()))
             throw new CommandProcessException("You must wait to send this player an request again");
