@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -52,8 +53,9 @@ public class User implements Serializable {
     @MapKeyColumn(name = "name")
     private Map<String, Configuration> configurations;
 
-    public CorePlayer online(){
-        return CorePlayer.get(Bukkit.getPlayer(uuid));
+    public Optional<CorePlayer> online(){
+        CorePlayer player = CorePlayer.get(Bukkit.getPlayer(uuid));
+        return player == null ? Optional.empty() : Optional.of(player);
     }
 
     @Override

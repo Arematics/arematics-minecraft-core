@@ -81,9 +81,8 @@ public class UserService implements GlobalMessageReceiveService {
         try{
             UUID uuid = UUID.fromString(data);
             User user = getUserByUUID(uuid);
-            CorePlayer online = user.online();
-            if(online != null)
-                online.refreshCache();
+            Optional<CorePlayer> online = user.online();
+            online.ifPresent(CorePlayer::refreshCache);
         }catch (Exception ignore){}
     }
 }

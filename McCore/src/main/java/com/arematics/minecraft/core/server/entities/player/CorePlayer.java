@@ -34,6 +34,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
@@ -55,6 +56,7 @@ public class CorePlayer implements CurrencyEntity {
         return senders.stream().map(CorePlayer::get).collect(Collectors.toList());
     }
 
+    @Nullable
     public static CorePlayer get(HumanEntity sender){
         if(!(sender instanceof Player)) return null;
         Player player = (Player) sender;

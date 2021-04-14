@@ -10,6 +10,8 @@ import com.arematics.minecraft.data.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @Perm(permission = "world.interact.player.enderchest", description = "Permission for watching own enderchest with command")
 public class EnderChestCommand extends CoreCommand {
@@ -31,10 +33,13 @@ public class EnderChestCommand extends CoreCommand {
     @SubCommand("{target}")
     @Perm(permission = "other", description = "Allows to open enderchest from other players")
     public void openOtherPlayerInventory(CorePlayer player, User target) {
-        CorePlayer online = target.online();
+        Optional<CorePlayer> online = target.online();
         WrappedInventory ec;
-        if(online != null) ec = online.inventories().getOrCreateInventory("enderchest", "§c"
-                + online.getName() + "'s Enderchest", (byte)36);
+        if(online.isPresent()){
+            CorePlayer result = online.get();
+            ec = result.inventories().getOrCreateInventory("enderchest", "§c"
+                    + result.getName() + "'s Enderchest", (byte)36);
+        }
         else ec = service.findOrCreate(target.getUuid().toString() + ".enderchest", "§c"
                 + target.getLastName() + "'s Enderchest", (byte)36);
         boolean edit = player.hasPermission("world.interact.player.enderchest.other.edit");
