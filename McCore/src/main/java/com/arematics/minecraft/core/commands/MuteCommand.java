@@ -33,7 +33,9 @@ public class MuteCommand extends CoreCommand {
             throw new CommandProcessException("Can't mute team members");
         Mute mute = new Mute(target.getUUID(), sender.getUUID(), reason, Timestamp.valueOf(TimeUtils.toLocalDateTime(period)));
         muteService.save(mute);
-        String msg = "Player " + target.getName() + " has been muted for " + TimeUtils.toString(period) + " by " + sender.getName() + " for " + reason;
+        String time = TimeUtils.toString(period);
+        target.info("You have been muted for " + time);
+        String msg = "Player " + target.getName() + " has been muted for " + time + " by " + sender.getName() + " for " + reason;
         server.getOnlineTeam().forEach(team -> team.info(msg).handle());
     }
 
