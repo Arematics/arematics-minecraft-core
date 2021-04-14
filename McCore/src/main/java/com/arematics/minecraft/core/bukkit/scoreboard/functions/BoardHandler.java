@@ -75,6 +75,8 @@ public class BoardHandler {
      * @return Current Handler
      */
     public BoardHandler setEntrySuffix(String name, String suffix){
+        System.out.println(this.BOARD);
+        System.out.println(this.BOARD.ENTRY_DATA);
         this.BOARD.ENTRY_DATA
                 .stream()
                 .filter(data -> data.NAME.equals(name))
