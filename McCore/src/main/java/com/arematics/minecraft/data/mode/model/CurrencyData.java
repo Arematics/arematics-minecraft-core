@@ -16,12 +16,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "currency_statistic_data")
-@IdClass(CurrencyDataId.class)
 public class CurrencyData implements Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID executor;
-    @Id
     private Timestamp executed;
     private double amount;
     @Enumerated(EnumType.STRING)

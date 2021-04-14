@@ -20,7 +20,8 @@ import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.GameStats;
 import com.arematics.minecraft.data.service.GameStatsService;
 import com.arematics.minecraft.data.service.UserService;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -42,7 +43,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-@Data
+@Setter
+@Getter
 @Accessors(fluent = true)
 public class CorePlayer implements CurrencyEntity {
 
@@ -197,7 +199,7 @@ public class CorePlayer implements CurrencyEntity {
     public void setInFight(){
         this.inFight = true;
         if(inFightTask != null) inFightTask.cancel();
-        this.inFightTask = ArematicsExecutor.asyncDelayed(this::fightEnd, 3, TimeUnit.SECONDS);
+        this.inFightTask = ArematicsExecutor.asyncDelayed(this::fightEnd, 7, TimeUnit.SECONDS);
     }
 
     public void fightEnd(){
@@ -444,5 +446,18 @@ public class CorePlayer implements CurrencyEntity {
      */
     public PermConsumer check(String permission){
         return new PermissionData(this, permission);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CorePlayer player1 = (CorePlayer) o;
+        return Objects.equals(player, player1.player);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(player);
     }
 }

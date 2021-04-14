@@ -81,7 +81,7 @@ public class StrongholdCaptureController {
             disable();
         }else{
             updateClanTimes();
-            String time = TimeUtils.toShortString(Period.seconds(timing).normalizedStandard());
+            String time = TimeUtils.toShortString(Period.seconds(timing));
             List<Clan> topList = this.getCaptureSortedBest();
             capture.getInStronghold().forEach(player -> updateScoreboard(player, time, topList));
         }

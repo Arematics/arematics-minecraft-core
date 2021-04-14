@@ -66,8 +66,8 @@ public class ClanCommand extends CoreCommand {
     public boolean createClan(@Validator(validators = NoClanValidator.class) CorePlayer player, String name, String tag)
             throws CommandProcessException {
         final String clanExists = "Clan with %typ% %value% already exists";
-        if(player.getMoney() < 25000)
-            throw new CommandProcessException("You need 25.000 Coins to create a clan");
+        if(player.getMoney() < 20000)
+            throw new CommandProcessException("You need 20.000 Coins to create a clan");
         try{
             clanService.findClanByName(name);
             player.warn(clanExists)
@@ -86,7 +86,7 @@ public class ClanCommand extends CoreCommand {
             }catch (RuntimeException re2){
                 boolean success = server.currencyController()
                         .createEvent(player)
-                        .setAmount(25000)
+                        .setAmount(20000)
                         .setEventType(CurrencyEventType.WASTE)
                         .setTarget("create-clan")
                         .onSuccess(() -> this.createNewClan(player, name, tag));

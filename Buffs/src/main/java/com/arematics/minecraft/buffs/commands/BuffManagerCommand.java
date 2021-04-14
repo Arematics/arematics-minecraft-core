@@ -94,7 +94,7 @@ public class BuffManagerCommand extends CoreCommand {
         CoreItem modeItem = server.items().generateNoModifier(Material.HOPPER)
                 .setName("§cQuery Mode")
                 .bindEnumLore(mode);
-        InventoryBuilder builder = InventoryBuilder.create("Buffs", 3)
+        InventoryBuilder builder = InventoryBuilder.create("Buffs", 3, sender)
                 .openBlocked(sender)
                 .fillOuterLine()
                 .bindPaging(sender, binder, true)

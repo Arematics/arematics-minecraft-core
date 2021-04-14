@@ -11,6 +11,10 @@ public class CombatValidator extends ParameterValidator<CorePlayer> {
 
     @Override
     public void supply(CorePlayer result, List<Object> data) throws CommandProcessException {
-        if(!result.hasPermission("team.infightcmd") && result.inFight()) throw new CommandProcessException("Not allowed in fight");
+        System.out.println(result.hasPermission("team.infightcmd"));
+        System.out.println(result.inFight());
+        if(!result.hasPermission("team.infightcmd") && result.inFight()){
+            throw new CommandProcessException("Not allowed in fight");
+        }
     }
 }

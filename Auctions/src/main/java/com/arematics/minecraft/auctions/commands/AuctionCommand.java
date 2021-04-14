@@ -46,7 +46,7 @@ public class AuctionCommand extends CoreCommand {
 
     @Override
     public void onDefaultExecute(CorePlayer sender) {
-        InventoryBuilder.create("Auctions", 3)
+        InventoryBuilder.create("Auctions", 3, sender)
                 .openBlocked(sender)
                 .fillAll()
                 .addItem(server.items().generateNoModifier(Material.DIAMOND_BLOCK)
@@ -79,7 +79,7 @@ public class AuctionCommand extends CoreCommand {
                 .generateNoModifier(Material.DROPPER)
                 .setName("§bAuction Sort")
                 .bindEnumLore(settings.getAuctionSort());
-        InventoryBuilder builder = InventoryBuilder.create("Auction Search", 6)
+        InventoryBuilder builder = InventoryBuilder.create("Auction Search", 6, sender)
                 .openBlocked(sender)
                 .fillOuterLine()
                 .bindPaging(sender, binder, false)
@@ -110,7 +110,7 @@ public class AuctionCommand extends CoreCommand {
         Supplier<Page<Bid>> bids = () -> bidService.findAllByBidder(sender.getUUID(), sender.inventories().getPage());
         Range range = Range.allHardInRows(1, 7, 1, 2);
         PageBinder<Bid> binder = PageBinder.of(bids, range, this::mapToItem);
-        InventoryBuilder builder = InventoryBuilder.create("Your Bids", 4)
+        InventoryBuilder builder = InventoryBuilder.create("Your Bids", 4, sender)
                 .openBlocked(sender)
                 .fillOuterLine()
                 .bindPaging(sender, binder, false);
@@ -185,7 +185,7 @@ public class AuctionCommand extends CoreCommand {
                 sender.inventories().getPage());
         Range range = Range.allHardInRows(1, 7, 1, 2);
         PageBinder<Auction> binder = PageBinder.of(auctions, range, server);
-        InventoryBuilder builder = InventoryBuilder.create("Your Auctions", 4)
+        InventoryBuilder builder = InventoryBuilder.create("Your Auctions", 4, sender)
                 .openBlocked(sender)
                 .fillOuterLine()
                 .bindPaging(sender, binder, false)
@@ -353,7 +353,7 @@ public class AuctionCommand extends CoreCommand {
                 .setName("§aInstant Buy Auction")
                 .addToLore("§8Instant Buy Price: §e" + auction.getInstantSell() + " Coins")
                 .addToLore("§8Directly buy this auction for the given price");
-        InventoryBuilder builder = InventoryBuilder.create("Buy Auction", 6)
+        InventoryBuilder builder = InventoryBuilder.create("Buy Auction", 6, player)
                 .openBlocked(player)
                 .fillAll()
                 .addItem(item, 2, 5)
@@ -375,7 +375,7 @@ public class AuctionCommand extends CoreCommand {
         CoreItem remove = server.items().generateNoModifier(Material.REDSTONE_BLOCK)
                 .setName("§cRemove auction")
                 .addToLore("§8Remove auction earlier", " ", "§cYou do not get back your auction creation costs");
-        InventoryBuilder.create("Remove Auction", 3)
+        InventoryBuilder.create("Remove Auction", 3, player)
                 .openBlocked(player)
                 .fillAll()
                 .addItem(cancel, 2, 2)

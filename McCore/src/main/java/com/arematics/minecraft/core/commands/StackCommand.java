@@ -4,6 +4,10 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.sk89q.worldedit.blocks.ItemType;
+import net.minecraft.server.v1_8_R3.ItemArmor;
+import net.minecraft.server.v1_8_R3.ItemBow;
+import net.minecraft.server.v1_8_R3.ItemSword;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -19,16 +23,16 @@ public class StackCommand extends CoreCommand {
 
     @Override
     public void onDefaultExecute(CorePlayer sender) {
-        stackItems(sender.getPlayer().getInventory(), true);
+        stackItems(sender.getPlayer().getInventory(), false);
     }
 
     @SubCommand("items")
     public boolean stackItems(CorePlayer player) {
-        stackItems(player.getPlayer().getInventory(), true);
+        stackItems(player.getPlayer().getInventory(), false);
         return true;
     }
 
-    public static void stackItems(Inventory inv, boolean force) {
+    public void stackItems(Inventory inv, boolean force) {
         ItemStack[] items = inv.getContents();
 
         boolean ignoreMax = /*player.hasPermission("worldguard.stack.illegitimate");*/ true;
@@ -43,6 +47,7 @@ public class StackCommand extends CoreCommand {
             ItemStack item = items[i];
 
             if ((item != null) && (item.getAmount() > 0)) {
+                if(isArmor(item) || isWeapon(item)) continue;
                 int max = 64;
 
                 if (item.getAmount() < max) {
@@ -81,7 +86,7 @@ public class StackCommand extends CoreCommand {
             inv.setContents(items);
     }
 
-    public static boolean allowStackTitle(ItemStack item, ItemStack item2, boolean ignoreTitle){
+    public boolean allowStackTitle(ItemStack item, ItemStack item2, boolean ignoreTitle){
         try{
             if(item.getItemMeta().equals(item2.getItemMeta())) return true;
             if(ignoreTitle){
@@ -100,7 +105,7 @@ public class StackCommand extends CoreCommand {
         return false;
     }
 
-    public static boolean allowStackRepairable(ItemStack item, ItemStack item2){
+    public boolean allowStackRepairable(ItemStack item, ItemStack item2){
         try{
             if(item.getItemMeta().equals(item2.getItemMeta())) return true;
             if(item.getItemMeta() instanceof Repairable && item2.getItemMeta() instanceof Repairable){
@@ -132,4 +137,14 @@ public class StackCommand extends CoreCommand {
         }catch(Exception ex){ex.printStackTrace();}
         return false;
     }
+
+    private boolean isArmor(ItemStack itemStack){
+        return (CraftItemStack.asNMSCopy(itemStack).getItem() instanceof ItemArmor);
+    }
+
+    private boolean isWeapon(ItemStack itemStack) {
+        return (CraftItemStack.asNMSCopy(itemStack).getItem() instanceof ItemSword) ||
+                (CraftItemStack.asNMSCopy(itemStack).getItem() instanceof ItemBow);
+    }
+
 }

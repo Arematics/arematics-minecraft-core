@@ -78,6 +78,6 @@ public class BuffAdminCommand extends CoreCommand {
 
     private String fetchEndTime(PlayerBuff buff){
         Duration between = Duration.between(LocalDateTime.now(), buff.getEndTime().toLocalDateTime());
-        return TimeUtils.toString(Period.seconds((int) between.getSeconds()).normalizedStandard());
+        return TimeUtils.toString(Period.seconds((int) between.getSeconds()));
     }
 }

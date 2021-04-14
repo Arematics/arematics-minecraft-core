@@ -58,7 +58,7 @@ public class VoteCommand extends CoreCommand {
         List<VoteReward> rewards = this.voteRewardService.findAll();
         Supplier<PlayerVotes> votes = () -> this.votesService.getOrCreate(sender.getUUID());
         CoreItem info = generatePlayerInfo(votes.get());
-        InventoryBuilder builder = InventoryBuilder.create("Votes", 4)
+        InventoryBuilder builder = InventoryBuilder.create("Votes", 4, sender)
                 .openBlocked(sender)
                 .addItem(info, 1, 5);
         sender.inventories().registerItemClick(info, (item) -> generatePlayerInfo(votes.get()));

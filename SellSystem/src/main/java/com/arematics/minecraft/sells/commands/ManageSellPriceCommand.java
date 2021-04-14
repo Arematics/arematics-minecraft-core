@@ -37,6 +37,7 @@ public class ManageSellPriceCommand extends CoreCommand {
         }catch (RuntimeException re){
             itemPrice = new ItemPrice(key, amount);
         }
+        itemPrice.setPrice(amount);
         service.save(itemPrice);
         sender.info("Item Price for item in hand set to §e" + amount + " §acoins").handle();
     }

@@ -54,6 +54,7 @@ public class WeaponShotListener implements Listener {
                         gun.removeAmmo((short) 1);
                         player.getPlayer().setItemInHand(gun.getItem());
                         ammo.getShootCooldown().put(cooldownKey, System.currentTimeMillis() + (long) (1000 * weapon.getType().getShootSpeed()));
+                        this.knockbackPlayer(player, gun.getType());
                     }else
                         player.actionBar().sendActionBar("§eNo ammunition loaded");
                 }catch (RuntimeException ignore){}
@@ -85,5 +86,19 @@ public class WeaponShotListener implements Listener {
         Vector vec = new Vector(xd, yd, zd);
         vec.multiply(weaponType.getSpeed());
         ball.setVelocity(vec);
+    }
+
+    private void knockbackPlayer(CorePlayer player, WeaponType weaponType){
+        Location ploc = player.getLocation();
+        double dir = -ploc.getYaw() - 90.0F;
+        double pitch = -ploc.getPitch() - 180.0F;
+        double xd = Math.cos(Math.toRadians(dir)) *
+                Math.cos(Math.toRadians(pitch));
+        double yd = Math.sin(Math.toRadians(pitch));
+        double zd = -Math.sin(Math.toRadians(dir)) *
+                Math.cos(Math.toRadians(pitch));
+        Vector vec = new Vector(xd, yd, zd);
+        vec.multiply(weaponType.getSpeed() / 4.0D).setY(0);
+        player.getPlayer().setVelocity(player.getPlayer().getVelocity().add(vec));
     }
 }

@@ -30,7 +30,7 @@ public class TimeUtils {
                 .appendMinutes().appendSuffix(" Minutes ")
                 .appendSeconds().appendSuffix(" Seconds ")
                 .toFormatter();
-        return formatter.print(period);
+        return formatter.print(period.normalizedStandard());
     }
 
     public static String toString(Long end){
@@ -52,7 +52,7 @@ public class TimeUtils {
                 .appendMinutes().appendSuffix(" M ")
                 .appendSeconds().appendSuffix(" S ")
                 .toFormatter();
-        return formatter.print(period);
+        return formatter.print(period.normalizedStandard());
     }
 
     public static String fetchEndDate(Timestamp timestamp){

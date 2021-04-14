@@ -88,7 +88,7 @@ public class AuctionCreator {
                 .setName(item.isSimilar(noItem) ? "§cNo item selected" : "§aCreate auction")
                 .addToLore("§8Current Costs: §e" + sellPrice + " Coins")
                 .addToLore(item.isSimilar(noItem) ? "§cPublish auction not possible" : "§aPublish auction"));
-        current = InventoryBuilder.create("New Auction", 6)
+        current = InventoryBuilder.create("New Auction", 6, player)
                 .openBlocked(player)
                 .fillAll()
                 .addItem(item, 2, 5)
@@ -144,7 +144,7 @@ public class AuctionCreator {
         CoreItem timeThreeDays = timeItem(Period.days(3));
         CoreItem custom = server.items().generateNoModifier(Material.SIGN)
                 .setName("§aSet Custom Auction Time");
-        current = InventoryBuilder.create("Auction Time", 3)
+        current = InventoryBuilder.create("Auction Time", 3, player)
                 .openBlocked(player)
                 .fillAll()
                 .addItem(timeOneHour, 2, 2)

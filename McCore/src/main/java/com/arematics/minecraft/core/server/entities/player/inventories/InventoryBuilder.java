@@ -21,8 +21,8 @@ import java.util.stream.IntStream;
 
 public class InventoryBuilder {
 
-    public static InventoryBuilder create(String title, int rows){
-        return new InventoryBuilder(title, rows);
+    public static InventoryBuilder create(String title, int rows, CorePlayer player){
+        return new InventoryBuilder(title, rows, player);
     }
 
     private final Inventory inv;
@@ -30,10 +30,10 @@ public class InventoryBuilder {
     private final int size;
     private DyeColor dyeColor = DyeColor.BLACK;
 
-    private InventoryBuilder(String title, int rows){
+    private InventoryBuilder(String title, int rows, CorePlayer player){
         this.title = "§8" + title;
         this.size = rows * 9;
-        this.inv = Bukkit.createInventory(null, size, title);
+        this.inv = Bukkit.createInventory(player.getPlayer(), size, title);
     }
 
     public InventoryBuilder setPreferredDyeColor(DyeColor dyeColor){

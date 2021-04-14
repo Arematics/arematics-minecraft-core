@@ -3,6 +3,7 @@ package com.arematics.minecraft.core.commands;
 import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
 import com.arematics.minecraft.core.messaging.advanced.MSGBuilder;
 import com.arematics.minecraft.core.messaging.advanced.Part;
@@ -48,6 +49,11 @@ public class WarpCommand extends CoreCommand {
     @SubCommand("{warp}")
     @Perm(permission = "to", description = "Warp to warp")
     public void warpTo(CorePlayer player, Warp warp) {
+        try{
+            warp.getLocation().getWorld();
+        }catch (Exception e){
+            throw new CommandProcessException("Warp is on another server");
+        }
         teleport(player, warp, false);
         player.info("You were teleported to warp " + warp.getName()).handle();
     }

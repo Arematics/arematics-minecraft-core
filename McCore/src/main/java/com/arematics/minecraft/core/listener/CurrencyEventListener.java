@@ -28,7 +28,7 @@ public class CurrencyEventListener implements Listener {
     }
 
     private void safeCurrencyEvent(CurrencyEvent event){
-        CurrencyData data = new CurrencyData(event.getPlayer().getUUID(), Timestamp.valueOf(LocalDateTime.now()),
+        CurrencyData data = new CurrencyData(null, event.getPlayer().getUUID(), Timestamp.valueOf(LocalDateTime.now()),
                 event.getAmount(), event.getType(), event.getTarget(), !event.isCancelled());
         switch (event.getType()){
             case GENERATE:

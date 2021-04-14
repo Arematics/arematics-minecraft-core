@@ -25,7 +25,11 @@ public class ClanParser extends CommandParameterParser<Clan> {
             try{
                 return service.findClanByTag(value);
             }catch (RuntimeException re2){
-                return service.findClanById(Long.parseLong(value));
+                try{
+                    return service.findClanById(Long.parseLong(value));
+                }catch (RuntimeException re3){
+                    throw new CommandProcessException("No clan found for value: " + value);
+                }
             }
         }
     }

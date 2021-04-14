@@ -61,7 +61,7 @@ public class IgnoreCommand extends CoreCommand {
     private void createInventory(CorePlayer sender, Supplier<Page<Ignored>> paging){
         Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
         PageBinder<Ignored> binder = PageBinder.of(paging, range, server);
-        InventoryBuilder.create("Ignored", 6)
+        InventoryBuilder.create("Ignored", 6, sender)
                 .openBlocked(sender)
                 .fillOuterLine()
                 .bindPaging(sender, binder, true);

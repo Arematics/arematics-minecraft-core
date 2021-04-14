@@ -97,7 +97,6 @@ public class ArematicsExecutor {
     }
 
     public static BukkitTask syncRepeat(Runnable runnable, long delay, long period, TimeUnit unit){
-        System.out.println(Boots.getBoot(CoreBoot.class));
         delay = TimeUtils.toTicks(delay, unit);
         period = TimeUtils.toTicks(period, unit);
         return new BukkitRunnable(){
@@ -116,6 +115,20 @@ public class ArematicsExecutor {
             @Override
             public void run() {
                 run.accept(amount);
+                amount--;
+                if(amount < 0) this.cancel();
+            }
+        }.runTaskTimer(Boots.getBoot(CoreBoot.class), delay, period);
+    }
+
+    public static BukkitTask syncRepeat(BiConsumer<BukkitRunnable, Integer> run, long delay, long period, TimeUnit unit, int times){
+        delay = TimeUtils.toTicks(delay, unit);
+        period = TimeUtils.toTicks(period, unit);
+        return new BukkitRunnable(){
+            int amount = times;
+            @Override
+            public void run() {
+                run.accept(this, amount);
                 amount--;
                 if(amount < 0) this.cancel();
             }

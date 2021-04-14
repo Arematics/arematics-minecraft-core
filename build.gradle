@@ -116,12 +116,36 @@ subprojects {
         from "build/libs/${project.name}-all.jar"
     }
 
-    task copyFileToCityBuild(type:Copy) {
+    task copyFileToAll( dependsOn:  ['copyFileToBothPvP', 'copyFileToGuns', 'copyFileToLobby'])
+
+    task copyFileToPvP(type:Copy) {
         with filesToCopy
-        into rootProject.file('Server/Citybuild/plugins').absolutePath
+        into rootProject.file('Server/PvP/plugins/update').absolutePath
     }
 
-    copyFileToCityBuild.dependsOn(shadowJar)
+    task copyFileToFarmworld(type:Copy) {
+        with filesToCopy
+        into rootProject.file('Server/Farmwelt/plugins/update').absolutePath
+    }
+
+    task copyFileToBothPvP( dependsOn:  ['copyFileToPvP', 'copyFileToFarmworld'])
+
+    task copyFileToLobby(type:Copy) {
+        with filesToCopy
+        into rootProject.file('Server/Lobby-01/plugins/update').absolutePath
+    }
+
+    task copyFileToGuns(type:Copy) {
+        with filesToCopy
+        into rootProject.file('Server/Guns/plugins/update').absolutePath
+    }
+
+    copyFileToAll.dependsOn(shadowJar)
+    copyFileToPvP.dependsOn(shadowJar)
+    copyFileToFarmworld.dependsOn(shadowJar)
+    copyFileToBothPvP.dependsOn(shadowJar)
+    copyFileToLobby.dependsOn(shadowJar)
+    copyFileToGuns.dependsOn(shadowJar)
 
     task copyFileToServer(type:Copy) {
         with filesToCopy

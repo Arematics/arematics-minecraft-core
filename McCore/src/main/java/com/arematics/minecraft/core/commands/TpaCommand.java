@@ -35,24 +35,25 @@ public class TpaCommand extends CoreCommand {
             player.warn("Self requests not allowed").handle();
             return;
         }
-           getTeleportController().sendTpaRequest(player, target);
-           player.info("You have sent a teleport request to the player " + target.getName()).handle();
-           target.info("You have received a teleport request from " + player.getName()).handle();
-
-        target.info("&8« &a%previous% &8&l| &a%next% &8»")
-                .setInjector(AdvancedMessageInjector.class)
-                .disableServerPrefix()
-                .replace("previous", PartBuilder.createHoverAndRun("ACCEPT", "§aAccept tpa request",
-                        "/tpa accept " + player.getName()).setBaseColor(JsonColor.GREEN))
-                .replace("next", PartBuilder.createHoverAndRun("DENY", "§cDeny tpa request",
-                        "/tpa deny " + player.getName()).setBaseColor(JsonColor.RED))
-                .handle();
+        if(getTeleportController().sendTpaRequest(player, target)){
+            player.info("You have sent a teleport request to the player " + target.getName()).handle();
+            target.info("You have received a teleport request from " + player.getName()).handle();
+            target.info("&8« &a%previous% &8&l| &a%next% &8»")
+                    .setInjector(AdvancedMessageInjector.class)
+                    .disableServerPrefix()
+                    .replace("previous", PartBuilder.createHoverAndRun("ACCEPT", "§aAccept tpa request",
+                            "/tpa accept " + player.getName()).setBaseColor(JsonColor.GREEN))
+                    .replace("next", PartBuilder.createHoverAndRun("DENY", "§cDeny tpa request",
+                            "/tpa deny " + player.getName()).setBaseColor(JsonColor.RED))
+                    .handle();
+        }else{
+            player.warn("Player has an teleport request at the moment").handle();
+        }
 
     }
 
     @SubCommand("accept {tpaSender}")
     public void acceptTpa(@Validator(validators = CombatValidator.class) CorePlayer receiver, CorePlayer tpaSender) {
-
         if(getTeleportController().accept(tpaSender, receiver)) {
             tpaSender.info("You teleported yourself to " + receiver.getPlayer().getDisplayName()).handle();
             receiver.info(tpaSender.getPlayer().getDisplayName() + " was teleported to you").handle();

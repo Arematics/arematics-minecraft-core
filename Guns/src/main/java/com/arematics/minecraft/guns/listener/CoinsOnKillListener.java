@@ -10,6 +10,6 @@ public class CoinsOnKillListener implements Listener {
 
     @EventHandler
     public void kill(AsyncPlayerDeathEvent event){
-        if(event != null) event.getKiller().addMoney(10);
+        if(event != null && event.getKiller() != null) event.getKiller().addMoney(10);
     }
 }

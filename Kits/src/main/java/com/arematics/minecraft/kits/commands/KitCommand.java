@@ -13,6 +13,7 @@ import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.KitService;
+import org.joda.time.Period;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -43,7 +44,7 @@ public class KitCommand extends CoreCommand {
     private void createInventory(CorePlayer sender, Supplier<Page<Kit>> paging){
         Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
         PageBinder<Kit> binder = PageBinder.of(paging, range, server);
-        InventoryBuilder.create("Kits", 6)
+        InventoryBuilder.create("Kits", 6, sender)
                 .openBlocked(sender)
                 .fillOuterLine()
                 .bindPaging(sender, binder, true);
@@ -51,6 +52,11 @@ public class KitCommand extends CoreCommand {
 
     @SubCommand("{kit}")
     public void giveKit(CorePlayer player, Kit kit) {
+        player.onlineTime().updateOnlineTime();
+        Long millis = kit.getMinPlayTime();
+        Period playTime = player.onlineTime().activeTime(true);
+        if(millis > playTime.getMillis())
+            throw new CommandProcessException("Not enough play time for this kit");
         giveToPlayer(kit, player, player.hasPermission("kit.force"));
     }
 

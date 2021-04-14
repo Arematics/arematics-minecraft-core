@@ -66,7 +66,7 @@ public class NumberGUI {
         CoreItem close = CoreItem.generate(Material.EMERALD_BLOCK)
                 .setName("§aSend number")
                 .addToLore("§8Value: §e" + value);
-        this.builder = InventoryBuilder.create("Select Number", 3)
+        this.builder = InventoryBuilder.create("Select Number", 3, player)
                 .openBlocked(player)
                 .fillOuterLine()
                 .addItem(info, 1, 5)

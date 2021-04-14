@@ -52,7 +52,12 @@ public class HomeCommand extends CoreCommand {
         HomeId id = new HomeId(sender.getUUID(), name);
         try{
             Home home = service.findByOwnerAndName(id);
-            sender.teleport(home.getLocation()).schedule();
+            try{
+                home.getLocation().getWorld();
+                sender.teleport(home.getLocation()).schedule();
+            }catch (Exception e){
+                sender.warn("Home is on another server").handle();
+            }
         }catch (RuntimeException re){
             throw new CommandProcessException("Home with name: " + name + " not exists");
         }
@@ -92,7 +97,7 @@ public class HomeCommand extends CoreCommand {
         try{
             Home home = service.findByOwnerAndName(id);
             service.delete(home);
-            sender.info("Home with name: " + name + " has been removed");
+            sender.info("Home with name: " + name + " has been removed").handle();
         }catch (RuntimeException re){
             throw new CommandProcessException("Home with name: " + name + " not exists");
         }
@@ -130,7 +135,7 @@ public class HomeCommand extends CoreCommand {
                 .bindCommand("home query " + deleteMode)
                 .setName("§eRemove search query");
         CoreItem modeItem = deleteModeItem(deleteMode, query);
-        InventoryBuilder.create(deleteMode ? "§cDelete Homes" : "Homes", 6)
+        InventoryBuilder.create(deleteMode ? "§cDelete Homes" : "Homes", 6, sender)
                 .openBlocked(!deleteMode ? "§cDelete Homes" : "Homes", sender)
                 .fillOuterLine()
                 .bindPaging(sender, homes, deleteMode)

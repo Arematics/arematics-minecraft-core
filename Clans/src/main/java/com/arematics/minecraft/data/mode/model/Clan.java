@@ -64,7 +64,7 @@ public class Clan implements Serializable {
         ClanMember owner = members.stream().filter(member -> member.getRank().getRankLevel().equals(0))
                 .findFirst()
                 .orElseThrow(() -> new CommandProcessException("Clan Owner could not be found"));
-        return "    §7Name: §c" + getName() + "\n" +
+        return  "   §7Name: §c" + getName() + "\n" +
                 "   §7Tag: §c" + getTag() + "\n" +
                 "   §7Owner: §c" + Bukkit.getOfflinePlayer(owner.getUuid()).getName() + "\n" +
                 "   §7Kills: §c" + getKills() + "\n" +

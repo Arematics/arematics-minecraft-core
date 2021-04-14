@@ -43,10 +43,14 @@ public class SellGUI {
         this.sender = sender;
         this.server = server;
         this.itemPriceService = itemPriceService;
-        builder = InventoryBuilder.create("Sell Items", 6)
+        CoreItem showPrices = server.items().generateNoModifier(Material.BOOK)
+                .bindCommand("sell list")
+                .setName("§aShow item prices");
+        builder = InventoryBuilder.create("Sell Items", 6, sender)
                 .openBlocked(sender)
                 .fillWithPlaceholder(Range.allInRow(1))
-                .fillWithPlaceholder(Range.allInRow(6));
+                .fillWithPlaceholder(Range.allInRow(6))
+                .addItem(showPrices, 6, 3);
         setSellItem();
         sender.inventories().registerItemClick(sellItems, this::sellItems);
         sender.inventories().onItemInOwnInvClick(this::addItem);
@@ -99,7 +103,9 @@ public class SellGUI {
 
     public CoreItem removeItem(CoreItem item){
         items.remove(item);
-        item = item.removeMeta("randomKey").clearLore();
+        if(item == null) return null;
+        if(item.getMeta().hasKey("randomKey")) item = item.removeMeta("randomKey");
+        if(item.hasItemMeta()) item = item.clearLore();
         server.items().giveItemTo(sender, item);
         ArematicsExecutor.asyncDelayed(this::refreshInventory, 50, TimeUnit.MILLISECONDS);
         return null;

@@ -3,6 +3,7 @@ package com.arematics.minecraft.ri.listener;
 import com.arematics.minecraft.core.commands.SpawnCommand;
 import com.arematics.minecraft.core.listener.RelogCooldownListener;
 import com.arematics.minecraft.core.proxy.MessagingUtils;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.mode.model.Warp;
 import com.arematics.minecraft.ri.events.RegionEnteredEvent;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,13 @@ public class PortalRegionEnterListener implements Listener {
         if(id.startsWith("mode_")) {
             try {
                 Warp warp = this.spawnCommand.getWarpService().getWarp(this.spawnCommand.getCurrentTeleport());
-                event.getPlayer().instantTeleport(warp.getLocation()).schedule();
-                relogCooldownListener.getJustOnline().remove(event.getPlayer().getUUID());
+                CorePlayer player = event.getPlayer();
+                String target = id.replace("mode_" , "");
+                player.instantTeleport(warp.getLocation()).schedule();
+                if(player.getUser().getCurrentServer().equals("pvp") || player.getUser().getCurrentServer().equals("farmworld")) {
+                    if (target.equals("pvp") || target.equals("farmworld"))
+                        relogCooldownListener.getJustOnline().remove(event.getPlayer().getUUID());
+                }
                 MessagingUtils.sendToServer(event.getPlayer(), id.replace("mode_", ""));
             }catch (Exception e){
                 event.getPlayer().warn("To your safety mode change has been cancelled").handle();

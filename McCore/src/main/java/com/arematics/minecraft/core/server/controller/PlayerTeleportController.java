@@ -18,17 +18,19 @@ public class PlayerTeleportController implements Quitable {
     // 1. who accepts, 2. who sends
     private final BiMap<CorePlayer, CorePlayer> teleports = HashBiMap.create();
 
-    public void sendTpaRequest(CorePlayer sender, CorePlayer receiver) {
+    public boolean sendTpaRequest(CorePlayer sender, CorePlayer receiver) {
         if(!teleports.containsKey(receiver)) {
             teleports.put(receiver, sender);
             receiver.requests().addTimeout(sender.getPlayer().getName());
             ArematicsExecutor.asyncDelayed(() -> teleports.remove(receiver), 1, TimeUnit.MINUTES);
-        } else {
-            sender.warn("Player has an teleport request at the moment").handle();
+            return true;
         }
+        return false;
     }
 
     public boolean accept(CorePlayer sender, CorePlayer receiver) {
+        System.out.println(teleports.containsKey(receiver));
+        System.out.println(teleports.get(receiver));
         if(teleports.containsKey(receiver) && teleports.get(receiver).equals(sender)) {
             sender.teleport(receiver.getLocation()).schedule();
             teleports.remove(receiver);

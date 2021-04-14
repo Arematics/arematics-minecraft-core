@@ -122,7 +122,7 @@ public class FriendCommand extends CoreCommand {
     private void createInventory(CorePlayer sender, Supplier<Page<Friend>> paging){
         Range range = Range.allHardInRows(1, 7, 1, 2, 3, 4);
         PageBinder<Friend> binder = PageBinder.of(paging, range, (friend) -> this.mapFriendToItem(sender, friend));
-        InventoryBuilder.create("Friends", 6)
+        InventoryBuilder.create("Friends", 6, sender)
                 .openBlocked(sender)
                 .fillOuterLine()
                 .bindPaging(sender, binder, true);

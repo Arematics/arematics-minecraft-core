@@ -5,7 +5,6 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.ClickAction;
 import com.arematics.minecraft.core.messaging.advanced.HoverAction;
 import com.arematics.minecraft.core.messaging.advanced.MSG;
@@ -18,7 +17,6 @@ import com.arematics.minecraft.data.mode.model.Kit;
 import com.arematics.minecraft.data.service.InventoryService;
 import com.arematics.minecraft.data.service.ItemCollectionService;
 import com.arematics.minecraft.data.service.KitService;
-import org.bukkit.command.CommandSender;
 import org.joda.time.Period;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -143,11 +141,10 @@ public class KitAdminCommand extends CoreCommand {
     }
 
     @SubCommand("setPerm {kit} {permission}")
-    public boolean setKitPermission(CommandSender sender, Kit kit, String permission) {
+    public boolean setKitPermission(CorePlayer sender, Kit kit, String permission) {
         kit.setPermission(permission);
         service.update(kit);
-        Messages.create(KIT_TYPE_CHANGED)
-                .to(sender)
+        sender.info(KIT_TYPE_CHANGED)
                 .DEFAULT()
                 .replace("type", "Permission")
                 .replace("value", permission)
@@ -156,11 +153,10 @@ public class KitAdminCommand extends CoreCommand {
     }
 
     @SubCommand("setCooldown {kit} {cooldown}")
-    public boolean setKitCooldown(CommandSender sender, Kit kit, Period cooldown) {
+    public boolean setKitCooldown(CorePlayer sender, Kit kit, Period cooldown) {
         kit.setCooldown(cooldown.toStandardDuration().getMillis());
         service.update(kit);
-        Messages.create(KIT_TYPE_CHANGED)
-                .to(sender)
+        sender.info(KIT_TYPE_CHANGED)
                 .DEFAULT()
                 .replace("type", "Cooldown")
                 .replace("value", TimeUtils.toString(cooldown))
@@ -169,11 +165,10 @@ public class KitAdminCommand extends CoreCommand {
     }
 
     @SubCommand("setPlaytime {kit} {playtime}")
-    public boolean setKitPlaytime(CommandSender sender, Kit kit, Period playtime) {
+    public boolean setKitPlaytime(CorePlayer sender, Kit kit, Period playtime) {
         kit.setMinPlayTime(playtime.toStandardDuration().getMillis());
         service.update(kit);
-        Messages.create(KIT_TYPE_CHANGED)
-                .to(sender)
+        sender.info(KIT_TYPE_CHANGED)
                 .DEFAULT()
                 .replace("type", "Playtime")
                 .replace("value", TimeUtils.toString(playtime))

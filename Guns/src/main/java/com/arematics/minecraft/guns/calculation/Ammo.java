@@ -62,20 +62,25 @@ public class Ammo {
             player.actionBar().sendActionBar("§c§lLoading Gun...");
             int time = gun.getWeapon().getType().getLoadingSpeed();
             this.reloading.add(player);
-            ArematicsExecutor.syncDelayed(() -> {
+            ArematicsExecutor.syncRepeat((task, count) -> {
                 CoreItem hand = player.getItemInHand();
-                if(hand == null || !hand.isSimilar(gun.getItem())){
-                    player.actionBar().sendActionBar("§c§lReload interrupted");
+                if(count != 0){
+                    if(hand == null || !hand.isSimilar(gun.getItem())){
+                        player.actionBar().sendActionBar("§c§lReload interrupted");
+                        this.reloading.remove(player);
+                        task.cancel();
+                    }else{
+                        player.actionBar().sendActionBar("§c§lReloaded in " + count);
+                    }
+                }else{
+                    short reloaded = gun.reload(inInventory);
+                    short removed = removeAmmoFromInventory(player, ammo, reloaded);
+                    player.actionBar().sendActionBar("§a§lReloaded");
+                    player.getPlayer().getInventory().setItemInHand(gun.getItem());
+                    player.actionBar().sendActionBar("§a" + removed + " bullets have been reloaded");
                     this.reloading.remove(player);
-                    return;
                 }
-                short reloaded = gun.reload(inInventory);
-                short removed = removeAmmoFromInventory(player, ammo, reloaded);
-                player.actionBar().sendActionBar("§a§lReloaded");
-                player.getPlayer().getInventory().setItemInHand(gun.getItem());
-                player.actionBar().sendActionBar("§a" + removed + " bullets have been reloaded");
-                this.reloading.remove(player);
-            }, time, TimeUnit.SECONDS);
+            }, 1, 1, TimeUnit.SECONDS, time);
         }
     }
 

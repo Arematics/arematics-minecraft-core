@@ -42,14 +42,13 @@ public class RandomTeleportCommand extends CoreCommand {
         x = xOff == 1 ? Math.negateExact(x) : x;
         z = zOff == 1 ? Math.negateExact(z) : z;
         Location location = new Location(sender.getPlayer().getWorld(), x, 100, z);
-        Block block = location.getWorld().getHighestBlockAt(location);
 
-        ArematicsExecutor.syncRun(() -> sender.teleport(block.getLocation().add(0, 2, 0))
-                .onEnd(c -> {
-                    addCooldown(key);
-                    sender.info("Random teleport is called").handle();
-                })
-                .schedule()
+        ArematicsExecutor.syncRun(() ->{
+                    Block block = location.getWorld().getHighestBlockAt(location);
+                    sender.teleport(block.getLocation().add(0, 2, 0)).onEnd(c -> {
+                                addCooldown(key);
+                                sender.info("Random teleport is called").handle(); }).schedule();
+                }
         );
     }
 

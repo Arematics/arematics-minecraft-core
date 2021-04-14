@@ -49,13 +49,13 @@ public class Server {
     }
 
     public void registerItemListener(CorePlayer player, CoreItem item, Function<CoreItem, CoreItem> function){
-        ItemUpdateClickListener listener = new ItemUpdateClickListener(item, null, function);
+        ItemUpdateClickListener listener = new ItemUpdateClickListener(item, null, function, player.inventories().getView().getTopInventory());
         player.inventories().addListener(listener);
         Bukkit.getPluginManager().registerEvents(listener, Boots.getBoot(CoreBoot.class));
     }
 
     public void registerItemListener(CorePlayer player, CoreItem item, ClickType type, Function<CoreItem, CoreItem> function){
-        ItemUpdateClickListener listener = new ItemUpdateClickListener(item, type, function);
+        ItemUpdateClickListener listener = new ItemUpdateClickListener(item, type, function, player.inventories().getView().getTopInventory());
         player.inventories().addListener(listener);
         Bukkit.getPluginManager().registerEvents(listener, Boots.getBoot(CoreBoot.class));
     }
