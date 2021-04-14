@@ -21,7 +21,8 @@ public class AntiItemDuplicateBug3Listener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onItemClick(InventoryClickEvent e){
 		if(!(e.getWhoClicked() instanceof Player)) return;
-		if(!(e.getView().getTopInventory() != null && e.getView().getTopInventory().getType() == InventoryType.ENCHANTING)) return;
+		if(e.getView().getTopInventory() == null || e.getView().getTopInventory().getType() != InventoryType.ENCHANTING)
+			return;
 
 		CorePlayer player = CorePlayer.get(e.getWhoClicked());
 		checkEnchanter(player);
@@ -46,7 +47,7 @@ public class AntiItemDuplicateBug3Listener implements Listener {
 			if(p.getPlayer().getOpenInventory() == null || !(p.getPlayer().getOpenInventory().getTopInventory() instanceof EnchantingInventory))
 				return;
 			EnchantingInventory einv = (EnchantingInventory) p.getPlayer().getOpenInventory().getTopInventory();
-			if(einv.getItem().getAmount() > 1) {
+			if(einv.getItem() != null && einv.getItem().getAmount() > 1) {
 				p.getPlayer().getInventory().addItem(einv.getItem());
 				einv.setItem(null);
 				p.getPlayer().updateInventory();

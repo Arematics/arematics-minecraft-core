@@ -22,7 +22,7 @@ public class AntiStackedArmorListener implements Listener {
         Player player = (Player)event.getWhoClicked();
 
         if(event.getSlotType() == InventoryType.SlotType.ARMOR){
-            if(event.getCursor().getAmount() > 1){
+            if(event.getCursor() != null && event.getCursor().getAmount() > 1){
                 Messages.create("armor_max_stack_size").WARNING().to(player).handle();
                 event.setCancelled(true);
             }
