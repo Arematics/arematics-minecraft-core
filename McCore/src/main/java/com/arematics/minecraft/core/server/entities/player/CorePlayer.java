@@ -19,6 +19,7 @@ import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.GameStats;
 import com.arematics.minecraft.data.service.GameStatsService;
+import com.arematics.minecraft.data.service.OgService;
 import com.arematics.minecraft.data.service.UserService;
 import lombok.Getter;
 import lombok.Setter;
@@ -98,6 +99,7 @@ public class CorePlayer implements CurrencyEntity {
     private Rank cachedDisplayRank;
 
     private String chatMessage;
+    private String ogColorCode = "§8";
 
     public CorePlayer(Player player){
         this.player = player;
@@ -111,6 +113,10 @@ public class CorePlayer implements CurrencyEntity {
         this.packets = new Packets(player);
         this.actionBar = new ActionBar(this);
         this.title = new Title(this);
+        OgService ogService = Boots.getBoot(CoreBoot.class).getContext().getBean(OgService.class);
+        try{
+            this.ogColorCode = ogService.findByUUID(player.getUniqueId()).getColorCode();
+        }catch (Exception ignore){}
 
         User user = this.getUser();
         this.cachedRank = user.getRank();
@@ -135,7 +141,8 @@ public class CorePlayer implements CurrencyEntity {
 
     private void refreshChatMessage(){
         Rank topLevel = getTopLevel();
-        this.chatMessage = "§8§l[" + topLevel.getColorCode() + topLevel.getName() + "§8§l] §7"
+        String heart = ogColorCode.equals("§8") ? "" : "§c❤ ";
+        this.chatMessage = heart + ogColorCode + "§l[" + topLevel.getColorCode() + topLevel.getName() + ogColorCode + "§l] §7"
                 + player.getPlayer().getName()
                 + " §8» " + colorCode(topLevel)
                 + "%message%";
