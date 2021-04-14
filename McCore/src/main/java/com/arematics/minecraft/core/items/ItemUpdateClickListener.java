@@ -26,7 +26,10 @@ public class ItemUpdateClickListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onClick(InventoryClickEvent event){
         CorePlayer player = CorePlayer.get(event.getWhoClicked());
-        if(event.getClickedInventory() != null && event.getInventory().equals(inventory) && event.getCurrentItem() != null && item.isSimilar(event.getCurrentItem()) && (clickType == null || event.getClick() == clickType)){
+        if(event.getClickedInventory() != null && event.getInventory().equals(inventory)
+                && event.getCurrentItem() != null
+                && item.isSimilar(event.getCurrentItem())
+                && (clickType == null || event.getClick() == clickType)){
             ArematicsExecutor.syncDelayed(() -> {
                 CoreItem result = item = action.apply(item);
                 event.getClickedInventory().setItem(event.getSlot(), result);

@@ -18,8 +18,8 @@ public class AnvilPrepareListener implements Listener {
     @EventHandler
     public void onAnvil(InventoryClickEvent e) {
         Player player = (Player) e.getWhoClicked();
-        if(e.getClickedInventory() == null ||
-                e.getCursor() == null || e.getCursor().getType() == Material.AIR) return;
+        if(e.getClickedInventory() == null || e.getCursor() == null || e.getCursor().getType() == Material.AIR)
+            return;
         if (e.getClickedInventory().getType() == InventoryType.ANVIL) {
             if(e.getSlotType() == InventoryType.SlotType.CRAFTING) {
                 PrepareAnvilEvent event = new PrepareAnvilEvent((AnvilInventory)e.getClickedInventory(),

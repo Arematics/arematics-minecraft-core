@@ -198,12 +198,12 @@ public class InventoryHandler {
         List<ItemUpdateClickListener> listeners = itemUpdateClickListeners.stream()
                 .filter(listener -> item.isSimilar(listener.getItem()))
                 .collect(Collectors.toList());
-        listeners.forEach(listener -> ArematicsExecutor.syncRun(() -> server.tearDownItemListener(listener)));
+        tearDownListeners(listeners);
         return this;
     }
 
     public InventoryHandler unregisterAllItemListeners(){
-        itemUpdateClickListeners.forEach(listener -> ArematicsExecutor.syncRun(() -> server.tearDownItemListener(listener)));
+        tearDownListeners();
         return this;
     }
 
@@ -259,8 +259,13 @@ public class InventoryHandler {
         return this;
     }
 
+    public InventoryHandler tearDownListeners(List<ItemUpdateClickListener> listeners){
+        listeners.forEach(server::tearDownItemListener);
+        this.itemUpdateClickListeners.removeAll(listeners);
+        return this;
+    }
+
     public InventoryHandler tearDownListeners(){
-        Server server = Boots.getBoot(CoreBoot.class).getContext().getBean(Server.class);
         this.itemUpdateClickListeners.forEach(server::tearDownItemListener);
         this.itemUpdateClickListeners.clear();
         return this;

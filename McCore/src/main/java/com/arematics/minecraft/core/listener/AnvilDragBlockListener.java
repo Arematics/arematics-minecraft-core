@@ -17,6 +17,7 @@ public class AnvilDragBlockListener implements Listener {
     public void onAnvilDragDisabler(InventoryClickEvent clickEvent) {
         Player player = (Player) clickEvent.getWhoClicked();
         if (clickEvent.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY &&
+                player.getOpenInventory().getTopInventory() != null &&
                 Inventories.isType(player.getOpenInventory().getTopInventory(), InventoryType.ANVIL)) {
             clickEvent.setCancelled(true);
             Messages.create("anvil_drag_disabled").WARNING().to(player).handle();
