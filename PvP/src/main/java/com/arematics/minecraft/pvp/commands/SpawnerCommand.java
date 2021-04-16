@@ -71,6 +71,6 @@ public class SpawnerCommand extends CoreCommand {
     private Part toPart(MobType type){
         return PartBuilder.createHoverAndSuggest(type.getName(),
                 "§aChange spawner to mob type " + type.getName(),
-                "spawner " + type.getName());
+                "spawner " + type.toString());
     }
 }

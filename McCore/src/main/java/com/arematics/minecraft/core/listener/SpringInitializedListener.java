@@ -28,6 +28,7 @@ public class SpringInitializedListener implements Listener {
     public void springInit(SpringInitializedEvent event){
         CoreBoot boot = Boots.getBoot(CoreBoot.class);
         boot.setSpringInitialized(true);
+        boot.nextShutdownHandler();
         ArematicsExecutor.runAsync(() -> scanPermissions(boot));
         registerBukkitWorkers(boot);
         Tablist tablist = boot.getContext().getBean(Tablist.class);

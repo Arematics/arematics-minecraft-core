@@ -16,11 +16,7 @@ public class NotMutedValidator extends ParameterValidator<CorePlayer> {
 
     @Override
     public void supply(CorePlayer result, List<Object> data) throws CommandProcessException {
-        data.stream().filter(o -> o.getClass().equals(CorePlayer.class))
-                .map(o -> (CorePlayer)o)
-                .findFirst().ifPresent(p -> {
-            if(muteService.isMuted(p.getUUID()))
-                throw new CommandProcessException("You are muted an couldn't do this at the moment");
-        });
+        if(muteService.isMuted(result.getUUID()))
+            throw new CommandProcessException("You are muted an couldn't do this at the moment");
     }
 }

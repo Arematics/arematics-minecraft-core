@@ -5,17 +5,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AntiStackedArmorListener implements Listener {
-
-    @EventHandler
-    public void onDrag(InventoryDragEvent event){
-        Player player = (Player)event.getWhoClicked();
-    }
 
     @EventHandler
     public void onInteract(InventoryClickEvent event){

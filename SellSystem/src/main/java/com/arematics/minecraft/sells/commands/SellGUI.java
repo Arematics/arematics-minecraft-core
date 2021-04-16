@@ -10,14 +10,18 @@ import com.arematics.minecraft.core.server.entities.player.inventories.Inventory
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.InventoryPlaceholder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import com.arematics.minecraft.core.utils.CommandUtils;
 import com.arematics.minecraft.data.mode.model.ItemPrice;
 import com.arematics.minecraft.data.service.ItemPriceService;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +42,8 @@ public class SellGUI {
 
     private final CloseListener closeListener;
     private final Random random = new Random();
+
+    private boolean blockRemove = false;
 
     public SellGUI(CorePlayer sender, Server server, ItemPriceService itemPriceService){
         this.sender = sender;
@@ -68,11 +74,12 @@ public class SellGUI {
             builder.addItem(item, 2, pos.getAndIncrement());
             sender.inventories().registerItemClick(item, this::removeItem);
         });
+        sender.inventories().setClickBlocked(false);
     }
 
     private void setSellItem(){
         sellItems = server.items().generateNoModifier(Material.EMERALD_BLOCK)
-                .setName("§aSell items in inventory").addToLore(" ", "§8Sell Price: §e" + sellPrice() + " Coins");
+                .setName("§aSell items in inventory").addToLore(" ", "§8Sell Price: §e" + CommandUtils.prettyDecimal(sellPrice()) + " Coins");
         builder.addItem(sellItems, 6, 5);
     }
 
@@ -91,23 +98,25 @@ public class SellGUI {
         try{
             ItemPrice price = itemPriceService.findItemPrice(key);
             finalPrice = price.getPrice() * item.getAmount();
-            result = result.addToLore(" ", "§8Sell Price: §e" + finalPrice + " Coins");
+            result = result.addToLore(" ", "§8Sell Price: §e" + CommandUtils.prettyDecimal(finalPrice) + " Coins");
+            items.put(result, finalPrice);
         }catch (Exception e){
             sender.warn("Item has no sell price and couldn't be sold").handle();
             return item;
         }
-        items.put(result, finalPrice);
-        ArematicsExecutor.asyncDelayed(this::refreshInventory, 50, TimeUnit.MILLISECONDS);
+        ArematicsExecutor.asyncDelayed(this::refreshInventory, 100, TimeUnit.MILLISECONDS);
         return null;
     }
 
     public CoreItem removeItem(CoreItem item){
-        items.remove(item);
+        if(sender.inventories().isClickBlocked()) return item;
         if(item == null) return null;
+        items.remove(item);
         if(item.getMeta().hasKey("randomKey")) item = item.removeMeta("randomKey");
         if(item.hasItemMeta()) item = item.clearLore();
         server.items().giveItemTo(sender, item);
-        ArematicsExecutor.asyncDelayed(this::refreshInventory, 50, TimeUnit.MILLISECONDS);
+        sender.inventories().setClickBlocked(true);
+        ArematicsExecutor.asyncDelayed(this::refreshInventory, 500, TimeUnit.MILLISECONDS);
         return null;
     }
 
@@ -148,10 +157,36 @@ public class SellGUI {
 
     private class CloseListener implements Listener {
 
+        @EventHandler(priority = EventPriority.LOWEST)
+        public void onCloseBlock(InventoryCloseEvent event){
+            if(event.getPlayer().equals(sender.getPlayer()) &&
+                    event.getView().getTopInventory().equals(builder.fetchInventory())){
+                sender.inventories().setClickBlocked(true);
+            }
+        }
+
         @EventHandler
         public void onClose(InventoryCloseEvent event){
             if(event.getPlayer().equals(sender.getPlayer()) &&
                     event.getView().getTopInventory().equals(builder.fetchInventory())){
+                closeInventory(true);
+            }
+        }
+
+        @EventHandler(priority = EventPriority.LOWEST)
+        public void onQuit(PlayerQuitEvent event){
+            if(event.getPlayer().equals(sender.getPlayer())
+                    && event.getPlayer().getOpenInventory() != null
+                    && event.getPlayer().getOpenInventory().getTopInventory().equals(builder.fetchInventory())){
+                closeInventory(true);
+            }
+        }
+
+        @EventHandler(priority = EventPriority.LOWEST)
+        public void onKick(PlayerKickEvent event){
+            if(event.getPlayer().equals(sender.getPlayer())
+                    && event.getPlayer().getOpenInventory() != null
+                    && event.getPlayer().getOpenInventory().getTopInventory().equals(builder.fetchInventory())){
                 closeInventory(true);
             }
         }

@@ -5,12 +5,15 @@ import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageI
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import org.springframework.data.domain.Page;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class CommandUtils {
+
+    private static final DecimalFormat FORMATTER = new DecimalFormat("#.##");
 
     public static String prettyReplace(String key, String keyValue){
         return "§a\n\n§7" + key + " » " + "§c" + keyValue + "\n" + "%value%";
@@ -54,5 +57,9 @@ public class CommandUtils {
                 .handle();
         if(result.hasNext() || result.hasPrevious())
             CommandUtils.sendPreviousAndNext(sender, cmd, result.hasPrevious(), result.hasNext());
+    }
+
+    public static String prettyDecimal(double value){
+        return FORMATTER.format(value);
     }
 }

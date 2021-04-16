@@ -58,11 +58,13 @@ public class AntiItemDuplicateBug2Listener implements Listener{
 			}, 500, TimeUnit.MILLISECONDS);
 	}
 
+
+
 	public boolean checkInventory(Inventory inv){
 		boolean bug = false;
 		for(int i = 0; i < inv.getContents().length; i++){
 			try{
-				if(inv.getItem(i).getAmount() < 0){
+				if(inv.getItem(i).getAmount() < 1){
 					bug = true;
 					inv.setItem(i, new ItemStack(Material.AIR));
 				}
@@ -70,5 +72,4 @@ public class AntiItemDuplicateBug2Listener implements Listener{
 		}
 		return bug;
 	}
-
 }

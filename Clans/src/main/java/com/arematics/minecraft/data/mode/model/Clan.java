@@ -2,8 +2,10 @@ package com.arematics.minecraft.data.mode.model;
 
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.utils.CommandUtils;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 
 import javax.persistence.*;
@@ -56,22 +58,22 @@ public class Clan implements Serializable {
     @JoinColumn(name = "clan_id", updatable = false, insertable = false)
     private Set<ClanMember> members;
 
-    public String getPrettyPrint(){
-        return CommandUtils.prettyReplace("Clan", getName());
+    public String readInformation() throws CommandProcessException{
+        return  "   \r" +
+                "   §7Tag: %clan_tag%" + "\n" +
+                "   §7Owner: %clan_owner%"  + "\n" +
+                "   §7Kills: %clan_kills%" + "\n" +
+                "   §7Deaths: %clan_deaths%" + "\n" +
+                "   §7Coins: %clan_coins%" + "\n" +
+                "   §7Slots: %clan_slots%" + "\n" +
+                "   §7Members: %members_list%";
+
     }
 
-    public String readInformation() throws CommandProcessException{
-        ClanMember owner = members.stream().filter(member -> member.getRank().getRankLevel().equals(0))
+    public ClanMember findOwner(){
+        return members.stream().filter(member -> member.getRank().getRankLevel().equals(0))
                 .findFirst()
                 .orElseThrow(() -> new CommandProcessException("Clan Owner could not be found"));
-        return  "   §7Name: §c" + getName() + "\n" +
-                "   §7Tag: §c" + getTag() + "\n" +
-                "   §7Owner: §c" + Bukkit.getOfflinePlayer(owner.getUuid()).getName() + "\n" +
-                "   §7Kills: §c" + getKills() + "\n" +
-                "   §7Deaths: §c" + getDeaths() + "\n" +
-                "   §7Coins: §c" + getCoins() + "\n" +
-                "   §7Members: §c" + members.size() + " Member";
-
     }
 
     public Stream<CorePlayer> getAllOnline(){

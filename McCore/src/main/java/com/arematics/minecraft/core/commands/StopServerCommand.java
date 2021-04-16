@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.proxy.MessagingUtils;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import org.bukkit.Bukkit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,5 +21,6 @@ public class StopServerCommand extends CoreCommand {
     public void onDefaultExecute(CorePlayer sender) {
         sender.warn("Server will be shutdown, saving data");
         server.getOnline().forEach(player -> MessagingUtils.sendToServer(player, "lobbyone"));
+        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "stop");
     }
 }

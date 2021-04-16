@@ -69,13 +69,13 @@ public class ArematicsExecutor {
         return res.get();
     }
 
-    public static synchronized BukkitTask syncRun(Runnable runnable){
+    public static BukkitTask syncRun(Runnable runnable){
         return new BukkitRunnable(){
             @Override
             public void run() {
                 runnable.run();
             }
-        }.runTaskLater(Boots.getBoot(CoreBoot.class), 2);
+        }.runTask(Boots.getBoot(CoreBoot.class));
     }
 
     public static BukkitTask asyncDelayed(Runnable runnable, long time, TimeUnit unit){

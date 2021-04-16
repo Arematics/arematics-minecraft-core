@@ -2,6 +2,7 @@ package com.arematics.minecraft.data.redis;
 
 import com.arematics.minecraft.data.service.GlobalMessageReceiveService;
 import com.arematics.minecraft.data.service.MessageReceivingService;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
@@ -11,10 +12,13 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
 public class GlobalRedisMessageSubscriber implements MessageListener {
+
+    private static final Logger logger = Bukkit.getLogger();
 
     private final Map<String, List<MessageReceivingService>> messageReceivingServices;
 
@@ -34,6 +38,7 @@ public class GlobalRedisMessageSubscriber implements MessageListener {
     }
 
     private void handleMessage(String key, String value){
+        logger.config("Received global redis message with key: " + key + " and value: " + value);
         List<MessageReceivingService> services = this.messageReceivingServices.getOrDefault(key, new ArrayList<>());
         services.forEach(service -> service.onReceive(value));
     }

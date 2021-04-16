@@ -10,8 +10,6 @@ import com.arematics.minecraft.data.service.GameStatsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.text.DecimalFormat;
-
 @Component
 public class StatsCommand extends CoreCommand {
 
@@ -39,10 +37,11 @@ public class StatsCommand extends CoreCommand {
     }
 
     public String toStats(GameStats gameStats){
-        DecimalFormat format = new DecimalFormat("#.##");
+        double kd = gameStats.getKills() == 0 && gameStats.getDeaths() == 0 ? 0 :
+                (double) gameStats.getKills() / (double)gameStats.getDeaths();
         return  "   §7Kills: §c" + gameStats.getKills() + "\n" +
                 "   §7Deaths: §c" + gameStats.getDeaths() + "\n" +
-                "   §7KD: §c" + format.format(gameStats.getKills() / gameStats.getDeaths()) + "\n" +
-                "   §7Coins: §c" + format.format(gameStats.getCoins());
+                "   §7KD: §c" + CommandUtils.prettyDecimal(kd) + "\n" +
+                "   §7Coins: §c" + CommandUtils.prettyDecimal(gameStats.getCoins());
     }
 }

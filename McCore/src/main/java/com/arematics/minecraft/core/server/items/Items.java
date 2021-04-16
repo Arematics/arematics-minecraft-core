@@ -63,6 +63,10 @@ public class Items {
         return source;
     }
 
+    public CoreItem[] create(ItemStack[] items){
+        return Arrays.stream(items).map(this::create).toArray(CoreItem[]::new);
+    }
+
     public CoreItem generateNoModifier(Material material){
         return createNoModifier(new ItemStack(material));
     }

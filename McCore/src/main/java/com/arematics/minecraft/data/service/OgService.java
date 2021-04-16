@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@CacheConfig(cacheNames = "ogCache")
+@CacheConfig(cacheNames = "ogCache", cacheManager = "globalCache")
 @RequiredArgsConstructor(onConstructor_=@Autowired)
 public class OgService {
     private final SoulOgRepository soulOgRepository;

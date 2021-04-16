@@ -2,6 +2,7 @@ package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
+import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.sk89q.worldedit.blocks.ItemType;
 import net.minecraft.server.v1_8_R3.ItemArmor;
@@ -14,6 +15,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class StackCommand extends CoreCommand {
 
@@ -23,13 +27,13 @@ public class StackCommand extends CoreCommand {
 
     @Override
     public void onDefaultExecute(CorePlayer sender) {
-        stackItems(sender.getPlayer().getInventory(), false);
+        stackItems(sender);
     }
 
     @SubCommand("items")
-    public boolean stackItems(CorePlayer player) {
+    public void stackItems(CorePlayer player) {
         stackItems(player.getPlayer().getInventory(), false);
-        return true;
+        player.info("Stackable/Allowed items have been stacked").handle();
     }
 
     public void stackItems(Inventory inv, boolean force) {
@@ -40,14 +44,16 @@ public class StackCommand extends CoreCommand {
 
         int len = items.length;
 
-        int affected = 0;
-        int stacked = 0;
+        List<CoreItem> contents = new ArrayList<>();
 
         for (int i = 0; i < len; i++) {
-            ItemStack item = items[i];
+            CoreItem item = server.items().create(items[i]);
 
             if ((item != null) && (item.getAmount() > 0)) {
-                if(isArmor(item) || isWeapon(item)) continue;
+                if(isArmor(item) || isWeapon(item)){
+                    contents.add(item);
+                    continue;
+                }
                 int max = 64;
 
                 if (item.getAmount() < max) {
@@ -64,26 +70,22 @@ public class StackCommand extends CoreCommand {
                                     if (item2.getAmount() > needed) {
                                         item.setAmount(max);
                                         item2.setAmount(item2.getAmount() - needed);
-                                        stacked++;
                                         break;
                                     }
 
                                     items[j] = null;
                                     item.setAmount(item.getAmount() + item2.getAmount());
                                     needed = max - item.getAmount();
-
-                                    affected++;
-                                    stacked++;
                                 }
                             }
                         }
                     }
                 }
+                contents.add(item);
             }
         }
 
-        if(affected > 0)
-            inv.setContents(items);
+        inv.setContents(server.items().create(contents.toArray(new CoreItem[]{})));
     }
 
     public boolean allowStackTitle(ItemStack item, ItemStack item2, boolean ignoreTitle){

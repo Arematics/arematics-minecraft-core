@@ -33,17 +33,6 @@ services:
      networks:
         - guns_network
         - default
-  farmworld:
-    build: spigot
-    volumes:
-      - H:\Network\Git\arematics_mc_plugins\Server\Farmwelt\:/home/minecraft
-    environment:
-       XMX: 3G
-       VIEW_DISTANCE: 8
-    container_name: farmworld
-    networks:
-      - pvp_network
-      - default
   lobby_1:
     build: spigot
     volumes:

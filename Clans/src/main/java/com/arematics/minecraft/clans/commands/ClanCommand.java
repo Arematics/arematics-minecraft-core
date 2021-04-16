@@ -12,13 +12,12 @@ import com.arematics.minecraft.core.command.processor.parser.CommandProcessExcep
 import com.arematics.minecraft.core.command.processor.validator.BalanceValidator;
 import com.arematics.minecraft.core.command.processor.validator.RequestValidator;
 import com.arematics.minecraft.core.events.CurrencyEventType;
-import com.arematics.minecraft.core.messaging.advanced.JsonColor;
-import com.arematics.minecraft.core.messaging.advanced.MSG;
-import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
+import com.arematics.minecraft.core.messaging.advanced.*;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import com.arematics.minecraft.core.utils.CommandUtils;
 import com.arematics.minecraft.data.mode.model.Clan;
 import com.arematics.minecraft.data.mode.model.ClanMember;
 import com.arematics.minecraft.data.mode.model.ClanRank;
@@ -28,6 +27,7 @@ import com.arematics.minecraft.data.service.ClanRankService;
 import com.arematics.minecraft.data.service.ClanService;
 import com.arematics.minecraft.data.service.UserService;
 import com.google.common.collect.Lists;
+import org.bukkit.Bukkit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Component
 public class ClanCommand extends CoreCommand {
@@ -103,12 +104,12 @@ public class ClanCommand extends CoreCommand {
     public void deleteClan(ClanMember member)
             throws CommandProcessException {
         if(!ClanPermissions.isAdmin(member)){
-            member.online().warn("Not permitted to perform this command for your clan").handle();
+            member.online().get().warn("Not permitted to perform this command for your clan").handle();
             return;
         }
         Clan clan = member.getClan(clanService);
         clan.getAllOnline().forEach(clanPlayer -> clanPlayer.warn("Your clan has been deleted by an admin").handle());
-        member.online().addMoney(clan.getCoins());
+        member.online().get().addMoney(clan.getCoins());
         clanService.delete(clan);
     }
 
@@ -181,7 +182,7 @@ public class ClanCommand extends CoreCommand {
     public void removeClanMember(ClanMember member,
                                  @Validator(validators = SameClanValidator.class) ClanMember target) {
         if(!ClanPermissions.canKick(member)){
-            member.online().warn("Not permitted to perform this command for your clan").handle();
+            member.online().get().warn("Not permitted to perform this command for your clan").handle();
             return;
         }
         ClanMember targetMember = clanMemberService.getMember(target.getUuid());
@@ -202,11 +203,11 @@ public class ClanCommand extends CoreCommand {
             throw new CommandProcessException("As admin you can not leave, you need to use /clan delete.");
         else{
             Clan clan = member.getClan(clanService);
-            clan.getAllOnline().forEach(clanPlayer -> clanPlayer.info("Player " + member.online().getPlayer().getName() + " has left the clan").handle());
+            clan.getAllOnline().forEach(clanPlayer -> clanPlayer.info("Player " + member.online().get().getPlayer().getName() + " has left the clan").handle());
             clan.getMembers().remove(member);
             clanService.update(clan);
             clanMemberService.delete(member);
-            member.online().info("You have left the clan").handle();
+            member.online().get().info("You have left the clan").handle();
         }
     }
 
@@ -228,7 +229,7 @@ public class ClanCommand extends CoreCommand {
         target.setRank(result);
         clanMemberService.update(member);
         clanMemberService.update(target);
-        member.online().info("Changed rank of %player% to %rank%")
+        member.online().get().info("Changed rank of %player% to %rank%")
                 .DEFAULT()
                 .replace("player", userService.getUserByUUID(target.getUuid()).getLastName())
                 .replace("rank", result.getClanRankId().getName())
@@ -237,17 +238,27 @@ public class ClanCommand extends CoreCommand {
 
     @SubCommand("stats {clan}")
     public void getClanStats(CorePlayer player, Clan clan) {
-        String info = clan.readInformation();
-        player.info(clan.getPrettyPrint())
-                .DEFAULT()
-                .replace("value", info)
+        player.info(CommandUtils.prettyHeader("Clan", clan.getName())).handle();
+        ClanMember owner = clan.findOwner();
+        String name = Bukkit.getOfflinePlayer(owner.getUuid()).getName();
+        player.info(clan.readInformation())
+                .setInjector(AdvancedMessageInjector.class)
+                .replace("clan_tag", new Part(clan.getName()))
+                .replace("clan_owner", new Part(name))
+                .replace("clan_kills", new Part("" + clan.getKills()))
+                .replace("clan_deaths", new Part("" + clan.getDeaths()))
+                .replace("clan_coins", new Part(CommandUtils.prettyDecimal(clan.getCoins()) + " Coins"))
+                .replace("clan_slots", new Part(clan.getMembers().size() + "/" + clan.getSlots()))
+                .replace("members_list", MSGBuilder.join(clan.getMembers().stream()
+                        .map(ClanMember::prettyPrint)
+                        .collect(Collectors.toList()), ','))
                 .disableServerPrefix()
                 .handle();
     }
 
     @SubCommand("stats")
     public void getSelfClanStats(ClanMember member){
-        getClanStats(member.online(), member.getClan(clanService));
+        getClanStats(member.online().get(), member.getClan(clanService));
     }
 
     @SubCommand("money add {amount}")
@@ -256,14 +267,14 @@ public class ClanCommand extends CoreCommand {
         if(member.getMoney() < amount)
             throw new CommandProcessException("You dont have enough money to afford this");
         boolean success = this.server.currencyController()
-                .createEvent(member.online())
+                .createEvent(member.online().get())
                 .setAmount(amount)
                 .setEventType(CurrencyEventType.TRANSFER)
                 .setTarget("clan")
                 .onSuccess(() -> addMoneyToClan(member, amount));
         if(success){
             member.removeMoney(amount);
-            member.online().info("Send " + amount + " coins to clan bank").handle();
+            member.online().get().info("Send " + amount + " coins to clan bank").handle();
         }
         else
             throw new CommandProcessException("Your payment to the clan bank could not be made");
@@ -274,7 +285,7 @@ public class ClanCommand extends CoreCommand {
         Clan clan = member.getClan(clanService);
         clan.setCoins(clan.getCoins() + amount);
         clanService.update(clan);
-        member.online().info("You have send %amount% coins to your clan")
+        member.online().get().info("You have send %amount% coins to your clan")
                 .DEFAULT()
                 .replace("amount", String.valueOf(amount))
                 .handle();
@@ -285,7 +296,7 @@ public class ClanCommand extends CoreCommand {
         if(!ClanPermissions.isAdmin(member)) throw new CommandProcessException("Not allowed to perform this");
         if(member.getClan(clanService).getCoins() < amount) throw new CommandProcessException("Clan does not have enough coins");
         boolean success = this.server.currencyController()
-                .createEvent(member.online())
+                .createEvent(member.online().get())
                 .setAmount(amount)
                 .setEventType(CurrencyEventType.TRANSFER)
                 .setTarget("clan-to-player")
@@ -300,7 +311,7 @@ public class ClanCommand extends CoreCommand {
         if(clan.getCoins() < amount) throw new CommandProcessException("Clan has not enough coins");
         clan.setCoins(clan.getCoins() - amount);
         clanService.update(clan);
-        member.online().info("You have removed %amount% coins from your clan")
+        member.online().get().info("You have removed %amount% coins from your clan")
                 .DEFAULT()
                 .replace("amount", String.valueOf(amount))
                 .handle();

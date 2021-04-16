@@ -9,6 +9,10 @@ import com.arematics.minecraft.core.command.processor.validator.RequestValidator
 import com.arematics.minecraft.core.events.CurrencyEventType;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.utils.CommandUtils;
+import com.arematics.minecraft.data.global.model.User;
+import com.arematics.minecraft.data.mode.model.GameStats;
+import com.arematics.minecraft.data.service.GameStatsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,16 +21,28 @@ import org.springframework.stereotype.Component;
 public class MoneyCommand extends CoreCommand {
 
     private final Server server;
+    private final GameStatsService gameStatsService;
 
     @Autowired
-    public MoneyCommand(Server server){
+    public MoneyCommand(Server server, GameStatsService gameStatsService){
         super("money");
         this.server = server;
+        this.gameStatsService = gameStatsService;
+    }
+
+    @Override
+    public void onDefaultExecute(CorePlayer sender) {
+        showMoney(sender, sender.getUser());
+    }
+
+    @SubCommand("{target}")
+    public void showOtherMoney(CorePlayer sender, User target) {
+        showMoney(sender, target);
     }
 
     @SubCommand("pay {target} {amount}")
-    public void sendMoneyToPlayer(CorePlayer sender,
-                                  @Validator(validators = RequestValidator.class) CorePlayer target,
+    public void sendMoneyToPlayer(@Validator(validators = RequestValidator.class) CorePlayer sender,
+                                  CorePlayer target,
                                   Double amount) {
         if(sender.getMoney() < amount)
             throw new CommandProcessException("You dont have enough money to afford this");
@@ -38,8 +54,8 @@ public class MoneyCommand extends CoreCommand {
                 .onSuccess(() -> target.addMoney(amount));
         if(success){
             sender.removeMoney(amount);
-            sender.info("You have payed " + amount + " coins to " + target.getPlayer().getName()).handle();
-            target.info("Player " + sender.getPlayer().getName() + " send you " + amount + " coins").handle();
+            sender.info("You have payed " + CommandUtils.prettyDecimal(amount) + " coins to " + target.getPlayer().getName()).handle();
+            target.info("Player " + sender.getPlayer().getName() + " send you " + CommandUtils.prettyDecimal(amount) + " coins").handle();
         }
     }
 
@@ -55,9 +71,10 @@ public class MoneyCommand extends CoreCommand {
                 .setTarget(target.getUUID().toString())
                 .onSuccess(() -> target.addMoney(amount));
         if(success){
-            sender.info("You have add " + amount + " coins to " + target.getPlayer().getName()).handle();
-            target.info("You got " + amount + " coins").handle();
+            sender.info("You have add " + CommandUtils.prettyDecimal(amount) + " coins to " + target.getPlayer().getName()).handle();
+            target.info("You got " + CommandUtils.prettyDecimal(amount) + " coins").handle();
         }
+        target.requests().addTimeout(sender.getName());
     }
 
     @SubCommand("remove {target} {amount}")
@@ -74,7 +91,15 @@ public class MoneyCommand extends CoreCommand {
                 .setTarget(target.getUUID().toString())
                 .onSuccess(() -> target.removeMoney(amount));
         if(success){
-            sender.info("You have removed " + amount + " coins from " + target.getPlayer().getName()).handle();
+            sender.info("You have removed " + CommandUtils.prettyDecimal(amount) + " coins from " + target.getPlayer().getName()).handle();
         }
+    }
+
+    private void showMoney(CorePlayer sender, User target){
+        GameStats stats = gameStatsService.getOrCreate(target.getUuid());
+        sender.info(target.getLastName() + "'s Money: %money%")
+                .DEFAULT()
+                .replace("money", CommandUtils.prettyDecimal(stats.getCoins()) + " Coins")
+                .handle();
     }
 }

@@ -203,8 +203,8 @@ public class AuctionCreator {
             Auction auction = new Auction(null, player.getUUID(), bitStart, instantBuy, new CoreItem[]{item},
                     item.readCategory(), type, timestamp, false, false, false, "Nobody", bitStart, new HashSet<>());
             ArematicsExecutor.runAsync(() -> auctionService.save(auction));
+            this.item = noItem;
             player.getPlayer().closeInventory();
-            player.getPlayer().getInventory().remove(item);
             player.info("Auction created").handle();
         }
     }
@@ -234,7 +234,7 @@ public class AuctionCreator {
     }
 
     public void closeInventory(){
-        if(!this.item.isSimilar(noItem)){
+        if(this.item != null && !this.item.isSimilar(noItem)){
             server.items().giveItemTo(player, item);
             this.item = noItem;
         }

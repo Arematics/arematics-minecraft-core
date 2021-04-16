@@ -9,9 +9,11 @@ import com.arematics.minecraft.data.service.WeaponService;
 import com.arematics.minecraft.data.service.WeaponTypeDataService;
 import com.arematics.minecraft.guns.server.Gun;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,11 +26,11 @@ public class Ammo {
     private final WeaponService weaponService;
     private final WeaponTypeDataService weaponTypeDataService;
     private final Map<CoreItem, Gun> gunCache = new HashMap<>();
-    private final List<CorePlayer> reloading = new ArrayList<>();
+    private final Map<CorePlayer, BukkitTask> reloading = new HashMap<>();
     private final List<CorePlayer> aim = new ArrayList<>();
     private final Map<String, Long> shootCooldown = new HashMap<>();
 
-    public List<CorePlayer> getReloading() {
+    public Map<CorePlayer, BukkitTask> getReloading() {
         return reloading;
     }
 
@@ -52,7 +54,7 @@ public class Ammo {
     }
 
     public void loadGun(CorePlayer player, Gun gun){
-        if(reloading.contains(player)) return;
+        if(reloading.containsKey(player)) return;
         WeaponTypeData data = weaponTypeDataService.findById(gun.getWeapon().getType());
         CoreItem ammo = data.getAmmunition()[0];
         short inInventory = getAmountOfAmmoFromInventory(player, ammo);
@@ -61,26 +63,28 @@ public class Ammo {
         }else{
             player.actionBar().sendActionBar("§c§lLoading Gun...");
             int time = gun.getWeapon().getType().getLoadingSpeed();
-            this.reloading.add(player);
-            ArematicsExecutor.syncRepeat((task, count) -> {
-                CoreItem hand = player.getItemInHand();
-                if(count != 0){
-                    if(hand == null || !hand.isSimilar(gun.getItem())){
-                        player.actionBar().sendActionBar("§c§lReload interrupted");
-                        this.reloading.remove(player);
-                        task.cancel();
-                    }else{
-                        player.actionBar().sendActionBar("§c§lReloaded in " + count);
-                    }
-                }else{
-                    short reloaded = gun.reload(inInventory);
-                    short removed = removeAmmoFromInventory(player, ammo, reloaded);
-                    player.actionBar().sendActionBar("§a§lReloaded");
-                    player.getPlayer().getInventory().setItemInHand(gun.getItem());
-                    player.actionBar().sendActionBar("§a" + removed + " bullets have been reloaded");
+            this.reloading.put(player, ArematicsExecutor.syncRepeat((task, count) -> {
+                CoreItem hand = CoreItem.create(player.getPlayer().getItemInHand());
+                System.out.println(hand == null || hand.getType() == Material.AIR);
+                System.out.println(hand);
+
+                if(hand == null || !hand.isSimilar(gun.getItem())){
+                    player.actionBar().sendActionBar("§c§lReload interrupted");
                     this.reloading.remove(player);
+                    task.cancel();
+                }else{
+                    if(count != 0){
+                        player.actionBar().sendActionBar("§c§lReloaded in " + count);
+                    }else{
+                        short reloaded = gun.reload(inInventory);
+                        short removed = removeAmmoFromInventory(player, ammo, reloaded);
+                        player.actionBar().sendActionBar("§a§lReloaded");
+                        player.getPlayer().getInventory().setItemInHand(gun.getItem());
+                        player.actionBar().sendActionBar("§a" + removed + " bullets have been reloaded");
+                        this.reloading.remove(player);
+                    }
                 }
-            }, 1, 1, TimeUnit.SECONDS, time);
+            }, 1, 1, TimeUnit.SECONDS, time));
         }
     }
 

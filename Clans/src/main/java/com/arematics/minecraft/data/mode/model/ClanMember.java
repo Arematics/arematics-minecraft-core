@@ -1,7 +1,9 @@
 package com.arematics.minecraft.data.mode.model;
 
-import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.messaging.advanced.Part;
+import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.server.entities.CurrencyEntity;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.service.ClanService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +13,7 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Optional;
 import java.util.UUID;
 
 @Data
@@ -41,8 +44,17 @@ public class ClanMember implements Serializable, CurrencyEntity {
         return service.findClanById(getClanId());
     }
 
-    public CorePlayer online(){
-        return CorePlayer.get(Bukkit.getPlayer(uuid));
+    public Optional<CorePlayer> online(){
+        CorePlayer player = CorePlayer.get(Bukkit.getPlayer(uuid));
+        return player == null ? Optional.empty() : Optional.of(player);
+    }
+
+    public Part prettyPrint(){
+        String color = online().isPresent() ? "§4" : "§c";
+        String name = Bukkit.getOfflinePlayer(getUuid()).getName();
+        return PartBuilder.createHoverAndSuggest(color + name,
+                "§aWatch stats of player " + name,
+                "stats " + name);
     }
 
     public long getClanId(){
@@ -51,21 +63,25 @@ public class ClanMember implements Serializable, CurrencyEntity {
 
     @Override
     public double getMoney() {
-        return online().getMoney();
+        if(!online().isPresent()) throw new RuntimeException("Not online");
+        return online().get().getMoney();
     }
 
     @Override
     public void setMoney(double money) {
-        online().setMoney(money);
+        if(!online().isPresent()) throw new RuntimeException("Not online");
+        online().ifPresent(player -> player.setMoney(money));
     }
 
     @Override
     public void addMoney(double amount) {
-        online().addMoney(amount);
+        if(!online().isPresent()) throw new RuntimeException("Not online");
+        online().ifPresent(player -> player.addMoney(amount));
     }
 
     @Override
     public void removeMoney(double amount) throws RuntimeException {
-        online().removeMoney(amount);
+        if(!online().isPresent()) throw new RuntimeException("Not online");
+        online().ifPresent(player -> player.removeMoney(amount));
     }
 }

@@ -37,7 +37,6 @@ public class TeleportScheduler {
             player.warn("Your are in a teleport process right now").handle();
             return;
         }
-        ArematicsExecutor.syncRun(() -> location.getChunk().load());
         player.inTeleport(ArematicsExecutor.asyncRepeat(this::teleport,
                 0, 1, TimeUnit.SECONDS, player.hasPermission("world.interact.teleport") ? 0 : 3));
     }

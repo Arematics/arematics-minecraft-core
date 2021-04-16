@@ -16,6 +16,7 @@ import com.arematics.minecraft.core.server.entities.player.protocols.Title;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.Configuration;
 import com.arematics.minecraft.data.global.model.Rank;
+import com.arematics.minecraft.data.global.model.SoulOg;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.mode.model.GameStats;
 import com.arematics.minecraft.data.service.GameStatsService;
@@ -24,10 +25,7 @@ import com.arematics.minecraft.data.service.UserService;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -43,12 +41,15 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Setter
 @Getter
 @Accessors(fluent = true)
 public class CorePlayer implements CurrencyEntity {
+
+    private static final Logger logger = Bukkit.getLogger();
 
     private static Locale defaultLocale = Locale.GERMAN;
     private static Map<UUID, CorePlayer> players = new HashMap<>();
@@ -117,8 +118,12 @@ public class CorePlayer implements CurrencyEntity {
         this.title = new Title(this);
         OgService ogService = Boots.getBoot(CoreBoot.class).getContext().getBean(OgService.class);
         try{
-            this.ogColorCode = ogService.findByUUID(player.getUniqueId()).getColorCode();
-        }catch (Exception ignore){}
+            SoulOg og = ogService.findByUUID(player.getUniqueId());
+            System.out.println(og);
+            this.ogColorCode = "§" + og.getColorCode();
+        }catch (Exception ignore){
+            ignore.printStackTrace();
+        }
 
         User user = this.getUser();
         this.cachedRank = user.getRank();
@@ -136,9 +141,11 @@ public class CorePlayer implements CurrencyEntity {
 
     public void refreshCache(){
         User user = this.getUser();
+        logger.config("Init Refresh Cached Data for user " + user.getLastName());
         this.cachedRank = user.getRank();
         this.cachedDisplayRank = user.getDisplayRank();
         refreshChatMessage();
+        logger.config("Refreshed Cached Data for user " + user.getLastName());
     }
 
     private void refreshChatMessage(){
@@ -180,6 +187,7 @@ public class CorePlayer implements CurrencyEntity {
         return ZonedDateTime.of(time, TimeZone.getTimeZone("Europe/Berlin").toZoneId());
     }
     private void unload() {
+        logger.config("Unloading player: " + this.getName());
         this.boardSet.remove();
     }
 
@@ -206,12 +214,14 @@ public class CorePlayer implements CurrencyEntity {
     }
 
     public void setInFight(){
+        logger.config("Enable fight for player " + getName());
         this.inFight = true;
         if(inFightTask != null) inFightTask.cancel();
         this.inFightTask = ArematicsExecutor.asyncDelayed(this::fightEnd, 7, TimeUnit.SECONDS);
     }
 
     public void fightEnd(){
+        logger.config("Ending fight for player " + getName());
         if(inFight) this.info("Could log out now").handle();
         this.inFight = false;
     }

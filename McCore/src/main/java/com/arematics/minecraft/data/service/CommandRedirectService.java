@@ -11,10 +11,19 @@ import java.util.stream.Collectors;
 @Service
 public class CommandRedirectService {
 
-    private final Map<String, CommandRedirect> redirectMap;
+    private Map<String, CommandRedirect> redirectMap;
+
+    private final CommandRedirectRepository commandRedirectRepository;
 
     @Autowired
     public CommandRedirectService(CommandRedirectRepository commandRedirectRepository){
+        this.commandRedirectRepository = commandRedirectRepository;
+        this.redirectMap = commandRedirectRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(CommandRedirect::getCmd, map -> map));
+    }
+
+    public void forceRefetch(){
         this.redirectMap = commandRedirectRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(CommandRedirect::getCmd, map -> map));

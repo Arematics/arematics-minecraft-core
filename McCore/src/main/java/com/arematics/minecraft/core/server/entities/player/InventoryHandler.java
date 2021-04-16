@@ -51,6 +51,7 @@ public class InventoryHandler {
     private BukkitTask updateTask;
 
     private Runnable refresher;
+    private boolean clickBlocked;
 
     private Map<Class<?>, Enum<?>> currentEnums = new HashMap<>();
     private List<WrappedInventory> currentInventories = new ArrayList<>();
