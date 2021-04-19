@@ -27,7 +27,6 @@ public class PlayerRegionController {
     private final RegionInteractionBoot plugin = Boots.getBoot(RegionInteractionBoot.class);
 
     public synchronized boolean updateRegions(final CorePlayer player, final MovementWay movement, Location to) {
-        Set<ProtectedRegion> oldRegions = new HashSet<>(player.regions().getCurrentRegions());
         RegionManager rm = this.worldGuard.getRegionManager(to.getWorld());
         if (rm != null) {
             Set<ProtectedRegion> appRegions = rm.getApplicableRegions(to).getRegions();
@@ -36,19 +35,22 @@ public class PlayerRegionController {
                 appRegions.add(globalRegion);
             }
 
+            Set<ProtectedRegion> added = new HashSet<>();
+
             for(ProtectedRegion region : appRegions) {
                 if (!player.regions().getCurrentRegions().contains(region)) {
                     RegionEnterEvent enterEvent = new RegionEnterEvent(region, movement, player);
                     this.plugin.getServer().getPluginManager().callEvent(enterEvent);
-                    if (enterEvent.isCancelled()) return cleanUP(player, oldRegions);
+                    if (enterEvent.isCancelled()) return true;
 
                     Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
                         RegionEnteredEvent enteredEvent = new RegionEnteredEvent(region, movement, player);
                         this.plugin.getServer().getPluginManager().callEvent(enteredEvent);
                     }, 1L);
-                    player.regions().getCurrentRegions().add(region);
+                    added.add(region);
                 }
             }
+
 
             Set<ProtectedRegion> removeRegions = new HashSet<>();
 
@@ -56,7 +58,7 @@ public class PlayerRegionController {
                 if (!appRegions.contains(region)) {
                     RegionLeaveEvent leaveEvent = new RegionLeaveEvent(region, movement, player);
                     this.plugin.getServer().getPluginManager().callEvent(leaveEvent);
-                    if (leaveEvent.isCancelled()) return cleanUP(player, oldRegions);
+                    if (leaveEvent.isCancelled()) return true;
 
                     Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
                         RegionLeftEvent leftEvent = new RegionLeftEvent(region, movement, player);
@@ -66,15 +68,10 @@ public class PlayerRegionController {
                 }
             }
 
+            player.regions().getCurrentRegions().addAll(added);
             player.regions().getCurrentRegions().removeAll(removeRegions);
             return false;
         }
         return false;
-    }
-
-    private synchronized boolean cleanUP(CorePlayer player, Set<ProtectedRegion> oldRegions){
-        player.regions().getCurrentRegions().clear();
-        player.regions().getCurrentRegions().addAll(oldRegions);
-        return true;
     }
 }
