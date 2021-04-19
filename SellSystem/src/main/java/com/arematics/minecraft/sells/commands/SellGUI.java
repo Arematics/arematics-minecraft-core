@@ -126,6 +126,7 @@ public class SellGUI {
 
     public void sellItems(){
         ArematicsExecutor.runAsync(() -> {
+            if(sender.inventories().isClickBlocked()) return;
             double price = sellPrice();
             boolean success = server.currencyController()
                     .createEvent(sender)
@@ -138,6 +139,7 @@ public class SellGUI {
                 items.clear();
                 sender.getPlayer().closeInventory();
                 HandlerList.unregisterAll(closeListener);
+                sender.inventories().setClickBlocked(false);
             }else{
                 sender.warn("Could not sell items").handle();
                 closeInventory(false);
@@ -153,6 +155,7 @@ public class SellGUI {
         items.clear();
         if(!fromEvent) sender.getPlayer().closeInventory();
         HandlerList.unregisterAll(closeListener);
+        sender.inventories().setClickBlocked(false);
     }
 
     private class CloseListener implements Listener {

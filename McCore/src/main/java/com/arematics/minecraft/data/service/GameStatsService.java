@@ -7,6 +7,9 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,6 +24,10 @@ public class GameStatsService {
     @Autowired
     public GameStatsService(GameStatsRepository gameStatsRepository){
         this.repository = gameStatsRepository;
+    }
+
+    public Page<GameStats> findTopTenBy(Sort sort){
+        return repository.findAllBy(PageRequest.of(0, 10, sort));
     }
 
     @Cacheable(key = "#uuid")

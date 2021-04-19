@@ -50,7 +50,7 @@ public class BoardSet {
     }
 
     public BoardHandler addBoard(String id, String displayname){
-        if(getBoard(id).BOARD != null) return null;
+        if(getBoard(id).BOARD != null) return getBoard(id);
         Board board = new Board(id);
         this.BOARDS.put(id, board);
         ScoreboardObjective obj = SCOREBOARD.registerObjective(board.OBJECTIVE_NAME, IScoreboardCriteria.b);

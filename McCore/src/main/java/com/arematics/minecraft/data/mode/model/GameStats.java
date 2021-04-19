@@ -21,7 +21,9 @@ public class GameStats implements Serializable {
     @Id
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID uuid;
+    @Column(name = "kills", nullable = false)
     private int kills;
+    @Column(name = "deaths", nullable = false)
     private int deaths;
     private Integer bounty;
     @Column(name = "coins", nullable = false)
