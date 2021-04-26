@@ -35,7 +35,7 @@ public abstract class CommandParameterParser<T> {
     }
 
     public boolean matchingType(Class<?> classType){
-        return classType.equals(getType()) || (classType == User.class && getType() == CorePlayer.class);
+        return classType.isAssignableFrom(getType()) || (classType == User.class && getType() == CorePlayer.class);
     }
 
     public T correctResult(Class<?> classType, T result){

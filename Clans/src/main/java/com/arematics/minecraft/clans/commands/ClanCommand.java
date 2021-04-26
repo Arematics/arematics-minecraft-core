@@ -10,6 +10,7 @@ import com.arematics.minecraft.core.annotations.Validator;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.command.processor.validator.BalanceValidator;
+import com.arematics.minecraft.core.command.processor.validator.PositiveNumberValidator;
 import com.arematics.minecraft.core.command.processor.validator.RequestValidator;
 import com.arematics.minecraft.core.events.CurrencyEventType;
 import com.arematics.minecraft.core.messaging.advanced.*;
@@ -263,7 +264,8 @@ public class ClanCommand extends CoreCommand {
 
     @SubCommand("money add {amount}")
     public void addClanMoney(ClanMember member,
-                             @Validator(validators = BalanceValidator.class) Double amount) {
+                             @Validator(validators = {BalanceValidator.class, PositiveNumberValidator.class})
+                                     Double amount) {
         if(member.getMoney() < amount)
             throw new CommandProcessException("You dont have enough money to afford this");
         boolean success = this.server.currencyController()
@@ -292,7 +294,8 @@ public class ClanCommand extends CoreCommand {
     }
 
     @SubCommand("money rem {amount}")
-    public void removeClanMoney(ClanMember member, Double amount) {
+    public void removeClanMoney(ClanMember member,
+                                @Validator(validators = PositiveNumberValidator.class) Double amount) {
         if(!ClanPermissions.isAdmin(member)) throw new CommandProcessException("Not allowed to perform this");
         if(member.getClan(clanService).getCoins() < amount) throw new CommandProcessException("Clan does not have enough coins");
         boolean success = this.server.currencyController()

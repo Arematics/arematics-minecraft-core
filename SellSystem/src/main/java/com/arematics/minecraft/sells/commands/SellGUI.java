@@ -125,6 +125,7 @@ public class SellGUI {
     }
 
     public void sellItems(){
+        if(sender.inventories().isClickBlocked()) return;
         ArematicsExecutor.runAsync(() -> {
             double price = sellPrice();
             boolean success = server.currencyController()
