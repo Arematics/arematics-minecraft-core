@@ -107,11 +107,11 @@ public class ItemModifyCommand extends CoreCommand {
     public void setCrystalItemMeta(CorePlayer sender, String key, String value) {
         if(!itemMetaParser.getTypes().containsKey(key))
             throw new CommandProcessException("command_item_modify_key_not_valid");
-        CoreItem hand = sender.getItemInHand();
+        CoreItem hand = sender.interact().getItemInHand();
         if(hand == null)
             throw new CommandProcessException("no_item_in_hand");
         hand.setString(key, value);
-        sender.setItemInHand(hand);
+        sender.interact().setItemInHand(hand);
         sender.info("command_item_modify_meta_set").handle();
     }
 }

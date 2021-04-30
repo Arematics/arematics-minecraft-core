@@ -19,7 +19,7 @@ public class TrashSignListener implements Listener {
                 (event.getClickedBlock().getType() == Material.SIGN || event.getClickedBlock().getType() == Material.WALL_SIGN)){
             Sign clicked = (Sign) event.getClickedBlock().getState();
             if(clicked.getLine(0).equals("§8[§6TRASH§8]")){
-                player.dispatchCommand("/trash");
+                player.interact().dispatchCommand("/trash");
             }
         }
     }

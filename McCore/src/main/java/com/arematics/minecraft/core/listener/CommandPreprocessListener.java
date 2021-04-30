@@ -19,14 +19,16 @@ public class CommandPreprocessListener implements Listener {
     @EventHandler
     public void onPreProcess(PlayerCommandPreprocessEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
+        boolean pass = event.getMessage().contains(" --pass");
+        if(pass) event.setMessage(event.getMessage().replace(" --pass", ""));
+        if(pass && player.hasPermission("team.chat.commands.passblocked")) return;
         String[] split = event.getMessage().split(" ")[0].split(":");
         String cmd = split[0];
         if(split.length > 1) cmd = split[1];
         cmd = cmd.replaceAll("/", "");
         CommandRedirect redirect = commandRedirectService.findRedirect(cmd);
         if(redirect != null){
-            if(redirect.getRedirectCmd() != null)
-                event.setMessage(redirect.getRedirectCmd());
+            if(redirect.getRedirectCmd() != null) event.setMessage(redirect.getRedirectCmd());
             else{
                 if(redirect.getMessage() != null) player.warn(redirect.getMessage()).handle();
                 event.setCancelled(true);

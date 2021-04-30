@@ -18,6 +18,6 @@ public class PayCommand extends CoreCommand {
     public void payMoneyTo(CorePlayer sender,
                            @Validator(validators = RequestValidator.class) CorePlayer target,
                            Double amount) {
-        sender.dispatchCommand("money pay " + target.getName() + " " + amount);
+        sender.interact().dispatchCommand("money pay " + target.getName() + " " + amount);
     }
 }

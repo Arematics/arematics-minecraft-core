@@ -13,6 +13,6 @@ public class CommandBackCommand extends CoreCommand {
 
     @Override
     public void onDefaultExecute(CorePlayer sender) {
-        sender.dispatchCommand(sender.getLastCommand(3));
+        sender.interact().dispatchCommand(sender.getLastCommand(3));
     }
 }

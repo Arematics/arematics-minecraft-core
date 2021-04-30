@@ -27,7 +27,7 @@ public class BulletLaunchListener implements Listener {
         if(projectile instanceof Snowball && projectile.getShooter() instanceof Player){
             Snowball snowball = (Snowball) projectile;
             CorePlayer player = CorePlayer.get((Player) snowball.getShooter());
-            CoreItem hand = player.getItemInHand();
+            CoreItem hand = player.interact().getItemInHand();
             if(hand != null && hand.getMeta().hasKey("weapon") != null){
                 String weaponId = hand.getMeta().getString("weapon");
                 Weapon weapon = this.weaponService.fetchWeapon(weaponId);

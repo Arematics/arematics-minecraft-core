@@ -48,4 +48,14 @@ public class AdvancedMessageInjector extends Injector<MSG> implements AdvancedMe
     protected MSG injectValues(String income) {
         return this.injector.injectValues(income);
     }
+
+    @Override
+    public MSG toObject(CommandSender sender) {
+        return injector.toObject(sender);
+    }
+
+    @Override
+    public MSG toObjectForFirst() {
+        return injector.toObjectForFirst();
+    }
 }

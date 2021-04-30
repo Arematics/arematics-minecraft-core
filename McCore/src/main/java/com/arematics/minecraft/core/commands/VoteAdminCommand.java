@@ -33,7 +33,7 @@ public class VoteAdminCommand extends CoreCommand {
 
     @SubCommand("create reward {id} {costs}")
     public void createVoteReward(CorePlayer player, String id, Integer costs) {
-        CoreItem item = player.getItemInHand();
+        CoreItem item = player.interact().getItemInHand();
         if(item == null){
             player.warn("no_item_in_hand").handle();
             return;
@@ -62,7 +62,7 @@ public class VoteAdminCommand extends CoreCommand {
 
     @SubCommand("setItem {id}")
     public void setVoteRewardItem(CorePlayer player, String id) {
-        CoreItem item = player.getItemInHand();
+        CoreItem item = player.interact().getItemInHand();
         if(item == null){
             player.warn("no_item_in_hand").handle();
             return;

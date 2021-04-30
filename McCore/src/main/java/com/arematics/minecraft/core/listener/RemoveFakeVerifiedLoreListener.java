@@ -16,8 +16,8 @@ public class RemoveFakeVerifiedLoreListener implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
-        CoreItem hand = player.getItemInHand();
-        if(removeFalseLore(hand)) player.setItemInHand(hand);
+        CoreItem hand = player.interact().getItemInHand();
+        if(removeFalseLore(hand)) player.interact().setItemInHand(hand);
     }
 
     @EventHandler

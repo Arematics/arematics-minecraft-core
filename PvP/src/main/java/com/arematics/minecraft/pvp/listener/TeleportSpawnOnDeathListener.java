@@ -18,6 +18,6 @@ public class TeleportSpawnOnDeathListener implements Listener {
     @EventHandler
     public void onDeath(PlayerRespawnEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
-        player.instantTeleport(spawnCommand.getWarpService().getWarp("spawn").getLocation()).schedule();
+        player.interact().instantTeleport(spawnCommand.getWarpService().getWarp("spawn").getLocation()).schedule();
     }
 }

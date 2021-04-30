@@ -67,4 +67,15 @@ public class AdvancedMessageInjectorImpl extends Injector<MSG> implements Advanc
         this.INJECTOR_VALUES.forEach((key, value) -> msg.replaceAllAt("%" + key + "%", value, false));
         return msg;
     }
+
+    @Override
+    public MSG toObject(CommandSender sender) {
+        String preparedMessage = prepareMessage(sender);
+        return injectValues(preparedMessage);
+    }
+
+    @Override
+    public MSG toObjectForFirst() {
+        return toObject(SENDER_LIST.get(0));
+    }
 }

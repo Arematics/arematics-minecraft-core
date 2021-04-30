@@ -22,9 +22,9 @@ public class SpawnerCollectListener implements Listener {
     public void onClick(PlayerInteractEvent event){
         if(event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_BLOCK){
             if(event.getBlock().getType() == Material.MOB_SPAWNER){
-                CoreItem hand = event.getPlayer().getItemInHand();
+                CoreItem hand = event.getPlayer().interact().getItemInHand();
                 if(hand != null && hand.getMeta().hasKey("wrench") && hand.getMeta().getString("wrench").equals(SpawnerWrenchCommand.WRENCH_META_KEY)){
-                    event.getPlayer().setItemInHand(null);
+                    event.getPlayer().interact().setItemInHand(null);
                     event.getBlock().setType(Material.AIR);
                     CoreItem spawner = server.items().generate(Material.MOB_SPAWNER);
                     server.items().giveItemTo(event.getPlayer(), spawner);

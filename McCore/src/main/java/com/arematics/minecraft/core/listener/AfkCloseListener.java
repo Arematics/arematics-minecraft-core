@@ -36,7 +36,7 @@ public class AfkCloseListener implements Listener {
 
     private boolean openBookAntiAfk(PlayerInteractEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
-        CoreItem hand = player.getItemInHand();
+        CoreItem hand = player.interact().getItemInHand();
         if(isInteract(event) && hand != null && hand.getType() == Material.BOOK_AND_QUILL){
             player.onlineTime().callAntiAfk();
             ArematicsExecutor.asyncDelayed(player.onlineTime()::callAntiAfk, 1, TimeUnit.MINUTES);

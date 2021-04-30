@@ -32,9 +32,9 @@ public class WeaponShotListener implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent event){
         CorePlayer player = event.getPlayer();
-        CoreItem hand = player.getItemInHand();
+        CoreItem hand = player.interact().getItemInHand();
         if(hand != null && hand.getMeta().hasKey("weapon") != null){
-            if(player.regions().inRegionWithFlag(DefaultFlag.PVP)) return;
+            if(!player.regions().inRegionWithFlag(DefaultFlag.PVP)) return;
             String weaponId = hand.getMeta().getString("weapon");
             if(ammo.getReloading().containsKey(player)){
                 player.actionBar().sendActionBar("§c§lWait until reload end");

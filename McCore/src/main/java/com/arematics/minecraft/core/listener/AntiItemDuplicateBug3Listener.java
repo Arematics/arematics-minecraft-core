@@ -24,7 +24,7 @@ public class AntiItemDuplicateBug3Listener implements Listener {
 		if(e.getView().getTopInventory() == null || e.getView().getTopInventory().getType() != InventoryType.ENCHANTING)
 			return;
 
-		CorePlayer player = CorePlayer.get(e.getWhoClicked());
+		CorePlayer player = CorePlayer.get((Player) e.getWhoClicked());
 		checkEnchanter(player);
 
 		if(e.getClick() == ClickType.NUMBER_KEY){

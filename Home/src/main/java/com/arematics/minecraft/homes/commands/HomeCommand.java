@@ -54,7 +54,7 @@ public class HomeCommand extends CoreCommand {
             Home home = service.findByOwnerAndName(id);
             try{
                 home.getLocation().getWorld();
-                sender.teleport(home.getLocation()).schedule();
+                sender.interact().teleport(home.getLocation()).schedule();
             }catch (Exception e){
                 sender.warn("Home is on another server").handle();
             }
@@ -142,7 +142,7 @@ public class HomeCommand extends CoreCommand {
                 .addItem(searchBook, 1, 3)
                 .addItem(searchClear, 1, 4)
                 .addItem(modeItem, 6, 5);
-        if(!deleteMode) sender.inventories().onEmptySlotClick(clicked -> sender.dispatchCommand("home set {name}"));
+        if(!deleteMode) sender.inventories().onEmptySlotClick(clicked -> sender.interact().dispatchCommand("home set {name}"));
     }
 
     private CoreItem deleteModeItem(Boolean deleteMode, String query){

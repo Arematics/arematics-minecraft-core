@@ -23,7 +23,7 @@ public class LobbyItemJoinListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
-        player.instantTeleport(warpService.getWarp("spawn").getLocation()).schedule();
+        player.interact().instantTeleport(warpService.getWarp("spawn").getLocation()).schedule();
         player.getPlayer().getInventory().setItem(4, Items.COMPASS);
         sendScoreboard(player);
     }
@@ -39,7 +39,7 @@ public class LobbyItemJoinListener implements Listener {
     public void onMove(PlayerMoveEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
         if(event.getTo().getX() >= 2000 || event.getTo().getZ() >= 2000 || event.getTo().getX() <= -2000 || event.getTo().getZ() <= -2000){
-            player.instantTeleport(warpService.getWarp("spawn").getLocation()).schedule();
+            player.interact().instantTeleport(warpService.getWarp("spawn").getLocation()).schedule();
         }
     }
 }

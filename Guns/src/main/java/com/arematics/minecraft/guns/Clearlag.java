@@ -1,6 +1,5 @@
 package com.arematics.minecraft.guns;
 
-import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.Data;
@@ -9,7 +8,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Minecart;
-import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -58,18 +56,23 @@ public class Clearlag {
     }
 
     private void clearLag(int time){
+        float value = ((float) time) / ((float) 5);
         if (time == 0) {
-            Messages.create("clear_lag_now")
-                    .to(Bukkit.getOnlinePlayers().toArray(new Player[]{}))
-                    .handle();
+            server.getOnline().forEach(player -> {
+                String msg = player.info("clear_lag_now").DEFAULT().toObjectForFirst();
+                player.bossBar().set(msg, 1);
+                ArematicsExecutor.syncDelayed(() -> player.bossBar().hide(), 2, TimeUnit.SECONDS);
+            });
             clear();
             ArematicsExecutor.asyncDelayed(this::start, 5, TimeUnit.SECONDS);
         } else {
-            Messages.create("clear_lag_in")
-                    .to(Bukkit.getOnlinePlayers().toArray(new Player[]{}))
-                    .DEFAULT()
-                    .replace("seconds", String.valueOf(time))
-                    .handle();
+            server.getOnline().forEach(player -> {
+                String msg = player.info("clear_lag_in")
+                        .DEFAULT()
+                        .replace("seconds", String.valueOf(time))
+                        .toObjectForFirst();
+                player.bossBar().set(msg, value);
+            });
         }
     }
 

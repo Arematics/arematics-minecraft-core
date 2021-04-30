@@ -62,4 +62,14 @@ public class CommandUtils {
     public static String prettyDecimal(double value){
         return FORMATTER.format(value);
     }
+
+    public static String shortenDecimal(Long value){
+        if(value >= 100000 && value < 1000000){
+            return (value / 1000) + "k";
+        }else if(value >= 1000000 && value < 1000000000){
+            return (value / 1000000) + "Mio";
+        }else if(value >= 1000000000)
+            return (value / 1000000000) + "Mil";
+        return String.valueOf(value);
+    }
 }

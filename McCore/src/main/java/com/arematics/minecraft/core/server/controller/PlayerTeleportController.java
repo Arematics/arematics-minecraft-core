@@ -29,10 +29,8 @@ public class PlayerTeleportController implements Quitable {
     }
 
     public boolean accept(CorePlayer sender, CorePlayer receiver) {
-        System.out.println(teleports.containsKey(receiver));
-        System.out.println(teleports.get(receiver));
         if(teleports.containsKey(receiver) && teleports.get(receiver).equals(sender)) {
-            sender.teleport(receiver.getLocation()).schedule();
+            sender.interact().teleport(receiver.getLocation()).schedule();
             teleports.remove(receiver);
             return true;
         }

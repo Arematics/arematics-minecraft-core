@@ -25,7 +25,7 @@ public class ManageSellPriceCommand extends CoreCommand {
 
     @SubCommand("{price}")
     public void setSellPrice(CorePlayer sender, Double amount) {
-        CoreItem hand = sender.getItemInHand();
+        CoreItem hand = sender.interact().getItemInHand();
         if(hand == null)
             throw new CommandProcessException("no_item_in_hand");
         int id = hand.getData().getItemTypeId();

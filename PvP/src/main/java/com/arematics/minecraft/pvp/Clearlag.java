@@ -1,15 +1,16 @@
 package com.arematics.minecraft.pvp;
 
 import com.arematics.minecraft.core.messaging.Messages;
+import com.arematics.minecraft.core.messaging.injector.StringInjector;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.Data;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Minecart;
-import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -58,18 +59,25 @@ public class Clearlag {
     }
 
     private void clearLag(int time){
+        float value = ((float) time) / ((float) 5);
         if (time == 0) {
-            Messages.create("clear_lag_now")
-                    .to(Bukkit.getOnlinePlayers().toArray(new Player[]{}))
-                    .handle();
+            StringInjector stringInjector = Messages.create("clear_lag_now")
+                    .to(Bukkit.getOnlinePlayers().toArray(new CommandSender[]{}))
+                    .DEFAULT()
+                    .disableServerPrefix();
+            server.getOnline().forEach(player -> {
+                player.bossBar().set(stringInjector.toObject(player.player()), 1);
+                ArematicsExecutor.syncDelayed(() -> player.bossBar().hide(), 2, TimeUnit.SECONDS);
+            });
             clear();
             ArematicsExecutor.asyncDelayed(this::start, 5, TimeUnit.SECONDS);
         } else {
-            Messages.create("clear_lag_in")
-                    .to(Bukkit.getOnlinePlayers().toArray(new Player[]{}))
+            StringInjector stringInjector = Messages.create("clear_lag_in")
+                    .to(Bukkit.getOnlinePlayers().toArray(new CommandSender[]{}))
                     .DEFAULT()
-                    .replace("seconds", String.valueOf(time))
-                    .handle();
+                    .disableServerPrefix()
+                    .replace("seconds", String.valueOf(time));
+            server.getOnline().forEach(player -> player.bossBar().set(stringInjector.toObject(player.player()), value));
         }
     }
 

@@ -20,8 +20,7 @@ public class GunAimListener implements Listener {
     @EventHandler
     public void onLoad(PlayerInteractEvent event){
         CorePlayer player = event.getPlayer();
-        CoreItem hand = player.getItemInHand();
-
+        CoreItem hand = player.interact().getItemInHand();
         if(hand != null && hand.getMeta().hasKey("weapon") && event.getType() == InteractType.LEFT_CLICK){
             ammo.toggleAim(player);
         }

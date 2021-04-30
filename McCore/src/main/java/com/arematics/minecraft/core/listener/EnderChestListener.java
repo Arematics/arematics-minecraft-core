@@ -15,7 +15,7 @@ public class EnderChestListener implements Listener {
     public void onInteract(PlayerInteractEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
         if(event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null && event.getClickedBlock().getType() == Material.ENDER_CHEST){
-            player.dispatchCommand("/ec");
+            player.interact().dispatchCommand("/ec");
             event.setCancelled(true);
         }
     }

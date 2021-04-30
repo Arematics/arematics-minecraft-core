@@ -24,13 +24,13 @@ public class CrystalKeyItemCommand extends CoreCommand {
     
     @SubCommand("setChance {chance}")
     public void setCrystalKeyChance(CorePlayer player, Double chance) {
-        CoreItem hand = player.getItemInHand();
+        CoreItem hand = player.interact().getItemInHand();
         if(hand == null)
             throw new CommandProcessException("no_item_in_hand");
         String rarity = fetchRarityByPercent(chance);
         hand.setString("chance", String.valueOf(chance))
                 .setOrAddLoreAt(0, rarity + " §8[§b" + chance + "%§8]");
-        player.setItemInHand(hand);
+        player.interact().setItemInHand(hand);
         player.info("Crystal Item Chance set").handle();
     }
 
@@ -46,7 +46,7 @@ public class CrystalKeyItemCommand extends CoreCommand {
 
     @SubCommand("check")
     public void checkItemForCrystal(CorePlayer sender) {
-        CoreItem hand = sender.getItemInHand();
+        CoreItem hand = sender.interact().getItemInHand();
         if(hand == null)
             throw new CommandProcessException("no_item_in_hand");
         String rawChance = hand.getMeta().getString("chance");

@@ -51,6 +51,17 @@ public class BasicInjector extends StringInjector {
     }
 
     @Override
+    public String toObject(CommandSender sender) {
+        String preparedMessage = prepareMessage(sender);
+        return injectValues(preparedMessage);
+    }
+
+    @Override
+    public String toObjectForFirst() {
+        return toObject(SENDER_LIST.get(0));
+    }
+
+    @Override
     public void handle() {
         SENDER_LIST.forEach(sender -> {
             String preparedMessage = prepareMessage(sender);

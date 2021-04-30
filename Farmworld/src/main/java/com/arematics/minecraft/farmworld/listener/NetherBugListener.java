@@ -24,7 +24,7 @@ public class NetherBugListener implements Listener {
             ArematicsExecutor.runAsync(() -> {
                 Warp warp = spawnCommand.getWarpService().getWarp(spawnCommand.getCurrentTeleport());
                 CorePlayer player = CorePlayer.get(event.getPlayer());
-                player.instantTeleport(warp.getLocation());
+                player.interact().instantTeleport(warp.getLocation());
                 player.warn("Bug about the nether is not allowed").handle();
             });
         }

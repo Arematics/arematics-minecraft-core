@@ -91,7 +91,7 @@ public class KitAdminCommand extends CoreCommand {
                     .replace("kitName", name)
                     .handle();
         }catch (RuntimeException re){
-            CoreItem itemStack = server.items().createNoModifier(player.getItemInHand());
+            CoreItem itemStack = server.items().createNoModifier(player.interact().getItemInHand());
             if(itemStack != null) {
                 try{
                     Kit newKit = new Kit(null, name, permission, cooldown.toStandardDuration().getMillis(),

@@ -3,7 +3,6 @@ package com.arematics.minecraft.core.server.entities.player;
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSet;
-import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.Part;
@@ -11,9 +10,12 @@ import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageI
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageReplace;
 import com.arematics.minecraft.core.server.entities.CurrencyEntity;
 import com.arematics.minecraft.core.server.entities.player.protocols.ActionBar;
+import com.arematics.minecraft.core.server.entities.player.protocols.BossBarHandler;
 import com.arematics.minecraft.core.server.entities.player.protocols.Packets;
 import com.arematics.minecraft.core.server.entities.player.protocols.Title;
+import com.arematics.minecraft.core.server.entities.player.world.InteractHandler;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import com.arematics.minecraft.core.utils.CommandUtils;
 import com.arematics.minecraft.data.global.model.Configuration;
 import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.model.SoulOg;
@@ -25,23 +27,18 @@ import com.arematics.minecraft.data.service.UserService;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.bukkit.*;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Setter
@@ -49,22 +46,20 @@ import java.util.stream.Collectors;
 @Accessors(fluent = true)
 public class CorePlayer implements CurrencyEntity {
 
-    private static final Logger logger = Bukkit.getLogger();
+    private static final Logger logger = LoggerFactory.getLogger(CorePlayer.class);
 
     private static Locale defaultLocale = Locale.GERMAN;
     private static Map<UUID, CorePlayer> players = new HashMap<>();
 
-    public static List<CorePlayer> getAll(List<HumanEntity> senders){
+    public static List<CorePlayer> getAll(List<Player> senders){
         return senders.stream().map(CorePlayer::get).collect(Collectors.toList());
     }
 
-    @Nullable
-    public static CorePlayer get(HumanEntity sender){
-        if(!(sender instanceof Player)) return null;
-        Player player = (Player) sender;
-        if(!players.containsKey(player.getUniqueId()))
-            players.put(player.getUniqueId(), new CorePlayer(player));
-        return players.get(player.getUniqueId());
+    @NotNull
+    public static CorePlayer get(@NotNull Player sender){
+        if(!players.containsKey(sender.getUniqueId()))
+            players.put(sender.getUniqueId(), new CorePlayer(sender));
+        return players.get(sender.getUniqueId());
     }
 
     public static void invalidate(Player player){
@@ -78,13 +73,10 @@ public class CorePlayer implements CurrencyEntity {
     private final InventoryHandler inventories;
     private final RegionHandler regions;
     private final OnlineTimeHandler onlineTime;
+    private final InteractHandler interact;
     private boolean ignoreMeta = false;
     private boolean disableLowerInventory = false;
     private boolean disableUpperInventory = false;
-
-    private boolean inFight = false;
-    private BukkitTask inFightTask;
-    private BukkitTask inTeleport;
 
     private final GameStatsService service;
     private final UserService userService;
@@ -94,6 +86,7 @@ public class CorePlayer implements CurrencyEntity {
 
     private Packets packets;
     private ActionBar actionBar;
+    private BossBarHandler bossBar;
     private Title title;
 
     private Locale selectedLocale;
@@ -105,6 +98,7 @@ public class CorePlayer implements CurrencyEntity {
     private String ogColorCode = "§8";
 
     public CorePlayer(Player player){
+        logger.debug("Creating player: " + player.getName());
         this.player = player;
         this.boardSet = new BoardSet(player);
         this.userService = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
@@ -112,18 +106,22 @@ public class CorePlayer implements CurrencyEntity {
         this.inventories = new InventoryHandler(this);
         this.regions = new RegionHandler(this);
         this.onlineTime = new OnlineTimeHandler(this);
+        this.interact = new InteractHandler(this);
         this.service = Boots.getBoot(CoreBoot.class).getContext().getBean(GameStatsService.class);
         this.packets = new Packets(player);
         this.actionBar = new ActionBar(this);
+        this.bossBar = new BossBarHandler(this);
         this.title = new Title(this);
         OgService ogService = Boots.getBoot(CoreBoot.class).getContext().getBean(OgService.class);
         try{
             SoulOg og = ogService.findByUUID(player.getUniqueId());
-            System.out.println(og);
             this.ogColorCode = "§" + og.getColorCode();
-        }catch (Exception ignore){
-            ignore.printStackTrace();
-        }
+            ArematicsExecutor.asyncDelayed(() -> {
+                this.interact().dispatchCommand("board mode toggle");
+                info("We registered you must be an old soul player, so we changed your scoreboard mode. " +
+                        "Change again with /sb mode toggle").handle();
+            }, 5, TimeUnit.SECONDS);
+        }catch (Exception ignore){}
 
         User user = this.getUser();
         this.cachedRank = user.getRank();
@@ -141,11 +139,11 @@ public class CorePlayer implements CurrencyEntity {
 
     public void refreshCache(){
         User user = this.getUser();
-        logger.config("Init Refresh Cached Data for user " + user.getLastName());
+        logger.debug("Init Refresh Cached Data for user " + user.getLastName());
         this.cachedRank = user.getRank();
         this.cachedDisplayRank = user.getDisplayRank();
         refreshChatMessage();
-        logger.config("Refreshed Cached Data for user " + user.getLastName());
+        logger.debug("Refreshed Cached Data for user " + user.getLastName());
     }
 
     private void refreshChatMessage(){
@@ -187,7 +185,7 @@ public class CorePlayer implements CurrencyEntity {
         return ZonedDateTime.of(time, TimeZone.getTimeZone("Europe/Berlin").toZoneId());
     }
     private void unload() {
-        logger.config("Unloading player: " + this.getName());
+        logger.debug("Unloading player: " + this.getName());
         this.boardSet.remove();
     }
 
@@ -207,111 +205,6 @@ public class CorePlayer implements CurrencyEntity {
 
     public User getUser(){
         return this.userService.getOrCreateUser(this);
-    }
-
-    public String getLastCommand(){
-        return getLastCommand(2);
-    }
-
-    public void setInFight(){
-        logger.config("Enable fight for player " + getName());
-        this.inFight = true;
-        if(inFightTask != null) inFightTask.cancel();
-        this.inFightTask = ArematicsExecutor.asyncDelayed(this::fightEnd, 7, TimeUnit.SECONDS);
-    }
-
-    public void fightEnd(){
-        logger.config("Ending fight for player " + getName());
-        if(inFight) this.info("Could log out now").handle();
-        this.inFight = false;
-    }
-
-    public Entity next(){
-        return next(5);
-    }
-
-    public Entity next(int range){
-        List<Entity> entities = player.getNearbyEntities(range, range, range);
-        if(entities.isEmpty()) return null;
-        return entities.get(0);
-    }
-
-    public void removeAmountFromHand(int amount){
-        ArematicsExecutor.syncRun(() -> syncRemoveFromHand(amount));
-    }
-
-    private void syncRemoveFromHand(int amount){
-        if(getItemInHand() != null)
-            if(!player.getGameMode().equals(GameMode.CREATIVE)){
-                int am = player.getItemInHand().getAmount();
-                if(amount >= am)
-                    player.setItemInHand(new ItemStack(Material.AIR));
-                else
-                    player.getItemInHand().setAmount(am - amount);
-            }
-    }
-
-    public void addPotionEffect(PotionEffect potionEffect) {
-        this.player().addPotionEffect(potionEffect);
-    }
-
-    public boolean hasEffect(PotionEffectType type) {
-        return this.player().hasPotionEffect(type);
-    }
-
-    public void removePotionEffect(PotionEffectType type) {
-        this.player().removePotionEffect(type);
-    }
-
-    public void dispatchCommand(String command){
-        ArematicsExecutor.syncRun(() -> this.player().performCommand(command.replaceFirst("/", "")));
-    }
-
-    @SuppressWarnings("unused")
-    public void equip(CoreItem... items){
-        ArematicsExecutor.runAsync(() -> this.equipItems(items));
-    }
-
-    private void equipItems(CoreItem... items){
-        CoreItem[] drop = noUse(items);
-        if(drop.length > 0){
-            this.warn("" + drop.length + " items have been dropped").handle();
-            Arrays.stream(drop).forEach(this::dropItem);
-        }
-    }
-
-    public void dropItem(CoreItem drop){
-        ArematicsExecutor.syncRun(() -> this.getLocation().getWorld().dropItemNaturally(this.getLocation(), drop));
-    }
-
-    private CoreItem[] noUse(CoreItem... item){
-        return Arrays.stream(item)
-                .filter(this::equipArmor)
-                .toArray(CoreItem[]::new);
-    }
-
-    private boolean equipArmor(CoreItem item) {
-        return hasEffect(PotionEffectType.INVISIBILITY);
-    }
-
-    public void stopTeleport(){
-        if(inTeleport != null){
-            inTeleport.cancel();
-            warn("Your teleport has been cancelled").handle();
-            inTeleport = null;
-        }
-    }
-
-    public TeleportScheduler teleport(Location location, boolean instant){
-        return new TeleportScheduler(this, location, instant);
-    }
-
-    public TeleportScheduler teleport(Location location){
-        return teleport(location, false);
-    }
-
-    public TeleportScheduler instantTeleport(Location location){
-        return teleport(location, true);
     }
 
     public void update(User user){
@@ -339,20 +232,15 @@ public class CorePlayer implements CurrencyEntity {
     }
 
     public MessageInjector info(String msg){
-        return Messages.create(msg)
-                .to(this.getPlayer());
+        return Messages.create(msg).to(this.getPlayer());
     }
 
     public MessageInjector warn(String msg){
-        return Messages.create(msg)
-                .WARNING()
-                .to(this.getPlayer());
+        return Messages.create(msg).WARNING().to(this.getPlayer());
     }
 
     public MessageInjector failure(String msg){
-        return Messages.create(msg)
-                .FAILURE()
-                .to(this.getPlayer());
+        return Messages.create(msg).FAILURE().to(this.getPlayer());
     }
 
     public BoardSet getBoard(){
@@ -410,8 +298,7 @@ public class CorePlayer implements CurrencyEntity {
     }
 
     public String stripMoney(){
-        DecimalFormat format = new DecimalFormat("#");
-        return format.format(this.getStats().getCoins());
+        return CommandUtils.shortenDecimal(this.getStats().getCoins().longValue());
     }
 
     @Override
@@ -440,14 +327,6 @@ public class CorePlayer implements CurrencyEntity {
 
     public UUID getUUID(){
         return this.player.getUniqueId();
-    }
-
-    public CoreItem getItemInHand(){
-        return CoreItem.create(player.getItemInHand());
-    }
-
-    public void setItemInHand(ItemStack item){
-        player.setItemInHand(item);
     }
 
     public Location getLocation() {

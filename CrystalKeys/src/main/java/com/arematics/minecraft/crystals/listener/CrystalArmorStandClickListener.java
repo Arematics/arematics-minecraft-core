@@ -66,7 +66,7 @@ public class CrystalArmorStandClickListener implements Listener {
     }
 
     private boolean checkKeySame(CrystalKey armorKey, CorePlayer player){
-        Optional<CrystalKey> itemKey = parser.readFromItem(player.getItemInHand());
+        Optional<CrystalKey> itemKey = parser.readFromItem(player.interact().getItemInHand());
         return itemKey.filter(armorKey::equals).isPresent();
     }
 
@@ -96,7 +96,7 @@ public class CrystalArmorStandClickListener implements Listener {
         }
         if(checkKeySame(key, player)){
             open.add(player);
-            player.removeAmountFromHand(1);
+            player.interact().removeAmountFromHand(1);
             CoreItem[] contents = CoreItem.create(service.findOrCreate("crystal.inventory." +
                     key.getName(), "§7Crystal " +
                     key.getTotalName(), (byte)27).getOpen().getContents());

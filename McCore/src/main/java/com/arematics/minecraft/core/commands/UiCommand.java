@@ -57,7 +57,7 @@ public class UiCommand extends CoreCommand {
     public boolean setPreferredMode(CorePlayer player, String mode) {
         if(Arrays.stream(new String[]{"cli", "gui"}).noneMatch(m -> m.equalsIgnoreCase(mode)))
             onDefaultExecute(player);
-        User user = service.getUserByUUID(player.getUUID());
+        User user = player.getUser();
         user.getConfigurations().put("command-mode", new Configuration(mode));
         service.update(user);
         player.info("UI mode switch to " + mode).handle();

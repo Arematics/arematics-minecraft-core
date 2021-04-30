@@ -1,5 +1,6 @@
-package com.arematics.minecraft.core.server.entities.player;
+package com.arematics.minecraft.core.server.entities.player.world;
 
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,18 +34,18 @@ public class TeleportScheduler {
     }
 
     private void teleport(){
-        if(player.inTeleport() != null){
+        if(player.interact().inTeleport() != null){
             player.warn("Your are in a teleport process right now").handle();
             return;
         }
-        player.inTeleport(ArematicsExecutor.asyncRepeat(this::teleport,
+        player.interact().inTeleport(ArematicsExecutor.asyncRepeat(this::teleport,
                 0, 1, TimeUnit.SECONDS, player.hasPermission("world.interact.teleport") ? 0 : 3));
     }
 
     private void teleport(int count){
         if (count == 0) {
             ArematicsExecutor.syncRun(this::execute);
-            player.inTeleport(null);
+            player.interact().inTeleport(null);
         } else
             player.info("%prefix%Teleport in %seconds%§7...").DEFAULT()
                     .replace("prefix", "   §cTP » §7")

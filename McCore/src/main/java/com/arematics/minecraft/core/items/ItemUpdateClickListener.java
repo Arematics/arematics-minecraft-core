@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -25,7 +26,7 @@ public class ItemUpdateClickListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onClick(InventoryClickEvent event){
-        CorePlayer player = CorePlayer.get(event.getWhoClicked());
+        CorePlayer player = CorePlayer.get((Player) event.getWhoClicked());
         if(event.getClickedInventory() != null && event.getInventory().equals(inventory)
                 && event.getCurrentItem() != null
                 && item != null

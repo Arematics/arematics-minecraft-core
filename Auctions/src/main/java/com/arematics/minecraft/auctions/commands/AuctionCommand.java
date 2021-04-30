@@ -93,7 +93,7 @@ public class AuctionCommand extends CoreCommand {
                 .onSlotClick((inv, item) -> {
                     try{
                         Auction auction = auctionService.findById(Auction.readAuctionIdFromItem(item));
-                        sender.dispatchCommand("auction " + auction.getAuctionId());
+                        sender.interact().dispatchCommand("auction " + auction.getAuctionId());
                     }catch (Exception ignore){}
                 }, range)
                 .enableRefreshTask();
@@ -120,7 +120,7 @@ public class AuctionCommand extends CoreCommand {
                 .onSlotClick((inv, item) -> ArematicsExecutor.runAsync(() -> {
                     try{
                         Auction auction = auctionService.findById(Auction.readAuctionIdFromItem(item));
-                        sender.dispatchCommand("auction bidcollect " + auction.getAuctionId());
+                        sender.interact().dispatchCommand("auction bidcollect " + auction.getAuctionId());
                     }catch (Exception ignore){}
                 }), range);
     }
@@ -204,7 +204,7 @@ public class AuctionCommand extends CoreCommand {
                 .onSlotClick((inv, item) -> ArematicsExecutor.runAsync(() -> {
                     try{
                         Auction auction = auctionService.findById(Auction.readAuctionIdFromItem(item));
-                        sender.dispatchCommand("auction collect " + auction.getAuctionId());
+                        sender.interact().dispatchCommand("auction collect " + auction.getAuctionId());
                     }catch (Exception ignore){}
                 }), range)
                 .registerEnumItemClickWithRefresh(endingFilter, auctionFilter)
@@ -307,7 +307,7 @@ public class AuctionCommand extends CoreCommand {
         if(auction.isOwnerCollected())
             throw new CommandProcessException("Auction has been collected already");
         if(!auction.ended()){
-            sender.dispatchCommand("auction " + auction.getAuctionId());
+            sender.interact().dispatchCommand("auction " + auction.getAuctionId());
             return;
         }
         collectAuction(sender, auction);

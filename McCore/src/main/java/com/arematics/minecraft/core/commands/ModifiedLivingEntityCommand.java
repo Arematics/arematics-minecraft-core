@@ -33,7 +33,7 @@ public class ModifiedLivingEntityCommand extends CoreCommand {
 
     @SubCommand("setName {message}")
     public void setEntityName(CorePlayer sender, String message) {
-        Entity nearestEntity = sender.next();
+        Entity nearestEntity = sender.interact().next();
         if(nearestEntity == null) throw new CommandProcessException("No entity in range");
         nearestEntity.setCustomName(ChatColor.translateAlternateColorCodes('&', message));
         nearestEntity.setCustomNameVisible(true);

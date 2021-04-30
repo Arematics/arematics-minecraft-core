@@ -21,6 +21,37 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.0.0'apply false
 }
 
+
+task copyAll( dependsOn:  ['copyToAll',
+                           'copyToBothPvP',
+                           'copyToPvP',
+                           'copyToFarmworld',
+                           'copyToLobby',
+                           'copyToGuns'])
+
+task copyToAll( dependsOn: ['McCore:copyFileToAll',
+                            'RegionInteraction:copyFileToAll',
+                            'Watcher:copyFileToAll',
+                            'Metadata:copyFileToAll',
+                            'SpringHook:copyFileToAll',
+                            'Kits:copyFileToAll'])
+
+task copyToBothPvP( dependsOn: ['Buffs:copyFileToBothPvP',
+                                'Home:copyFileToBothPvP',
+                                'Clans:copyFileToBothPvP',
+                                'SellSystem:copyFileToBothPvP'])
+
+task copyToPvP( dependsOn: ['PvP:copyFileToPvP',
+                            'Auctions:copyFileToPvP',
+                            'CrystalKeys:copyFileToPvP',
+                            'Strongholds:copyFileToPvP'])
+
+task copyToFarmworld( dependsOn: 'Farmworld:copyFileToFarmworld')
+
+task copyToLobby( dependsOn: 'Lobby:copyFileToLobby')
+
+task copyToGuns( dependsOn: ['Guns:copyFileToGuns', 'Maps:copyFileToGuns'])
+
 subprojects {
 
     apply plugin: 'java'
@@ -51,8 +82,8 @@ subprojects {
 
         //Kernel Plugins for all Modules of Arematics
         compileOnly "org.bukkit:PaperSpigot:1.8.8"
-        compileOnly  name: 'WorldEdit'
-        compileOnly  name: 'WorldGuard'
+        compileOnly "org.sk89q:WorldEdit:1.8.8"
+        compileOnly "org.sk89q:WorldGuard:1.8.8"
         compileOnly "com.compheonix:ProtocolLib:1.8.9"
         compileOnly "com.compheonix:PacketWrapper:1.8.9"
         compileOnly "de.tr7zw:NBT-API:1.0"
@@ -60,15 +91,14 @@ subprojects {
 
         compileOnly 'org.jetbrains:annotations:16.0.2'
 
-        compileOnly group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
+        compileOnly group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
         compileOnly group: 'commons-io', name: 'commons-io', version: '2.8.0'
 
-        compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.18'
-        annotationProcessor group: 'org.projectlombok', name: 'lombok', version:  '1.18.18'
+        compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+        annotationProcessor group: 'org.projectlombok', name: 'lombok', version:  '1.18.20'
 
         testCompile "org.bukkit:PaperSpigot:1.8.8"
         testCompile group: 'org.mockito', name: 'mockito-inline', version: '3.7.7'
-        testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.4.0'
         testCompile group: 'com.h2database', name: 'h2', version: '1.4.200'
     }
 

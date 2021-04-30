@@ -14,7 +14,7 @@ public class DenyEnderpearlInFightListener implements Listener {
     @EventHandler
     public void onThrow(PlayerInteractEvent event){
         CorePlayer player = event.getPlayer();
-        CoreItem hand = player.getItemInHand();
+        CoreItem hand = player.interact().getItemInHand();
         if(hand != null && hand.getType() == Material.ENDER_PEARL){
             event.setCancelled(true);
             player.warn("Using enderpearl's is not allowed");

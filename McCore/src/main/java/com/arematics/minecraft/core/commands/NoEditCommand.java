@@ -38,7 +38,7 @@ public class NoEditCommand extends CoreCommand {
     public void addNoEditForHand(CorePlayer sender) {
         boolean contains = noEdit.containsKey(sender.getUUID());
         if(contains) noEdit.remove(sender.getUUID());
-        CoreItem hand  = sender.getItemInHand();
+        CoreItem hand  = sender.interact().getItemInHand();
         if(hand == null) throw new CommandProcessException("no_item_in_hand");
         noEdit.put(sender.getUUID(), hand);
         sender.info("No Edit wurde auf das aktuelle Item in deiner Hand aktiviert. Deaktivieren mit /noedit").handle();

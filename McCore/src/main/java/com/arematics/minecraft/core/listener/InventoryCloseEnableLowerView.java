@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -11,7 +12,7 @@ public class InventoryCloseEnableLowerView implements Listener {
 
     @EventHandler
     public void onClose(InventoryCloseEvent event){
-        CorePlayer player = CorePlayer.get(event.getPlayer());
+        CorePlayer player = CorePlayer.get((Player) event.getPlayer());
         player.inventories().getCurrentInventories().forEach(inv -> inv.closeFor(player));
         player.inventories()
                 .stopRefreshTask()

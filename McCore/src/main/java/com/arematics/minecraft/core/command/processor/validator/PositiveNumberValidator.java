@@ -10,8 +10,6 @@ public class PositiveNumberValidator extends ParameterValidator<Number> {
 
     @Override
     public void supply(Number result, List<Object> data) throws CommandProcessException {
-        System.out.println("Hey");
         if(result.intValue() <= 0) throw new CommandProcessException("Only positive numbers allowed here");
-        System.out.println("Okay");
     }
 }

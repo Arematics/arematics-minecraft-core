@@ -27,7 +27,7 @@ public class PortalRegionEnterListener implements Listener {
                 Warp warp = this.spawnCommand.getWarpService().getWarp(this.spawnCommand.getCurrentTeleport());
                 CorePlayer player = event.getPlayer();
                 String target = id.replace("mode_" , "");
-                player.instantTeleport(warp.getLocation()).schedule();
+                player.interact().instantTeleport(warp.getLocation()).schedule();
                 if(player.getUser().getCurrentServer().equals("pvp") || player.getUser().getCurrentServer().equals("farmworld")) {
                     if (target.equals("pvp") || target.equals("farmworld"))
                         relogCooldownListener.getJustOnline().remove(event.getPlayer().getUUID());

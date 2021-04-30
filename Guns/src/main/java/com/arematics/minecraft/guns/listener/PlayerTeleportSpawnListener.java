@@ -20,13 +20,13 @@ public class PlayerTeleportSpawnListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
-        player.instantTeleport(mapSpawnCommand.findCurrentSpawn()).schedule();
+        player.interact().instantTeleport(mapSpawnCommand.findCurrentSpawn()).schedule();
     }
 
     @EventHandler
     public void onDeath(PlayerRespawnEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
         ammo.stopAim(player);
-        player.instantTeleport(mapSpawnCommand.findCurrentSpawn()).schedule();
+        player.interact().instantTeleport(mapSpawnCommand.findCurrentSpawn()).schedule();
     }
 }

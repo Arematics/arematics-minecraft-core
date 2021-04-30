@@ -64,9 +64,7 @@ public class Ammo {
             player.actionBar().sendActionBar("§c§lLoading Gun...");
             int time = gun.getWeapon().getType().getLoadingSpeed();
             this.reloading.put(player, ArematicsExecutor.syncRepeat((task, count) -> {
-                CoreItem hand = CoreItem.create(player.getPlayer().getItemInHand());
-                System.out.println(hand == null || hand.getType() == Material.AIR);
-                System.out.println(hand);
+                CoreItem hand = player.interact().getItemInHand();
 
                 if(hand == null || !hand.isSimilar(gun.getItem())){
                     player.actionBar().sendActionBar("§c§lReload interrupted");
@@ -126,20 +124,20 @@ public class Ammo {
 
     public void toggleAim(CorePlayer player)
     {
-        if (player.hasEffect(PotionEffectType.SLOW)) {
+        if (player.interact().hasEffect(PotionEffectType.SLOW)) {
             aim.remove(player);
-            player.removePotionEffect(PotionEffectType.SLOW);
+            player.interact().removePotionEffect(PotionEffectType.SLOW);
         } else{
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 12000, 4));
+            player.interact().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 12000, 4));
             aim.add(player);
         }
     }
 
     public void stopAim(CorePlayer player)
     {
-        if (player.hasEffect(PotionEffectType.SLOW)) {
+        if (player.interact().hasEffect(PotionEffectType.SLOW)) {
             aim.remove(player);
-            player.removePotionEffect(PotionEffectType.SLOW);
+            player.interact().removePotionEffect(PotionEffectType.SLOW);
         }
     }
 }

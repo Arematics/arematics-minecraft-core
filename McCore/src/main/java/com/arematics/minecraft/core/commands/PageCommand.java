@@ -28,7 +28,7 @@ public class PageCommand extends CoreCommand {
         if (type == PageType.BEFORE) {
             player.inventories().pageBefore();
         }else player.inventories().nextPage();
-        player.dispatchCommand(message);
+        player.interact().dispatchCommand(message);
     }
 
     public enum PageType{

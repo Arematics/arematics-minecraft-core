@@ -31,7 +31,7 @@ public class GiveAllCommand extends CoreCommand {
 
     private void onGiveAll(CorePlayer sender, Player target) {
         if (sender instanceof Player) {
-            CoreItem givenItem = sender.getItemInHand();
+            CoreItem givenItem = sender.interact().getItemInHand();
 
             if(givenItem == null) return;
 

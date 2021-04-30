@@ -3,6 +3,7 @@ package com.arematics.minecraft.core.listener;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.items.MetaClickExecutorsCache;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -25,7 +26,7 @@ public class BindedItemInteractListener implements Listener {
     public void executeOnInteract(PlayerInteractEvent event){
         CorePlayer player = CorePlayer.get(event.getPlayer());
         if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK){
-            CoreItem item = player.getItemInHand();
+            CoreItem item = player.interact().getItemInHand();
             if(!player.ignoreMeta())
                 event.setCancelled(this.executorsCache.searchAndRun(player, item));
         }
@@ -33,7 +34,7 @@ public class BindedItemInteractListener implements Listener {
 
     @EventHandler
     public void executeOnInteract(InventoryClickEvent event){
-        CorePlayer player = CorePlayer.get(event.getWhoClicked());
+        CorePlayer player = CorePlayer.get((Player) event.getWhoClicked());
         CoreItem clicked = CoreItem.create(event.getCurrentItem());
         if(clicked == null) return;
         if(!player.ignoreMeta())

@@ -84,7 +84,7 @@ public class CoreItem extends ItemStack {
     }
 
     public static void executeOnHandItem(CorePlayer player, Consumer<CoreItem> execute){
-        CoreItem itemStack = CoreItem.create(player.getItemInHand());
+        CoreItem itemStack = CoreItem.create(player.interact().getItemInHand());
         if(itemStack != null) execute.accept(itemStack);
         else player.warn("no_item_in_hand").handle();
     }

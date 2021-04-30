@@ -5,6 +5,7 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -21,7 +22,7 @@ public class PlayerSlotClickListener implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent event){
-        CorePlayer player = CorePlayer.get(event.getWhoClicked());
+        CorePlayer player = CorePlayer.get((Player) event.getWhoClicked());
         if(player.inventories().getSlotClick() != null
                 && player.inventories().getSlots() != null
                 && event.getClickedInventory() != null

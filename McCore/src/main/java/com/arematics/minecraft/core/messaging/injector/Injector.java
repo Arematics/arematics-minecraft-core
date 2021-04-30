@@ -6,4 +6,6 @@ public abstract class Injector<T> {
     public abstract void handle();
     protected abstract String prepareMessage(CommandSender sender);
     protected abstract T injectValues(String income);
+    public abstract T toObject(CommandSender sender);
+    public abstract T toObjectForFirst();
 }

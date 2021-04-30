@@ -34,7 +34,7 @@ public class MapSpawnCommand extends SpawnCommand {
     public void onDefaultExecute(CorePlayer sender) {
         try{
             GameMap map = this.mapService.findById(this.mapController.getCurrentMapId());
-            sender.teleport(map.getLocation()).schedule();
+            sender.interact().teleport(map.getLocation()).schedule();
         }catch (Exception e){
             super.onDefaultExecute(sender);
         }

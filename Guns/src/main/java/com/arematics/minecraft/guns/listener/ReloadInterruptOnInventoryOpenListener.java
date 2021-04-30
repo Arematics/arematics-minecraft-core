@@ -3,6 +3,7 @@ package com.arematics.minecraft.guns.listener;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.guns.calculation.Ammo;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -20,7 +21,7 @@ public class ReloadInterruptOnInventoryOpenListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onOpen(InventoryOpenEvent event){
-        CorePlayer player = CorePlayer.get(event.getPlayer());
+        CorePlayer player = CorePlayer.get((Player) event.getPlayer());
         Map<CorePlayer, BukkitTask> tasks = ammo.getReloading();
         if(tasks.containsKey(player)){
             BukkitTask task = tasks.get(player);

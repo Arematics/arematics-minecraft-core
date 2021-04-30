@@ -22,7 +22,7 @@ public class NoEditListener implements Listener {
         CorePlayer player = CorePlayer.get(event.getPlayer());
         if(noEditCommand.getNoEdit().containsKey(player.getUUID())){
             CoreItem item = noEditCommand.getNoEdit().get(player.getUUID());
-            if(item != null && player.getItemInHand().isSimilar(item)) event.setCancelled(true);
+            if(item != null && player.interact().getItemInHand().isSimilar(item)) event.setCancelled(true);
             else if(item == null) event.setCancelled(true);
         }
     }
@@ -32,7 +32,7 @@ public class NoEditListener implements Listener {
         CorePlayer player = CorePlayer.get(event.getPlayer());
         if(noEditCommand.getNoEdit().containsKey(player.getUUID())){
             CoreItem item = noEditCommand.getNoEdit().get(player.getUUID());
-            if(item != null && player.getItemInHand().isSimilar(item)) event.setCancelled(true);
+            if(item != null && player.interact().getItemInHand().isSimilar(item)) event.setCancelled(true);
             else if(item == null) event.setCancelled(true);
         }
     }

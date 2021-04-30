@@ -20,7 +20,7 @@ public class KitSignListener implements Listener {
             Sign clicked = (Sign) event.getClickedBlock().getState();
             if(clicked.getLine(0).equals("§8[§6KIT§8]")){
                 String rawKit = clicked.getLine(1);
-                player.dispatchCommand("/kit " + rawKit);
+                player.interact().dispatchCommand("/kit " + rawKit);
             }
         }
     }

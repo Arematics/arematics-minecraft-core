@@ -75,8 +75,6 @@ public class BoardHandler {
      * @return Current Handler
      */
     public BoardHandler setEntrySuffix(String name, String suffix){
-        System.out.println(this.BOARD);
-        System.out.println(this.BOARD.ENTRY_DATA);
         this.BOARD.ENTRY_DATA
                 .stream()
                 .filter(data -> data.NAME.equals(name))
@@ -105,14 +103,17 @@ public class BoardHandler {
 
     private void updatePrefix(BoardEntryData entryData, String prefix){
         entryData.PREFIX = prefix;
-        BoardEntry entry = getEntry(entryData.NAME + 2);
-        this.BOARD_SET.onSetTeam(entry, entry.NAME, entryData.PREFIX, "");
+        BoardEntry entry = getEntry(entryData.NAME + (BOARD.MODERN_BOARD ? 2 : 1));
+        this.BOARD_SET.onSetTeam(entry, entry.NAME, entryData.PREFIX,
+                (BOARD.MODERN_BOARD ? "" : ": " + entryData.SUFFIX));
     }
 
     private void updateSuffix(BoardEntryData entryData, String suffix){
         entryData.SUFFIX = suffix;
-        BoardEntry entry = getEntry(entryData.NAME + 3);
-        this.BOARD_SET.onSetTeam(entry, entry.NAME, "", entryData.SUFFIX);
+        BoardEntry entry = getEntry(entryData.NAME + (BOARD.MODERN_BOARD ? 3 : 1));
+        this.BOARD_SET.onSetTeam(entry, entry.NAME,
+                (BOARD.MODERN_BOARD ? "" : entryData.PREFIX),
+                (BOARD.MODERN_BOARD ? entryData.SUFFIX : ": " + entryData.PREFIX));
     }
 
     void buildEntries(){
@@ -129,7 +130,7 @@ public class BoardHandler {
                 generateEntry(data.NAME + 2, multiplied - 1, data.NAME, data.PREFIX, "");
                 generateEntry(data.NAME + 3, multiplied - 2, boardEntrySecondName, "", data.SUFFIX);
             }else{
-                generateEntry(data.NAME + 1, i, data.NAME, data.PREFIX, data.SUFFIX);
+                generateEntry(data.NAME + 1, i, data.NAME, data.PREFIX, ": " + data.SUFFIX);
             }
         }
         this.buildEntries = true;

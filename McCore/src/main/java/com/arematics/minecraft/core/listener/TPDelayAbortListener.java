@@ -16,7 +16,7 @@ public class TPDelayAbortListener implements Listener {
         Location t = e.getTo();
         if(f.getBlockX() != t.getBlockX() || f.getBlockY() != t.getBlockY() || f.getBlockZ() != t.getBlockZ()){
             CorePlayer player = CorePlayer.get(e.getPlayer());
-            player.stopTeleport();
+            player.interact().stopTeleport();
         }
     }
 }

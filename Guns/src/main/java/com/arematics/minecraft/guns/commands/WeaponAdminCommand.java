@@ -37,7 +37,7 @@ public class WeaponAdminCommand extends CoreCommand {
 
     @SubCommand("setDisplayItem {type}")
     public void setWeaponTypeDisplay(CorePlayer player, WeaponType type) {
-        CoreItem hand = player.getItemInHand();
+        CoreItem hand = player.interact().getItemInHand();
         if(hand == null)
             throw new CommandProcessException("no_item_in_hand");
         WeaponTypeData data;
@@ -53,7 +53,7 @@ public class WeaponAdminCommand extends CoreCommand {
 
     @SubCommand("setAmmunition {type}")
     public void setWeaponAmmunition(CorePlayer player, WeaponType type) {
-        CoreItem hand = player.getItemInHand();
+        CoreItem hand = player.interact().getItemInHand();
         if(hand == null)
             throw new CommandProcessException("no_item_in_hand");
         WeaponTypeData data;
@@ -115,7 +115,7 @@ public class WeaponAdminCommand extends CoreCommand {
                                 WeaponType type, Short durability,
                                 Short damage, Short bullets,
                                 Short ammoPerLoading) {
-        CoreItem hand = player.getItemInHand();
+        CoreItem hand = player.interact().getItemInHand();
         if(hand == null)
             throw new CommandProcessException("no_item_in_hand");
         try{

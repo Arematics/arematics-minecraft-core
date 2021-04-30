@@ -59,7 +59,7 @@ public class WarpCommand extends CoreCommand {
     }
 
     public void teleport(CorePlayer player, Warp warp, boolean instant){
-        player.teleport(warp.getLocation(), instant).schedule();
+        player.interact().teleport(warp.getLocation(), instant).schedule();
     }
 
     @SubCommand("set {warp}")

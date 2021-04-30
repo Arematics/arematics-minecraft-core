@@ -45,7 +45,7 @@ public class RandomTeleportCommand extends CoreCommand {
 
         ArematicsExecutor.syncRun(() ->{
                     Block block = location.getWorld().getHighestBlockAt(location);
-                    sender.teleport(block.getLocation().add(0, 2, 0)).onEnd(c -> {
+                    sender.interact().teleport(block.getLocation().add(0, 2, 0)).onEnd(c -> {
                                 addCooldown(key);
                                 sender.info("Random teleport is called").handle(); }).schedule();
                 }

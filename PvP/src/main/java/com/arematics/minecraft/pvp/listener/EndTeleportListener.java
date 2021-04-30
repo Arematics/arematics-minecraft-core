@@ -24,7 +24,7 @@ public class EndTeleportListener implements Listener {
             try{
                 ArematicsExecutor.runAsync(() -> {
                     Warp warp = warpService.getWarp("end");
-                    player.teleport(warp.getLocation(), true).schedule();
+                    player.interact().teleport(warp.getLocation(), true).schedule();
                 });
             }catch (Exception ignore){}
         }
