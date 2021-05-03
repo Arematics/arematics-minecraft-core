@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.InventoryHandler;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
 import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
@@ -51,7 +52,7 @@ public class IgnoreCommand extends CoreCommand {
     @SubCommand("list")
     public void listIgnored(CorePlayer sender) {
         Supplier<Page<Ignored>> paging =
-                () -> service.fetchAllIgnored(sender.getUUID(), sender.inventories().getPage());
+                () -> service.fetchAllIgnored(sender.getUUID(), sender.handle(InventoryHandler.class).getPage());
         Paging.createWithMapper(sender, paging)
                 .onCLI("Ignored", "ignore list")
                 .onGUI(this::createInventory)

@@ -4,7 +4,6 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.Ban;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.BanService;
@@ -58,7 +57,7 @@ public class BanCommand extends CoreCommand {
         }
         Player targetPlayer = Bukkit.getPlayer(target.getUuid());
         Ban finalBan = ban;
-        ArematicsExecutor.syncRun(() -> {
+        server.schedule().runSync(() -> {
             if(targetPlayer != null) targetPlayer.kickPlayer("§cYou have been banned permanent \n§b" + finalBan.getReason());
         });
         player.info("punishment_player_got_banned").DEFAULT().replace("name", target.getLastName()).handle();

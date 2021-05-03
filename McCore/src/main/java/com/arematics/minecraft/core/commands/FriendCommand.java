@@ -12,12 +12,13 @@ import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.InventoryHandler;
+import com.arematics.minecraft.core.server.entities.player.RequestHandler;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
 import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
 import com.arematics.minecraft.core.server.entities.player.inventories.paging.Paging;
 import com.arematics.minecraft.core.server.items.Items;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.Friend;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.FriendService;
@@ -47,7 +48,7 @@ public class FriendCommand extends CoreCommand {
     @Override
     public void onDefaultExecute(CorePlayer sender) {
         Supplier<Page<Friend>> paging =
-                () -> friendService.fetchAllFriends(sender.getUUID(), sender.inventories().getPage());
+                () -> friendService.fetchAllFriends(sender.getUUID(), sender.handle(InventoryHandler.class).getPage());
         Paging.create(sender, paging)
                 .onCLI((friend) -> this.mapFriendToText(sender, friend), "Friend", "friends")
                 .onGUI(this::createInventory)
@@ -74,9 +75,9 @@ public class FriendCommand extends CoreCommand {
                 .DEFAULT()
                 .replace("invited", invited.getPlayer().getName())
                 .handle();
-        invited.requests().addTimeout(player.getPlayer().getName());
+        invited.handle(RequestHandler.class).addTimeout(player.getPlayer().getName());
         friendInvites.put(player, invited);
-        ArematicsExecutor.asyncDelayed(() -> friendInvites.remove(player, invited), 2, TimeUnit.MINUTES);
+        server.schedule().asyncDelayed(() -> friendInvites.remove(player, invited), 2, TimeUnit.MINUTES);
     }
 
     @SubCommand("remove {name}")

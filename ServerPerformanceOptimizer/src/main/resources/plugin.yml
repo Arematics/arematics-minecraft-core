@@ -1,0 +1,7 @@
+name: PvP
+author: Enrico
+description: PvP by Arematics
+version: 1.0
+depend: [McCore]
+
+main: com.arematics.minecraft.optimizer.OptimizeBoot

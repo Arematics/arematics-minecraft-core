@@ -1,23 +1,20 @@
 package com.arematics.minecraft.core.server.entities.player;
 
-import com.arematics.minecraft.core.Boots;
-import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.items.ItemUpdateClickListener;
 import com.arematics.minecraft.core.server.Server;
+import com.arematics.minecraft.core.server.entities.player.inventories.InventoryController;
 import com.arematics.minecraft.core.server.entities.player.inventories.OpenStrategy;
 import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.IntegerBox;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.EnumUtils;
-import com.arematics.minecraft.core.utils.Inventories;
-import com.arematics.minecraft.data.service.InventoryService;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.scheduler.BukkitTask;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,12 +29,10 @@ import java.util.stream.Collectors;
 
 @Setter
 @Getter
-public class InventoryHandler {
+public class InventoryHandler extends PlayerHandler {
 
-    private static InventoryService inventoryService;
-    private static Server server;
-
-    private final CorePlayer player;
+    private final Server server;
+    private final InventoryController inventoryController;
 
     private int page;
     private boolean resetOnClose;
@@ -56,19 +51,15 @@ public class InventoryHandler {
     private Map<Class<?>, Enum<?>> currentEnums = new HashMap<>();
     private List<WrappedInventory> currentInventories = new ArrayList<>();
 
-    InventoryHandler(CorePlayer player){
-        this.player = player;
-        if(InventoryHandler.inventoryService == null){
-            InventoryHandler.inventoryService = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
-        }
-        if(InventoryHandler.server == null){
-            InventoryHandler.server = Boots.getBoot(CoreBoot.class).getContext().getBean(Server.class);
-        }
+    @Autowired
+    InventoryHandler(Server server, InventoryController inventoryController){
+        this.server = server;
+        this.inventoryController = inventoryController;
     }
 
     public <E extends Enum<E>> void addEnum(E enumValue){
         Class<E> enumClass = enumValue.getDeclaringClass();
-        ArematicsExecutor.asyncDelayed(() -> this.currentEnums.put(enumClass, enumValue), 250, TimeUnit.MILLISECONDS);
+        server.schedule().asyncDelayed(() -> this.currentEnums.put(enumClass, enumValue), 250, TimeUnit.MILLISECONDS);
     }
 
     public <E extends Enum<E>> void addEnumInstant(E enumValue){
@@ -111,7 +102,7 @@ public class InventoryHandler {
      * @param inventory Inventory to open
      */
     public void openInventory(WrappedInventory inventory){
-        inventory.openFor(player, OpenStrategy.DEFAULT);
+        inventoryController.open(inventory, OpenStrategy.DEFAULT, player);
         this.currentInventories.add(inventory);
     }
 
@@ -120,7 +111,7 @@ public class InventoryHandler {
      * @param inventory Inventory to open
      */
     public void openTotalBlockedInventory(WrappedInventory inventory){
-        inventory.openFor(player, OpenStrategy.TOTAL_BLOCKED);
+        inventoryController.open(inventory, OpenStrategy.TOTAL_BLOCKED, player);
         this.currentInventories.add(inventory);
     }
     /**
@@ -128,7 +119,7 @@ public class InventoryHandler {
      * @param inventory Inventory to open
      */
     public void openLowerEnabledInventory(WrappedInventory inventory){
-        inventory.openFor(player, OpenStrategy.FULL_EDIT);
+        inventoryController.open(inventory, OpenStrategy.FULL_EDIT, player);
         this.currentInventories.add(inventory);
     }
 
@@ -137,7 +128,7 @@ public class InventoryHandler {
      * @param inventory Inventory to open
      */
     public void openInventory(Inventory inventory){
-        Inventories.openLowerDisabledInventory(inventory, player);
+        inventoryController.openLowerDisabledInventory(inventory, player);
     }
 
     /**
@@ -145,18 +136,18 @@ public class InventoryHandler {
      * @param inventory Inventory to open
      */
     public void openTotalBlockedInventory(Inventory inventory){
-        Inventories.openTotalBlockedInventory(inventory, player);
+        inventoryController.openTotalBlockedInventory(inventory, player);
     }
     /**
      * Open inventory for player. Both inventories are enabled
      * @param inventory Inventory to open
      */
     public void openLowerEnabledInventory(Inventory inventory){
-        Inventories.openInventory(inventory, player);
+        inventoryController.openInventory(inventory, player);
     }
 
     public WrappedInventory getOrCreateInventory(String key, String title, byte slots){
-        return InventoryHandler.inventoryService.findOrCreate(player.getUUID().toString() + "." + key, title, slots);
+        return inventoryController.findOrCreate(player.getUUID().toString() + "." + key, title, slots);
     }
 
     public <E extends Enum<E>> InventoryHandler registerEnumItemClickWithRefresh(CoreItem item,
@@ -177,13 +168,13 @@ public class InventoryHandler {
     }
 
     public InventoryHandler registerItemClick(CoreItem item, Function<CoreItem, CoreItem> action){
-        ArematicsExecutor.syncDelayed(() -> server.registerItemListener(player, item, action), 250,
+        server.schedule().syncDelayed(() -> server.registerItemListener(player, item, action), 250,
                 TimeUnit.MILLISECONDS);
         return this;
     }
 
     public InventoryHandler registerItemClick(CoreItem item, ClickType type, Function<CoreItem, CoreItem> action){
-        ArematicsExecutor.syncDelayed(() -> server.registerItemListener(player, item, type, action), 250,
+        server.schedule().syncDelayed(() -> server.registerItemListener(player, item, type, action), 250,
                 TimeUnit.MILLISECONDS);
         return this;
     }
@@ -209,7 +200,7 @@ public class InventoryHandler {
     }
 
     public InventoryHandler enableRefreshTask(){
-        ArematicsExecutor.asyncDelayed(() -> this.updateTask = refresher != null ? ArematicsExecutor.asyncRepeat(this.refresher, 1, 1, TimeUnit.SECONDS) : null,
+        server.schedule().asyncDelayed(() -> this.updateTask = refresher != null ? server.schedule().asyncRepeat(this.refresher, 1, 1, TimeUnit.SECONDS) : null,
                 200, TimeUnit.MILLISECONDS);
         return this;
     }
@@ -233,22 +224,22 @@ public class InventoryHandler {
     }
 
     public InventoryHandler addRefresher(Runnable runnable){
-        ArematicsExecutor.asyncDelayed(() -> this.refresher = runnable, 150, TimeUnit.MILLISECONDS);
+        server.schedule().asyncDelayed(() -> this.refresher = runnable, 150, TimeUnit.MILLISECONDS);
         return this;
     }
 
     public InventoryHandler onEmptySlotClick(Consumer<Inventory> click){
-        ArematicsExecutor.asyncDelayed(() -> this.emptySlotClick = click, 200, TimeUnit.MILLISECONDS);
+        server.schedule().asyncDelayed(() -> this.emptySlotClick = click, 200, TimeUnit.MILLISECONDS);
         return this;
     }
 
     public InventoryHandler onItemInOwnInvClick(Function<CoreItem, CoreItem> click){
-        ArematicsExecutor.asyncDelayed(() -> this.ownInvClick = click, 200, TimeUnit.MILLISECONDS);
+        server.schedule().asyncDelayed(() -> this.ownInvClick = click, 200, TimeUnit.MILLISECONDS);
         return this;
     }
 
     public InventoryHandler onSlotClick(BiConsumer<Inventory, CoreItem> click, IntegerBox slots){
-        ArematicsExecutor.asyncDelayed(() -> {
+        server.schedule().asyncDelayed(() -> {
             this.slotClick = click;
             this.slots = slots;
         }, 200, TimeUnit.MILLISECONDS);

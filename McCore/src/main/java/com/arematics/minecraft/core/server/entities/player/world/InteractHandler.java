@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.server.entities.player.world;
 
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.PlayerHandler;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,12 +26,12 @@ import java.util.logging.Logger;
 @Accessors(fluent = true)
 @Getter
 @Setter
-@RequiredArgsConstructor
-public class InteractHandler {
+@RequiredArgsConstructor(onConstructor_=@Autowired)
+public class InteractHandler extends PlayerHandler {
 
     private static final Logger logger = Bukkit.getLogger();
 
-    private final CorePlayer player;
+    private final ArematicsExecutor arematicsExecutor;
 
     private boolean inFight = false;
     private BukkitTask inFightTask;
@@ -48,7 +49,7 @@ public class InteractHandler {
         logger.config("Enable fight for player " + player.getName());
         this.inFight = true;
         if(inFightTask != null) inFightTask.cancel();
-        this.inFightTask = ArematicsExecutor.asyncDelayed(this::fightEnd, 7, TimeUnit.SECONDS);
+        this.inFightTask = arematicsExecutor.asyncDelayed(this::fightEnd, 7, TimeUnit.SECONDS);
     }
 
     public void fightEnd(){
@@ -68,7 +69,7 @@ public class InteractHandler {
     }
 
     public void removeAmountFromHand(int amount){
-        ArematicsExecutor.syncRun(() -> syncRemoveFromHand(amount));
+        arematicsExecutor.runSync(() -> syncRemoveFromHand(amount));
     }
 
     private void syncRemoveFromHand(int amount){
@@ -95,12 +96,12 @@ public class InteractHandler {
     }
 
     public void dispatchCommand(String command){
-        ArematicsExecutor.syncRun(() -> player.getPlayer().performCommand(command.replaceFirst("/", "")));
+        arematicsExecutor.runSync(() -> player.getPlayer().performCommand(command.replaceFirst("/", "")));
     }
 
     @SuppressWarnings("unused")
     public void equip(CoreItem... items){
-        ArematicsExecutor.runAsync(() -> this.equipItems(items));
+        arematicsExecutor.runAsync(() -> this.equipItems(items));
     }
 
     private void equipItems(CoreItem... items){
@@ -112,7 +113,7 @@ public class InteractHandler {
     }
 
     public void dropItem(CoreItem drop){
-        ArematicsExecutor.syncRun(() -> player.getLocation().getWorld().dropItemNaturally(player.getLocation(), drop));
+        arematicsExecutor.runSync(() -> player.getLocation().getWorld().dropItemNaturally(player.getLocation(), drop));
     }
 
     private CoreItem[] noUse(CoreItem... item){

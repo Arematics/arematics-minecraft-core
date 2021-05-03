@@ -1,5 +1,8 @@
 package com.arematics.minecraft.data.service;
 
+import com.arematics.minecraft.core.Boots;
+import com.arematics.minecraft.core.CoreBoot;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.global.repository.UserRepository;
@@ -79,9 +82,10 @@ public class UserService implements GlobalMessageReceiveService {
     @Override
     public void onReceive(final String data) {
         try{
+            Server server = Boots.getBoot(CoreBoot.class).getContext().getBean(Server.class);
             UUID uuid = UUID.fromString(data);
             User user = getUserByUUID(uuid);
-            Optional<CorePlayer> online = user.online();
+            Optional<CorePlayer> online = user.online(server);
             online.ifPresent(CorePlayer::refreshCache);
         }catch (Exception ignore){}
     }

@@ -6,7 +6,10 @@ import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.items.ItemUpdateClickListener;
 import com.arematics.minecraft.core.server.currency.CurrencyController;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.InventoryHandler;
+import com.arematics.minecraft.core.server.entities.player.PlayerService;
 import com.arematics.minecraft.core.server.items.Items;
+import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -27,12 +30,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor_=@Autowired)
 public class Server {
 
+    private final ArematicsExecutor arematicsExecutor;
+    private final PlayerService playerService;
     private final CurrencyController currencyController;
     private final MoneyStatistics moneyStatistics;
     private final Items items;
 
+    public PlayerService players(){
+        return playerService;
+    }
+
+    public ArematicsExecutor schedule(){
+        return arematicsExecutor;
+    }
+
     public List<CorePlayer> getOnline(){
-        return Bukkit.getOnlinePlayers().stream().map(CorePlayer::get).collect(Collectors.toList());
+        return Bukkit.getOnlinePlayers().stream().map(players()::fetchPlayer).collect(Collectors.toList());
     }
 
     public List<CorePlayer> onlineWithRank(Long id){
@@ -43,20 +56,20 @@ public class Server {
 
     public List<CorePlayer> getOnlineTeam(){
         return Bukkit.getOnlinePlayers().stream()
-                .map(CorePlayer::get)
+                .map(players()::fetchPlayer)
                 .filter(player -> player.getUser().getRank().isInTeam())
                 .collect(Collectors.toList());
     }
 
     public void registerItemListener(CorePlayer player, CoreItem item, Function<CoreItem, CoreItem> function){
-        ItemUpdateClickListener listener = new ItemUpdateClickListener(item, null, function, player.inventories().getView().getTopInventory());
-        player.inventories().addListener(listener);
+        ItemUpdateClickListener listener = new ItemUpdateClickListener(this, item, null, function, player.handle(InventoryHandler.class).getView().getTopInventory());
+        player.handle(InventoryHandler.class).addListener(listener);
         Bukkit.getPluginManager().registerEvents(listener, Boots.getBoot(CoreBoot.class));
     }
 
     public void registerItemListener(CorePlayer player, CoreItem item, ClickType type, Function<CoreItem, CoreItem> function){
-        ItemUpdateClickListener listener = new ItemUpdateClickListener(item, type, function, player.inventories().getView().getTopInventory());
-        player.inventories().addListener(listener);
+        ItemUpdateClickListener listener = new ItemUpdateClickListener(this, item, type, function, player.handle(InventoryHandler.class).getView().getTopInventory());
+        player.handle(InventoryHandler.class).addListener(listener);
         Bukkit.getPluginManager().registerEvents(listener, Boots.getBoot(CoreBoot.class));
     }
 
@@ -65,7 +78,7 @@ public class Server {
     }
 
     public CorePlayer findOnline(UUID uuid){
-        return CorePlayer.get(Bukkit.getPlayer(uuid));
+        return players().fetchPlayer(Bukkit.getPlayer(uuid));
     }
 
     public void onStop(){

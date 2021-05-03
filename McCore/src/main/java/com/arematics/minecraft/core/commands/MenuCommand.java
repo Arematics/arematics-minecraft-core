@@ -2,25 +2,26 @@ package com.arematics.minecraft.core.commands;
 
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.InventoryHandler;
+import com.arematics.minecraft.core.server.entities.player.inventories.InventoryController;
 import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
-import com.arematics.minecraft.data.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MenuCommand extends CoreCommand {
 
-    private final InventoryService service;
+    private final InventoryController inventoryController;
 
     @Autowired
-    public MenuCommand(InventoryService inventoryService) {
+    public MenuCommand(InventoryController inventoryController) {
         super("menu");
-        this.service = inventoryService;
+        this.inventoryController = inventoryController;
     }
 
     @Override
     public void onDefaultExecute(CorePlayer sender) {
-        WrappedInventory inv = service.findOrCreate("player-menu", "§6Menu", (byte) 54);
-        sender.inventories().openTotalBlockedInventory(inv);
+        WrappedInventory inv = inventoryController.findOrCreate("player-menu", "§6Menu", (byte) 54);
+        sender.handle(InventoryHandler.class).openTotalBlockedInventory(inv);
     }
 }

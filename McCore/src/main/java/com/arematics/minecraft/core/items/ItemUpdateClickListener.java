@@ -1,7 +1,8 @@
 package com.arematics.minecraft.core.items;
 
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import com.arematics.minecraft.core.server.entities.player.InventoryHandler;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bukkit.entity.Player;
@@ -19,6 +20,7 @@ import java.util.function.Function;
 @AllArgsConstructor
 public class ItemUpdateClickListener implements Listener {
 
+    private final Server server;
     private CoreItem item;
     private final ClickType clickType;
     private final Function<CoreItem, CoreItem> action;
@@ -26,14 +28,14 @@ public class ItemUpdateClickListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onClick(InventoryClickEvent event){
-        CorePlayer player = CorePlayer.get((Player) event.getWhoClicked());
+        CorePlayer player = server.players().fetchPlayer((Player) event.getWhoClicked());
         if(event.getClickedInventory() != null && event.getInventory().equals(inventory)
                 && event.getCurrentItem() != null
                 && item != null
                 && item.isSimilar(event.getCurrentItem())
                 && (clickType == null || event.getClick() == clickType)
-                && !player.inventories().isClickBlocked()){
-            ArematicsExecutor.syncDelayed(() -> {
+                && !player.handle(InventoryHandler.class).isClickBlocked()){
+            server.schedule().syncDelayed(() -> {
                 CoreItem result = item = action.apply(item);
                 event.getClickedInventory().setItem(event.getSlot(), result);
                 player.getPlayer().updateInventory();

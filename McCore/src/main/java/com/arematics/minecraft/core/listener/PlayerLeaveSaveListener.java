@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.items.CoreItem;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.mode.model.PlayerData;
 import com.arematics.minecraft.data.redis.ModeRedisMessagePublisher;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor_=@Autowired)
 public class PlayerLeaveSaveListener implements Listener {
 
+    private final Server server;
     private final ModeRedisMessagePublisher modeRedisMessagePublisher;
     private final ItemCollectionService itemCollectionService;
     private final PlayerDataService playerDataService;
@@ -47,12 +49,12 @@ public class PlayerLeaveSaveListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event){
-        ArematicsExecutor.runAsync(() -> savePlayerData(event.getPlayer(), true));
+        server.schedule().runAsync(() -> savePlayerData(event.getPlayer(), true));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onKick(PlayerKickEvent event){
-        ArematicsExecutor.runAsync(() -> savePlayerData(event.getPlayer(), true));
+        server.schedule().runAsync(() -> savePlayerData(event.getPlayer(), true));
     }
 
     public void savePlayerData(Player player, boolean publish){

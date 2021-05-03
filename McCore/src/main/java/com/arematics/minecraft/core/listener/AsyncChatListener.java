@@ -3,7 +3,6 @@ package com.arematics.minecraft.core.listener;
 import com.arematics.minecraft.core.events.AsyncChatMessageEvent;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.service.IgnoredService;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
@@ -29,7 +28,7 @@ public class AsyncChatListener implements Listener {
         String msg = msg(event.getPlayer(), event.isCancelled(), event.getMessage());
         players.stream()
                 .filter(player -> !ignoredService.hasIgnored(player.getUUID(), event.getPlayer().getUUID()))
-                .forEach(user -> ArematicsExecutor.runAsync(() -> sendMessage(msg, user)));
+                .forEach(user -> server.schedule().runAsync(() -> sendMessage(msg, user)));
     }
 
     private void sendMessage(String msg, CorePlayer player){

@@ -4,6 +4,7 @@ import com.arematics.minecraft.core.events.PlayerInteractEvent;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.entities.InteractType;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.RegionHandler;
 import com.arematics.minecraft.data.mode.model.Weapon;
 import com.arematics.minecraft.data.mode.model.WeaponType;
 import com.arematics.minecraft.data.service.WeaponService;
@@ -34,7 +35,7 @@ public class WeaponShotListener implements Listener {
         CorePlayer player = event.getPlayer();
         CoreItem hand = player.interact().getItemInHand();
         if(hand != null && hand.getMeta().hasKey("weapon") != null){
-            if(!player.regions().inRegionWithFlag(DefaultFlag.PVP)) return;
+            if(!player.handle(RegionHandler.class).inRegionWithFlag(DefaultFlag.PVP)) return;
             String weaponId = hand.getMeta().getString("weapon");
             if(ammo.getReloading().containsKey(player)){
                 player.actionBar().sendActionBar("§c§lWait until reload end");

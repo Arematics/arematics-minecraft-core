@@ -4,7 +4,6 @@ import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.bukkit.Tablist;
 import com.arematics.minecraft.core.server.Server;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.global.repository.RankRepository;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +63,7 @@ public class RankService implements GlobalMessageReceiveService{
     public void onReceive(String data) {
         try{
             Rank rank = getById(Long.parseLong(data));
-            server.onlineWithRank(rank.getId()).forEach(player -> ArematicsExecutor.runAsync(player::refreshCache));
+            server.onlineWithRank(rank.getId()).forEach(player -> server.schedule().runAsync(player::refreshCache));
             Tablist tablist = Boots.getBoot(CoreBoot.class).getContext().getBean(Tablist.class);
             tablist.patchTeam(rank);
         }catch (Exception ignore){}

@@ -1,13 +1,12 @@
 package com.arematics.minecraft.core.server.entities.player.inventories;
 
 import com.arematics.minecraft.core.items.CoreItem;
-import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Box;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.IntegerBox;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.InventoryPlaceholder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import com.arematics.minecraft.core.server.items.Items;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -16,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import org.springframework.data.domain.Page;
 
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 public class InventoryBuilder {
@@ -120,11 +118,9 @@ public class InventoryBuilder {
             sender.inventories().onSlotClick((inv, item) -> bindPaging(sender, binder, true), binder.getBoxing());
 
         Page<T> finalCurrent = current;
-        ArematicsExecutor.syncDelayed(() -> {
-            if(!finalCurrent.hasNext()) fillWithPlaceholder(Range.custom(this.size - 1));
-            if(!finalCurrent.hasPrevious()) fillWithPlaceholder(Range.custom(this.size - 9));
-            sender.getPlayer().updateInventory();
-        }, 50, TimeUnit.MILLISECONDS);
+        if(!finalCurrent.hasNext()) fillWithPlaceholder(Range.custom(this.size - 1));
+        if(!finalCurrent.hasPrevious()) fillWithPlaceholder(Range.custom(this.size - 9));
+        sender.getPlayer().updateInventory();
         return this;
     }
 

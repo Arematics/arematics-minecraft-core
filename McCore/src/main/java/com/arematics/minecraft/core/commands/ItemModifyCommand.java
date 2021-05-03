@@ -6,6 +6,7 @@ import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.world.InteractHandler;
 import com.arematics.minecraft.core.server.items.parser.ItemMetaParser;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,11 +108,11 @@ public class ItemModifyCommand extends CoreCommand {
     public void setCrystalItemMeta(CorePlayer sender, String key, String value) {
         if(!itemMetaParser.getTypes().containsKey(key))
             throw new CommandProcessException("command_item_modify_key_not_valid");
-        CoreItem hand = sender.interact().getItemInHand();
+        CoreItem hand = sender.handle(InteractHandler.class).getItemInHand();
         if(hand == null)
             throw new CommandProcessException("no_item_in_hand");
         hand.setString(key, value);
-        sender.interact().setItemInHand(hand);
+        sender.handle(InteractHandler.class).setItemInHand(hand);
         sender.info("command_item_modify_meta_set").handle();
     }
 }

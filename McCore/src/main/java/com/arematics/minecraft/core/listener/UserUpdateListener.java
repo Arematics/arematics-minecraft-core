@@ -1,8 +1,8 @@
 package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.bukkit.Tablist;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.User;
 import com.arematics.minecraft.data.service.ServerPropertiesService;
 import com.arematics.minecraft.data.service.UserService;
@@ -23,23 +23,24 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor(onConstructor_=@Autowired)
 public class UserUpdateListener implements Listener {
 
+    private final Server server;
     private final UserService userService;
     private final ServerPropertiesService serverPropertiesService;
     private final Tablist tablist;
 
     @EventHandler
     public void onJoin(PlayerJoinEvent joinEvent){
-        ArematicsExecutor.runAsync(() -> asyncedJoin(joinEvent.getPlayer()));
+        server.schedule().runAsync(() -> asyncedJoin(joinEvent.getPlayer()));
     }
 
     private void asyncedJoin(Player joinPlayer){
-        CorePlayer player = CorePlayer.get(joinPlayer);
+        CorePlayer player = server.fetchPlayer(joinPlayer);
         dispatchPlayerData(player);
     }
 
     private void dispatchPlayerData(CorePlayer player){
         patchUser(player);
-        ArematicsExecutor.syncRun(() -> sendTab(player));
+        server.schedule().runSync(() -> sendTab(player));
     }
 
     private void patchUser(CorePlayer player){

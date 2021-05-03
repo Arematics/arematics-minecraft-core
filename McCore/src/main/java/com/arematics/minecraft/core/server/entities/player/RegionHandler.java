@@ -4,9 +4,7 @@ import com.sk89q.worldguard.bukkit.RegionQuery;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
@@ -14,9 +12,7 @@ import java.util.Set;
 
 @Setter
 @Getter
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public class RegionHandler {
-    private final CorePlayer player;
+public class RegionHandler extends PlayerHandler {
     private final Set<ProtectedRegion> currentRegions = new HashSet<>();
 
     public boolean inRegionWithFlag(StateFlag flag){

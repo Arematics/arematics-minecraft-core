@@ -10,6 +10,7 @@ import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.advanced.PartBuilder;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.world.InteractHandler;
 import com.arematics.minecraft.data.mode.model.Warp;
 import com.arematics.minecraft.data.service.WarpService;
 import lombok.Getter;
@@ -59,7 +60,7 @@ public class WarpCommand extends CoreCommand {
     }
 
     public void teleport(CorePlayer player, Warp warp, boolean instant){
-        player.interact().teleport(warp.getLocation(), instant).schedule();
+        player.handle(InteractHandler.class).teleport(warp.getLocation(), instant).schedule();
     }
 
     @SubCommand("set {warp}")

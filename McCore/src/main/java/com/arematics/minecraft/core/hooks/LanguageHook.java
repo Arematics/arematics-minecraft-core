@@ -1,6 +1,6 @@
 package com.arematics.minecraft.core.hooks;
 
-import com.arematics.minecraft.core.language.LanguageAPI;
+import com.arematics.minecraft.core.language.LanguageCache;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
@@ -30,7 +30,7 @@ public class LanguageHook implements Hook<String>{
     @Override
     public void processAction(String file, JavaPlugin plugin) {
         try(InputStream stream = this.loader.getResourceAsStream(file)){
-            LanguageAPI.registerFile(stream);
+            LanguageCache.getInstance().registerFile(stream);
         }catch (Exception e){
             Bukkit.getLogger().severe("Could not add Language File " + file + ": " + e.getMessage());
         }

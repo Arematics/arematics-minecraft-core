@@ -8,6 +8,7 @@ import com.arematics.minecraft.data.share.model.OnlineTime;
 import lombok.Getter;
 import lombok.Setter;
 import org.joda.time.Period;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -16,24 +17,21 @@ import java.util.function.Function;
 
 @Setter
 @Getter
-public class OnlineTimeHandler {
+public class OnlineTimeHandler extends PlayerHandler{
 
-    private static OnlineTimeService onlineTimeService;
-    private final CorePlayer player;
-
+    private final OnlineTimeService onlineTimeService;
     private final LocalDateTime joined;
     private LocalDateTime lastPatch;
     private LocalDateTime lastAntiAFKEvent;
 
     private Duration lastAfk = null;
 
-    public OnlineTimeHandler(CorePlayer player){
-        this.player = player;
+    @Autowired
+    public OnlineTimeHandler(OnlineTimeService onlineTimeService){
+        this.onlineTimeService = onlineTimeService;
         this.joined = LocalDateTime.now();
         this.lastPatch = this.joined;
         this.lastAntiAFKEvent = this.joined;
-        if(onlineTimeService == null)
-            onlineTimeService = Boots.getBoot(CoreBoot.class).getContext().getBean(OnlineTimeService.class);
 
         this.updateOnlineTimeData(true, OnlineTime::getTime);
         this.updateOnlineTimeData(false, OnlineTime::getTime);

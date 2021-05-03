@@ -10,7 +10,6 @@ import com.arematics.minecraft.core.server.entities.player.inventories.Inventory
 import com.arematics.minecraft.core.server.entities.player.inventories.PageBinder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
 import com.arematics.minecraft.core.server.items.Items;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.EnumUtils;
 import com.arematics.minecraft.data.global.model.EndTimeFilter;
 import com.arematics.minecraft.data.mode.model.*;
@@ -117,7 +116,7 @@ public class AuctionCommand extends CoreCommand {
         sender.inventories()
                 .addRefresher(() -> builder.bindPaging(sender, binder, false))
                 .enableRefreshTask()
-                .onSlotClick((inv, item) -> ArematicsExecutor.runAsync(() -> {
+                .onSlotClick((inv, item) -> server.schedule().runAsync(() -> {
                     try{
                         Auction auction = auctionService.findById(Auction.readAuctionIdFromItem(item));
                         sender.interact().dispatchCommand("auction bidcollect " + auction.getAuctionId());
@@ -201,7 +200,7 @@ public class AuctionCommand extends CoreCommand {
                     return null;
                 })
                 .registerItemClick(newAuction, () -> new AuctionCreator(sender, null, server))
-                .onSlotClick((inv, item) -> ArematicsExecutor.runAsync(() -> {
+                .onSlotClick((inv, item) -> server.schedule().runAsync(() -> {
                     try{
                         Auction auction = auctionService.findById(Auction.readAuctionIdFromItem(item));
                         sender.interact().dispatchCommand("auction collect " + auction.getAuctionId());
@@ -269,7 +268,7 @@ public class AuctionCommand extends CoreCommand {
         }catch (Exception ignore){}
         double start = (Math.max(auction.getStartPrice(), auction.getHighestBidPrice()) * 1.05);
         try {
-            double value = ArematicsExecutor.awaitNumberResult("Set Bid Price ", start, start, sender).doubleValue();
+            double value = server.schedule().awaitNumberResult("Set Bid Price ", start, start, sender).doubleValue();
             if(sender.getMoney() < value)
                 throw new CommandProcessException("Not enough money");
             if(value < start)

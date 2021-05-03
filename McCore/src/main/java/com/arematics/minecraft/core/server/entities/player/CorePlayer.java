@@ -2,19 +2,17 @@ package com.arematics.minecraft.core.server.entities.player;
 
 import com.arematics.minecraft.core.Boots;
 import com.arematics.minecraft.core.CoreBoot;
-import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSet;
+import com.arematics.minecraft.core.bukkit.scoreboard.functions.BoardSetHandler;
 import com.arematics.minecraft.core.messaging.MessageInjector;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.advanced.Part;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageReplace;
 import com.arematics.minecraft.core.server.entities.CurrencyEntity;
-import com.arematics.minecraft.core.server.entities.player.protocols.ActionBar;
+import com.arematics.minecraft.core.server.entities.player.protocols.ActionBarHandler;
 import com.arematics.minecraft.core.server.entities.player.protocols.BossBarHandler;
 import com.arematics.minecraft.core.server.entities.player.protocols.Packets;
 import com.arematics.minecraft.core.server.entities.player.protocols.Title;
-import com.arematics.minecraft.core.server.entities.player.world.InteractHandler;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.CommandUtils;
 import com.arematics.minecraft.data.global.model.Configuration;
 import com.arematics.minecraft.data.global.model.Rank;
@@ -30,16 +28,14 @@ import lombok.experimental.Accessors;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 @Setter
 @Getter
@@ -49,43 +45,20 @@ public class CorePlayer implements CurrencyEntity {
     private static final Logger logger = LoggerFactory.getLogger(CorePlayer.class);
 
     private static Locale defaultLocale = Locale.GERMAN;
-    private static Map<UUID, CorePlayer> players = new HashMap<>();
-
-    public static List<CorePlayer> getAll(List<Player> senders){
-        return senders.stream().map(CorePlayer::get).collect(Collectors.toList());
-    }
-
-    @NotNull
-    public static CorePlayer get(@NotNull Player sender){
-        if(!players.containsKey(sender.getUniqueId()))
-            players.put(sender.getUniqueId(), new CorePlayer(sender));
-        return players.get(sender.getUniqueId());
-    }
-
-    public static void invalidate(Player player){
-        if(players.containsKey(player.getUniqueId())) players.get(player.getUniqueId()).unload();
-        players.remove(player.getUniqueId());
-    }
 
     private final Player player;
-    private final BoardSet boardSet;
-    private final PlayerRequestSettings requests;
-    private final InventoryHandler inventories;
-    private final RegionHandler regions;
-    private final OnlineTimeHandler onlineTime;
-    private final InteractHandler interact;
     private boolean ignoreMeta = false;
     private boolean disableLowerInventory = false;
     private boolean disableUpperInventory = false;
 
-    private final GameStatsService service;
     private final UserService userService;
+    private final GameStatsService service;
 
     private List<String> lastCommands = new ArrayList<>();
     private int page;
 
     private Packets packets;
-    private ActionBar actionBar;
+    private ActionBarHandler actionBar;
     private BossBarHandler bossBar;
     private Title title;
 
@@ -97,30 +70,34 @@ public class CorePlayer implements CurrencyEntity {
     private String chatMessage;
     private String ogColorCode = "§8";
 
-    public CorePlayer(Player player){
+    private Map<Class<? extends PlayerHandler>, Object> playerHandlers = new HashMap<>();
+
+    public CorePlayer(Player player,
+                      UserService userService,
+                      GameStatsService gameStatsService,
+                      OgService ogService,
+                      Set<Class<? extends PlayerHandler>> handlers){
+        handlers.forEach(handler -> {
+            try {
+                PlayerHandler newHandler = handler.newInstance();
+                ConfigurableListableBeanFactory factory = Boots.getBoot(CoreBoot.class).getContext().getBeanFactory();
+                factory.autowireBean(newHandler);
+                newHandler.init(this);
+                playerHandlers.put(handler, newHandler);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
         logger.debug("Creating player: " + player.getName());
         this.player = player;
-        this.boardSet = new BoardSet(player);
-        this.userService = Boots.getBoot(CoreBoot.class).getContext().getBean(UserService.class);
-        this.requests = new PlayerRequestSettings(this);
-        this.inventories = new InventoryHandler(this);
-        this.regions = new RegionHandler(this);
-        this.onlineTime = new OnlineTimeHandler(this);
-        this.interact = new InteractHandler(this);
-        this.service = Boots.getBoot(CoreBoot.class).getContext().getBean(GameStatsService.class);
+        this.userService = userService;
+        this.service = gameStatsService;
         this.packets = new Packets(player);
-        this.actionBar = new ActionBar(this);
         this.bossBar = new BossBarHandler(this);
         this.title = new Title(this);
-        OgService ogService = Boots.getBoot(CoreBoot.class).getContext().getBean(OgService.class);
         try{
             SoulOg og = ogService.findByUUID(player.getUniqueId());
             this.ogColorCode = "§" + og.getColorCode();
-            ArematicsExecutor.asyncDelayed(() -> {
-                this.interact().dispatchCommand("board mode toggle");
-                info("We registered you must be an old soul player, so we changed your scoreboard mode. " +
-                        "Change again with /sb mode toggle").handle();
-            }, 5, TimeUnit.SECONDS);
         }catch (Exception ignore){}
 
         User user = this.getUser();
@@ -131,6 +108,10 @@ public class CorePlayer implements CurrencyEntity {
         if(configuration != null) this.selectedLocale = Locale.forLanguageTag(configuration.getValue());
         else setLocale(CorePlayer.defaultLocale);
         refreshChatMessage();
+    }
+
+    public <T extends PlayerHandler> T handle(Class<T> handler){
+        return handler.cast(playerHandlers.getOrDefault(handler, null));
     }
 
     public Player getPlayer(){
@@ -184,9 +165,10 @@ public class CorePlayer implements CurrencyEntity {
     public ZonedDateTime parseTime(LocalDateTime time){
         return ZonedDateTime.of(time, TimeZone.getTimeZone("Europe/Berlin").toZoneId());
     }
-    private void unload() {
+
+    public void unload() {
         logger.debug("Unloading player: " + this.getName());
-        this.boardSet.remove();
+        handle(BoardSetHandler.class).remove();
     }
 
     public void addLastCommand(String command){
@@ -243,8 +225,8 @@ public class CorePlayer implements CurrencyEntity {
         return Messages.create(msg).FAILURE().to(this.getPlayer());
     }
 
-    public BoardSet getBoard(){
-        return this.boardSet;
+    public BoardSetHandler getBoard(){
+        return handle(BoardSetHandler.class);
     }
 
     public GameStats getStats(){

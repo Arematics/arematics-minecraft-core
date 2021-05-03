@@ -2,6 +2,7 @@ package com.arematics.minecraft.core.items;
 
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.world.InteractHandler;
 import com.arematics.minecraft.core.server.items.ItemCategory;
 import de.tr7zw.nbtapi.NBTItem;
 import lombok.Getter;
@@ -84,7 +85,7 @@ public class CoreItem extends ItemStack {
     }
 
     public static void executeOnHandItem(CorePlayer player, Consumer<CoreItem> execute){
-        CoreItem itemStack = CoreItem.create(player.interact().getItemInHand());
+        CoreItem itemStack = CoreItem.create(player.handle(InteractHandler.class).getItemInHand());
         if(itemStack != null) execute.accept(itemStack);
         else player.warn("no_item_in_hand").handle();
     }

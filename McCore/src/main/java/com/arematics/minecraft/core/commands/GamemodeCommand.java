@@ -4,7 +4,6 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import org.bukkit.GameMode;
 import org.springframework.stereotype.Component;
 
@@ -30,14 +29,14 @@ public class GamemodeCommand extends CoreCommand {
     private void changeGameMode(CorePlayer player, CorePlayer target, String mode){
         try{
             GameMode modeE = GameMode.getByValue(Integer.parseInt(mode));
-            ArematicsExecutor.syncRun(() -> target.getPlayer().setGameMode(modeE));
+            server.schedule().runSync(() -> target.getPlayer().setGameMode(modeE));
             target.info("gamemode")
                     .DEFAULT()
                     .replace("mode", modeE.name())
                     .handle();
         }catch (NumberFormatException nfe){
             GameMode modeE = GameMode.valueOf(mode.toUpperCase());
-            ArematicsExecutor.syncRun(() -> target.getPlayer().setGameMode(modeE));
+            server.schedule().runSync(() -> target.getPlayer().setGameMode(modeE));
             target.info("gamemode")
                     .DEFAULT()
                     .replace("mode", modeE.name())

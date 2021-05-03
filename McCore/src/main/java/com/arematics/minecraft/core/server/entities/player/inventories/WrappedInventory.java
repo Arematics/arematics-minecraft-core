@@ -2,7 +2,6 @@ package com.arematics.minecraft.core.server.entities.player.inventories;
 
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.data.service.InventoryService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,35 +10,27 @@ import org.bukkit.inventory.Inventory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class WrappedInventory {
 
-    private final InventoryService inventoryService;
     private Inventory open;
     private final String key;
     private final boolean global;
     private final Map<CorePlayer, OpenStrategy> viewers = new HashMap<>();
 
-    public void closeForAll(){
-        Set<CorePlayer> players = this.viewers.keySet();
-        players.forEach(player -> {
-            if(player.getPlayer().getOpenInventory().getTopInventory() != null) player.getPlayer().closeInventory();
-            closeFor(player);
-        });
-    }
-
     public void closeFor(CorePlayer player){
         viewers.remove(player);
-        if(viewers.isEmpty()) tearDown();
     }
 
-    public void openFor(CorePlayer player, OpenStrategy strategy){
-        if(!viewers.containsKey(player)) viewers.put(player, strategy);
-        strategy.openInventory(open, player);
+    public void addViewer(CorePlayer player, OpenStrategy openStrategy){
+        this.viewers.put(player, openStrategy);
+    }
+
+    public Map<CorePlayer, OpenStrategy> viewers() {
+        return viewers;
     }
 
     /**
@@ -48,10 +39,6 @@ public class WrappedInventory {
      */
     public void setContents(CoreItem[] contents){
         this.open.setContents(contents);
-    }
-
-    public void tearDown(){
-        inventoryService.save(this);
     }
 
     @Override

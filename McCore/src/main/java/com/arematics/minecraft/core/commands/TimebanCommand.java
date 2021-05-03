@@ -4,7 +4,6 @@ import com.arematics.minecraft.core.annotations.Perm;
 import com.arematics.minecraft.core.annotations.SubCommand;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.times.TimeUtils;
 import com.arematics.minecraft.data.global.model.Ban;
 import com.arematics.minecraft.data.global.model.User;
@@ -55,7 +54,7 @@ public class TimebanCommand extends CoreCommand {
         Player targetPlayer = Bukkit.getPlayer(target.getUuid());
         Ban finalBan = ban;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
-        ArematicsExecutor.syncRun(() -> {
+        server.schedule().runSync(() -> {
             if(targetPlayer != null) targetPlayer.kickPlayer("§cYou have been banned until \n§c" +
                     formatter.format(finalBan.getBannedUntil().toLocalDateTime()) + "\n§b" + finalBan.getReason());
         });

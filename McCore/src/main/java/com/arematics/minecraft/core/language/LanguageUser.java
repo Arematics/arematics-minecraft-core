@@ -13,11 +13,9 @@ public class LanguageUser {
     private final CorePlayer player;
     private Language language;
 
-    public LanguageUser(CorePlayer player){
+    public LanguageUser(CorePlayer player, Language language){
         this.player = player;
-        Configuration configuration = this.player.getUser().getConfigurations().get("language");
-        if(configuration != null) this.language = LanguageAPI.getLanguage(configuration.getValue());
-        else setLanguage(LanguageAPI.getLanguage("ENGLISH"));
+        this.language = language;
     }
 
     public Player getPlayer() {

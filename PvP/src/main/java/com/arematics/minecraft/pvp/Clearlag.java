@@ -3,7 +3,6 @@ package com.arematics.minecraft.pvp;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.messaging.injector.StringInjector;
 import com.arematics.minecraft.core.server.Server;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import lombok.Data;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -11,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Minecart;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,10 +40,10 @@ public class Clearlag {
 
         if (duration.toMillis() > 120_000) {
             long timeTillFirstExecute = duration.toMillis() - 59_999;
-            ArematicsExecutor.asyncDelayed(this::mentionClearLag, timeTillFirstExecute, TimeUnit.MILLISECONDS);
+            server.schedule().asyncDelayed(this::mentionClearLag, timeTillFirstExecute, TimeUnit.MILLISECONDS);
         }
 
-        ArematicsExecutor.asyncDelayed(this::executeClearLag, duration.toMillis() - 5_000, TimeUnit.MILLISECONDS);
+        server.schedule().asyncDelayed(this::executeClearLag, duration.toMillis() - 5_000, TimeUnit.MILLISECONDS);
     }
 
     private void mentionClearLag(){
@@ -55,10 +55,10 @@ public class Clearlag {
     }
 
     private void executeClearLag(){
-        ArematicsExecutor.syncRepeat(this::clearLag, 0, 1, TimeUnit.SECONDS, 5);
+        server.schedule().syncRepeat(this::clearLag, 0, 1, TimeUnit.SECONDS, 5);
     }
 
-    private void clearLag(int time){
+    private void clearLag(BukkitRunnable runnable, int time){
         float value = ((float) time) / ((float) 5);
         if (time == 0) {
             StringInjector stringInjector = Messages.create("clear_lag_now")
@@ -67,10 +67,10 @@ public class Clearlag {
                     .disableServerPrefix();
             server.getOnline().forEach(player -> {
                 player.bossBar().set(stringInjector.toObject(player.player()), 1);
-                ArematicsExecutor.syncDelayed(() -> player.bossBar().hide(), 2, TimeUnit.SECONDS);
+                server.schedule().syncDelayed(() -> player.bossBar().hide(), 2, TimeUnit.SECONDS);
             });
             clear();
-            ArematicsExecutor.asyncDelayed(this::start, 5, TimeUnit.SECONDS);
+            server.schedule().asyncDelayed(this::start, 5, TimeUnit.SECONDS);
         } else {
             StringInjector stringInjector = Messages.create("clear_lag_in")
                     .to(Bukkit.getOnlinePlayers().toArray(new CommandSender[]{}))

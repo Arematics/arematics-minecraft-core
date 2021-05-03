@@ -1,5 +1,6 @@
 package com.arematics.minecraft.core.bukkit;
 
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.data.global.model.Rank;
 import com.arematics.minecraft.data.service.RankService;
@@ -14,10 +15,12 @@ import java.util.Arrays;
 @Component
 public class Tablist {
 
+    private final Server server;
     private final RankService rankService;
 
     @Autowired
-    public Tablist(RankService rankService){
+    public Tablist(Server server, RankService rankService){
+        this.server = server;
         this.rankService = rankService;
         this.rankService.findAll().forEach(this::patchTeam);
         flushOnlines();
@@ -37,7 +40,7 @@ public class Tablist {
     }
 
     public void flushOnlines(){
-        refresh(Bukkit.getOnlinePlayers().stream().map(CorePlayer::get).toArray(CorePlayer[]::new));
+        refresh(Bukkit.getOnlinePlayers().stream().map(server.players()::fetchPlayer).toArray(CorePlayer[]::new));
     }
 
     public void refresh(CorePlayer... players){

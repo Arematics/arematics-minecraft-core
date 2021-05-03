@@ -11,11 +11,11 @@ import java.util.Collection;
 public class BoardHandler {
 
     public final Board BOARD;
-    private final BoardSet BOARD_SET;
+    private final BoardSetHandler BOARD_SET;
 
     private boolean buildEntries = false;
 
-    public BoardHandler(BoardSet set, Board board){
+    public BoardHandler(BoardSetHandler set, Board board){
         this.BOARD_SET = set;
         this.BOARD = board;
     }

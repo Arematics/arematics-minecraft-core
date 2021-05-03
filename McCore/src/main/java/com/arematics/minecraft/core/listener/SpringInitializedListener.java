@@ -7,18 +7,21 @@ import com.arematics.minecraft.core.bukkit.Tablist;
 import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.events.SpringInitializedEvent;
 import com.arematics.minecraft.core.hooks.PermissionCreationHook;
+import com.arematics.minecraft.core.hooks.ScanEnvironment;
 import com.arematics.minecraft.core.messaging.Messages;
 import com.arematics.minecraft.core.server.Server;
-import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import com.arematics.minecraft.core.server.entities.player.OnlineTimeHandler;
+import com.arematics.minecraft.core.server.entities.player.PlayerHandler;
 import com.arematics.minecraft.data.service.BroadcastService;
 import com.arematics.minecraft.data.share.model.BroadcastMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.reflections.Reflections;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -29,10 +32,15 @@ public class SpringInitializedListener implements Listener {
         CoreBoot boot = Boots.getBoot(CoreBoot.class);
         boot.setSpringInitialized(true);
         boot.nextShutdownHandler();
-        ArematicsExecutor.runAsync(() -> scanPermissions(boot));
+        Server server = Boots.getBoot(CoreBoot.class).getContext().getBean(Server.class);
+        server.schedule().runAsync(() -> scanPermissions(boot));
+        Reflections reflections = new Reflections(ScanEnvironment.getBuilder("com.arematics.minecraft", (CompoundClassLoader)
+                event.getContext().getClassLoader()));
+        Set<Class<? extends PlayerHandler>> classes = reflections.getSubTypesOf(PlayerHandler.class);
+        classes.forEach(classType -> server.players().registerHandler(classType));
         registerBukkitWorkers(boot);
         Tablist tablist = boot.getContext().getBean(Tablist.class);
-        createAsyncTasks(tablist);
+        createAsyncTasks(server, tablist);
         tablist.flushOnlines();
     }
 
@@ -58,16 +66,16 @@ public class SpringInitializedListener implements Listener {
         });
     }
 
-    private void createAsyncTasks(Tablist tablist){
-        ArematicsExecutor.asyncRepeat(this::callTwoMinuteAsyncTasks, 2, 2, TimeUnit.MINUTES);
-        ArematicsExecutor.asyncRepeat(() -> callFiveMinuteAsyncTasks(tablist), 5, 5, TimeUnit.MINUTES);
+    private void createAsyncTasks(Server server, Tablist tablist){
+        server.schedule().asyncRepeat(() -> this.callTwoMinuteAsyncTasks(server), 2, 2, TimeUnit.MINUTES);
+        server.schedule().asyncRepeat(() -> callFiveMinuteAsyncTasks(server, tablist), 5, 5, TimeUnit.MINUTES);
     }
 
-    private void callTwoMinuteAsyncTasks(){
-        this.saveInventories();
+    private void callTwoMinuteAsyncTasks(Server server){
+        this.saveInventories(server);
     }
 
-    private void callFiveMinuteAsyncTasks(Tablist tablist){
+    private void callFiveMinuteAsyncTasks(Server server, Tablist tablist){
         try{
             BroadcastService service = Boots.getBoot(CoreBoot.class).getContext().getBean(BroadcastService.class);
             BroadcastMessage message = service.fetchRandom();
@@ -79,14 +87,14 @@ public class SpringInitializedListener implements Listener {
                     .handle();
         }catch (RuntimeException ignored){}
         tablist.refreshTeams();
-        Bukkit.getOnlinePlayers().stream().map(CorePlayer::get).forEach(player -> player.onlineTime().updateOnlineTime());
+        Bukkit.getOnlinePlayers().stream().map(server.players()::fetchPlayer).forEach(player ->
+                player.handle(OnlineTimeHandler.class).updateOnlineTime());
     }
 
-    private void saveInventories(){
-        Server server = Boots.getBoot(CoreBoot.class).getContext().getBean(Server.class);
+    private void saveInventories(Server server){
         PlayerLeaveSaveListener playerLeaveSaveListener = Boots.getBoot(CoreBoot.class).getContext()
                 .getBean(PlayerLeaveSaveListener.class);
-        server.getOnline().forEach(player -> ArematicsExecutor.runAsync(() ->
+        server.getOnline().forEach(player -> server.schedule().runAsync(() ->
                 playerLeaveSaveListener.savePlayerData(player.getPlayer(), false)));
     }
 }

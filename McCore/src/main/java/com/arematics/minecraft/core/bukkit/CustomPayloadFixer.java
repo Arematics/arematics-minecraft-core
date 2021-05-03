@@ -90,7 +90,7 @@ public class CustomPayloadFixer extends ArematicsPacketAdapter implements Quitab
         }
         catch (Throwable ex) {
             PACKET_USAGE.put(player, -2L);
-            ArematicsExecutor.syncRun(() -> {
+            server.schedule().runSync(() -> {
                 player.kickPlayer(kickMessage);
                 String message = teamMessage.replace("%name%", player.getName()).replace("%reason%", ex.getMessage());
                 System.err.println("[CustomPayloadFixer] Blocked expoit from " + player.getName() + ": " + ex.getMessage());

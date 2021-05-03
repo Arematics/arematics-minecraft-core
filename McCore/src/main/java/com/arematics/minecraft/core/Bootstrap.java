@@ -64,8 +64,6 @@ public abstract class Bootstrap extends JavaPlugin {
         hook.enable();
     }
 
-    public abstract void shutdown();
-
     public Config getPluginConfig() {
         return config;
     }

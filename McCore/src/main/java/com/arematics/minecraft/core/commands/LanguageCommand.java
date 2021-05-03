@@ -9,8 +9,9 @@ import com.arematics.minecraft.core.language.LanguageUser;
 import com.arematics.minecraft.core.messaging.advanced.*;
 import com.arematics.minecraft.core.messaging.injector.advanced.AdvancedMessageInjector;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.InventoryHandler;
+import com.arematics.minecraft.core.server.entities.player.inventories.InventoryController;
 import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
-import com.arematics.minecraft.data.service.InventoryService;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -22,12 +23,14 @@ import java.util.Arrays;
 @Component
 public class LanguageCommand extends CoreCommand {
 
-    private final InventoryService service;
+    private final LanguageAPI languageAPI;
+    private final InventoryController inventoryController;
 
     @Autowired
-    public LanguageCommand(InventoryService inventoryService){
+    public LanguageCommand(LanguageAPI languageAPI, InventoryController inventoryController){
         super("language", true, "lang", "sprache");
-        this.service = inventoryService;
+        this.languageAPI = languageAPI;
+        this.inventoryController = inventoryController;
     }
 
     @Override
@@ -41,9 +44,9 @@ public class LanguageCommand extends CoreCommand {
 
     @Override
     protected void onDefaultGUI(CorePlayer player){
-        WrappedInventory inv = service.findOrCreate("language.default.selection", "§9Language", (byte) 9);
+        WrappedInventory inv = inventoryController.findOrCreate("language.default.selection", "§9Language", (byte) 9);
         if(player.ignoreMeta()){
-            player.inventories().openLowerEnabledInventory(inv);
+            player.handle(InventoryHandler.class).openLowerEnabledInventory(inv);
             return;
         }
         CoreItem[] items = Arrays.stream(CoreItem.create(inv.getOpen().getContents()))
@@ -51,7 +54,7 @@ public class LanguageCommand extends CoreCommand {
                 .toArray(CoreItem[]::new);
         Inventory clone = Bukkit.createInventory(null, (byte) 9, "§9Language");
         clone.setContents(items);
-        player.inventories().openInventory(clone);
+        player.handle(InventoryHandler.class).openInventory(clone);
     }
 
     private CoreItem process(Player player, CoreItem item){
@@ -59,7 +62,7 @@ public class LanguageCommand extends CoreCommand {
         String value = item.readMetaValue("language");
         if(value != null){
             value = mapLanguageInput(value);
-            Language language = LanguageAPI.getUser(player).getLanguage();
+            Language language = languageAPI.getUser(player).getLanguage();
             item = item.setName("§aLanguage: §c" + value);
             if(language.getName().equals(value)){
                 return item.unbindCommand().disableClick()
@@ -73,7 +76,7 @@ public class LanguageCommand extends CoreCommand {
 
     private Part asPart(CorePlayer sender, String language){
         return new Part(language)
-                .setHoverAction(HoverAction.SHOW_TEXT, LanguageAPI.prepareRawMessage(sender.getPlayer(), "language_change_to")
+                .setHoverAction(HoverAction.SHOW_TEXT, languageAPI.prepareRawMessage(sender.getPlayer(), "language_change_to")
                         .replaceAll("%language%", language))
                 .setClickAction(ClickAction.RUN_COMMAND, "/language " + language);
     }
@@ -81,12 +84,12 @@ public class LanguageCommand extends CoreCommand {
     @SubCommand("{language}")
     public boolean changeLanguage(CorePlayer player, String language) {
         language = mapLanguageInput(language);
-        Language finalLanguage = LanguageAPI.getLanguage(language);
+        Language finalLanguage = languageAPI.getLanguage(language);
         if(finalLanguage == null){
             player.warn("language_not_found").handle();
             return true;
         }
-        LanguageUser user = LanguageAPI.getUser(player.getPlayer());
+        LanguageUser user = languageAPI.getUser(player.getPlayer());
         user.setLanguage(finalLanguage);
         player.info("language_changed")
                 .DEFAULT()

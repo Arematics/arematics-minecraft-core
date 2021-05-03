@@ -1,7 +1,8 @@
 package com.arematics.minecraft.core.listener;
 
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -12,21 +13,25 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 @Component
+@RequiredArgsConstructor(onConstructor_=@Autowired)
 public class AntiItemDuplicateBugListener implements Listener{
+
+	private final Server server;
 
 	@EventHandler (priority = EventPriority.MONITOR)
 	public void onInteract(PlayerInteractEvent e){
 		if(e.getAction() == Action.RIGHT_CLICK_BLOCK){
 			if(e.getClickedBlock().getState() instanceof Dropper || e.getClickedBlock().getState() instanceof Hopper || e.getClickedBlock() instanceof Dispenser){
 				final Block block = e.getClickedBlock();
-				CorePlayer player = CorePlayer.get(e.getPlayer());
-				ArematicsExecutor.syncDelayed(() -> checkBlocks(block, player), 500, TimeUnit.MILLISECONDS);
+				CorePlayer player = server.fetchPlayer(e.getPlayer());
+				server.schedule().syncDelayed(() -> checkBlocks(block, player), 500, TimeUnit.MILLISECONDS);
 			}
 		}
 	}
@@ -36,22 +41,20 @@ public class AntiItemDuplicateBugListener implements Listener{
 		if(e.isCancelled()) return;
 		if(e.getBlockPlaced().getState() instanceof Dropper || e.getBlockPlaced().getState() instanceof Hopper || e.getBlockPlaced() instanceof Dispenser){
 			final Block block = e.getBlockPlaced();
-			CorePlayer player = CorePlayer.get(e.getPlayer());
-			ArematicsExecutor.syncDelayed(() -> checkBlocks(block, player), 500, TimeUnit.MILLISECONDS);
+			CorePlayer player = server.fetchPlayer(e.getPlayer());
+			server.schedule().syncDelayed(() -> checkBlocks(block, player), 500, TimeUnit.MILLISECONDS);
 		}
 	}
 
-	private boolean checkBlocks(Block b, CorePlayer p){
+	private void checkBlocks(Block b, CorePlayer p){
 		if(b.getState() instanceof Dropper){
-			return checkDropper(b, p);
+			checkDropper(b, p);
 		}else if(b.getState() instanceof Dispenser){
-			return checkDispenser(b, p);
+			checkDispenser(b, p);
 		}else if(b.getState() instanceof Hopper){
 			boolean disp = checkDispenser(b, p);
 			boolean drop = !disp && checkDropper(b, p);
-			return disp || drop;
 		}
-		return false;
 	}
 
 	private static boolean checkDispenser(Block b, CorePlayer p){

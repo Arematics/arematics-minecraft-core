@@ -1,5 +1,7 @@
 package com.arematics.minecraft.core.server.entities.player.protocols;
 
+import com.arematics.minecraft.core.Boots;
+import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.messaging.injector.StringInjector;
 import com.arematics.minecraft.core.server.entities.bossbar.BossBar;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
@@ -19,9 +21,11 @@ import java.util.function.Consumer;
 public class BossBarHandler {
 
     private static final List<BossBarHandler> handlers = new ArrayList<>();
+    private static final ArematicsExecutor arematicsExecutor;
 
     static{
-        ArematicsExecutor.asyncRepeat(() -> handlers.forEach(handler -> ArematicsExecutor.syncRun(handler::refreshLocation)),
+        arematicsExecutor = Boots.getBoot(CoreBoot.class).getContext().getBean(ArematicsExecutor.class);
+        arematicsExecutor.asyncRepeat(() -> handlers.forEach(handler -> arematicsExecutor.runSync(handler::refreshLocation)),
                 0, 5, TimeUnit.SECONDS);
     }
 
@@ -39,11 +43,10 @@ public class BossBarHandler {
     }
 
     public void sendWithLength(String msg, Consumer<StringInjector> consumer, int maxSize){
-        ArematicsExecutor.syncRepeat(count -> {
+        arematicsExecutor.syncRepeat((runnable, count) -> {
             if(count == 0) hide();
             else {
                 float value = ((float) count) / ((float) maxSize);
-                System.out.println(value);
                 set(msg, consumer, value);
             }
         }, 1, 1, TimeUnit.SECONDS, maxSize);

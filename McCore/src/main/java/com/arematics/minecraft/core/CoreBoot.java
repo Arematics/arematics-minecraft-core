@@ -8,12 +8,12 @@ import com.arematics.minecraft.core.messaging.injector.StringInjector;
 import com.arematics.minecraft.core.proxy.MessagingUtils;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.times.TimeUtils;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.comphenix.protocol.ProtocolLibrary;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.spigotmc.SpigotConfig;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -50,7 +50,7 @@ public class CoreBoot extends Bootstrap{
     }
 
     @Override
-    public void shutdown() {
+    public void postDisable() {
         Server server = this.getContext().getBean(Server.class);
         server.onStop();
         ProtocolLibrary.getProtocolManager().removePacketListeners(Boots.getBoot(CoreBoot.class));
@@ -65,25 +65,25 @@ public class CoreBoot extends Bootstrap{
 
         long timeTillFirstExecute = (nextShutdown.toMillis() / 1000) - 300;
         long timeTillSecondExecute = (nextShutdown.toMillis() / 1000) - 100;
-        ArematicsExecutor.asyncDelayed(() ->
+        server.schedule().asyncDelayed(() ->
                         sendShutdownIn(server, TimeUtils.toString(System.currentTimeMillis() - nextShutdown.toMillis())),
                 timeTillFirstExecute, TimeUnit.SECONDS);
 
-        ArematicsExecutor.asyncDelayed(() ->
+        server.schedule().asyncDelayed(() ->
                         sendShutdownIn(server, TimeUtils.toString(System.currentTimeMillis() - nextShutdown.toMillis())),
                 timeTillSecondExecute, TimeUnit.SECONDS);
 
 
-        ArematicsExecutor.asyncDelayed(() ->
+        server.schedule().asyncDelayed(() ->
                         startShutdownSchedule(server),
                 nextShutdown.toMillis() - 11_000, TimeUnit.MILLISECONDS);
     }
 
     private void startShutdownSchedule(Server server){
-        ArematicsExecutor.syncRepeat((count) -> shutdown(count, server), 0, 1, TimeUnit.SECONDS, 10);
+        server.schedule().syncRepeat((runnable, count) -> shutdown(runnable, count, server), 0, 1, TimeUnit.SECONDS, 10);
     }
 
-    private void shutdown(int time, Server server){
+    private void shutdown(BukkitRunnable runnable, int time, Server server){
         if(time != 0){
             Messages.create("Server restart in %seconds%")
                     .WARNING()

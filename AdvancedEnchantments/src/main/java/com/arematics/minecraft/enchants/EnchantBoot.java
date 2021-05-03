@@ -14,8 +14,4 @@ public class EnchantBoot extends Bootstrap {
     public void postEnable() {
         Bukkit.getPluginManager().registerEvents(new PullCustomEnchantmentsListener(), this);
     }
-
-    @Override
-    public void shutdown() {
-    }
 }

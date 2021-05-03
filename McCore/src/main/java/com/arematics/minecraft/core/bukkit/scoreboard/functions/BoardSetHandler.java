@@ -2,6 +2,8 @@ package com.arematics.minecraft.core.bukkit.scoreboard.functions;
 
 import com.arematics.minecraft.core.bukkit.scoreboard.model.Board;
 import com.arematics.minecraft.core.bukkit.scoreboard.model.BoardEntry;
+import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.PlayerHandler;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.entity.Player;
 
@@ -10,15 +12,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BoardSet {
+public class BoardSetHandler extends PlayerHandler {
 
-    public final Player PLAYER;
-    public final BoardPackets PACKETS;
     public final Map<String, Board> BOARDS = new HashMap<>();
-    public final Scoreboard SCOREBOARD;
+    public Player PLAYER;
+    public BoardPackets PACKETS;
+    public Scoreboard SCOREBOARD;
     public Board SHOWN = null;
 
-    public BoardSet(Player p){
+    @Override
+    public void init(CorePlayer player) {
+        Player p = player.player();
         this.PLAYER = p;
         this.PACKETS = new BoardPackets(p);
         this.SCOREBOARD = new Scoreboard();

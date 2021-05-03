@@ -1,5 +1,6 @@
 package com.arematics.minecraft.data.global.model;
 
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import lombok.*;
 import org.bukkit.Bukkit;
@@ -53,8 +54,8 @@ public class User implements Serializable {
     @MapKeyColumn(name = "name")
     private Map<String, Configuration> configurations;
 
-    public Optional<CorePlayer> online(){
-        CorePlayer player = CorePlayer.get(Bukkit.getPlayer(uuid));
+    public Optional<CorePlayer> online(Server server){
+        CorePlayer player = server.players().fetchPlayer(Bukkit.getPlayer(uuid));
         return player == null ? Optional.empty() : Optional.of(player);
     }
 

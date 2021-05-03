@@ -1,7 +1,8 @@
 package com.arematics.minecraft.core.listener;
 
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,12 +12,16 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.EnchantingInventory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
 @Component
+@RequiredArgsConstructor(onConstructor_=@Autowired)
 public class AntiItemDuplicateBug3Listener implements Listener {
+
+	private final Server server;
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onItemClick(InventoryClickEvent e){
@@ -24,7 +29,7 @@ public class AntiItemDuplicateBug3Listener implements Listener {
 		if(e.getView().getTopInventory() == null || e.getView().getTopInventory().getType() != InventoryType.ENCHANTING)
 			return;
 
-		CorePlayer player = CorePlayer.get((Player) e.getWhoClicked());
+		CorePlayer player = server.fetchPlayer((Player) e.getWhoClicked());
 		checkEnchanter(player);
 
 		if(e.getClick() == ClickType.NUMBER_KEY){
@@ -42,8 +47,8 @@ public class AntiItemDuplicateBug3Listener implements Listener {
 
 	}
 
-	public static void checkEnchanter(CorePlayer p) {
-		ArematicsExecutor.syncDelayed(() -> {
+	public void checkEnchanter(CorePlayer p) {
+		server.schedule().syncDelayed(() -> {
 			if(p.getPlayer().getOpenInventory() == null || !(p.getPlayer().getOpenInventory().getTopInventory() instanceof EnchantingInventory))
 				return;
 			EnchantingInventory einv = (EnchantingInventory) p.getPlayer().getOpenInventory().getTopInventory();

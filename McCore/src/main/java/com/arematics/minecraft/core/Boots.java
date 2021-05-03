@@ -17,7 +17,7 @@ public class Boots {
         return boot.cast(boots.getOrDefault(boot, null));
     }
     public static <T extends Bootstrap> void shutdownBoot(Class<T> boot){
-        if(boots.containsKey(boot)) getBoot(boot).shutdown();
+        if(boots.containsKey(boot)) getBoot(boot).onDisable();
         else Bukkit.getLogger().severe("Engine " + boot.getName() +
                 " Instance not found System shutdown whiteout saving");
     }

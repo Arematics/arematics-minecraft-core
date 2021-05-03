@@ -41,7 +41,7 @@ public class WarnCommand extends CoreCommand {
         Warn warn = new Warn(null, target.getUuid(), sender.getUUID(), (int) amount, message,
                 Timestamp.valueOf(LocalDateTime.now()));
         warnService.save(warn);
-        target.online().ifPresent(player -> player.info("You have been warned " + amount + " times").handle());
+        target.online(server).ifPresent(player -> player.info("You have been warned " + amount + " times").handle());
         String msg = "Player " + target.getLastName() + " has been warned " + amount + " times by " + sender.getName() + " for " + message;
         server.getOnlineTeam().forEach(team -> team.info(msg).handle());
         if(sender.hasPermission("team.punishment.warn.ban") && banTime.getDays() > 0)

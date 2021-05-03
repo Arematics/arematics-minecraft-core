@@ -17,8 +17,7 @@ public class Language {
     }
 
     public void addText(String key, String value){
-        if(text.containsKey(key)) text.get(key);
-        else text.put(key, value);
+        text.put(key, value);
     }
 
     public String getValue(String key){

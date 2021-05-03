@@ -18,12 +18,12 @@ import com.arematics.minecraft.core.processor.methods.AnnotationProcessor;
 import com.arematics.minecraft.core.processor.methods.MethodProcessorEnvironment;
 import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
+import com.arematics.minecraft.core.server.entities.player.InventoryHandler;
+import com.arematics.minecraft.core.server.entities.player.inventories.InventoryController;
 import com.arematics.minecraft.core.server.entities.player.inventories.WrappedInventory;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.core.utils.ClassUtils;
 import com.arematics.minecraft.core.utils.CommandUtils;
 import com.arematics.minecraft.core.utils.Methods;
-import com.arematics.minecraft.data.service.InventoryService;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -97,7 +97,7 @@ public abstract class CoreCommand extends Command {
         this.commandInformationString = CommandUtils.prettyReplace("Command", "/" + this.getName());
         this.registerStandards(processors);
         this.uiSlots = calculateSlots();
-        ArematicsExecutor.asyncDelayed(() ->
+        server.schedule().asyncDelayed(() ->
                 this.server = Boots.getBoot(CoreBoot.class).getContext().getBean(Server.class), 1, TimeUnit.SECONDS);
     }
 
@@ -159,11 +159,11 @@ public abstract class CoreCommand extends Command {
     }
 
     protected void onDefaultGUI(CorePlayer player){
-        InventoryService service = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryService.class);
+        InventoryController controller = Boots.getBoot(CoreBoot.class).getContext().getBean(InventoryController.class);
         WrappedInventory inv = global ?
-                service.findOrCreateGlobal("command.default.menu." + this.getName(), "§8Command: §c" + this.getName(), this.uiSlots) :
-                service.findOrCreate("command.default.menu." + this.getName(), "§8Command: §c" + this.getName(), this.uiSlots);
-        player.inventories().openInventory(inv);
+                controller.findOrCreateGlobal("command.default.menu." + this.getName(), "§8Command: §c" + this.getName(), this.uiSlots) :
+                controller.findOrCreate("command.default.menu." + this.getName(), "§8Command: §c" + this.getName(), this.uiSlots);
+        player.handle(InventoryHandler.class).openInventory(inv);
     }
 
     private byte calculateSlots(){
@@ -186,9 +186,10 @@ public abstract class CoreCommand extends Command {
 
 
     private Part toSubCommandExecute(CorePlayer player, String cmdName){
+        LanguageAPI language = Boots.getBoot(CoreBoot.class).getContext().getBean(LanguageAPI.class);
         return new Part("     §7/" + this.getName() + " §c" + cmdName + "\n")
                 .setHoverAction(HoverAction.SHOW_TEXT,
-                        LanguageAPI.prepareRawMessage(player.getPlayer(), PASTE_SUB_COMMAND).replaceAll("%subcmd%", cmdName))
+                        language.prepareRawMessage(player.getPlayer(), PASTE_SUB_COMMAND).replaceAll("%subcmd%", cmdName))
                 .setClickAction(ClickAction.SUGGEST_COMMAND, "/" + this.getName() + " " + cmdName);
     }
 
@@ -208,8 +209,8 @@ public abstract class CoreCommand extends Command {
     @Override
     public final boolean execute(final CommandSender commandSender, String labels, String[] arguments) {
         if(!(commandSender instanceof Player)) return true;
-        CorePlayer player = CorePlayer.get((Player) commandSender);
-        ArematicsExecutor.runAsync(() -> process(player, arguments));
+        CorePlayer player = server.players().fetchPlayer((Player) commandSender);
+        server.schedule().runAsync(() -> process(player, arguments));
         return true;
     }
 

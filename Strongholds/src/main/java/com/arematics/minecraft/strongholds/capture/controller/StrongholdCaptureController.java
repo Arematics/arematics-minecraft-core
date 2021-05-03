@@ -13,6 +13,7 @@ import com.arematics.minecraft.data.service.StrongholdTimeService;
 import com.arematics.minecraft.strongholds.capture.model.StrongholdCapture;
 import lombok.Data;
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.joda.time.Period;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,12 +35,15 @@ public class StrongholdCaptureController {
     private StrongholdCapture capture;
     private final StrongholdService strongholdService;
     private final StrongholdTimeService strongholdTimeService;
+    private final ArematicsExecutor arematicsExecutor;
 
     @Autowired
     public StrongholdCaptureController(StrongholdService strongholdService,
-                                       StrongholdTimeService strongholdTimeService){
+                                       StrongholdTimeService strongholdTimeService,
+                                       ArematicsExecutor arematicsExecutor){
         this.strongholdService = strongholdService;
         this.strongholdTimeService = strongholdTimeService;
+        this.arematicsExecutor = arematicsExecutor;
         this.strongholdTimeService.getTodayTimes(TimeUtils.getToday()).forEach(this::startTimer);
     }
 
@@ -48,7 +52,7 @@ public class StrongholdCaptureController {
         Duration duration = calculateDuration(time.getTime());
         Bukkit.getLogger().info("Stronghold " + time.getStrongholdName() + " will be activated at: "
                 + time.getTime().toString());
-        ArematicsExecutor.asyncDelayed(() -> enableStronghold(stronghold), duration.toMinutes(), TimeUnit.MINUTES);
+        arematicsExecutor.asyncDelayed(() -> enableStronghold(stronghold), duration.toMinutes(), TimeUnit.MINUTES);
     }
 
     private Duration calculateDuration(Time time){
@@ -72,11 +76,11 @@ public class StrongholdCaptureController {
     }
 
     public void initRunner(){
-        ArematicsExecutor.asyncRepeat(this::updateStronghold, 1, 1,
+        arematicsExecutor.syncRepeat(this::updateStronghold, 1, 1,
                 TimeUnit.SECONDS, 60*15);
     }
 
-    private void updateStronghold(int timing){
+    private void updateStronghold(BukkitRunnable runnable, int timing){
         if(timing == 0){
             disable();
         }else{
@@ -116,11 +120,11 @@ public class StrongholdCaptureController {
     }
 
     private void updateScoreboard(CorePlayer player, String content, List<Clan> topList){
-        ArematicsExecutor.syncRun(() -> updateCaptureTime(player, "stronghold-capture", content));
-        ArematicsExecutor.syncRun(() -> updateCaptureTime(player, "stronghold", content));
+        updateCaptureTime(player, "stronghold-capture", content);
+        updateCaptureTime(player, "stronghold", content);
         if(topList != null){
-            ArematicsExecutor.syncRun(() -> updateTopList(player, "stronghold-capture", topList));
-            ArematicsExecutor.syncRun(() -> updateTopList(player, "stronghold", topList));
+            updateTopList(player, "stronghold-capture", topList);
+            updateTopList(player, "stronghold", topList);
         }
     }
 

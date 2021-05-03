@@ -1,5 +1,7 @@
 package com.arematics.minecraft.core.server.items;
 
+import com.arematics.minecraft.core.Boots;
+import com.arematics.minecraft.core.CoreBoot;
 import com.arematics.minecraft.core.items.CoreItem;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.utils.ArematicsExecutor;
@@ -128,6 +130,7 @@ public class Items {
      */
     @Deprecated
     public static void giveItem(CorePlayer player, ItemStack... item){
+        ArematicsExecutor arematicsExecutor = Boots.getBoot(CoreBoot.class).getContext().getBean(ArematicsExecutor.class);
         AtomicInteger integer = new AtomicInteger();
         for(ItemStack ite : item){
 
@@ -140,12 +143,12 @@ public class Items {
             }
 
             if(slotFree == 0){
-                ArematicsExecutor.syncRun(() -> {
+                arematicsExecutor.runSync(() -> {
                     Item drop = player.getPlayer().getWorld().dropItem(player.getPlayer().getLocation(), ite);
                     drop.setVelocity(new Vector(0, 0, 0));
                     integer.addAndGet(1);
                 });
-            }else ArematicsExecutor.syncRun(() -> player.getPlayer().getInventory().addItem(ite));
+            }else arematicsExecutor.runSync(() -> player.getPlayer().getInventory().addItem(ite));
 
         }
 

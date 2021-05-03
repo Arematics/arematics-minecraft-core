@@ -13,15 +13,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public class PlayerRequestSettings {
+public class RequestHandler extends PlayerHandler {
 
     private final Set<String> timeouts = new HashSet<>();
-
-    private final CorePlayer player;
-
-    public PlayerRequestSettings(CorePlayer player){
-        this.player = player;
-    }
 
     public RequestFilter getRequestFilter(){
         return RequestFilter.valueOf(player.getUser().getConfigurations()
@@ -68,8 +62,9 @@ public class PlayerRequestSettings {
     }
 
     public void addTimeout(String key){
+        ArematicsExecutor arematicsExecutor = Boots.getBoot(CoreBoot.class).getContext().getBean(ArematicsExecutor.class);
         this.timeouts.add(key);
-        ArematicsExecutor.asyncDelayed(() -> this.timeouts.remove(key), this.getRequestTimeout(), TimeUnit.SECONDS);
+        arematicsExecutor.asyncDelayed(() -> this.timeouts.remove(key), this.getRequestTimeout(), TimeUnit.SECONDS);
     }
 
     public void clearTimeouts(){

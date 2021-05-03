@@ -1,7 +1,7 @@
 package com.arematics.minecraft.core.listener;
 
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.global.model.AccountLink;
 import com.arematics.minecraft.data.service.AccountLinkService;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +20,14 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor(onConstructor_=@Autowired)
 public class AccountLinkListener implements Listener {
 
+    private final Server server;
     private final AccountLinkService accountLinkService;
 
     private final Map<String, CorePlayer> userMap = new HashMap<>();
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event){
-        CorePlayer player = CorePlayer.get(event.getPlayer());
+        CorePlayer player = server.fetchPlayer(event.getPlayer());
         String ip = player.getPlayer().getAddress().getAddress().getHostAddress();
         if(!userMap.containsKey(ip)){
             userMap.put(ip, player);
@@ -44,10 +45,10 @@ public class AccountLinkListener implements Listener {
 
     @EventHandler
     public void onLeave(PlayerQuitEvent event){
-        CorePlayer player = CorePlayer.get(event.getPlayer());
+        CorePlayer player = server.fetchPlayer(event.getPlayer());
         if(userMap.containsValue(player)){
             String ip = player.getPlayer().getAddress().getAddress().getHostAddress();
-            ArematicsExecutor.asyncDelayed(() -> userMap.remove(ip, player), 10, TimeUnit.MINUTES);
+            server.schedule().asyncDelayed(() -> userMap.remove(ip, player), 10, TimeUnit.MINUTES);
         }
     }
 }

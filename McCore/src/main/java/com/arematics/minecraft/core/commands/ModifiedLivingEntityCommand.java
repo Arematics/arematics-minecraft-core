@@ -6,7 +6,7 @@ import com.arematics.minecraft.core.command.CoreCommand;
 import com.arematics.minecraft.core.command.processor.parser.CommandProcessException;
 import com.arematics.minecraft.core.server.entities.ModifiedLivingEntity;
 import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import com.arematics.minecraft.core.server.entities.player.world.InteractHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -23,7 +23,7 @@ public class ModifiedLivingEntityCommand extends CoreCommand {
 
     @SubCommand("spawn {type} {command}")
     public boolean spawnModifiedEntity(CorePlayer sender, EntityType type, String command) {
-        ArematicsExecutor.syncRun(() -> {
+        server.schedule().runSync(() -> {
             ModifiedLivingEntity modifiedLivingEntity = ModifiedLivingEntity.create(sender.getLocation(), type);
             modifiedLivingEntity.disableEntity();
             modifiedLivingEntity.setBindedCommand(command);
@@ -33,7 +33,7 @@ public class ModifiedLivingEntityCommand extends CoreCommand {
 
     @SubCommand("setName {message}")
     public void setEntityName(CorePlayer sender, String message) {
-        Entity nearestEntity = sender.interact().next();
+        Entity nearestEntity = sender.handle(InteractHandler.class).next();
         if(nearestEntity == null) throw new CommandProcessException("No entity in range");
         nearestEntity.setCustomName(ChatColor.translateAlternateColorCodes('&', message));
         nearestEntity.setCustomNameVisible(true);

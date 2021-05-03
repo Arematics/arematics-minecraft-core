@@ -1,6 +1,7 @@
 package com.arematics.minecraft.core.listener;
 
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import com.arematics.minecraft.core.server.Server;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.block.Dispenser;
@@ -14,12 +15,16 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
 @Component
+@RequiredArgsConstructor(onConstructor_=@Autowired)
 public class AntiItemDuplicateBug2Listener implements Listener{
+
+	private final Server server;
 
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onDispense(BlockDispenseEvent e){
@@ -51,7 +56,7 @@ public class AntiItemDuplicateBug2Listener implements Listener{
 	public void onJoin(PlayerJoinEvent e){
 		final Player p = e.getPlayer();
 		if(!p.isOp())
-			ArematicsExecutor.syncDelayed(() -> {
+			server.schedule().syncDelayed(() -> {
 				if(!p.isOnline()) return;
 				checkInventory(p.getInventory());
 				checkInventory(p.getEnderChest());

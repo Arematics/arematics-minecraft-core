@@ -9,7 +9,6 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
 import com.arematics.minecraft.core.server.items.Items;
 import com.arematics.minecraft.core.times.TimeUtils;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import com.arematics.minecraft.data.mode.model.Auction;
 import com.arematics.minecraft.data.mode.model.AuctionType;
 import com.arematics.minecraft.data.service.AuctionService;
@@ -99,7 +98,7 @@ public class AuctionCreator {
                 .addItem(back, 6, 5);
         player.inventories().registerItemClick(timeNext, this::openAuctionTimeChoose);
         if(!item.isSimilar(noItem))
-            player.inventories().registerItemClick(createAuction.get(), () -> ArematicsExecutor.runAsync(this::createAuction));
+            player.inventories().registerItemClick(createAuction.get(), () -> server.schedule().runAsync(this::createAuction));
         player.inventories().onItemInOwnInvClick(clicked -> {
             if(!this.item.isSimilar(noItem)){
                 server.items().giveItemTo(player, item);
@@ -113,20 +112,20 @@ public class AuctionCreator {
                     .addToLore("§aPublish auction"));
             current.addItem(createAuction.get(), 4, 2);
             player.inventories().registerItemClick(createAuction.get(), () ->
-                    ArematicsExecutor.runAsync(this::createAuction));
+                    server.schedule().runAsync(this::createAuction));
             return null;
         });
-        player.inventories().registerItemClick(coinsNext, () -> ArematicsExecutor.runAsync(() -> {
+        player.inventories().registerItemClick(coinsNext, () -> server.schedule().runAsync(() -> {
             try{
-                this.bitStart = ArematicsExecutor
+                this.bitStart = server.schedule()
                         .awaitNumberResult("Set Start Price ", 1, bitStart, player)
                         .doubleValue();
             }catch (Exception ignore){}
             this.openBaseInventory();
         }));
-        player.inventories().registerItemClick(instant, () -> ArematicsExecutor.runAsync(() -> {
+        player.inventories().registerItemClick(instant, () -> server.schedule().runAsync(() -> {
             try{
-                this.instantBuy = ArematicsExecutor
+                this.instantBuy = server.schedule()
                         .awaitNumberResult("Set Instant Buy Price ", 1, instantBuy, player)
                         .doubleValue();
             }catch (Exception ignore){}
@@ -160,9 +159,9 @@ public class AuctionCreator {
         player.inventories().registerItemClick(timeTwelveHour, () -> onItemClick(Period.hours(12)));
         player.inventories().registerItemClick(timeOneDay, () -> onItemClick(Period.days(1)));
         player.inventories().registerItemClick(timeThreeDays, () -> onItemClick(Period.days(3)));
-        player.inventories().registerItemClick(custom, () -> ArematicsExecutor.runAsync(() -> {
+        player.inventories().registerItemClick(custom, () -> server.schedule().runAsync(() -> {
             try {
-                int hours = ArematicsExecutor.awaitNumberResult("Choose hours ", 1, 7*24, 1, player).intValue();
+                int hours = server.schedule().awaitNumberResult("Choose hours ", 1, 7*24, 1, player).intValue();
                 if(hours > (7*24)) {
                     player.warn("Maximum of " + (7*24) + " hours").handle();
                     throw new Exception("Not okay");
@@ -202,7 +201,7 @@ public class AuctionCreator {
             Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now().plusHours(time.toStandardHours().getHours()));
             Auction auction = new Auction(null, player.getUUID(), bitStart, instantBuy, new CoreItem[]{item},
                     item.readCategory(), type, timestamp, false, false, false, "Nobody", bitStart, new HashSet<>());
-            ArematicsExecutor.runAsync(() -> auctionService.save(auction));
+            server.schedule().runAsync(() -> auctionService.save(auction));
             this.item = noItem;
             player.getPlayer().closeInventory();
             player.info("Auction created").handle();

@@ -7,7 +7,6 @@ import com.arematics.minecraft.core.server.entities.player.CorePlayer;
 import com.arematics.minecraft.core.server.entities.player.inventories.InventoryBuilder;
 import com.arematics.minecraft.core.server.entities.player.inventories.helper.Range;
 import com.arematics.minecraft.core.server.items.Items;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -18,7 +17,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
@@ -71,8 +69,7 @@ public class NumberGUI {
                 .fillOuterLine()
                 .addItem(info, 1, 5)
                 .addItem(close, 3, 5);
-        player.inventories().onSlotClick((inv, item) ->
-                ArematicsExecutor.asyncDelayed(this::refreshInventory, 100, TimeUnit.MILLISECONDS), Range.allInRow(2));
+        player.inventories().onSlotClick((inv, item) -> this.refreshInventory(), Range.allInRow(2));
         this.guiListener = new GUIListener();
 
         Bukkit.getPluginManager().registerEvents(guiListener, Boots.getBoot(CoreBoot.class));

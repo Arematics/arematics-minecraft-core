@@ -21,10 +21,13 @@ public class Parser {
         return Boots.getBoot(CoreBoot.class).getContext().getBean(Parser.class);
     }
 
+    private final ArematicsExecutor arematicsExecutor;
     private final Map<Object, CommandParameterParser<?>> parsers = new HashMap<>();
 
     @Autowired
-    public Parser(List<CommandParameterParser<?>> parsers){
+    public Parser(ArematicsExecutor arematicsExecutor,
+                  List<CommandParameterParser<?>> parsers){
+        this.arematicsExecutor = arematicsExecutor;
         parsers.forEach(this::addParser);
     }
 
@@ -64,7 +67,7 @@ public class Parser {
             parameters.add(Enum.valueOf((Class)subParameter.getType(), source));
         }catch (Exception e){
             if(source.equals(parameter)){
-                String result = ArematicsExecutor.awaitAnvilResult(parameter
+                String result = arematicsExecutor.awaitAnvilResult(parameter
                         .replace("{", "")
                         .replace("}", ""), sender);
                 if(result == null) throw new CommandProcessException("Command input was interrupt by player");
@@ -79,7 +82,7 @@ public class Parser {
             throws CommandProcessException, InterruptedException {
         CommandParameterParser<?> parser = parsers.get(subParameter.getType());
         if(source.equals(parameter)){
-            String result = ArematicsExecutor.awaitAnvilResult(parameter
+            String result = arematicsExecutor.awaitAnvilResult(parameter
                     .replace("{", "")
                     .replace("}", ""), sender);
             if(result == null) throw new CommandProcessException("Command input was interrupt by player");

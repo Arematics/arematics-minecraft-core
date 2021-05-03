@@ -2,39 +2,34 @@ package com.arematics.minecraft.core.language;
 
 import com.arematics.minecraft.core.configurations.Config;
 import com.arematics.minecraft.core.messaging.MessageHighlight;
-import com.arematics.minecraft.core.server.entities.player.CorePlayer;
-import org.bukkit.Bukkit;
+import com.arematics.minecraft.core.server.Server;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
 
+@Component
+@RequiredArgsConstructor(onConstructor_=@Autowired)
 public class LanguageAPI {
 
-    private static final Map<String, Language> langs = new HashMap<>();
-    private static final Map<Player, LanguageUser> users = new HashMap<>();
+    private final Server server;
+    private final Map<String, Language> langs = new HashMap<>();
+    private final Map<Player, LanguageUser> users = new HashMap<>();
 
-    public static LanguageUser getUser(Player p){
-        if(!users.containsKey(p)) {
-            LanguageUser user = new LanguageUser(CorePlayer.get(p));
-            users.put(p, user);
-        }
-
+    public LanguageUser getUser(Player p){
+        if(!users.containsKey(p)) users.put(p, new LanguageUser(server.players().fetchPlayer(p)));
         return users.get(p);
     }
 
-    public static Language getLanguage(String key){
+    public Language getLanguage(String key){
         return langs.get(key);
     }
 
-    public static String prepareMessage(CommandSender sender, MessageHighlight highlight, String key){
+    public String prepareMessage(CommandSender sender, MessageHighlight highlight, String key){
         if(sender instanceof Player){
             return Config.getInstance().getPrefix() +
                     highlight.getColorCode() +
@@ -46,41 +41,11 @@ public class LanguageAPI {
                 langs.get("ENGLISH").getValue(key);
     }
 
-    public static String prepareRawMessage(CommandSender sender, String key){
+    public String prepareRawMessage(CommandSender sender, String key){
         if(sender instanceof Player){
             return getUser((Player)sender).getLanguage().getValue(key);
         }
 
         return langs.get("ENGLISH").getValue(key);
-    }
-
-    public static void registerMessage(String langName, String key, String message){
-        Optional<Language> lang = langs.values().stream().filter(language -> language.getName().equals(langName))
-                .findFirst();
-        if(!lang.isPresent()) generateLanguage(langName).addText(key, message);
-        else lang.get().addText(key, message.replaceAll("&", "§"));
-    }
-
-    private static Language generateLanguage(String name){
-        Language lang = new Language(name);
-        langs.put(name, lang);
-        return lang;
-    }
-
-    public static void registerFile(InputStream stream){
-        Properties properties = new Properties();
-
-        try{
-            properties.load(new InputStreamReader(stream, StandardCharsets.UTF_8));
-            String langName = properties.getProperty("language_name").replaceAll("\"", "");
-            properties.forEach((k, s) -> addVals(langName, k.toString(), s.toString().replaceAll("\"", "")));
-        }catch (IOException ioe){
-            Bukkit.getLogger().severe("Could not load File " + ioe.getMessage());
-        }
-
-    }
-
-    private static void addVals(String langName, String key, String value){
-        if(!key.equals("language_name"))  registerMessage(langName, key, value);
     }
 }

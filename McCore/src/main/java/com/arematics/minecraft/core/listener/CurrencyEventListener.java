@@ -1,10 +1,8 @@
 package com.arematics.minecraft.core.listener;
 
 import com.arematics.minecraft.core.events.CurrencyEvent;
-import com.arematics.minecraft.core.server.MoneyStatistics;
-import com.arematics.minecraft.core.utils.ArematicsExecutor;
+import com.arematics.minecraft.core.server.Server;
 import com.arematics.minecraft.data.mode.model.CurrencyData;
-import com.arematics.minecraft.data.service.CurrencyDataService;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,12 +17,11 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor(onConstructor_= @Autowired)
 public class CurrencyEventListener implements Listener {
 
-    private final CurrencyDataService currencyDataService;
-    private final MoneyStatistics moneyStatistics;
+    private final Server server;
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void safe(CurrencyEvent event){
-        ArematicsExecutor.runAsync(() -> safeCurrencyEvent(event));
+        server.schedule().runAsync(() -> safeCurrencyEvent(event));
     }
 
     private void safeCurrencyEvent(CurrencyEvent event){
@@ -32,11 +29,11 @@ public class CurrencyEventListener implements Listener {
                 event.getAmount(), event.getType(), event.getTarget(), !event.isCancelled());
         switch (event.getType()){
             case GENERATE:
-                moneyStatistics.addMoneyGenerate(event.getAmount());
+                server.moneyStatistics().addMoneyGenerate(event.getAmount());
                 break;
             case WASTE:
-                moneyStatistics.addMoneyRemoved(event.getAmount());
+                server.moneyStatistics().addMoneyRemoved(event.getAmount());
         }
-        this.currencyDataService.save(data);
+        server.currencyController().service().save(data);
     }
 }

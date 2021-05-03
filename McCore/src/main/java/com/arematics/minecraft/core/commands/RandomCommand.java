@@ -22,13 +22,13 @@ public class RandomCommand extends CoreCommand {
         ArrayList<CorePlayer> listOfPlayer = new ArrayList<>();
 
         for(Player player : Bukkit.getOnlinePlayers()) {
-            if(!CorePlayer.get(player).getUser().getRank().isInTeam())
-                listOfPlayer.add(CorePlayer.get(player));
+            if(!server.fetchPlayer(player).getUser().getRank().isInTeam())
+                listOfPlayer.add(server.fetchPlayer(player));
         }
 
         if(listOfPlayer.size() > 0)
         Bukkit.getOnlinePlayers().stream()
-                .map(CorePlayer::get)
+                .map(server::fetchPlayer)
                 .forEach(player ->
                         player.info(listOfPlayer.get(new Random().nextInt(listOfPlayer.size())).getPlayer().getDisplayName()
                                 +" was randomly selected").handle());
