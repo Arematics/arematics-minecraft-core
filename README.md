@@ -1,12 +1,16 @@
 <p align="center">
-    <img src="http://www.arematics.com/images/banner/banner-borderless.png" width="350" title="Arematics Banner" 
-    alt="Banner">
+    <img src="https://arematics.com/assets/icons/arematics-logo.svg" width="150" title="Arematics Logo" 
+    alt="Logo">
 </p>
+
+# Disclaimer
+<span style="color:#CF0000">This Project is  no longer maintained and contains bugs or parts where you couldn't build it. It's the full new developed
+minecraft server system of soulpvp.de based on Spring Boot and PaperSpigot 1.8.8</span>
 
 # Minecraft Core System
 Develop Minecraft Plugins the easy way with Spring Boot Data JPA.
 
-##Sub Project Setup
+## Sub Project Setup
 The main class of the plugin should call something with "Boot" at the end. 
 Also, it needs to extend Bootstrap for having all system relevant information.
 
